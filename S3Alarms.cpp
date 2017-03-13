@@ -1,5 +1,5 @@
 // ---------------------------------------------------------------------------
-//
+// Implementation of alarms for all devices
 
 #include "windows.h"
 // #include "stdafx.h"
