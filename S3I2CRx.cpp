@@ -162,13 +162,7 @@ int S3I2CRxGetStatus(char Rx)
 	else if (RxType == S3_Rx6)
 	{
 		S3I2CRxSetActiveTx(Rx);
-		
-		//char Tx = S3RxGetActiveTx(Rx);
-		//
-		//S3I2CCurRxOptAddr = S3I2CRxOptAddr[0];
 
-		// TEST: Rx6
-		// for(Tx = 0; Tx < 1; Tx++)
 		for(char Tx = 0; Tx < S3_MAX_TXS; Tx++)
 		{
 			S3I2CSetUpOptAddr(Rx, Tx);
