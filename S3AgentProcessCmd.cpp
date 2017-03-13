@@ -1,0 +1,484 @@
+
+#include <time.h>
+#include <windows.h>
+#include <atltime.h>
+#include <string.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <ctype.h>
+
+
+#include "S3DataModel.h"
+#include "S3GPIB.h"
+
+#define NODE_CLASS_SEPARATOR "\035"
+#define PACKETSIZE 1024
+extern pS3DataModel S3Data;
+class CS3GDIScreenMain;
+
+extern char		GPIBCmdBuf[];
+extern char		GPIBRetBuf[];
+extern unsigned	GPIBBufLen;
+extern char		GPIBCurrentRx;
+extern char		GPIBCurrentTx; // For settings etc
+extern char		GPIBCurrentIP;
+
+extern unsigned char	GPIBNArgs;
+extern char			GPIBCmd[S3_MAX_GPIB_CMD_LEN];
+extern char			*GPIBCmdArgs[S3_MAX_ARGS];
+
+int CmdGetAll(void);
+int CmdCopyLog(char *Inbuf);
+
+int S3AgentProcessCmd()
+{
+    int err;
+
+    if (!STRNCMP(GPIBCmdBuf, "S3GETBATT", 9))      err = CmdGetBatt(GPIBRetBuf);
+    else if(!STRNCMP(GPIBCmdBuf, "S3GETINIT", 9))  err = CmdGetInit(GPIBRetBuf);
+    else if(!STRNCMP(GPIBCmdBuf, "S3GETCONN", 9))  err = CmdGetConn(GPIBRetBuf);
+    else if(!STRNCMP(GPIBCmdBuf, "S3GETSYSI", 9))  err = CmdGetSysI(GPIBRetBuf);
+    else if(!STRNCMP(GPIBCmdBuf, "S3COPYLOG", 9))  err = CmdCopyLog(GPIBRetBuf);
+    else if(!STRNCMP(GPIBCmdBuf, "S3GETRXMOD", 10))
+    {
+        if (GPIBNArgs != 2)
+        {
+            strcpy_s(GPIBRetBuf, S3_MAX_GPIB_RET_LEN, "E: Incorrect number of parameters");
+		    return S3_GPIB_ERR_NUMBER_PARAS;
+        }
+
+        char *cmd;
+        cmd = GPIBCmdArgs[1];
+        int Rx = (strtol(cmd, &cmd, 10)) - 1;
+        err = CmdGetRXMod(GPIBRetBuf, Rx);
+    }
+    else if(!STRNCMP(GPIBCmdBuf, "S3GETTXMOD", 10))
+    {
+        if (GPIBNArgs != 3)
+        {
+            strcpy_s(GPIBRetBuf, S3_MAX_GPIB_RET_LEN, "E: Incorrect number of parameters");
+		    return S3_GPIB_ERR_NUMBER_PARAS;
+        }
+        char *cmdRx, *cmdTx;
+        cmdRx = GPIBCmdArgs[1];
+        cmdTx = GPIBCmdArgs[2];
+        int Rx = (strtol(cmdRx, &cmdRx, 10)) - 1;
+        int Tx = (strtol(cmdTx, &cmdTx, 10)) - 1;
+        err = CmdGetTXMod(GPIBRetBuf, Rx, Tx);
+    }
+    else if(!STRNCMP(GPIBCmdBuf, "S3GETINPUT", 10))
+    {
+        if (GPIBNArgs != 4)
+        {
+            strcpy_s(GPIBRetBuf, S3_MAX_GPIB_RET_LEN, "E: Incorrect number of parameters");
+		    return S3_GPIB_ERR_NUMBER_PARAS;
+        }
+        char *cmdRx, *cmdTx, *cmdIP;
+        cmdRx = GPIBCmdArgs[1];
+        cmdTx = GPIBCmdArgs[2];
+        cmdIP = GPIBCmdArgs[3];
+        int Rx = (strtol(cmdRx, &cmdRx, 10)) - 1;
+        int Tx = (strtol(cmdTx, &cmdTx, 10)) - 1;
+        int IP = (strtol(cmdIP, &cmdIP, 10)) - 1;
+        err = CmdGetInput(GPIBRetBuf, Rx, Tx, IP);
+    }
+    else if(!STRNCMP(GPIBCmdBuf, "S3GETALL", 8))  err = CmdGetAll();
+    else	strcpy_s(GPIBRetBuf, S3_MAX_GPIB_RET_LEN, "E: Unrecognised command");
+
+
+    if(!err)
+    {
+        //Indicate Success & output
+        //strcat_s(GPIBRetBuf, S3_MAX_GPIB_RET_LEN - strlen(GPIBRetBuf), "Ok");
+    }
+    return err;
+}
+
+
+int CmdGetBatt(char *Inbuf)
+{
+    int i, valid[4], TTC[4], amp[4], temp[4];
+    char SoC[4], type[4];
+    double volt[4];
+    for(i = 0; i < 4; i++)
+    {
+        if(S3Data->m_Chargers[i].m_Occupied)
+        {
+            if(S3Data->m_Chargers[i].m_BattValidated)
+            {
+                valid[i] = 1;
+            }
+            else
+            {
+                valid[i] = 0;
+            }
+        }
+        else
+        {
+            valid[i] = -1;
+        }
+        SoC[i] = S3Data->m_Chargers[i].m_SoC;
+        TTC[i] = S3Data->m_Chargers[i].m_ATTF;
+        volt[i] = S3Data->m_Chargers[i].m_V;
+        amp[i] = S3Data->m_Chargers[i].m_I;
+        type[i] = S3Data->m_Chargers[i].m_Type;
+        temp[i] = S3Data->m_Chargers[i].m_BattTemp;
+    }
+
+    sprintf_s(Inbuf, S3_MAX_GPIB_RET_LEN,
+                " %i\037 %i\037 %i\037 %f\037 %i\037 %i\037 %s\037 %s\037 %s\037 %s\037 %i\036"
+                " %i\037 %i\037 %i\037 %f\037 %i\037 %i\037 %s\037 %s\037 %s\037 %s\037 %i\036"
+                " %i\037 %i\037 %i\037 %f\037 %i\037 %i\037 %s\037 %s\037 %s\037 %s\037 %i\036"
+                " %i\037 %i\037 %i\037 %f\037 %i\037 %i\037 %s\037 %s\037 %s\037 %s\037 %i\036",
+                valid[0],SoC[0],TTC[0],volt[0],amp[0],type[0],S3Data->m_Chargers[0].m_BattSN,
+                                        S3Data->m_Chargers[0].m_BattPN,
+                                        S3Data->m_Chargers[0].m_HW,
+                                        S3Data->m_Chargers[0].m_FW,temp[0],
+                valid[1],SoC[1],TTC[1],volt[1],amp[1],type[1],S3Data->m_Chargers[1].m_BattSN,
+                                        S3Data->m_Chargers[1].m_BattPN,
+                                        S3Data->m_Chargers[1].m_HW,
+                                        S3Data->m_Chargers[1].m_FW,temp[1],
+                valid[2],SoC[2],TTC[2],volt[2],amp[2],type[2],S3Data->m_Chargers[2].m_BattSN,
+                                        S3Data->m_Chargers[2].m_BattPN,
+                                        S3Data->m_Chargers[2].m_HW,
+                                        S3Data->m_Chargers[2].m_FW,temp[2],
+                valid[3],SoC[3],TTC[3],volt[3],amp[3],type[3],S3Data->m_Chargers[3].m_BattSN,
+                                        S3Data->m_Chargers[3].m_BattPN,
+                                        S3Data->m_Chargers[3].m_HW,
+                                        S3Data->m_Chargers[3].m_FW,temp[3]);
+
+    return 0;
+}
+
+int CmdGetConn(char *Inbuf)
+{
+    sprintf_s(Inbuf, S3_MAX_GPIB_RET_LEN,
+        " %s\037 %s\037 %i\037 %i:%i:%i:%i:%i:%i\037 %s\037 %s\037 %i\037 %s", 
+        S3Data->m_IPv4Addr,
+        S3Data->m_IPv4Mask,
+        S3Data->m_IPPort,
+        S3Data->m_MACAddr[0],
+        S3Data->m_MACAddr[1],
+        S3Data->m_MACAddr[2],
+        S3Data->m_MACAddr[3],
+        S3Data->m_MACAddr[4],
+        S3Data->m_MACAddr[5],
+        S3Data->m_DisplayedUSBPort,
+        S3Data->m_DisplayedUSBDriver,
+        S3Data->m_PrevMsgSrc,
+        S3Data->m_PreviousRecievedMessage);
+    return 0;
+}
+int CmdGetSysI(char *Inbuf)
+{
+    CTime CurrentTime = CTime::GetCurrentTime();
+    CString str1, str2;
+    //GetDateStr(str1);
+    	str1.Format(_T("%02d-%02d-%02d"), CurrentTime.GetYear(), CurrentTime.GetMonth(), CurrentTime.GetDay());
+    	str2.Format(_T("%02d:%02d:%02d"), CurrentTime.GetHour(), CurrentTime.GetMinute(), CurrentTime.GetSecond());
+    //GetTimeStr(str2);
+
+    sprintf_s(Inbuf, S3_MAX_GPIB_RET_LEN,
+        " %s\037 %s\037 %s\037 %s\037 %s\037 %s\037 %s\037 %s\037 %02d-%02d-%02d\037 %02d:%02d:%02d\037 %i\037 %s\037 %f\037 %s\037 %s\037 %s\037 %s",
+        S3Data->m_NodeName,
+        S3Data->m_SN,
+        S3Data->m_PN,
+        S3Data->m_HW,
+        S3Data->m_SW,
+        S3Data->m_ImageDate,
+        S3Data->m_BuildNum,
+        S3Data->m_ModelId,
+        CurrentTime.GetYear(), CurrentTime.GetMonth(), CurrentTime.GetDay(),
+        CurrentTime.GetHour(), CurrentTime.GetMinute(), CurrentTime.GetSecond(),
+        S3GetRemote(),
+        S3Data->m_ConfigName,
+        S3Data->m_FileVersion,
+        S3Data->m_ConfigPath,
+        S3Data->m_EventLogName,
+        S3Data->m_EventLogPath,
+        S3Data->m_TestName);
+    return 0;
+}
+int CmdGetInit(char *Inbuf)
+{
+    sprintf_s(Inbuf, S3_MAX_GPIB_RET_LEN,
+         " %i\037 %i\037 %i\037 %i\037 %i\037 %i\037 %f\037 %i",
+        S3Data->m_Config.m_Gain,
+        S3Data->m_ContTComp,
+        (int)S3Data->m_Config.m_Tau,
+        (int)S3Data->m_Config.m_InputZ,
+        (int)S3Data->m_Config.m_LowNoiseMode,
+        S3Data->m_DisplayUnits,
+        S3Data->m_Config.m_MaxInput,
+        (int)S3Data->m_Config.m_WindowTracking);  
+    return 0;
+}
+int CmdGetRXMod(char *Inbuf, int Rx)
+{
+    if ((Rx != -1 && S3RxValidQ(Rx) && S3Data->m_Rx[Rx].m_Type != S3_RxEmpty))
+	{
+        sprintf_s(Inbuf, S3_MAX_GPIB_RET_LEN,
+            " %i\037 %i\037 %s\037 %i\037 %i\037 %i\037"
+            " %s\037 %s\037 %s\037 %s\037 %s\037"
+            " %i\037 %i\037 %i\037 %i\037 %i\037 %i\037"
+            " %i\037 %i\037 %i\037 %i\037 %i\037 %i\037"
+            " %i\037 %i\037 %i\037 %i\037 %i\037 %i\037"
+            " %i\037 %i\037 %i\037 %i\037 %i\037 %i\037 %i\037"
+            " %i\037 %f\037 %i\037 %i\037 %i\037 %i",
+            S3Data->m_Rx[Rx].m_Type,
+            S3Data->m_Rx[Rx].m_Detected,
+            S3Data->m_Rx[Rx].m_NodeName,
+            S3Data->m_Rx[Rx].m_Id,
+            S3Data->m_Rx[Rx].m_SelectedTx,
+            S3Data->m_Rx[Rx].m_ActiveTx,
+
+            S3Data->m_Rx[Rx].m_SN,
+            S3Data->m_Rx[Rx].m_PN,
+            S3Data->m_Rx[Rx].m_FW,
+            S3Data->m_Rx[Rx].m_HW,
+            S3Data->m_Rx[Rx].m_ModelName,
+
+            S3Data->m_Rx[Rx].m_RLL[0], S3Data->m_Rx[Rx].m_RLL[1], S3Data->m_Rx[Rx].m_RLL[2],
+                    S3Data->m_Rx[Rx].m_RLL[3], S3Data->m_Rx[Rx].m_RLL[4], S3Data->m_Rx[Rx].m_RLL[5],
+            S3Data->m_Rx[Rx].m_RFGain[0], S3Data->m_Rx[Rx].m_RFGain[1], S3Data->m_Rx[Rx].m_RFGain[2],
+                    S3Data->m_Rx[Rx].m_RFGain[3], S3Data->m_Rx[Rx].m_RFGain[4], S3Data->m_Rx[Rx].m_RFGain[5],
+            S3Data->m_Rx[Rx].m_LinkGain[0], S3Data->m_Rx[Rx].m_LinkGain[1], S3Data->m_Rx[Rx].m_LinkGain[2],
+                    S3Data->m_Rx[Rx].m_LinkGain[3], S3Data->m_Rx[Rx].m_LinkGain[4], S3Data->m_Rx[Rx].m_LinkGain[5],
+
+            S3Data->m_Rx[Rx].m_CalGain,
+            S3Data->m_Rx[Rx].m_Vcc,
+            S3Data->m_Rx[Rx].m_AGC,
+            S3Data->m_Rx[Rx].m_Alarms,
+            S3Data->m_Rx[Rx].m_Temp,
+            S3Data->m_Rx[Rx].m_TempHi,
+            S3Data->m_Rx[Rx].m_TempLo,
+            
+            S3Data->m_Rx[Rx].m_Config.m_Gain,
+            S3Data->m_Rx[Rx].m_Config.m_MaxInput,
+            S3Data->m_Rx[Rx].m_Config.m_Tau,
+            S3Data->m_Rx[Rx].m_Config.m_InputZ,
+            S3Data->m_Rx[Rx].m_Config.m_LowNoiseMode,
+            S3Data->m_Rx[Rx].m_Config.m_WindowTracking);  
+    }
+    else
+    {
+        sprintf_s(Inbuf, S3_MAX_GPIB_RET_LEN, "E: Invalid Address");
+    }
+
+    return 0;
+}
+int CmdGetTXMod(char *Inbuf, int Rx, int Tx)
+{
+    //If it is a valid address
+    if ((Rx != -1 && S3RxValidQ(Rx) && S3Data->m_Rx[Rx].m_Type != S3_RxEmpty) 
+        && (Tx != -1 && S3TxValidQ(Rx, Tx) && S3Data->m_Rx[Rx].m_Tx[Tx].m_Type != S3_TxUnconnected))
+    {
+        sprintf_s(Inbuf, S3_MAX_GPIB_RET_LEN,
+            " %i\037 %i\037 %s\037 %i\037 %i\037 %i\037"
+            " %s\037 %s\037 %s\037 %s\037 %s\037"
+            " %s\037 %s\037 %s\037 %s\037"
+            " %i\037 %i\037 %i\037 %i\037 %i\037"
+            " %i\037 %i\037 %i\037 %i\037"
+            " %i\037 %i\037 %i\037 %i\037"
+            " %i\037 %i\037 %i\037 %i\037 %i\037 %i\037 %i\037"
+            " %i\037 %f\037 %i\037 %i\037 %i\037 %i",
+            S3Data->m_Rx[Rx].m_Tx[Tx].m_Type,
+            S3Data->m_Rx[Rx].m_Tx[Tx].m_Detected,
+            S3Data->m_Rx[Rx].m_Tx[Tx].m_NodeName,
+            S3Data->m_Rx[Rx].m_Tx[Tx].m_Id,
+            S3Data->m_Rx[Rx].m_Tx[Tx].m_ParentId,
+            S3Data->m_Rx[Rx].m_Tx[Tx].m_Wavelength,
+
+            S3Data->m_Rx[Rx].m_Tx[Tx].m_SN,
+            S3Data->m_Rx[Rx].m_Tx[Tx].m_PN,
+            S3Data->m_Rx[Rx].m_Tx[Tx].m_FW,
+            S3Data->m_Rx[Rx].m_Tx[Tx].m_HW,
+            S3Data->m_Rx[Rx].m_Tx[Tx].m_ModelName,
+
+            S3Data->m_Rx[Rx].m_Tx[Tx].m_BattSN,
+            S3Data->m_Rx[Rx].m_Tx[Tx].m_BattPN,
+            S3Data->m_Rx[Rx].m_Tx[Tx].m_BattHW,
+            S3Data->m_Rx[Rx].m_Tx[Tx].m_BattFW,
+
+            S3Data->m_Rx[Rx].m_Tx[Tx].m_BattTemp,
+            S3Data->m_Rx[Rx].m_Tx[Tx].m_BattValidated,
+            S3Data->m_Rx[Rx].m_Tx[Tx].m_SoC,
+            S3Data->m_Rx[Rx].m_Tx[Tx].m_ATTE,
+            S3Data->m_Rx[Rx].m_Tx[Tx].m_PowerStat,
+
+            S3Data->m_Rx[Rx].m_Tx[Tx].m_ActiveInput,
+            S3Data->m_Rx[Rx].m_Tx[Tx].m_TestSigInput,
+            S3Data->m_Rx[Rx].m_Tx[Tx].m_TempTx,
+            S3Data->m_Rx[Rx].m_Tx[Tx].m_TempComp,
+
+            S3Data->m_Rx[Rx].m_Tx[Tx].m_LaserPow,
+            S3Data->m_Rx[Rx].m_Tx[Tx].m_LaserLo,
+            S3Data->m_Rx[Rx].m_Tx[Tx].m_LaserHi,
+            S3Data->m_Rx[Rx].m_Tx[Tx].m_CompMode,
+            
+            S3Data->m_Rx[Rx].m_Tx[Tx].m_Alarms,
+            S3Data->m_Rx[Rx].m_Tx[Tx].m_OptAlarms[0],
+            S3Data->m_Rx[Rx].m_Tx[Tx].m_OptAlarms[1],
+            S3Data->m_Rx[Rx].m_Tx[Tx].m_OptAlarms[2],
+            S3Data->m_Rx[Rx].m_Tx[Tx].m_CtrlAlarms[0],
+            S3Data->m_Rx[Rx].m_Tx[Tx].m_CtrlAlarms[1],
+            S3Data->m_Rx[Rx].m_Tx[Tx].m_BattAlarms,
+
+            S3Data->m_Rx[Rx].m_Tx[Tx].m_Config.m_Gain,
+            S3Data->m_Rx[Rx].m_Tx[Tx].m_Config.m_MaxInput,
+            S3Data->m_Rx[Rx].m_Tx[Tx].m_Config.m_Tau,
+            S3Data->m_Rx[Rx].m_Tx[Tx].m_Config.m_InputZ,
+            S3Data->m_Rx[Rx].m_Tx[Tx].m_Config.m_LowNoiseMode,
+            S3Data->m_Rx[Rx].m_Tx[Tx].m_Config.m_WindowTracking);  
+    }
+    else
+    {
+        sprintf_s(Inbuf, S3_MAX_GPIB_RET_LEN, "E: Invalid Address");
+    }
+
+    return 0;
+}
+int CmdGetInput(char *Inbuf, int Rx, int Tx, int IP)
+{
+    //If it is a valid address
+    if (!S3IPInvalidQ(Rx, Tx, IP))
+	{
+        sprintf_s(Inbuf, S3_MAX_GPIB_RET_LEN,
+            " %s\037 %f\037 %f\037 %i\037"
+            " %i\037 %f\037 %i\037 %i\037 %i\037 %i",
+            S3Data->m_Rx[Rx].m_Tx[Tx].m_Input[IP].m_NodeName,
+            S3Data->m_Rx[Rx].m_Tx[Tx].m_Input[IP].m_P1dB,
+            S3Data->m_Rx[Rx].m_Tx[Tx].m_Input[IP].m_MaxInput,
+            S3Data->m_Rx[Rx].m_Tx[Tx].m_Input[IP].m_Alarms,
+
+
+            S3Data->m_Rx[Rx].m_Tx[Tx].m_Input[IP].m_Config.m_Gain,
+            S3Data->m_Rx[Rx].m_Tx[Tx].m_Input[IP].m_Config.m_MaxInput,
+            S3Data->m_Rx[Rx].m_Tx[Tx].m_Input[IP].m_Config.m_Tau,
+            S3Data->m_Rx[Rx].m_Tx[Tx].m_Input[IP].m_Config.m_InputZ,
+            S3Data->m_Rx[Rx].m_Tx[Tx].m_Input[IP].m_Config.m_LowNoiseMode,
+            S3Data->m_Rx[Rx].m_Tx[Tx].m_Input[IP].m_Config.m_WindowTracking);
+    }
+    else
+    {
+        sprintf_s(Inbuf, S3_MAX_GPIB_RET_LEN, "E: Invalid Address");
+    }
+
+    return 0;
+}
+
+
+
+int CmdGetAll()
+{   
+    char tempstr[S3_MAX_GPIB_RET_LEN], finalbuf[S3_MAX_GPIB_RET_LEN];
+    CString GPIBmsg;
+
+    CmdGetBatt(finalbuf);
+    strcat_s(finalbuf, NODE_CLASS_SEPARATOR);
+    //strcat(finalbuf, tempstr); Not needed - this first call went straight into finalbuf
+
+    CmdGetConn(tempstr);
+    strcat_s(finalbuf, NODE_CLASS_SEPARATOR);
+    strcat_s(finalbuf, tempstr);
+
+    CmdGetSysI(tempstr);
+    strcat_s(finalbuf, NODE_CLASS_SEPARATOR);
+    strcat_s(finalbuf, tempstr);
+
+    CmdGetInit(tempstr);
+    strcat_s(finalbuf, NODE_CLASS_SEPARATOR);
+    strcat_s(finalbuf, tempstr);
+    
+    int Rx, Tx, Ip;
+    for(Rx = 0; Rx < S3_MAX_RXS; Rx++)
+    {
+        CmdGetRXMod(tempstr, Rx);
+        strcat_s(finalbuf, NODE_CLASS_SEPARATOR);
+        strcat_s(finalbuf, tempstr);
+        for(Tx = 0; Tx < S3_MAX_TXS; Tx++)
+        {
+            CmdGetTXMod(tempstr, Rx, Tx);
+            strcat_s(finalbuf, NODE_CLASS_SEPARATOR);
+            strcat_s(finalbuf, tempstr);
+            for(Ip = 0; Ip < S3_MAX_IPS; Ip++)
+            {
+                CmdGetInput(tempstr, Rx, Tx, Ip);
+                strcat_s(finalbuf, NODE_CLASS_SEPARATOR);
+                strcat_s(finalbuf, tempstr);
+            }
+        }
+    }
+    sprintf_s(GPIBRetBuf, S3_MAX_GPIB_RET_LEN, "%s", finalbuf);
+    return 0;
+}
+
+int CmdCopyLog(char *Inbuf)
+{
+    if (GPIBNArgs < 2)
+    {
+		strcpy_s(Inbuf, S3_MAX_GPIB_RET_LEN, "E: Incorrect Number of Parameters");
+        return 0;
+    }
+
+    char *cmd;
+    cmd = GPIBCmdArgs[1];
+    
+    char FullPathName[S3_MAX_FILENAME_LEN];
+    char Response[S3_MAX_GPIB_RET_LEN];
+
+    sprintf_s(FullPathName, S3_MAX_FILENAME_LEN, "%s\\%s.s3l",
+	    S3Data->m_EventLogPath, S3Data->m_EventLogName);
+
+    FILE *fid;
+    errno_t err = fopen_s(&fid, FullPathName, "rb");
+
+    if (err)
+    {
+	    strcpy_s(Inbuf, S3_MAX_GPIB_RET_LEN, "E: No Log File To Copy");
+	    return 0;
+    }
+    
+    fseek(fid, 0, SEEK_END);
+    long filesize = ftell(fid);
+    fseek(fid, 0, SEEK_SET); // Rewind not in CE CRT?
+
+    long MaxPacketNo = filesize/PACKETSIZE + 1;
+
+    if(!STRNCMP(cmd, "SIZE", 10))
+    {
+        sprintf_s(Response, S3_MAX_GPIB_RET_LEN, "%d", MaxPacketNo);
+        strcpy_s(Inbuf, S3_MAX_GPIB_RET_LEN, Response);
+
+	    fclose(fid);
+    }
+    else 
+    {
+        //Remote agent requests it chunk by chunk.
+        int packet = strtol(cmd, &cmd, 10);
+        if((packet <= MaxPacketNo) && (packet > 0))
+        {
+            char PacketPayload[PACKETSIZE];
+            fseek(fid, ((packet - 1)*PACKETSIZE), SEEK_SET);
+            
+            long result = fread(&PacketPayload, 1, PACKETSIZE , fid);
+            fclose(fid);
+            if(result != PACKETSIZE && packet != MaxPacketNo)
+            {
+                strcpy_s(Inbuf, S3_MAX_GPIB_RET_LEN, "E: Read Error");
+                return 0;
+            }
+            else if(result != PACKETSIZE && packet == MaxPacketNo)
+            {
+                PacketPayload[result] = '\0';
+            }
+            strcpy_s(Inbuf, S3_MAX_GPIB_RET_LEN, PacketPayload);
+
+        }
+        else
+        {
+            strcpy_s(Inbuf, S3_MAX_GPIB_RET_LEN, "E: Invalid Packet requested");
+        }
+    }
+    return 0;
+}

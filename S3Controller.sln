@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 10.00
+# Visual Studio 2008
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "S3Controller", "S3Controller.vcproj", "{17D23EA7-F907-4B59-BD87-D4F824385A49}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|SDK_TrizepsVII_armv4i_2016Q3 (ARMv4I) = Debug|SDK_TrizepsVII_armv4i_2016Q3 (ARMv4I)
+		Debug|Win32 = Debug|Win32
+		Release|SDK_TrizepsVII_armv4i_2016Q3 (ARMv4I) = Release|SDK_TrizepsVII_armv4i_2016Q3 (ARMv4I)
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{17D23EA7-F907-4B59-BD87-D4F824385A49}.Debug|SDK_TrizepsVII_armv4i_2016Q3 (ARMv4I).ActiveCfg = Debug|SDK_TrizepsVII_armv4i_2016Q3 (ARMv4I)
+		{17D23EA7-F907-4B59-BD87-D4F824385A49}.Debug|SDK_TrizepsVII_armv4i_2016Q3 (ARMv4I).Build.0 = Debug|SDK_TrizepsVII_armv4i_2016Q3 (ARMv4I)
+		{17D23EA7-F907-4B59-BD87-D4F824385A49}.Debug|SDK_TrizepsVII_armv4i_2016Q3 (ARMv4I).Deploy.0 = Debug|SDK_TrizepsVII_armv4i_2016Q3 (ARMv4I)
+		{17D23EA7-F907-4B59-BD87-D4F824385A49}.Debug|Win32.ActiveCfg = Debug|Win32
+		{17D23EA7-F907-4B59-BD87-D4F824385A49}.Debug|Win32.Build.0 = Debug|Win32
+		{17D23EA7-F907-4B59-BD87-D4F824385A49}.Release|SDK_TrizepsVII_armv4i_2016Q3 (ARMv4I).ActiveCfg = Release|SDK_TrizepsVII_armv4i_2016Q3 (ARMv4I)
+		{17D23EA7-F907-4B59-BD87-D4F824385A49}.Release|SDK_TrizepsVII_armv4i_2016Q3 (ARMv4I).Build.0 = Release|SDK_TrizepsVII_armv4i_2016Q3 (ARMv4I)
+		{17D23EA7-F907-4B59-BD87-D4F824385A49}.Release|SDK_TrizepsVII_armv4i_2016Q3 (ARMv4I).Deploy.0 = Release|SDK_TrizepsVII_armv4i_2016Q3 (ARMv4I)
+		{17D23EA7-F907-4B59-BD87-D4F824385A49}.Release|Win32.ActiveCfg = Release|Win32
+		{17D23EA7-F907-4B59-BD87-D4F824385A49}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

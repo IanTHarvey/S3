@@ -1,0 +1,312 @@
+// Microsoft Visual C++ generated resource script.
+//
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#include "afxres.h"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// English (U.S.) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+#ifdef _WIN32
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+#pragma code_page(1252)
+#endif //_WIN32
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_S3CONTROLLER_DIALOG DIALOG  0, 0, 216, 118
+STYLE DS_ABSALIGN | DS_SETFONT | DS_3DLOOK | DS_CENTER | WS_POPUP | WS_VISIBLE
+EXSTYLE WS_EX_APPWINDOW
+FONT 20, "Segoe UI"
+BEGIN
+    LTEXT           "",IDC_GDI_STATIC,0,0,215,104,SS_NOTIFY | NOT WS_GROUP
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Version
+//
+
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION 1,0,0,8
+ PRODUCTVERSION 1,0,0,9
+ FILEFLAGSMASK 0x3fL
+#ifdef _DEBUG
+ FILEFLAGS 0x1L
+#else
+ FILEFLAGS 0x0L
+#endif
+ FILEOS 0x4L
+ FILETYPE 0x1L
+ FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904e4"
+        BEGIN
+            VALUE "CompanyName", "PPM Test"
+            VALUE "FileDescription", "Sentinel Controller 3 Executable"
+            VALUE "FileVersion", "1.0.0.8"
+            VALUE "InternalName", "S3Controller.exe"
+            VALUE "LegalCopyright", "(c) PPM Test.  All rights reserved."
+            VALUE "OriginalFilename", "S3Controller.exe"
+            VALUE "ProductName", "Sentinel 3"
+            VALUE "ProductVersion", "1.0"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x409, 1252
+    END
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// String Table
+//
+
+STRINGTABLE 
+BEGIN
+    IDP_SOCKETS_INIT_FAILED "Windows sockets initialization failed."
+END
+
+#endif    // English (U.S.) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+/////////////////////////////////////////////////////////////////////////////
+// English (U.K.) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENG)
+#ifdef _WIN32
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_UK
+#pragma code_page(1252)
+#endif //_WIN32
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_FACTORY_DIALOG DIALOG  0, 0, 282, 147
+STYLE DS_SETFONT | WS_CHILD | WS_CAPTION
+CAPTION "Factory Set-up"
+FONT 14, "Segoe UI"
+BEGIN
+    PUSHBUTTON      "Finish",IDCANCEL,225,126,50,14
+    EDITTEXT        IDC_RX_CAL_EDIT,54,36,33,12,ES_AUTOHSCROLL
+    LTEXT           "Rx Cal (dB):",IDC_RX_CAL_STATIC,12,36,37,9
+    LTEXT           "TxCal (dB):",IDC_TX_CAL_STATIC,110,19,33,8
+    EDITTEXT        IDC_TX_CAL_EDIT,145,19,28,12,ES_AUTOHSCROLL,WS_EX_ACCEPTFILES
+    COMBOBOX        IDC_RF_PATH_COMBO,56,19,47,67,CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "RF Gain Path:",IDC_GAIN_PATH_STATIC,12,19,43,10
+    PUSHBUTTON      "Set",IDC_CAL_SET_BUTTON,179,19,24,13
+    PUSHBUTTON      "Set",IDC_RX_CAL_SET_BUTTON,92,36,24,13
+    EDITTEXT        IDC_SCRN_OFFSET_X_EDIT,74,75,21,12,ES_AUTOHSCROLL | ES_NUMBER
+    EDITTEXT        IDC_SCRN_OFFSET_Y_EDIT,96,75,21,12,ES_AUTOHSCROLL | ES_NUMBER
+    LTEXT           "Screen offset (x, y):",IDC_SCREEN_OFFSET_STATIC,12,76,61,11
+    PUSHBUTTON      "Set",IDC_SCRN_OFFSET_SET_BUTTON,142,75,25,13
+    LTEXT           "OK",IDC_STATUS_MSG_STATIC,12,128,207,9
+    LTEXT           "Serial Number:",IDC_FACT_SN_STATIC,12,95,48,11
+    EDITTEXT        IDC_FACT_SN_EDIT,63,93,74,12,ES_AUTOHSCROLL
+    PUSHBUTTON      "Set",IDC_FACT_SN_SET_BUTTON,142,93,25,13
+    LTEXT           "TxOptCal (dB):",IDC_TX_OPT_CAL_STATIC,131,36,45,8
+    EDITTEXT        IDC_TX_OPT_CAL_EDIT,176,36,28,12,ES_AUTOHSCROLL,WS_EX_ACCEPTFILES
+    PUSHBUTTON      "Set",IDC_TX_OPT_CAL_SET_BUTTON,210,36,24,13
+    LTEXT           "Part Number:",IDC_FACT_PN_STATIC,12,109,48,11
+    EDITTEXT        IDC_FACT_PN_EDIT,63,107,74,12,ES_AUTOHSCROLL
+    PUSHBUTTON      "Set",IDC_FACT_PN_SET_BUTTON,142,107,25,13
+    GROUPBOX        "Calibration",IDC_CAL_GROUP_STATIC,7,7,268,55
+    GROUPBOX        "System",IDC_SYSTEM_GRP_STATIC,7,65,268,57
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO 
+BEGIN
+    IDD_FACTORY_DIALOG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 275
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 140
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE 
+BEGIN
+    "#include ""afxres.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE 
+BEGIN
+    "#define _AFX_NO_SPLITTER_RESOURCES\r\n"
+    "#define _AFX_NO_OLE_RESOURCES\r\n"
+    "#define _AFX_NO_TRACKER_RESOURCES\r\n"
+    "#define _AFX_NO_PROPERTY_RESOURCES\r\n"
+    "\r\n"
+    "#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)\r\n"
+    "LANGUAGE 9, 1\r\n"
+    "#pragma code_page(1252)\r\n"
+    "#include ""res\\S3Controller.rc2""  // non-Microsoft Visual C++ edited resources\r\n"
+    "#include ""afxres.rc""     // Standard components\r\n"
+    "#endif\r\n"
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+IDR_MAINFRAME           ICON                    "res\\S3Controller.ico"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Bitmap
+//
+
+IDB_TXBATT1RV_BITMAP    BITMAP                  "res\\TxBattery1rv.bmp"
+IDB_TXBATT1AV_BITMAP    BITMAP                  "res\\TxBattery1av.bmp"
+IDB_TXBATT1GV_BITMAP    BITMAP                  "res\\TxBattery1gv.bmp"
+IDB_TXBATT2V_BITMAP     BITMAP                  "res\\TxBattery2v.bmp"
+IDB_TXBATT3V_BITMAP     BITMAP                  "res\\TxBattery3v.bmp"
+IDB_TXBATT4V_BITMAP     BITMAP                  "res\\TxBattery4v.bmp"
+IDB_TXBATT5V_BITMAP     BITMAP                  "res\\TxBattery5v.bmp"
+IDB_TXBATT1RUV_BITMAP   BITMAP                  "res\\TxBattery1runselv.bmp"
+IDB_TXBATT1AUV_BITMAP   BITMAP                  "res\\TxBattery1aunselv.bmp"
+IDB_TXBATT1GUV_BITMAP   BITMAP                  "res\\TxBattery1gunselv.bmp"
+IDB_TXBATT2UV_BITMAP    BITMAP                  "res\\TxBattery2unselv.bmp"
+IDB_TXBATT3UV_BITMAP    BITMAP                  "res\\TxBattery3unselv.bmp"
+IDB_TXBATT4UV_BITMAP    BITMAP                  "res\\TxBattery4unselv.bmp"
+IDB_TXBATT5UV_BITMAP    BITMAP                  "res\\TxBattery5unselv.bmp"
+IDB_SETTINGS_BITMAP     BITMAP                  "res\\Settings.bmp"
+IDB_RX_BACK_BTN_BITMAP  BITMAP                  "res\\S3BackButton3.bmp"
+IDB_CHARGING_BITMAP     BITMAP                  "res\\ChBattCharging.bmp"
+IDB_CH_BATT_EXCLAM_BITMAP BITMAP                  "res\\ChBattInvalid.bmp"
+IDB_CH_BATT_FAIL_BITMAP BITMAP                  "res\\ChBattFail.bmp"
+IDB_SHUTDOWN_BITMAP     BITMAP                  "res\\S3ShutDown.bmp"
+IDB_TX_SEL_ACT_BITMAP   BITMAP                  "res\\S3TxLrg.bmp"
+IDB_TX_SEL_INACT_BITMAP BITMAP                  "res\\S3TxLrgUnsel.bmp"
+IDB_TX_UNSEL_ACT_BITMAP BITMAP                  "res\\S3TxSmlSel.bmp"
+IDB_TX_UNSEL_INACT_BITMAP BITMAP                  "res\\S3TxSmlUnsel.bmp"
+IDB_TX_UNSEL_IP_ACT_BITMAP BITMAP                  "res\\S3TxSmlIPActive.bmp"
+IDB_TX_UNSEL_IP_INACT_BITMAP BITMAP                  "res\\S3TxSmlIPInactive.bmp"
+IDB_TX_SEL_IP_ACT_BITMAP BITMAP                  "res\\S3TxLrgIPActive.bmp"
+IDB_TX_SEL_IP_INACT_BITMAP BITMAP                  "res\\S3TxLrgIPInactive.bmp"
+IDB_TX_UNSEL_IP_ACT_ALRM_BITMAP BITMAP                  "res\\S3TxSmlIPActiveAlarm.bmp"
+IDB_TX_UNSEL_IP_INACT_ALRM_BITMAP BITMAP                  "res\\S3TxSmlIPInactiveAlarm.bmp"
+IDB_TX_SEL_IP_ACT_ALRM_BITMAP BITMAP                  "res\\S3TxLrgIPActiveAlarm.bmp"
+IDB_TX_SEL_IP_INACT_ALRM_BITMAP BITMAP                  "res\\S3TxLrgIPInactiveAlarm.bmp"
+IDB_RX_MAIN_BITMAP      BITMAP                  "res\\RxLayeredL.bmp"
+IDB_RX_MAIN_RX2_BITMAP  BITMAP                  "res\\RxLayeredRx2.bmp"
+IDB_RX_MAIN_EMPTY_BITMAP BITMAP                  "res\\RxLayeredEmpty.bmp"
+IDB_FOL_BITMAP          BITMAP                  "res\\S3FOLsml.bmp"
+IDB_FOL_DARK_BITMAP     BITMAP                  "res\\S3FOLDarksml.bmp"
+IDB_TX_SEL_BATT_INVALID_BITMAP BITMAP                  "res\\TxSelBattInvalid.bmp"
+IDB_TX_UNSEL_BATT_INVALID_BITMAP BITMAP                  "res\\TxUnselBattInvalid.bmp"
+IDB_TXTX_BATT_HOT_BITMAP BITMAP                  "res\\S3TxTxBattHot.bmp"
+IDB_TXTX_BATT_COLD_BITMAP BITMAP                  "res\\S3TxTxBattCold.bmp"
+IDB_TX_SEL_SLEEP_BITMAP BITMAP                  "res\\S3TxLrgSleep.bmp"
+IDB_TX_UNSEL_SLEEP_BITMAP BITMAP                  "res\\S3TxSmlSleep.bmp"
+IDB_TX_LRG_ALARM_BITMAP BITMAP                  "res\\S3TxLrgAlarm.bmp"
+IDB_TX_SML_ALARM_BITMAP BITMAP                  "res\\S3TxSmlSelAlarm.bmp"
+IDB_RED_LED_BITMAP      BITMAP                  "res\\RedLED.bmp"
+IDB_BLK_LED_BITMAP      BITMAP                  "res\\BlackLED.bmp"
+IDB_GRN_LED_BITMAP      BITMAP                  "res\\GreenLED.bmp"
+IDB_INFO_BUTTON_BITMAP  BITMAP                  "res\\S3InfoButton.bmp"
+IDB_INFO_BUTTON_GREY_BITMAP BITMAP                  "res\\S3InfoButtonGrey.bmp"
+IDB_TX_LRG_EMPTY_BITMAP BITMAP                  "res\\S3TxLrgEmpty.bmp"
+IDB_TX_SML_EMPTY_BITMAP BITMAP                  "res\\S3TxSmlEmpty.bmp"
+IDB_BLUE_BUTTON_BITMAP  BITMAP                  "res\\BlueButton.bmp"
+IDB_PPM_BOOT_BITMAP     BITMAP                  "res\\BOOTPPMTPC.bmp"
+IDB_RX1_RLL5_ON_BITMAP  BITMAP                  "res\\Rx1RLL5On.bmp"
+IDB_RX1_RLL4_ON_BITMAP  BITMAP                  "res\\Rx1RLL4On.bmp"
+IDB_RX1_RLL3_ON_BITMAP  BITMAP                  "res\\Rx1RLL3On.bmp"
+IDB_RX1_RLL2_ON_BITMAP  BITMAP                  "res\\Rx1RLL2On.bmp"
+IDB_RX1_RLL1_ON_BITMAP  BITMAP                  "res\\Rx1RLL1On.bmp"
+IDB_RX1_RLL1_RED_BITMAP BITMAP                  "res\\Rx1RLL1Red.bmp"
+IDB_RX1_RLL5_RED_BITMAP BITMAP                  "res\\Rx1RLL5Red.bmp"
+IDB_RX2_RLL5_ON_BITMAP  BITMAP                  "res\\Rx2RLL5On.bmp"
+IDB_RX2_RLL4_ON_BITMAP  BITMAP                  "res\\Rx2RLL4On.bmp"
+IDB_RX2_RLL3_ON_BITMAP  BITMAP                  "res\\Rx2RLL3On.bmp"
+IDB_RX2_RLL2_ON_BITMAP  BITMAP                  "res\\Rx2RLL2On.bmp"
+IDB_RX2_RLL1_ON_BITMAP  BITMAP                  "res\\Rx2RLL1On.bmp"
+IDB_RX2_RLL1_RED_BITMAP BITMAP                  "res\\Rx2RLL1Red.bmp"
+IDB_RX2_RLL5_RED_BITMAP BITMAP                  "res\\Rx2RLL5Red.bmp"
+IDB_PPMBG_BITMAP        BITMAP                  "res\\PPMBGEmbossed.bmp"
+IDB_RX_EMPTY_BAR_BITMAP BITMAP                  "res\\S3RxEmptyBar.bmp"
+IDB_SYS_WARN_BITMAP     BITMAP                  "res\\S3SysWarn.bmp"
+IDB_SYS_ERROR_BITMAP    BITMAP                  "res\\S3SysError.bmp"
+IDB_SYS_INFO_BITMAP     BITMAP                  "res\\S3SysInfo.bmp"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Cursor
+//
+
+IDC_CURSOR1             CURSOR                  "res\\cursor1.cur"
+IDC_CURSOR2             CURSOR                  "res\\cursor2.cur"
+#endif    // English (U.K.) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+#define _AFX_NO_SPLITTER_RESOURCES
+#define _AFX_NO_OLE_RESOURCES
+#define _AFX_NO_TRACKER_RESOURCES
+#define _AFX_NO_PROPERTY_RESOURCES
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+LANGUAGE 9, 1
+#pragma code_page(1252)
+#include "res\S3Controller.rc2"  // non-Microsoft Visual C++ edited resources
+#include "afxres.rc"     // Standard components
+#endif
+
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+
