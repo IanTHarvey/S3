@@ -1319,10 +1319,10 @@ int S3SysSetSW(const char *s)
 {
 	strcpy_s(S3Data->m_SW, S3_MAX_SW_VER_LEN, s);
 
-	if (S3GetSoftShutdownOption())
+	if (!S3GetSoftShutdownOption())
 	{
 		if (strlen(S3Data->m_SW) < S3_MAX_SW_VER_LEN - 1)
-			strcat_s(S3Data->m_SW, S3_MAX_SW_VER_LEN, "S");
+			strcat_s(S3Data->m_SW, S3_MAX_SW_VER_LEN, "h");
 	}
 
 	return 0;

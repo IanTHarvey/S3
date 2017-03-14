@@ -8,7 +8,7 @@
 #ifdef S3_ATIS_BUILD
 #define S3_SYS_SW			"ATiS.3"
 #else
-#define S3_SYS_SW			"Dev1.4"
+#define S3_SYS_SW			"1.4"
 #endif
 
 #define S3_SYS_MODEL		"Sentinel 3"
