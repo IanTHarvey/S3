@@ -334,11 +334,18 @@ int S3OSGetImageID()
 
 	i += 2;
 	j = 0;
+	char k = 0;
 
 	while(S3Data->m_ImageID[i] != ';')
 	{
-		S3Data->m_ImageDate[j] = S3Data->m_ImageID[i];
-		i++; j++;
+		// 20xy -> xy
+		if (k != 6 && k != 7)
+		{
+			S3Data->m_ImageDate[j] = S3Data->m_ImageID[i];
+			j++;
+		}
+		
+		k++; i++;
 	}
 
 	i += 2;
@@ -787,7 +794,7 @@ int S3SetAppDateTime()
 	AppDateTime[5] = '\0'; // Trim s from hh:mm:ss
 
 	sprintf_s(S3Data->m_AppDateTime, S3_DATETIME_LEN, "%02d/%02d/%02d %s",
-		day, imonth, year, AppDateTime);
+		day, imonth, year - 2000, AppDateTime);
 
 	return 0;
 }
