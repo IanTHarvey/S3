@@ -41,10 +41,12 @@ class CS3ControllerDlg;
 #define S3I2C_TX_OPT_RF_L		0x7E	// 2B
 #define S3I2C_TX_OPT_BIAS_H		0x74	// 2B
 
+
 #define S3I2C_TX_OPT_WLENGTH	0x45	// 2B nm
 #define S3I2C_TX_OPT_TEMP		0xE2	// 2B Laser temp
 #define S3I2C_TX_OPT_ALARMS		0xFA	// 3B
 #define S3I2C_TX_OPT_CFG		0xCC	// 2B
+#define S3I2C_TX_OPT_PEAK_THR	0xC2	// 2B
 
 #define S3I2C_TX_OPT_PEAK_PWR	0xEC	// 2B
 #define S3I2C_TX_OPT_PEAK_HOLD	0xEE	// 2B
@@ -273,7 +275,7 @@ int S3I2CGetTxBatt(			char Rx, char Tx);
 int S3I2CTxGetLaserPow(		char Rx, char Tx);
 int S3I2CTxGetOptAlarms(	char Rx, char Tx);
 int S3I2CTxGetCtrlAlarms(	char Rx, char Tx);
-int S3I2CTxGetPeaks(		char Rx, char Tx);
+int S3I2CTxGetPeakThresh(		char Rx, char Tx);
 
 int S3I2CTxGetBattSN(		char Rx, char Tx);
 
@@ -291,7 +293,8 @@ int S3I2CTxUpdateTempPath(	char Rx, char Tx);
 
 int S3I2CTxSetPeakThresh(	char Rx, char Tx, char path);
 
-int S3I2CTxPeakHoldClearSet( char Rx, char Tx);
+int S3I2CTxPeakHoldLatchSet(	char Rx, char Tx);	// WTFWIT?
+int S3I2CTxPeakHoldLatchClear(	char Rx, char Tx);
 
 int S3I2CTxSetTestTone(		char Rx, char Tx, char IP);
 

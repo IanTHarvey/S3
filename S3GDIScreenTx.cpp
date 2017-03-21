@@ -74,18 +74,6 @@ GRADIENT_RECT gRect = {0, 1};
 
 extern char S3GDI_RowParaMap[]; 
 
-/*
-gRect.UpperLeft  = 0;
-gRect.LowerRight = 1;
-
-vertex[0].x     = 0;
-vertex[0].y     = 0;
-vertex[0].Red   = 0x0000;
-vertex[0].Green = 0x8000;
-vertex[0].Blue  = 0x8000;
-vertex[0].Alpha = 0x0000;
-*/
-
 // extern int RxTxRowsCumSum();
 extern int hRxTxRows[];
 extern int pRxTxRows[];
@@ -164,6 +152,8 @@ char CS3GDIScreenMain::CalcGainTickMarks()
 }
 
 // ----------------------------------------------------------------------------
+// TODO: Some of this might need to be done on Tx-change to allow for
+// tx-specific capabilities, like peak-hold...
 
 CRect m_RectTxTx, m_RectTxBatt, m_RectTxParaList, m_RectTxTable, m_RectTxMsg;
 
@@ -274,19 +264,21 @@ void CS3GDIScreenMain::S3InitGDITxScreen(void)
 	m_TxLaserPow->RectEdit(m_HDC, m_hFontS);
 
 	// ------------------------------------------------------------------------
-#ifdef S3_SHOW_PEAK
-	m_TxPeakPower = new CS3NameValue(	m_Parent,
-				m_RectTxTx.left, 
-				m_RectTxTx.top + HEAD_ROW + Row++ * PARA_ROW, m_RectTxTx.Width(),
-				_T("Peak power (dBm)"), _T("-1288"), false);
-	m_TxPeakPower->RectEdit(m_HDC, m_hFontS);
 
-	m_TxPeakHold = new CS3NameValue(	m_Parent,
-				m_RectTxTx.left, 
-				m_RectTxTx.top + HEAD_ROW + Row++ * PARA_ROW, m_RectTxTx.Width(),
-				_T("Peak hold (dBm)"), _T("-1288"), false);
-	m_TxPeakHold->RectEdit(m_HDC, m_hFontS);
-#endif
+
+		m_TxPeakPower = new CS3NameValue(	m_Parent,
+					m_RectTxTx.left, 
+					m_RectTxTx.top + HEAD_ROW + Row++ * PARA_ROW, m_RectTxTx.Width(),
+					_T("Peak power (dBm)"), _T("-1288"), false);
+		m_TxPeakPower->RectEdit(m_HDC, m_hFontS);
+
+		m_TxPeakHold = new CS3NameValue(	m_Parent,
+					m_RectTxTx.left, 
+					m_RectTxTx.top + HEAD_ROW + Row++ * PARA_ROW, m_RectTxTx.Width(),
+					_T("Peak hold (dBm)"), _T("-1288"), false);
+		m_TxPeakHold->RectEdit(m_HDC, m_hFontS);
+
+
 	// ------------------------------------------------------------------------
 
 	CString str;
@@ -422,10 +414,8 @@ void CS3GDIScreenMain::S3CloseGDITxScreen(void)
 	delete m_TxPowerMode;
 	delete m_TxLaserPow;
 	
-#ifdef S3_SHOW_PEAK
 	delete m_TxPeakPower;
 	delete m_TxPeakHold;
-#endif
 
 	delete m_TxType;
 	delete m_TxTemp;
@@ -891,30 +881,30 @@ void CS3GDIScreenMain::S3DrawGDITxTx(char Rx, char Tx)
 	m_TxLaserPow->SetValue(str);
 	m_TxLaserPow->Draw(m_HDC, m_hFontS, m_hFontSB);
 
-
 	// ---------------------------------------------------------------------------
-	// Possibly temporary
-#ifdef S3_SHOW_PEAK
-	short PeakPow = S3TxGetPeakPower(Rx, Tx);
+	// Temporary for development - this is a per-input measurement
+	if (S3TxGetPeakHoldCap(Rx, Tx))
+	{
+		short PeakPow = S3TxGetPeakPower(Rx, Tx);
 
-	if (PeakPow != SHRT_MIN)
-		str.Format(_T("%.1f"), (double)PeakPow / 100.0);
-	else
-		str = _T("-.-");
+		if (PeakPow != SHRT_MIN)
+			str.Format(_T("%.1f"), (double)PeakPow / 100.0);
+		else
+			str = _T("-.-");
 
-	m_TxPeakPower->SetValue(str);
-	m_TxPeakPower->Draw(m_HDC, m_hFontS, m_hFontSB);
+		m_TxPeakPower->SetValue(str);
+		m_TxPeakPower->Draw(m_HDC, m_hFontS, m_hFontSB);
 
-	short PeakHold = S3TxGetPeakHold(Rx, Tx);
+		short PeakHold = S3TxGetPeakHold(Rx, Tx);
 
-	if (PeakHold != SHRT_MIN)
-		str.Format(_T("%.1f"), (double)PeakHold / 100.0);
-	else
-		str = _T("-.-");
+		if (PeakHold != SHRT_MIN)
+			str.Format(_T("%.1f"), (double)PeakHold / 100.0);
+		else
+			str = _T("-.-");
 
-	m_TxPeakHold->SetValue(str);
-	m_TxPeakHold->Draw(m_HDC, m_hFontS, m_hFontSB);
-#endif
+		m_TxPeakHold->SetValue(str);
+		m_TxPeakHold->Draw(m_HDC, m_hFontS, m_hFontSB);
+	}
 
 	// ---------------------------------------------------------------------------
 

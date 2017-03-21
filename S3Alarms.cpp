@@ -13,6 +13,8 @@
 
 extern pS3DataModel S3Data;
 
+
+
 // ---------------------------------------------------------------------------
 
 int S3CancelAlarms()
@@ -62,13 +64,18 @@ int S3CancelAlarms()
 // rather than the S3 controller detecting and raising it's own.
 //
 
-extern int S3I2CTxDumpOptConfig(char Rx, char Tx);
-
 int S3TxOptSetAlarm(char Rx, char Tx, const unsigned char *alarms)
 {
 	int StateChange = 0;
 
 	pS3TxData pTx = &S3Data->m_Rx[Rx].m_Tx[Tx];
+
+	// iff peak alarm then ignore completely
+	if (!S3TxGetPeakHoldCap(Rx, Tx))
+	{
+		if (alarms[1] == S3_TX_OPT_PEAK && alarms[2] == 0)
+			return 0;
+	}
 
 	if (alarms[0] & S3_TX_OPT_MAJOR)
 	{
@@ -76,10 +83,7 @@ int S3TxOptSetAlarm(char Rx, char Tx, const unsigned char *alarms)
 		if (!(pTx->m_OptAlarms[0] & S3_TX_OPT_MAJOR))
 		{
 			S3EventLogAdd("TxOpt: Major alarm raised", 3, Rx, Tx, -1);
-			// pTx->m_OptAlarms[0] |= S3_TX_OPT_MAJOR;
 			StateChange = 1;
-
-			// S3I2CTxDumpOptConfig(Rx, Tx);
 		}
 	}
 	else
@@ -87,12 +91,11 @@ int S3TxOptSetAlarm(char Rx, char Tx, const unsigned char *alarms)
 		if (pTx->m_OptAlarms[0] & S3_TX_OPT_MAJOR)
 		{
 			S3EventLogAdd("TxOpt: Major alarm cleared", 1, Rx, Tx, -1);
-			// pTx->m_OptAlarms[0] |= S3_TX_OPT_MAJOR;
 			StateChange = 1;
 		}
 	}
 
-	for(unsigned char i = 0; i < 3; i++)
+	for(unsigned char i = 0; i < S3_TX_OPT_ALARM_BYTES; i++)
 	{
 		if (alarms[i] != pTx->m_OptAlarms[i])
 		{
@@ -139,7 +142,7 @@ int S3TxCtrlSetAlarm(char Rx, char Tx, const unsigned char *alarms)
 		}
 	}
 
-	for(unsigned char i = 0; i < 2; i++)
+	for(unsigned char i = 0; i < S3_TX_CTRL_ALARM_BYTES; i++)
 	{
 		if (alarms[i] != pTx->m_CtrlAlarms[i])
 		{
@@ -448,12 +451,20 @@ int S3TxAlarmGetString(char Rx, char Tx, char *S3AlarmString, int len)
 		// Look for alarms in secondary bytes
 		if (pTx->m_OptAlarms[1] & S3_TX_OPT_PEAK)
 		{
-			// TODO: Ignore for now pending Tx H/W & F/W changes
-			/*
-			sprintf_s(S3AlarmString, len, "E:Peak detection alarm");
-			pTx->m_CurAlarmSrc = 2;
-			pTx->m_CurAlarm = S3_TX_OPT_PEAK;
-			*/
+			// Ignore if not in Tx H/W & F/W
+			if (S3TxGetPeakHoldCap(Rx, Tx))
+			{
+				sprintf_s(S3AlarmString, len, "W:Peak detection alarm");
+				pTx->m_CurAlarmSrc = 2;
+				pTx->m_CurAlarm = S3_TX_OPT_PEAK;
+			}
+			else
+			{
+				sprintf_s(S3AlarmString, len, "I:Bogus peak detection alarm");
+				pTx->m_CurAlarmSrc = 2;
+				pTx->m_CurAlarm = S3_TX_OPT_PEAK;
+			}
+
 			return 1;
 		}
 		

@@ -215,6 +215,9 @@ typedef enum SigmaT				{TauNone, TauLo, TauMd, TauHi, TauUnknown};
 #define S3_ALARMS_ALL			0xFF
 #define S3_TX_ALARMS_ALL		0xFFFF
 
+#define S3_TX_OPT_ALARM_BYTES	3
+#define S3_TX_CTRL_ALARM_BYTES	2
+
 // Tx alarm bits TODO: Move battery alarms to below
 #define S3_TX_BATT_WARN			0x0001
 #define S3_TX_BATT_ALARM		0x0002
@@ -257,7 +260,7 @@ typedef enum SigmaT				{TauNone, TauLo, TauMd, TauHi, TauUnknown};
 #define S3_TX_OPT_VCC			0x01
 #define S3_TX_OPT_BIAS			0x02
 #define S3_TX_OPT_POWER			0x04
-#define S3_TX_OPT_FEED_I		0x08
+#define S3_TX_OPT_FEED_I		0x08 // Not used
 #define S3_TX_OPT_PEAK			0x10
 #define S3_TX_OPT_TEMP			0x20
 #define S3_TX_OPT_LEVEL			0x40
@@ -411,7 +414,7 @@ typedef enum SigmaT				{TauNone, TauLo, TauMd, TauHi, TauUnknown};
 #define S3_RLL_MAX_DBM			15.0	// Display upper
 #define S3_RLL_MIN_DBM			6.0		// Display lower
 #define S3_RLL_GOOD_HI_DBM		13.0	// Good upper
-#define S3_RLL_GOOD_LO_DBM		8.0		// Good lower
+#define S3_RLL_GOOD_LO_DBM		7.0		// Good lower
 #define S3_RLL_TX_ALIVE			800		// 10mdBm
 
 #define S3_RLL_MAX_10MDBM		1500
@@ -539,8 +542,8 @@ typedef struct sS3TxData
 	unsigned short	m_CurAlarm;			// Alarm currently displayed
 
 	unsigned short	m_Alarms;			// S3Ctrl alarms
-	unsigned char	m_OptAlarms[3];		// TxOpt I2C alarm registers
-	unsigned char	m_CtrlAlarms[2];	// TxCtrl I2C alarm registers
+	unsigned char	m_OptAlarms[S3_TX_OPT_ALARM_BYTES];	// TxOpt I2C alarm registers
+	unsigned char	m_CtrlAlarms[S3_TX_CTRL_ALARM_BYTES];	// TxCtrl I2C alarm registers
 	unsigned char	m_BattAlarms;
 
 	short			m_TempTEC;

@@ -128,6 +128,8 @@ int S3I2CGetTxStartUp(char Rx, char Tx)
 	// Control board
 	// ---------------------------------------------------------------------------
 
+	// If Tx power-cycled
+
 	// Get Tx identification info (first half)
 	unsigned char	i;
 	char tmp[S3I2C_PN_LEN + 1];
@@ -157,6 +159,7 @@ int S3I2CGetTxStartUp(char Rx, char Tx)
 		tmp[S3I2C_PN_LEN] = '\0';
 		S3TxSetPN(Rx, Tx, tmp);
 
+		// TODO: This should be redundant due to JB F/W fix?
 		if (tmp[0] != 'S')
 			S3EventLogAdd("PN corrupted", 3, Rx, Tx, -1);
 	}
@@ -174,11 +177,6 @@ int S3I2CGetTxStartUp(char Rx, char Tx)
 	}
 	else return 4;
 	
-	// Set compensation mode (from global)
-	// S3I2CTxSetCompMode(Rx, Tx);
-
-	// S3I2CTxDoComp(Rx, Tx);
-
 	err = S3I2CTxGetRFCalGain(Rx, Tx);
 	if (err)
 		return 5;
@@ -226,10 +224,15 @@ int S3I2CGetTxStartUp(char Rx, char Tx)
 	// ------------------------------------------------------------------------
 	// TxOpt
 	// ------------------------------------------------------------------------
-	if (!S3I2CReadSerialData(S3I2C_TX_OPT_ADDR,	S3I2C_TX_OPT_FW_V, 3))
-	{
-		S3TxOptSetFW(Rx, Tx, S3I2CTxReadBuf);
-	}
+	
+	// NO. CANNOT READ ANYTHING FROM TxOpt HERE, AS MAYBE NOT AWAKE
+
+	//if (!S3I2CReadSerialData(S3I2C_TX_OPT_ADDR,	S3I2C_TX_OPT_FW_V, 3))
+	//{
+	//	S3TxOptSetFW(Rx, Tx, S3I2CTxReadBuf);
+	//}
+
+	//err = S3I2CTxGetPeakThresh(Rx, Tx);
 
 	// ------------------------------------------------------------------------
 	// Battery
@@ -257,6 +260,13 @@ int S3I2CGetTxWakeUp(char Rx, char Tx)
 	err = S3I2CTxGetWavelength(Rx, Tx);
 	err = S3I2CTxGetOptCalGain(Rx, Tx);
 
+	if (!S3I2CReadSerialData(S3I2C_TX_OPT_ADDR,	S3I2C_TX_OPT_FW_V, 3))
+	{
+		S3TxOptSetFW(Rx, Tx, S3I2CTxReadBuf);
+	}
+
+	err = S3I2CTxGetPeakThresh(Rx, Tx);
+
 	if (err)
 		return 1;
 
@@ -265,7 +275,7 @@ int S3I2CGetTxWakeUp(char Rx, char Tx)
 	// ------------------------------------------------------------------------
 
 	S3TxClearPeakHold(Rx, Tx, 0); // Force clear
-	S3I2CTxPeakHoldClearSet(Rx, Tx);
+	S3I2CTxPeakHoldLatchClear(Rx, Tx);
 
 	char IP = S3TxGetActiveIP(Rx, Tx);
 	S3IPSetGainSent(Rx, Tx, IP, -128); // Force update
@@ -400,21 +410,12 @@ int S3I2CTxUpdateTemp(char Rx, char Tx)
 {
 	unsigned char mode = S3TxGetTCompMode(Rx, Tx);
 
-	// if (mode == S3_TCOMP_OFF)
-	//	return 0;
-
 	if (mode < 100) // Mode change pending
 	{
 		char Tnow = S3TxGetTemp(Rx, Tx); // S3I2CTxCtrlGetTemp();
-		// char Told = S3TxGetTemp(Rx, Tx);
-	
-		// if (Told != Tnow)
 
 		if (S3Data->m_Rx[Rx].m_Tx[Tx].m_TempChange)
 		{
-			// Update displayed temperature
-			// S3TxSetTemp(Rx, Tx, Tnow);
-
 			if (mode == S3_TCOMP_CONT)
 			{
 				int err;
@@ -620,12 +621,13 @@ int S3I2CTxSetOptCtrlBits(char Rx, char Tx)
 	int err = 0;
 
 	// Check for corrupted config
-	err = S3I2CReadSerialData(S3I2C_TX_OPT_ADDR, 0xCC, 2);
+	err = S3I2CReadSerialData(S3I2C_TX_OPT_ADDR, S3I2C_TX_OPT_CFG, 2);
 
 	// Mask the 5 MSBs which seem to get over-written randomly, but should
 	// be harmless - otherwise get loads of log entries. b3 switches with
 	// the temperature compensation mode.
-	if ((*S3I2CTxReadBuf & 0x7) != 0x04 && (*S3I2CTxReadBuf & 0x7) != 0) 
+	unsigned char cfg = *S3I2CTxReadBuf;
+	if ((cfg & 0x07) != 0x04 && (cfg & 0x07) != 0x00 && (cfg & 0x07) != 0x05) 
 	{
 		char msg[S3_EVENTS_LINE_LEN];
 
@@ -634,10 +636,10 @@ int S3I2CTxSetOptCtrlBits(char Rx, char Tx)
 
 		S3EventLogAdd(msg, 1, Rx, Tx, -1);
 
-		if (1)
+		if (0)
 		{
 			S3EventLogAdd("Correcting TEC control bits (clear b0 & b1)", 1, Rx, Tx, -1);
-			err = S3I2CWriteSerialByte(S3I2C_TX_OPT_ADDR, 0xCC, *S3I2CTxReadBuf & ~0x03);
+			err = S3I2CWriteSerialByte(S3I2C_TX_OPT_ADDR, S3I2C_TX_OPT_CFG, cfg & ~0x03);
 		}
 	}
 
@@ -860,7 +862,7 @@ int S3I2CTxGetStatus(char Rx, char Tx)
 	// --------------------------------------------------------------------
 	// TxOpt
 
-	S3I2CTxPeakHoldClearSet(Rx, Tx);
+	// S3I2CTxPeakHoldClearSet(Rx, Tx);
 
 	// Get alarms as priority
 	err = S3I2CTxGetOptAlarms(Rx, Tx);
@@ -873,12 +875,7 @@ int S3I2CTxGetStatus(char Rx, char Tx)
 	else
 		S3TxCancelAlarm(Rx, Tx, S3_TX_COMM_FAIL);
 
-	err = S3I2CTxGetPeaks(Rx, Tx);
-	if (err) // TODO: S3_TX_OPT_COMM_FAIL
-		S3TxSetAlarm(Rx, Tx, S3_TX_COMM_FAIL);
-	else
-		S3TxCancelAlarm(Rx, Tx, S3_TX_COMM_FAIL);
-
+	// TODO: Is this redundant?
 	S3I2CTxSetOptCtrlBits(Rx, Tx);
 
 	// Catch-all for Kludge above
@@ -1018,10 +1015,19 @@ int S3I2CTxGetLaserPow(char Rx, char Tx)
 
 // ----------------------------------------------------------------------------
 
-int S3I2CTxGetPeaks(char Rx, char Tx)
+int S3I2CTxGetPeakThresh(char Rx, char Tx)
 {
-#ifdef S3_OVERDRIVE_DETECT
+	if (!S3TxGetPeakHoldCap(Rx, Tx))
+		return 0;
 
+	if (!S3I2CReadSerialData(S3I2C_TX_OPT_ADDR, S3I2C_TX_OPT_PEAK_THR, 2))
+	{
+		S3TxSetPeakPower(Rx, Tx, S3RevByteShort(S3I2CTxReadBuf));
+	}
+
+	// TODO: This not correct
+
+	/*
 	if (!S3I2CReadSerialData(S3I2C_TX_OPT_ADDR, S3I2C_TX_OPT_PEAK_PWR, 4))
 	{
 		// S3I2C_TX_OPT_PEAK_PWR	0xEC	// 2B
@@ -1039,29 +1045,29 @@ int S3I2CTxGetPeaks(char Rx, char Tx)
 			S3I2CSetIPGain(Rx, Tx, IP);
 			
 			// Raise alarm and lock out gain changes on this input
-			S3IPSetAlarm(Rx, Tx, S3TxGetActiveIP(Rx, Tx), S3_IP_OVERDRIVE);
+			S3IPSetAlarm(Rx, Tx, IP, S3_IP_OVERDRIVE);
 		}
 	}
-#endif
+*/
 
 	return 0;
 }
 
 // ----------------------------------------------------------------------------
 
-int S3I2CTxPeakHoldClearSet(char Rx, char Tx)
+int S3I2CTxPeakHoldLatchSet(char Rx, char Tx)
 {
-	
-	if (S3TxGetClearPeakHold(Rx, Tx))
-	{
-		unsigned char cfg;
+	unsigned char cfg;
 
+	int err  = S3I2CReadSerialByte(S3I2C_TX_OPT_ADDR, S3I2C_TX_OPT_CFG, &cfg);
+	cfg |= 0x01;
+	err  = S3I2CWriteSerialByte(S3I2C_TX_OPT_ADDR, S3I2C_TX_OPT_CFG, cfg);
+
+	if (0) // S3TxGetClearPeakHold(Rx, Tx))
+	{
 		int err  = S3I2CReadSerialByte(S3I2C_TX_OPT_ADDR, S3I2C_TX_OPT_CFG, &cfg);
 		
-		// if (set)
 		cfg |= 0x01;
-		// else
-		//	cfg &= ~0x01;
 
 		err  = S3I2CWriteSerialByte(S3I2C_TX_OPT_ADDR, S3I2C_TX_OPT_CFG, cfg);
 
@@ -1076,56 +1082,89 @@ int S3I2CTxPeakHoldClearSet(char Rx, char Tx)
 
 // ----------------------------------------------------------------------------
 
+int S3I2CTxPeakHoldLatchClear(char Rx, char Tx)
+{
+	if (S3TxGetClearPeakHold(Rx, Tx))
+	{
+		unsigned char cfg;
+		int err  = S3I2CReadSerialByte(S3I2C_TX_OPT_ADDR, S3I2C_TX_OPT_CFG, &cfg);
+		cfg &= ~0x01;
+		
+		err  = S3I2CWriteSerialByte(S3I2C_TX_OPT_ADDR, S3I2C_TX_OPT_CFG, cfg);
+
+		// If don't do this, nothing detected
+		if (1)
+		{
+			Sleep(100);
+
+			cfg |= 0x01;
+			err  = S3I2CWriteSerialByte(S3I2C_TX_OPT_ADDR, S3I2C_TX_OPT_CFG, cfg);
+
+			if (!err)
+				S3TxClearPeakHold(Rx, Tx, 1); // Ack
+
+			return err;
+		}
+	}
+
+	return 0;
+}
+
+// ----------------------------------------------------------------------------
+// Set in max attenuation
+int S3I2CTxsetSafeMode(char Rx, char Tx)
+{	
+	char IP = S3TxGetActiveIP(Rx, Tx);
+
+	// Set gain to minimum and force immediate update
+	S3SetGain(Rx, Tx, IP, S3_MIN_GAIN);
+	S3IPSetGainSent(Rx, Tx, IP, SCHAR_MIN);
+	int err = S3I2CSetIPGain(Rx, Tx, IP);
+
+	return err;
+}
+
+// ----------------------------------------------------------------------------
+
 int S3I2CTxGetOptAlarms(char Rx, char Tx)
 {
 #ifdef TRIZEPS
-	if (!S3I2CReadSerialData(S3I2C_TX_OPT_ADDR, S3I2C_TX_OPT_ALARMS, 3))
+	if (!S3I2CReadSerialData(S3I2C_TX_OPT_ADDR, S3I2C_TX_OPT_ALARMS, S3_TX_OPT_ALARM_BYTES + 2))
 	{
-		// TODO: Temp disable peak alarm - this should be masked by
-		// 
-		S3I2CTxReadBuf[1] &= ~S3_TX_OPT_PEAK;
+		unsigned char PeakAlarmLatchStatus;
 
 		// Handle alarms...
 		S3TxOptSetAlarm(Rx, Tx, S3I2CTxReadBuf);
+
+		if (S3TxGetPeakHoldCap(Rx, Tx))
+		{
+			PeakAlarmLatchStatus = *(S3I2CTxReadBuf + S3_TX_OPT_ALARM_BYTES + 1);
+		
+			if (PeakAlarmLatchStatus & 0x02)
+			{
+				S3TxClearPeakHold(Rx, Tx, 0); // Force clear
+			}
+
+			unsigned char alarm = *(S3I2CTxReadBuf + 1);
+			if (alarm & 0x10)
+			{
+				int err = S3I2CTxsetSafeMode(Rx, Tx);
+
+				char IP = S3TxGetActiveIP(Rx, Tx);
+
+				S3IPSetAlarm(Rx, Tx, IP, S3_IP_OVERDRIVE);
+
+				// We've seen the latched alarm, so reset it
+				S3TxClearPeakHold(Rx, Tx, 0); // Force latch reset
+				S3I2CTxPeakHoldLatchClear(Rx, Tx);
+			}
+		}
+		else
+		{
+
+		}
 	}
 	else return 1;
-
-	// ----------- ONE-OFF ONLY -----------
-	if (0) // Rx == 0)
-	{
-		S3I2CWriteSerialShort(S3I2C_TX_OPT_ADDR, 0x7C, 500);
-		Sleep(100);
-		S3I2CWriteSerialShort(S3I2C_TX_OPT_ADDR, 0x7E, -5800);
-
-		int err = S3I2CReadSerialData(S3I2C_TX_OPT_ADDR, 0x7C, 4);
-		short v = S3RevByteShort(S3I2CTxReadBuf + 0);
-		v = S3RevByteShort(S3I2CTxReadBuf + 2);
-
-		err = S3I2CReadSerialData(S3I2C_TX_OPT_ADDR, 0xE6, 2);
-		v = S3RevByteShort(S3I2CTxReadBuf + 0);
-	}
-
-	if (0)
-	{
-		short v1, v2;
-
-		int err = S3I2CReadSerialData(S3I2C_TX_OPT_ADDR, 0xBE, 4);
-		
-		v1 = S3RevByteShort(S3I2CTxReadBuf + 0);
-		v2 = S3RevByteShort(S3I2CTxReadBuf + 2);
-	}
-
-
-	/*
-	// DIAG:
-	int err = S3I2CReadSerialData(S3I2C_TX_OPT_ADDR, 0xDA, 2);
-
-	short w;
-	*((char *)&w + 0) = S3I2CTxReadBuf[1];
-	*((char *)&w + 1) = S3I2CTxReadBuf[0];
-
-	double p = (double)w / 100.0;
-	*/
 
 #endif
 

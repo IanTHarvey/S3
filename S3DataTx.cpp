@@ -937,7 +937,11 @@ int S3TxOptSetFW(char Rx, char Tx, const unsigned char *s)
 	v0 = *s - '0'; v1 = *(s + 1) - '0'; v2 = *(s + 2) - '0';
 
 	// > 1.2.0 have true peak hold capability
-	if (v0 > 1) 
+
+	// TODO: Temporarily disable for 1.2.0 - too flaky
+	if (v0 == 1 && v1 == 2)
+		S3TxSetPeakHoldCap(Rx, Tx, false);
+	else if (v0 > 1) 
 		S3TxSetPeakHoldCap(Rx, Tx, true);
 	else if (v0 == 1 && v1 >= 2)
 		S3TxSetPeakHoldCap(Rx, Tx, true);
@@ -1478,6 +1482,7 @@ int S3TxSetEmergency(	char Rx, char Tx, bool on)
 }
 
 // ---------------------------------------------------------------------------
+// Differentiate protective shutdown from normal
 
 bool S3TxGetEmergency(	char Rx, char Tx)
 {
@@ -1491,6 +1496,8 @@ int S3TxSetPeakPower(char Rx, char Tx, short power)
 	S3Data->m_Rx[Rx].m_Tx[Tx].m_PeakPower = power;
 	return 0;
 }
+
+// ---------------------------------------------------------------------------
 
 short S3TxGetPeakPower(char Rx, char Tx)
 {
@@ -1515,6 +1522,8 @@ int S3TxSetPeakHold(char Rx, char Tx, short hold)
 
 	return 0;
 }
+
+// ---------------------------------------------------------------------------
 
 short S3TxGetPeakHold(char Rx, char Tx)
 {
@@ -1553,6 +1562,8 @@ unsigned char S3TxGetClearPeakHold(char Rx, char Tx)
 {
 	return S3Data->m_Rx[Rx].m_Tx[Tx].m_ClearPeakHold;
 }
+
+// ----------------------------------------------------------------------------
 
 int S3TxClearPeakHold(char Rx, char Tx, unsigned char ack)
 {
