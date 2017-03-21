@@ -1595,11 +1595,17 @@ bool S3SelfTestEnabled()
 
 int S3SetFactoryMode(char Rx, char Tx, bool mode)
 {
+	S3Data->m_FactoryMode = mode;
+	
 	if (mode == true)
 	{
-		if (Tx != -1)
-			if (!S3TxExistQ(Rx, Tx))
-				return 1;
+		// Special case where may specify a channel rather than a Tx
+		if (S3RxGetType(Rx) != S3_Rx2)
+		{
+			if (Tx != -1)
+				if (!S3TxExistQ(Rx, Tx))
+					return 1;
+		}
 
 		if (Rx != -1)
 			if (S3I2CRxMS(Rx))
@@ -1611,8 +1617,6 @@ int S3SetFactoryMode(char Rx, char Tx, bool mode)
 			if (S3I2CRxSwitchTx(Rx, Tx))
 				return 1;
 	}
-
-	S3Data->m_FactoryMode = mode;
 
 	if (S3Data->m_FactoryMode)
 		S3EventLogAdd("S3SetFactoryMode: Entered factory mode", 1, Rx, Tx, -1);

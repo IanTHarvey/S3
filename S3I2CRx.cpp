@@ -188,7 +188,12 @@ int S3I2CSetUpOptAddr(char Rx, char Tx)
 	}
 	else if (S3RxGetType(Rx) == S3_Rx2)
 	{
-		if (Tx == 0)
+		if (Tx == -1)
+		{
+			S3I2CCurRxOptAddr = S3I2CRxOptAddr[0];
+			S3I2CCurTxOptAddr = S3I2CTxOptAddr[0];
+		}
+		else if (Tx == 0)
 		{
 			S3I2CCurRxOptAddr = S3I2CRxOptAddr[0];
 			S3I2CCurTxOptAddr = S3I2CTxOptAddr[0];
