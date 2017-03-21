@@ -209,6 +209,10 @@ int S3OSImageUpdate()
 		return 2;
 	}
 
+	// TODO: Don't just copy here
+	// Check and strip header, unencrypt binary...
+	// TODO: Consider moving to S3Boot
+
 	if (!CopyFile(OSImageUpdateFilePath, OSImageNB0FilePath, false))
 	{
 		S3EventLogAdd("Failed to copy image file from HDD to Flashdisk", 1, -1, -1, -1);
@@ -261,6 +265,7 @@ int S3OSImageUpdate()
 
 // ----------------------------------------------------------------------------
 // Look for exe file on USB
+
 int S3OSAppUpdate()
 {
 	S3EventLogAdd("App update", 1, -1, -1, -1);
@@ -287,7 +292,6 @@ int S3OSAppUpdate()
 	}
 
 	S3EventLogAdd("Copy of exe file successful", 1, -1, -1, -1);
-
 
 	// Restart a problem for S3Boot, which cannot copy/move exe files at
 	// its point in the boot sequence. No error, just a zero-length file
@@ -338,7 +342,7 @@ int S3OSGetImageID()
 
 	while(S3Data->m_ImageID[i] != ';')
 	{
-		// 20xy -> xy
+		// Remove the century 20xy -> xy
 		if (k != 6 && k != 7)
 		{
 			S3Data->m_ImageDate[j] = S3Data->m_ImageID[i];
@@ -424,9 +428,9 @@ int S3OSSWUpdateRequest()
 		return 1;
 	}
 
-	// BOOL exist = PathFileExists(OSImageUpdateDirectory);
+	BOOL exist = S3FileExist(OSImageUpdateFilePath);
 	
-	if (!S3FileExist(OSImageUpdateFilePath))
+	if (!exist)
 	{
 		S3EventLogAdd("No OS image found", 1, -1, -1, -1);
 		return 2;
