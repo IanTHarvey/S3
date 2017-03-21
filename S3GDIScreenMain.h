@@ -20,6 +20,7 @@
 #define S3_FACTORY_SCREEN		10
 #define S3_CLOSED_SCREEN		11
 #define S3_APP_UPDATE_SCREEN	12
+#define S3_FACTORY_SYS_SCREEN	13
 #define S3_PREVIOUS_SCREEN		0x7f
 
 #define S3_MAIN_RX_RLL_BARS		5
@@ -181,7 +182,7 @@ private:
 	//, m_RectFactoryInstr,
 	//		m_RectFactoryYes, m_RectFactoryNo;
 
-	CRect	m_RectCalibrate, m_RectTest, m_RectDemo;
+	CRect	m_RectCalibrate, m_RectSystem, m_RectTest, m_RectDemo;
 
 // ----------------------------------------------------------------------------
 
@@ -361,6 +362,7 @@ public:
 
 	// TODO: Use this rather than changing m_Screen directly
 	int		S3GDIChangeScreen(char screen);
+	char	S3GDIGetScreen();
 
 	void	S3DrawGDIRack(void);
 	void	S3DrawGDIDbg(void);

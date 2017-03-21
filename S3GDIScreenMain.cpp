@@ -261,6 +261,13 @@ void CS3GDIScreenMain::S3DrawGDIHeader()
 
 // ----------------------------------------------------------------------------
 
+char CS3GDIScreenMain::S3GDIGetScreen()
+{
+	return m_Screen;
+}
+
+// ----------------------------------------------------------------------------
+
 int CS3GDIScreenMain::S3GDIChangeScreen(char screen)
 {
 	if (screen == S3_PREVIOUS_SCREEN)
