@@ -146,7 +146,8 @@ int S3RxInserted(char Rx, S3RxType type)
 	S3RxSetType(pRx, type);
 
 	// Force switch
-	pRx->m_ActiveTx += 100;
+	if (pRx->m_ActiveTx < 100)
+		pRx->m_ActiveTx += 100;
 
 	return 0;
 }
