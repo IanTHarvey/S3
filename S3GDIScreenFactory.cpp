@@ -62,8 +62,13 @@ void CS3GDIScreenMain::S3InitGDIFactoryScreen(void)
 	m_RectCalibrate.top = m_RectCalibrate.top + 50 + 50;
 	m_RectCalibrate.bottom = m_RectCalibrate.bottom + 50 + 50;
 
-	m_RectDemo = m_RectCalibrate;
-	m_RectDemo.MoveToXY(1 * m_RectScreen.Width() / NButtons +
+	m_RectSystem = m_RectCalibrate;
+	m_RectSystem.MoveToXY(1 * m_RectScreen.Width() / NButtons +
+		(m_RectScreen.Width() / NButtons -	m_RectSystem.Width()) / 2,
+		m_RectSystem.top);
+
+	m_RectDemo = m_RectSystem;
+	m_RectDemo.MoveToXY(2 * m_RectScreen.Width() / NButtons +
 		(m_RectScreen.Width() / NButtons -	m_RectDemo.Width()) / 2,
 		m_RectDemo.top);
 }
@@ -112,6 +117,9 @@ void CS3GDIScreenMain::S3DrawGDIFactoryScreen(void)
 		DrawText(m_HDC, _T("Live"), -1, &m_RectDemo,	S3_BTN_CENTRE);
 	else
 		DrawText(m_HDC, _T("Demo"), -1, &m_RectDemo,	S3_BTN_CENTRE);
+
+	S3BLTR(m_hbmpBlueButton, m_RectSystem);
+	DrawText(m_HDC, _T("System"), -1, &m_RectSystem,	S3_BTN_CENTRE);
 
 	S3BLTR(m_hbmpBlueButton, m_RectCalibrate);
 	DrawText(m_HDC, _T("Calibrate"), -1, &m_RectCalibrate,	S3_BTN_CENTRE);
@@ -168,7 +176,13 @@ int CS3GDIScreenMain::S3FindFactoryScreen(POINT p)
 	else if (m_RectCalibrate.PtInRect(p))
 	{
 		S3GDIChangeScreen(S3_FACTORY_SCREEN);
-		m_Parent->ShowFactory();
+		m_Parent->ShowFactory(S3_FACTORY_SCREEN);
+		return 1;
+	}
+	else if (m_RectSystem.PtInRect(p))
+	{
+		S3GDIChangeScreen(S3_FACTORY_SYS_SCREEN);
+		m_Parent->ShowFactory(S3_FACTORY_SYS_SCREEN);
 		return 1;
 	}
 	else if (m_RectFactoryLock.PtInRect(p))

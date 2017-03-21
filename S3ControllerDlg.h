@@ -11,6 +11,7 @@
 #include "S3USBVCP.h"
 #include "S3GDIScreenMain.h"
 #include "S3FactorySetUp.h"
+#include "S3FactorySysSetUp.h"
 
 #define IDT_S3_GUI_UPDATE_TIMER	(WM_USER + 200)	// Update display
 #define IDT_S3_ALARM_TIMER		(WM_USER + 201)	// Not used
@@ -79,6 +80,8 @@ class CS3ControllerDlg : public CDialog
 
  	CS3GDIScreenMain	m_GDIStatic;
 	CS3FactorySetUp		*m_FactoryDlg;
+	CS3FactorySysSetUp	*m_FactorySysDlg;
+	CS3FactorySetUp		*m_FactoryCalDlg;
 
 protected:
 	virtual void DoDataExchange(CDataExchange* pDX);	// DDX/DDV support
@@ -110,7 +113,7 @@ public:
 	bool			m_AppUpdateScheduled;
 
 	void S3DrawGDITxSel(void);
-	void ShowFactory(void);
+	void ShowFactory(char screen);
 	void HideFactory(void);
 
 	// Time sub-functions

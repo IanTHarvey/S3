@@ -224,6 +224,11 @@ BOOL CS3ControllerDlg::OnInitDialog()
 	m_FactoryDlg->SetWindowPos(&wndTop, 0, 0, M_SCREEN_WIDTH, M_SCREEN_HEIGHT,
 								SWP_NOMOVE);
 
+	m_FactorySysDlg = new CS3FactorySysSetUp(this);
+	m_FactorySysDlg->Create(IDD_FACTORY_SYS_DIALOG, this);
+	m_FactorySysDlg->SetWindowPos(&wndTop, 0, 0, M_SCREEN_WIDTH, M_SCREEN_HEIGHT,
+								SWP_NOMOVE);
+
 	m_EthInactivityTimer = 31 * 1000;
 	
 	// Initialize Winsock
@@ -936,19 +941,31 @@ bool GetBuildNum(void)
     return true;
 }
 
-void CS3ControllerDlg::ShowFactory(void)
+void CS3ControllerDlg::ShowFactory(char screen)
 {
 	// m_FactoryDlg.Create(IDD_FACTORY_DIALOG, this);
 	// m_FactoryDlg.Create(NULL, NULL, WS_CHILD,
 	//	CRect(0, 0, 0, 0), this, NULL, NULL);
-	if (S3SetFactoryMode(0, 0, true))
-		return;
 
-	m_FactoryDlg->Init();
-	m_FactoryDlg->ShowWindow(SW_SHOWMAXIMIZED);
-	m_GDIStatic.S3GDIChangeScreen(S3_CALIBRATE_SCREEN);
-	//	m_FactoryDlg.SetWindowPos(&wndTop, 0, 0, M_SCREEN_WIDTH, M_SCREEN_HEIGHT,
-	//							SWP_NOMOVE);
+
+	if (screen == S3_FACTORY_SCREEN)
+	{
+		if (S3SetFactoryMode(0, 0, true))
+			return;
+
+		m_FactoryDlg->Init();
+		m_FactoryDlg->ShowWindow(SW_SHOWMAXIMIZED);
+		m_GDIStatic.S3GDIChangeScreen(S3_CALIBRATE_SCREEN);
+	}
+	else if (screen == S3_FACTORY_SYS_SCREEN)
+	{
+		if (S3SetFactoryMode(0, 0, true))
+			return;
+
+		m_FactorySysDlg->Init();
+		m_FactorySysDlg->ShowWindow(SW_SHOWMAXIMIZED);
+		m_GDIStatic.S3GDIChangeScreen(S3_FACTORY_SYS_SCREEN);
+	}
 }
 
 // ---------------------------------------------------------------------------
@@ -957,7 +974,11 @@ void CS3ControllerDlg::HideFactory(void)
 {
 	S3SetFactoryMode(0, 0, false);
 
-	m_FactoryDlg->ShowWindow(false);
+	if (m_GDIStatic.S3GDIGetScreen() == S3_CALIBRATE_SCREEN)
+		m_FactoryDlg->ShowWindow(false);
+	else if (m_GDIStatic.S3GDIGetScreen() == S3_FACTORY_SYS_SCREEN)
+		m_FactorySysDlg->ShowWindow(false);
+
 	m_GDIStatic.S3GDIChangeScreen(S3_PREVIOUS_SCREEN);
 }
 

@@ -41,7 +41,8 @@ protected:
 
 	DECLARE_MESSAGE_MAP()
 public:
-	CEdit m_RxCalEdit;
+	CEdit m_Rx1CalEdit;
+	CEdit m_Rx2CalEdit;
 	afx_msg void OnBnClickedOk();
 	afx_msg void OnBnClickedCancel();
 	afx_msg void PostNcDestroy();
@@ -50,26 +51,24 @@ public:
 	CComboBox m_RFPathCombo;
 	afx_msg void OnCbnSelchangeRfPathCombo();
 	afx_msg void OnCbnDropdownRfPathCombo();
-	afx_msg void OnBnClickedRxCalSetButton();
-	CEdit m_ScrnOffsetX;
-	CEdit m_ScrnOffsetY;
-	afx_msg void OnBnClickedScrnOffsetSetButton();
+	afx_msg void OnBnClickedRx1CalSetButton();
+	afx_msg void OnBnClickedRx2CalSetButton();
 	CStatic m_StatusMsgStatic;
-	CEdit m_FactSNEdit;
-	afx_msg void OnBnClickedFactSnSetButton();
 
 	void Init();
 	void Update();
 	void Enable(BOOL enable);
 	CEdit m_TxOptCalEdit;
 	afx_msg void OnBnClickedTxOptCalSetButton();
-	CEdit m_FactPNEdit;
-	afx_msg void OnBnClickedFactPnSetButton();
 	CButton m_RFCalSetButton;
-	CButton m_RxCalSetButton;
+	CButton m_Rx1CalSetButton;
+	CButton m_Rx2CalSetButton;
 	CButton m_TxCalSetButton;
 	CTabCtrl m_Tabs;
 	afx_msg void OnTcnSelchangeFactoryTab(NMHDR *pNMHDR, LRESULT *pResult);
+	
+	
+	
 };
 
 
