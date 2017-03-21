@@ -407,7 +407,6 @@ int S3RxSave(FILE *fid, pS3RxData Rx)
 	return 0;
 }
 
-
 // ----------------------------------------------------------------------------
 
 int S3RxRead(FILE *fid, pS3RxData pRx)
@@ -418,7 +417,16 @@ int S3RxRead(FILE *fid, pS3RxData pRx)
 	S3RxSetType(pRx, Type);
 
 	if (LATER_VERSION(readModel.m_FileVersion, 1.8))
+	{
 		fread(&pRx->m_ActiveTx, sizeof(char), 1, fid);
+
+		// Sanity limiting
+		if (pRx->m_ActiveTx >= 100)
+			pRx->m_ActiveTx -= 100;
+
+		if (pRx->m_ActiveTx < 0 || pRx->m_ActiveTx > S3_MAX_TXS)
+			pRx->m_ActiveTx = 0;
+	}
 	else
 		fread(&pRx->m_AGC, sizeof(unsigned char), 1, fid);
 
