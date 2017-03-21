@@ -75,7 +75,7 @@ int S3I2CTxCtrlSetPassword(const char *rPW)
 
 #ifdef TRIZEPS
 
-	if (0)
+	if (1)
 	{
 		// err = S3I2CReadSerialData(S3I2C_TX_CTRL_ADDR, 0x1D, 1);
 		// unsigned char prev = *S3I2CTxReadBuf;
@@ -83,7 +83,7 @@ int S3I2CTxCtrlSetPassword(const char *rPW)
 		err = S3I2CWriteSerialData(S3I2C_TX_CTRL_ADDR, S3I2C_PW_ADDR,
 					(const unsigned char *)rPW, 4);
 
-		Sleep(400);
+		Sleep(500);
 
 		// err = S3I2CReadSerialData(S3I2C_TX_CTRL_ADDR, 0x1D, 1);
 		// if (*S3I2CTxReadBuf != 'S' && *S3I2CTxReadBuf != prev)
@@ -130,16 +130,16 @@ int S3I2CTxWriteLaserBias()
 	unsigned char addr = 0xA1;
 	unsigned char val = 27;
 
-		err = S3I2CWriteSerialByte(S3I2C_TX_CTRL_ADDR, addr, val);
+	err = S3I2CWriteSerialByte(S3I2C_TX_CTRL_ADDR, addr, val);
 
-		Sleep(1000);
+	Sleep(1000);
 
-		if (err)
-			fprintf(fid, "Write failed: %d", addr);
-		else
-			fprintf(fid, "Write ok: %d: %d\n", addr, val);
+	if (err)
+		fprintf(fid, "Write failed: %d", addr);
+	else
+		fprintf(fid, "Write ok: %d: %d\n", addr, val);
 
-		Sleep(1000);
+	Sleep(1000);
 
 	if (err)
 	{
@@ -152,28 +152,28 @@ int S3I2CTxWriteLaserBias()
 
 	err = S3I2CReadSerialData(S3I2C_TX_CTRL_ADDR, addr, 1);
 
-		Sleep(100);
+	Sleep(100);
 
-		if (err)
+	if (err)
+	{
+		fprintf(fid, "Read failed: %d\n", addr);
+	}
+	else
+	{
+		unsigned char cal = 0;
+		cal = S3I2CTxReadBuf[0];
+
+		if (cal != val)
 		{
-			fprintf(fid, "Read failed: %d\n", addr);
+			fprintf(fid, "Bias failed: w: %d; r: %d\n", 
+				val, cal);
 		}
 		else
 		{
-			unsigned char cal = 0;
-			cal = S3I2CTxReadBuf[0];
-
-			if (cal != val)
-			{
-				fprintf(fid, "Bias failed: w: %d; r: %d\n", 
-					val, cal);
-			}
-			else
-			{
-				fprintf(fid, "Calibration values ok: w: %d; r: %d\n", 
-					val, cal);
-			}
+			fprintf(fid, "Calibration values ok: w: %d; r: %d\n", 
+				val, cal);
 		}
+	}
 
 	fclose(fid);
 
@@ -198,24 +198,34 @@ int S3I2CTxWriteRFCalValue(unsigned char Path, double dcal)
 	if (err)
 		return 1;
 
-	// TODO: Revisit these delays
-	Sleep(500);
+	if (0)
+	{
+		err = S3I2CWriteSerialByte(S3I2C_TX_CTRL_ADDR,
+			S3I2C_TX_CTRL_CAL_DATA + Path * 2 + 1, *((char *)&cal + 0));
 
-	err = S3I2CWriteSerialByte(S3I2C_TX_CTRL_ADDR,
-		S3I2C_TX_CTRL_CAL_DATA + Path * 2 + 1, *((char *)&cal + 0));
+		if (err)
+			return 3;
 
-	if (err)
-		return 3;
+		Sleep(500);
 
-	Sleep(500);
+		err = S3I2CWriteSerialByte(S3I2C_TX_CTRL_ADDR,
+			S3I2C_TX_CTRL_CAL_DATA + Path * 2, *((char *)&cal + 1));
 
-	err = S3I2CWriteSerialByte(S3I2C_TX_CTRL_ADDR,
-		S3I2C_TX_CTRL_CAL_DATA + Path * 2, *((char *)&cal + 1));
+		if (err)
+			return 2;
 
-	if (err)
-		return 2;
+		Sleep(500);
+	}
+	else
+	{
+		err = S3I2CWriteSerialShort(S3I2C_TX_CTRL_ADDR,
+			S3I2C_TX_CTRL_CAL_DATA + Path * 2, cal);
 
-	Sleep(500);
+		if (err)
+			return 3;
+
+		// Sleep(500);
+	}
 
 	// Read back
 	err = S3I2CReadSerialData(S3I2C_TX_CTRL_ADDR,
@@ -256,39 +266,19 @@ int S3I2CTxWriteOptCalValue(double dcal)
 	cal = (short)(ROUND(dcal * 100.0));
 
 	// THIS IS A CALIBRATION-ONLY PROCEDURE
-	Sleep(1000);
 	
 	int err;
 
-	// Now done on discovery
-	// err = S3I2CTxOptSetPassword("D200");
-	// if (err)
-	//	return 1;
+	err = S3I2CTxOptSetPassword("D200");
+	if (err)
+		return 1;
 
-	Sleep(2000);
+	err = S3I2CWriteSerialShort(S3I2C_TX_OPT_ADDR, S3I2C_TX_OPT_CAL_GAIN, cal);
 
-	err = S3I2CWriteSerialByte(S3I2C_TX_OPT_ADDR, S3I2C_TX_OPT_CAL_GAIN,
-			*((char *)&cal + 1));
+	Sleep(500);
 
 	if (err)
 		return 2;
-
-	Sleep(1000);
-
-	err = S3I2CWriteSerialByte(S3I2C_TX_OPT_ADDR, S3I2C_TX_OPT_CAL_GAIN + 1,
-			*((char *)&cal + 0));
-
-	if (err)
-		return 3;
-
-	Sleep(1000);
-
-	// err = S3I2CTxOptSetPassword("----");
-
-	if (err)
-		return 4;
-
-	Sleep(2000);
 
 	// Read back
 	short rcal;
@@ -353,6 +343,9 @@ int S3I2CRxWriteID(const char *Type, const char *PN, const char *SN)
 	// char PN[] = "S3R-01-01-00";
 	// char SN[] = "Eng0002";
 
+	// char PN[] = "S3R-02-01-00";
+	// char SN[] = "Eng0003";
+
 #ifdef TRIZEPS
 	
 	S3TxType S3Type;
@@ -373,8 +366,6 @@ int S3I2CRxWriteID(const char *Type, const char *PN, const char *SN)
 	if (err)
 		return 8;
 
-	Sleep(2000);
-
 	char	Rx = 0;
 
 	char	wbuf[24];
@@ -383,8 +374,6 @@ int S3I2CRxWriteID(const char *Type, const char *PN, const char *SN)
 	if (S3Type)
 	{
 		I2C_WriteRandom(S3I2C_RX_CTRL_ADDR, S3I2C_RX_CTRL_RX_TYPE, (unsigned char)S3Type);
-
-		Sleep(2000);
 
 		unsigned char rtype = I2C_ReadRandom(S3I2C_RX_CTRL_ADDR, S3I2C_RX_CTRL_RX_TYPE);
 	
@@ -396,30 +385,12 @@ int S3I2CRxWriteID(const char *Type, const char *PN, const char *SN)
 	{
 		for(unsigned char i = 0; i < 24; i++) wbuf[i] = '\0';
 
-		/*
-		// CANNOT write this in a block - PN & SNs get garbled. cf SN write is ok
-
-		strcpy_s(wbuf + 1, 24 - 1, PN);
 		wbuf[0] = S3I2C_RX_CTRL_PN;
-		ok = I2C_WriteRead(S3I2C_RX_CTRL_ADDR, (unsigned char *)wbuf,
-					5, NULL, 0);
+		strcpy_s(wbuf + 1, 24 - 1, PN);
+		ok = I2C_WriteRead(S3I2C_RX_CTRL_ADDR, (unsigned char *)(wbuf),
+					S3I2C_PN_LEN + 1, NULL, 0);
 
-		Sleep(500);
-
-		ok = I2C_WriteRead(S3I2C_RX_CTRL_ADDR, (unsigned char *)(wbuf + 5),
-					S3I2C_PN_LEN + 1 - 5, NULL, 0);
-
-		Sleep(500);
-		*/
-
-		strcpy_s(wbuf, 24, PN);
-
-		for(unsigned char i = 0; i < S3I2C_PN_LEN; i++)
-		{
-			I2C_WriteRandom(S3I2C_RX_CTRL_ADDR, S3I2C_RX_CTRL_PN + i, (unsigned char)wbuf[i]);
-	
-			Sleep(500);
-		}
+		Sleep(100);
 
 		wbuf[0] = S3I2C_RX_CTRL_PN;
 		ok = I2C_WriteRead(S3I2C_RX_CTRL_ADDR, (unsigned char *)wbuf,
@@ -436,13 +407,13 @@ int S3I2CRxWriteID(const char *Type, const char *PN, const char *SN)
 	if (ok && *SN != '-')
 	{
 		for(unsigned char i = 0; i < 24; i++) wbuf[i] = '\0';
+
 		wbuf[0] = S3I2C_RX_CTRL_SN;
 		strcpy_s(wbuf + 1, 24 - 1, SN);
-	
 		ok = I2C_WriteRead(S3I2C_RX_CTRL_ADDR, (unsigned char *)wbuf,
 			S3I2C_SN_LEN + 1, NULL, 0);
 
-		Sleep(500);
+		Sleep(100);
 
 		ok = I2C_WriteRead(S3I2C_RX_CTRL_ADDR, (unsigned char *)wbuf,
 					1, (unsigned char *)rbuf, S3I2C_SN_LEN);
@@ -508,7 +479,7 @@ int S3I2CTxWriteID(const char *Type, const char *PN, const char *SN)
 		if (err)
 			return 1;
 
-		Sleep(1000);
+		Sleep(500);
 
 		// Read back
 		err = S3I2CReadSerialData(S3I2C_TX_CTRL_ADDR, S3I2C_TX_CTRL_TX_TYPE, 1);
@@ -527,7 +498,7 @@ int S3I2CTxWriteID(const char *Type, const char *PN, const char *SN)
 		for(unsigned char i = 0; i < 20; i++) buf[i] = '\0';
 		strcpy_s(buf, 20, PN);
 
-		if (1)
+		if (0)
 		{
 			for(unsigned char i = 0; i < S3I2C_PN_LEN; i++)
 			{
@@ -543,9 +514,24 @@ int S3I2CTxWriteID(const char *Type, const char *PN, const char *SN)
 		else
 		{
 			err = S3I2CWriteSerialData(S3I2C_TX_CTRL_ADDR, S3I2C_TX_CTRL_PN,
-				(unsigned char *)buf, S3I2C_PN_LEN);
+				(unsigned char *)buf, 5);
 
-			Sleep(1000);
+			Sleep(500);
+
+			err = S3I2CWriteSerialData(S3I2C_TX_CTRL_ADDR, S3I2C_TX_CTRL_PN + 5,
+				(unsigned char *)buf + 5, 5);
+
+			Sleep(500);
+
+			err = S3I2CWriteSerialData(S3I2C_TX_CTRL_ADDR, S3I2C_TX_CTRL_PN + 10,
+				(unsigned char *)buf + 10, 5);
+
+			Sleep(500);
+
+			err = S3I2CWriteSerialData(S3I2C_TX_CTRL_ADDR, S3I2C_TX_CTRL_PN + 15,
+				(unsigned char *)buf + 15, 4);
+
+			Sleep(500);
 		}
 
 		if (!err)
@@ -565,15 +551,25 @@ int S3I2CTxWriteID(const char *Type, const char *PN, const char *SN)
 		for(unsigned char i = 0; i < 20; i++) buf[i] = '\0';
 		strcpy_s(buf, 20, SN); 
 
-		for(unsigned char i = 0; i < S3I2C_SN_LEN; i++)
+		if (1)
 		{
-			err = S3I2CWriteSerialByte(S3I2C_TX_CTRL_ADDR, S3I2C_TX_CTRL_SN + i,
-				(unsigned char)buf[i]);
+			err = S3I2CWriteSerialData(S3I2C_TX_CTRL_ADDR, S3I2C_TX_CTRL_SN,
+				(unsigned char *)buf, S3I2C_SN_LEN);
 
-			if (err)
-				break;
-			
-			Sleep(1000);
+			Sleep(500);
+		}
+		else
+		{
+			for(unsigned char i = 0; i < S3I2C_SN_LEN; i++)
+			{
+				err = S3I2CWriteSerialByte(S3I2C_TX_CTRL_ADDR, S3I2C_TX_CTRL_SN + i,
+					(unsigned char)buf[i]);
+
+				if (err)
+					break;
+				
+				Sleep(1000);
+			}
 		}
 
 		if (!err)
@@ -732,13 +728,16 @@ int S3I2CRxCtrlSetPassword(const char *rPW)
 	
 	ok = I2C_WriteRead(S3I2C_RX_CTRL_ADDR, pw, 5, NULL, 0x00);
 
-	Sleep(1000);
+	Sleep(200);
+
+/*
 	unsigned char rd = I2C_ReadRandom(S3I2C_RX_CTRL_ADDR, S3I2C_RX_CTRL_PN);
 
 	if (rd == '0')
 	{
 		S3EventLogAdd("PN corrupted (by password?)", 3, -1, -1, -1);
 	}
+*/
 
 #endif
 	return ok ? 0 : 1;
@@ -831,14 +830,7 @@ int S3I2CRxWriteCalValue(char Rx, char Tx, double dcal)
 	if (!ok)
 		return 2;
 
-	Sleep(100);
-
-	err = S3I2CRxOptSetPassword("----");
-
-	if (err)
-		return 3;
-
-	Sleep(100);
+	Sleep(500);
 
 	// Read back
 	ok = I2C_WriteRead(S3I2CCurRxOptAddr, wbuf, 1, S3I2CRxReadBuf, 2);
