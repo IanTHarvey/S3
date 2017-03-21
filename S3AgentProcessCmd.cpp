@@ -83,6 +83,45 @@ int S3AgentProcessCmd()
         err = CmdGetInput(GPIBRetBuf, Rx, Tx, IP);
     }
     else if(!STRNCMP(GPIBCmdBuf, "S3GETALL", 8))  err = CmdGetAll();
+    else if(!STRNCMP(GPIBCmdBuf, "S3CLEARCURALARM", 15))
+    {
+        if((GPIBNArgs < 2) || (GPIBNArgs > 3))
+        {
+            strcpy_s(GPIBRetBuf, S3_MAX_GPIB_RET_LEN, "E: Incorrect number of parameters");
+		    return S3_GPIB_ERR_NUMBER_PARAS;
+        }
+
+        char *cmdRx, *cmdTx;
+        cmdRx = GPIBCmdArgs[1];
+        int Rx = (strtol(cmdRx, &cmdRx, 10)) - 1;
+        if(GPIBNArgs == 2)
+        {
+            S3RxCancelCurAlarm(Rx);
+        }
+        if(GPIBNArgs == 3)
+        {
+            cmdTx = GPIBCmdArgs[2];
+            int Tx = (strtol(cmdTx, &cmdTx, 10)) - 1;
+            S3TxCancelCurAlarm(Rx, Tx);
+        }
+    }
+    else if(!STRNCMP(GPIBCmdBuf, "S3CLROVERDRIVE", 14))
+    {
+        if (GPIBNArgs != 4)
+        {
+            strcpy_s(GPIBRetBuf, S3_MAX_GPIB_RET_LEN, "E: Incorrect number of parameters");
+		    return S3_GPIB_ERR_NUMBER_PARAS;
+        }
+        char *cmdRx, *cmdTx, *cmdIP;
+        cmdRx = GPIBCmdArgs[1];
+        cmdTx = GPIBCmdArgs[2];
+        cmdIP = GPIBCmdArgs[3];
+        int Rx = (strtol(cmdRx, &cmdRx, 10)) - 1;
+        int Tx = (strtol(cmdTx, &cmdTx, 10)) - 1;
+        int IP = (strtol(cmdIP, &cmdIP, 10)) - 1;
+        err = S3IPCancelAlarm(Rx, Tx, IP, S3_IP_OVERDRIVE);
+        S3TxClearPeakHold(Rx, Tx, 0);
+    }
     else	strcpy_s(GPIBRetBuf, S3_MAX_GPIB_RET_LEN, "E: Unrecognised command");
 
 
@@ -126,26 +165,38 @@ int CmdGetBatt(char *Inbuf)
     }
 
     sprintf_s(Inbuf, S3_MAX_GPIB_RET_LEN,
-                " %i\037 %i\037 %i\037 %f\037 %i\037 %i\037 %s\037 %s\037 %s\037 %s\037 %i\036"
-                " %i\037 %i\037 %i\037 %f\037 %i\037 %i\037 %s\037 %s\037 %s\037 %s\037 %i\036"
-                " %i\037 %i\037 %i\037 %f\037 %i\037 %i\037 %s\037 %s\037 %s\037 %s\037 %i\036"
-                " %i\037 %i\037 %i\037 %f\037 %i\037 %i\037 %s\037 %s\037 %s\037 %s\037 %i\036",
+                " %i\037 %i\037 %i\037 %f\037 %i\037 %i\037 %s\037 %s\037 %s\037 %s\037 %i\037 %s\037 %i\037 %i\036"
+                " %i\037 %i\037 %i\037 %f\037 %i\037 %i\037 %s\037 %s\037 %s\037 %s\037 %i\037 %s\037 %i\037 %i\036"
+                " %i\037 %i\037 %i\037 %f\037 %i\037 %i\037 %s\037 %s\037 %s\037 %s\037 %i\037 %s\037 %i\037 %i\036"
+                " %i\037 %i\037 %i\037 %f\037 %i\037 %i\037 %s\037 %s\037 %s\037 %s\037 %i\037 %s\037 %i\037 %i\036",
                 valid[0],SoC[0],TTC[0],volt[0],amp[0],type[0],S3Data->m_Chargers[0].m_BattSN,
                                         S3Data->m_Chargers[0].m_BattPN,
                                         S3Data->m_Chargers[0].m_HW,
                                         S3Data->m_Chargers[0].m_FW,temp[0],
+                                        S3Data->m_Chargers[0].m_MfrData,
+                                        S3Data->m_Chargers[0].m_BattType,
+                                        S3Data->m_Chargers[0].m_Alarms,
                 valid[1],SoC[1],TTC[1],volt[1],amp[1],type[1],S3Data->m_Chargers[1].m_BattSN,
                                         S3Data->m_Chargers[1].m_BattPN,
                                         S3Data->m_Chargers[1].m_HW,
                                         S3Data->m_Chargers[1].m_FW,temp[1],
+                                        S3Data->m_Chargers[1].m_MfrData,
+                                        S3Data->m_Chargers[1].m_BattType,
+                                        S3Data->m_Chargers[1].m_Alarms,
                 valid[2],SoC[2],TTC[2],volt[2],amp[2],type[2],S3Data->m_Chargers[2].m_BattSN,
                                         S3Data->m_Chargers[2].m_BattPN,
                                         S3Data->m_Chargers[2].m_HW,
                                         S3Data->m_Chargers[2].m_FW,temp[2],
+                                        S3Data->m_Chargers[2].m_MfrData,
+                                        S3Data->m_Chargers[2].m_BattType,
+                                        S3Data->m_Chargers[2].m_Alarms,
                 valid[3],SoC[3],TTC[3],volt[3],amp[3],type[3],S3Data->m_Chargers[3].m_BattSN,
                                         S3Data->m_Chargers[3].m_BattPN,
                                         S3Data->m_Chargers[3].m_HW,
-                                        S3Data->m_Chargers[3].m_FW,temp[3]);
+                                        S3Data->m_Chargers[3].m_FW,temp[3],
+                                        S3Data->m_Chargers[3].m_MfrData,
+                                        S3Data->m_Chargers[3].m_BattType,
+                                        S3Data->m_Chargers[3].m_Alarms);
 
     return 0;
 }
@@ -179,7 +230,8 @@ int CmdGetSysI(char *Inbuf)
     //GetTimeStr(str2);
 
     sprintf_s(Inbuf, S3_MAX_GPIB_RET_LEN,
-        " %s\037 %s\037 %s\037 %s\037 %s\037 %s\037 %s\037 %s\037 %02d-%02d-%02d\037 %02d:%02d:%02d\037 %i\037 %s\037 %f\037 %s\037 %s\037 %s\037 %s",
+        " %s\037 %s\037 %s\037 %s\037 %s\037 %s\037 %s\037 %s\037 %02d-%02d-%02d\037 %02d:%02d:%02d\037 %i\037 %s\037 %f\037 %s\037 %s\037 %s\037 %s\037"
+        " %s\037 %i\037 %i\037 %i\037 %i\037 %i\037 %i\037 %i\037 %i\037 %f\037 %s\037 %s\037 %s\037 %i\037 %i\037 %i\037 %i",
         S3Data->m_NodeName,
         S3Data->m_SN,
         S3Data->m_PN,
@@ -196,7 +248,26 @@ int CmdGetSysI(char *Inbuf)
         S3Data->m_ConfigPath,
         S3Data->m_EventLogName,
         S3Data->m_EventLogPath,
-        S3Data->m_TestName);
+        S3Data->m_TestName,
+        
+        S3Data->m_AppDateTime,
+        S3Data->m_Type,
+        S3Data->m_TCompGainOption,
+        S3Data->m_WinTrackOption,
+        S3Data->m_LowNoiseOption,
+        S3Data->m_SoftShutdownOption,
+        S3Data->m_AGC,
+        S3Data->m_TxStartState,
+        S3Data->m_SelfTest,
+        S3Data->m_SWVersionD,
+
+        S3Data->m_ImageID,
+        S3Data->m_ImageOS,
+        S3Data->m_ImageTime,
+        S3Data->m_OSUpdateFail,
+        S3Data->m_PowerDownPending,
+        S3Data->m_PowerDownFailed,
+        S3Data->m_SleepAll);
     return 0;
 }
 int CmdGetInit(char *Inbuf)
@@ -223,8 +294,11 @@ int CmdGetRXMod(char *Inbuf, int Rx)
             " %i\037 %i\037 %i\037 %i\037 %i\037 %i\037"
             " %i\037 %i\037 %i\037 %i\037 %i\037 %i\037"
             " %i\037 %i\037 %i\037 %i\037 %i\037 %i\037"
-            " %i\037 %i\037 %i\037 %i\037 %i\037 %i\037 %i\037"
-            " %i\037 %f\037 %i\037 %i\037 %i\037 %i",
+            " %i\037 %i\037 %i\037 %i\037 %i\037 %i\037 %i\037 %i\037 %i\037"
+            " %i\037 %f\037 %i\037 %i\037 %i\037 %i\037"
+            " %i\037 %i\037 %i\037 %i\037 %i\037 %i\037"
+            " %i\037 %i\037 %i\037 %i\037 %i\037 %s\037"
+            " %i\037 %i\037 %i\037 %i\037 %i\037 %i",
             S3Data->m_Rx[Rx].m_Type,
             S3Data->m_Rx[Rx].m_Detected,
             S3Data->m_Rx[Rx].m_NodeName,
@@ -245,9 +319,11 @@ int CmdGetRXMod(char *Inbuf, int Rx)
             S3Data->m_Rx[Rx].m_LinkGain[0], S3Data->m_Rx[Rx].m_LinkGain[1], S3Data->m_Rx[Rx].m_LinkGain[2],
                     S3Data->m_Rx[Rx].m_LinkGain[3], S3Data->m_Rx[Rx].m_LinkGain[4], S3Data->m_Rx[Rx].m_LinkGain[5],
 
-            S3Data->m_Rx[Rx].m_CalGain,
+            S3Data->m_Rx[Rx].m_CalGain[0],
+            S3Data->m_Rx[Rx].m_CalGain[1],
             S3Data->m_Rx[Rx].m_Vcc,
-            S3Data->m_Rx[Rx].m_AGC,
+            S3Data->m_Rx[Rx].m_AGC[0],
+            S3Data->m_Rx[Rx].m_AGC[1],
             S3Data->m_Rx[Rx].m_Alarms,
             S3Data->m_Rx[Rx].m_Temp,
             S3Data->m_Rx[Rx].m_TempHi,
@@ -258,7 +334,28 @@ int CmdGetRXMod(char *Inbuf, int Rx)
             S3Data->m_Rx[Rx].m_Config.m_Tau,
             S3Data->m_Rx[Rx].m_Config.m_InputZ,
             S3Data->m_Rx[Rx].m_Config.m_LowNoiseMode,
-            S3Data->m_Rx[Rx].m_Config.m_WindowTracking);  
+            S3Data->m_Rx[Rx].m_Config.m_WindowTracking,
+            
+            S3Data->m_Rx[Rx].m_TxAlarms[0],
+            S3Data->m_Rx[Rx].m_TxAlarms[1],
+            S3Data->m_Rx[Rx].m_TxAlarms[2],
+            S3Data->m_Rx[Rx].m_TxAlarms[3],
+            S3Data->m_Rx[Rx].m_TxAlarms[4],
+            S3Data->m_Rx[Rx].m_TxAlarms[5],
+            
+            S3Data->m_Rx[Rx].m_CurAlarmSrc,
+            S3Data->m_Rx[Rx].m_CurAlarm,
+            S3Data->m_Rx[Rx].m_RLLHi,
+            S3Data->m_Rx[Rx].m_RLLLo,
+            S3Data->m_Rx[Rx].m_Fmax,
+            S3Data->m_Rx[Rx].m_FWDate,
+            
+            S3Data->m_Rx[Rx].m_RFLevel[0],
+            S3Data->m_Rx[Rx].m_RFLevel[1],
+            S3Data->m_Rx[Rx].m_RFLevel[2],
+            S3Data->m_Rx[Rx].m_RFLevel[3],
+            S3Data->m_Rx[Rx].m_RFLevel[4],
+            S3Data->m_Rx[Rx].m_RFLevel[5]);  
     }
     else
     {
@@ -281,7 +378,10 @@ int CmdGetTXMod(char *Inbuf, int Rx, int Tx)
             " %i\037 %i\037 %i\037 %i\037"
             " %i\037 %i\037 %i\037 %i\037"
             " %i\037 %i\037 %i\037 %i\037 %i\037 %i\037 %i\037"
-            " %i\037 %f\037 %i\037 %i\037 %i\037 %i",
+            " %i\037 %f\037 %i\037 %i\037 %i\037 %i\037"
+            " %i\037 %i\037 %i\037 %s\037 %i\037 %i\037 %i\037"
+            " %i\037 %i\037 %i\037 %i\037 %i\037"
+            " %f\037 %f\037 %f\037 %f",
             S3Data->m_Rx[Rx].m_Tx[Tx].m_Type,
             S3Data->m_Rx[Rx].m_Tx[Tx].m_Detected,
             S3Data->m_Rx[Rx].m_Tx[Tx].m_NodeName,
@@ -329,7 +429,26 @@ int CmdGetTXMod(char *Inbuf, int Rx, int Tx)
             S3Data->m_Rx[Rx].m_Tx[Tx].m_Config.m_Tau,
             S3Data->m_Rx[Rx].m_Tx[Tx].m_Config.m_InputZ,
             S3Data->m_Rx[Rx].m_Tx[Tx].m_Config.m_LowNoiseMode,
-            S3Data->m_Rx[Rx].m_Tx[Tx].m_Config.m_WindowTracking);  
+            S3Data->m_Rx[Rx].m_Tx[Tx].m_Config.m_WindowTracking,
+            
+            S3Data->m_Rx[Rx].m_Tx[Tx].m_Fmax,
+            S3Data->m_Rx[Rx].m_Tx[Tx].m_Uptime,
+            S3Data->m_Rx[Rx].m_Tx[Tx].m_CalOpt,
+            S3Data->m_Rx[Rx].m_Tx[Tx].m_FWDate,
+            S3Data->m_Rx[Rx].m_Tx[Tx].m_I,
+            S3Data->m_Rx[Rx].m_Tx[Tx].m_UserSleep,
+            S3Data->m_Rx[Rx].m_Tx[Tx].m_EmergencySleep,
+            
+            S3Data->m_Rx[Rx].m_Tx[Tx].m_CurAlarmSrc,
+            S3Data->m_Rx[Rx].m_Tx[Tx].m_CurAlarm,
+            S3Data->m_Rx[Rx].m_Tx[Tx].m_TempTEC,
+            S3Data->m_Rx[Rx].m_Tx[Tx].m_PeakPower,
+            S3Data->m_Rx[Rx].m_Tx[Tx].m_PeakHold,
+            
+            S3Data->m_Rx[Rx].m_Tx[Tx].m_Tau_ns[0],
+            S3Data->m_Rx[Rx].m_Tx[Tx].m_Tau_ns[1],
+            S3Data->m_Rx[Rx].m_Tx[Tx].m_Tau_ns[2],
+            S3Data->m_Rx[Rx].m_Tx[Tx].m_Tau_ns[3]);  
     }
     else
     {
@@ -345,7 +464,8 @@ int CmdGetInput(char *Inbuf, int Rx, int Tx, int IP)
 	{
         sprintf_s(Inbuf, S3_MAX_GPIB_RET_LEN,
             " %s\037 %f\037 %f\037 %i\037"
-            " %i\037 %f\037 %i\037 %i\037 %i\037 %i",
+            " %i\037 %f\037 %i\037 %i\037 %i\037 %i\037"
+            " %i\037 %i\037 %i",
             S3Data->m_Rx[Rx].m_Tx[Tx].m_Input[IP].m_NodeName,
             S3Data->m_Rx[Rx].m_Tx[Tx].m_Input[IP].m_P1dB,
             S3Data->m_Rx[Rx].m_Tx[Tx].m_Input[IP].m_MaxInput,
@@ -357,7 +477,11 @@ int CmdGetInput(char *Inbuf, int Rx, int Tx, int IP)
             S3Data->m_Rx[Rx].m_Tx[Tx].m_Input[IP].m_Config.m_Tau,
             S3Data->m_Rx[Rx].m_Tx[Tx].m_Input[IP].m_Config.m_InputZ,
             S3Data->m_Rx[Rx].m_Tx[Tx].m_Input[IP].m_Config.m_LowNoiseMode,
-            S3Data->m_Rx[Rx].m_Tx[Tx].m_Input[IP].m_Config.m_WindowTracking);
+            S3Data->m_Rx[Rx].m_Tx[Tx].m_Input[IP].m_Config.m_WindowTracking,
+
+            S3Data->m_Rx[Rx].m_Tx[Tx].m_Input[IP].m_RFLevel,
+            S3Data->m_Rx[Rx].m_Tx[Tx].m_Input[IP].m_RFGain,
+            S3Data->m_Rx[Rx].m_Tx[Tx].m_Input[IP].m_TestToneEnable);
     }
     else
     {
@@ -480,5 +604,24 @@ int CmdCopyLog(char *Inbuf)
             strcpy_s(Inbuf, S3_MAX_GPIB_RET_LEN, "E: Invalid Packet requested");
         }
     }
+    return 0;
+}
+
+int CmdCancelCurAlarm(char *Inbuf)
+{
+    int Rx = -1, Tx = -1;
+    if (GPIBNArgs < 2)
+        strcpy_s(Inbuf, S3_MAX_GPIB_RET_LEN, "E: Incorrect number of parameters");
+	    return S3_GPIB_ERR_NUMBER_PARAS;
+
+    if (GPIBNArgs == 2)
+	{
+
+        char *cmd;
+        cmd = GPIBCmdArgs[1];
+        int Rx = (strtol(cmd, &cmd, 10)) - 1;
+    }
+    
+
     return 0;
 }

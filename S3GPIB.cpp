@@ -301,7 +301,8 @@ int S3ProcessGPIBCommand(const char *cmd)
 	else if (Initial == 'P')
 	{
 		if		(!STRCMP(Cmd,	"PPMCALRX"))	err = CmdPPMCALRX(); 
-		else if (!STRCMP(Cmd,	"PPMCALTX"))	err = CmdPPMCALTX();
+		else if (!STRCMP(Cmd,	"PPMCALTXRF"))	err = CmdPPMCALTXRF();
+		else if (!STRCMP(Cmd,	"PPMCALTXOPT"))	err = CmdPPMCALTXOPT();
 		else if (!STRCMP(Cmd,	"PPMBATTID"))	err = CmdPPMBATTID();
 		else if (!STRCMP(Cmd,	"PPMTXID"))		err = CmdPPMTXID();
 		else if (!STRCMP(Cmd,	"PPMRXID"))		err = CmdPPMRXID();
@@ -339,6 +340,7 @@ int S3ProcessGPIBCommand(const char *cmd)
 	{
 		if		(!STRCMP(Cmd,	"TXCHARGE"))	err = CmdTXCHARGE();
 		else if (!STRCMP(Cmd,	"TXPOWER"))		err = CmdTXSLEEP();
+        else if (!STRCMP(Cmd,	"TXSTARTSTATE"))err = CmdTXSTARTSTATE();
 		else if (!STRCMP(Cmd,	"TX"))			err = CmdTX();
 		else if (!STRCMP(Cmd,	"TESTNAME"))	err = CmdTESTNAME();
 		else if (!STRCMP(Cmd,	"TCOMPMODE"))	err = CmdTCOMPMODE();
@@ -1726,40 +1728,30 @@ int CmdSYSSETTIME()
 }
 
 // ----------------------------------------------------------------------------
+// Must specify channel although only required for Rx2
 
 int CmdPPMCALRX()
 {
 	if (S3GetLocked())
 		return S3_GPIB_COMMAND_LOCKED;
 	
-	if (GPIBNArgs != 3)
+	if (GPIBNArgs != 4)
 		return S3_GPIB_ERR_NUMBER_PARAS;
 
+	char			all, Rx, Tx;
+
+	int res = GetAddress2(&all, &Rx, &Tx, NULL);
+
 	char *pEnd;
-
-	char Rx = (char)strtol(GPIBCmdArgs[1], &pEnd, 10);
+	double val = (double)strtod(GPIBCmdArgs[3], &pEnd);
 	
 	if (*pEnd != '\0')
 		return S3_GPIB_INVALID_NUMBER;
 
-	Rx--;
+	S3SetFactoryMode(Rx, Tx, true);
 
-	double val = (double)strtod(GPIBCmdArgs[2], &pEnd);
-	
-	if (*pEnd != '\0')
-		return S3_GPIB_INVALID_NUMBER;
-
-	S3SetFactoryMode(Rx, -1, true);
-
-	S3I2CRxMS(Rx);
-
-	if (1)
-	{
-		if (S3I2CRxSetCalibration(Rx, -1, val))
-			return S3_GPIB_CALIBRATION_FAILED;
-	}
-	else
-		Sleep(2000);
+	if (S3I2CRxSetCalibration(Rx, Tx, val))
+		return S3_GPIB_CALIBRATION_FAILED;
 
 	S3SetFactoryMode(Rx, -1, false);
 
@@ -1768,7 +1760,7 @@ int CmdPPMCALRX()
 
 // ----------------------------------------------------------------------------
 
-int CmdPPMCALTX()
+int CmdPPMCALTXRF()
 {
 	if (S3GetLocked())
 		return S3_GPIB_COMMAND_LOCKED;
@@ -1792,7 +1784,7 @@ int CmdPPMCALTX()
 	if (path == 2 || path < 1 || path > 7)
 		return S3_GPIB_INVALID_PARAMETER;
 
-	path--;
+	path--; // 0-indexed
 
 	double val = strtod(GPIBCmdArgs[4], &pEnd);
 	
@@ -1802,11 +1794,50 @@ int CmdPPMCALTX()
 	if (S3SetFactoryMode(Rx, Tx, true))
 		return S3_GPIB_CALIBRATION_FAILED;
 
-	Sleep(1000);
+	// Sleep(1000);
 
 	if (1)
 	{
 		if (S3I2CTxSetRFCalibration(path, val))
+			return S3_GPIB_CALIBRATION_FAILED;
+	}
+	else
+		Sleep(2000);
+
+	S3SetFactoryMode(Rx, Tx, false);
+
+	return 0;
+}
+
+// ----------------------------------------------------------------------------
+
+int CmdPPMCALTXOPT()
+{
+	if (S3GetLocked())
+		return S3_GPIB_COMMAND_LOCKED;
+
+	if (GPIBNArgs != 4)
+		return S3_GPIB_ERR_NUMBER_PARAS;
+
+	char			all, Rx, Tx;
+
+	int res = GetAddress2(&all, &Rx, &Tx, NULL);
+
+	if (res > 2000)
+		return res;
+
+	char *pEnd;
+	double val = strtod(GPIBCmdArgs[3], &pEnd);
+	
+	if (*pEnd != '\0')
+		return S3_GPIB_INVALID_NUMBER;
+
+	if (S3SetFactoryMode(Rx, Tx, true))
+		return S3_GPIB_CALIBRATION_FAILED;
+
+	if (1)
+	{
+		if (S3I2CTxSetOptCalibration(val))
 			return S3_GPIB_CALIBRATION_FAILED;
 	}
 	else
@@ -2508,3 +2539,19 @@ InputZ S3Str2InputZ(const char *str)
 }
 
 // ----------------------------------------------------------------------------
+
+int CmdTXSTARTSTATE()
+{
+	if (GPIBNArgs != 2)
+		return S3_GPIB_ERR_NUMBER_PARAS;
+
+	if (!STRCMP(GPIBCmdArgs[1], "USER"))
+		S3SetTxStartState(S3_TXSTART_USER);
+	else if (!STRCMP(GPIBCmdArgs[1], "SLEEP"))
+		S3SetTxStartState(S3_TXSTART_SLEEP);
+    else if (!STRCMP(GPIBCmdArgs[1], "ON"))
+		S3SetTxStartState(S3_TXSTART_ON);
+	else
+		return S3_GPIB_INVALID_MODE;
+	return 0;
+}
