@@ -289,6 +289,12 @@ int S3IPSetParaTxt(	char Rx, char Tx, char IP, char Para, char *Txt)
 			break;
 		case S3_GAIN:
 			lgain = strtol(Txt, &eptr, 10);
+			
+            if (lgain > SCHAR_MAX)
+                lgain = SCHAR_MAX;
+            else if (lgain < SCHAR_MIN)
+                lgain = SCHAR_MIN;
+
 			if (S3SetGain(Rx, Tx, IP, (char)lgain))
 				return 1;
 			break;
