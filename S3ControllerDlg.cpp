@@ -387,11 +387,6 @@ void CS3ControllerDlg::SysShutdown()
 	KillTimer(IDT_S3_RX_POLL_TIMER);
 	KillTimer(IDT_S3_COMM_POLL_TIMER);
 
-	// char Filename[S3_MAX_FILENAME_LEN];
-
-	// sprintf_s(Filename, S3_MAX_FILENAME_LEN, "%s\\%s",
-	//	S3_ROOT_DIR, S3_DEF_CONFIG_FILENAME);
-
 	S3Save(NULL);
 	S3I2CClose();
 	S3GPIOClose();
@@ -406,20 +401,19 @@ void CS3ControllerDlg::SysShutdown()
 
 // ----------------------------------------------------------------------------
 
+
 void CS3ControllerDlg::AppShutdown()
 {
 	m_GDIStatic.S3GDIRemoteCmd();
 
 	if (S3DbgLog) fclose(S3DbgLog);
 
-	KillTimer(IDT_S3_GUI_UPDATE_TIMER);
-	KillTimer(IDT_S3_RX_POLL_TIMER);
-	KillTimer(IDT_S3_COMM_POLL_TIMER);
+	BOOL err;
 
-	// char Filename[S3_MAX_FILENAME_LEN];
-
-	// sprintf_s(Filename, S3_MAX_FILENAME_LEN, "%s\\%s",
-	//	S3_ROOT_DIR, S3_DEF_CONFIG_FILENAME);
+	// KillTimer doesn't remove queued messages
+	err = KillTimer(IDT_S3_GUI_UPDATE_TIMER);
+	err = KillTimer(IDT_S3_RX_POLL_TIMER);
+	err = KillTimer(IDT_S3_COMM_POLL_TIMER);
 
 	S3Save(NULL);
 	S3I2CClose();
@@ -428,6 +422,7 @@ void CS3ControllerDlg::AppShutdown()
 
 	S3End(); // Do last as S3Data required by others to shut down cleanly
     WSACleanup();
+
 	OnCancel();
 }
 

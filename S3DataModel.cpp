@@ -164,11 +164,7 @@ int S3DataModelInit(pS3DataModel dm, bool DemoMode)
 	dm->m_AGC = S3_AGC_CONT;
 	dm->m_TxStartState = S3_TXSTART_SLEEP;
 
-#ifndef S3_CEA_BUILD
 	dm->m_TCompGainOption = true;
-#else
-	dm->m_TCompGainOption = false;
-#endif
 
 	dm->m_LowNoiseOption = false;
 	dm->m_WinTrackOption = S3_DEF_WIN_TRACK_OPTION;

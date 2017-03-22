@@ -10,11 +10,7 @@
 // Minor	- add/changes to functionality, HB update required.
 // Revision - implementation changes, bug fixes committed, no user changes.
 
-#ifdef S3_ATIS_BUILD
-#define S3_SYS_SW			"ATiS.3"
-#else
-#define S3_SYS_SW			"1.00r000"
-#endif
+#define S3_SYS_SW			"1.00r001"
 
 #define S3_SYS_MODEL		"Sentinel 3"
 
