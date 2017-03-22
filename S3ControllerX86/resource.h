@@ -20,6 +20,7 @@
 #define IDD_SYSTEM_MON_DIALOG           150
 #define IDB_RX_MAIN_EMPTY_BITMAP        169
 #define IDD_FACTORY_DIALOG              172
+#define IDD_FACTORY_SYS_DIALOG          173
 #define IDB_CHARGING_BITMAP             178
 #define IDB_SETTINGS_BITMAP             179
 #define IDB_RX_BACK_BTN_BITMAP          180
@@ -84,6 +85,7 @@
 #define IDB_SYS_WARN_BITMAP             250
 #define IDB_SYS_ERROR_BITMAP            251
 #define IDB_SYS_INFO_BITMAP             252
+#define IDD_SYSTEM_DIALOG               253
 #define IDC_CONTROLLER_HIERARCHY_TREE   1000
 #define IDC_CONFIG_TAB                  1001
 #define IDC_MAIN_TAB                    1001
@@ -130,21 +132,26 @@
 #define S3GDI_NUM_EDIT                  1628
 #define S3GDI_CB                        1629
 #define S3GDI_NUM2_EDIT                 1630
+#define S3GDI_DATE_EDIT                 1631
 #define IDC_RX_CAL_EDIT                 1635
+#define IDC_RX1_CAL_EDIT                1635
 #define IDC_RX_CAL_STATIC               1636
+#define IDC_RX1_CAL_STATIC              1636
 #define IDC_TX_CAL_STATIC               1637
 #define IDC_TX_CAL_EDIT                 1638
 #define S3GDI_TIME_EDIT                 1639
 #define IDC_TX_OPT_CAL_STATIC           1639
-#define S3GDI_DATE_EDIT                 1640
 #define IDC_TX_OPT_CAL_EDIT             1640
 #define IDC_RF_PATH_COMBO               1641
 #define IDC_GAIN_PATH_STATIC            1642
 #define IDC_CAL_SET_BUTTON              1643
-#define IDC_RX_CAL_SET_BUTTON           1644
+#define IDC_RX1_CAL_SET_BUTTON           1644
 #define IDC_TX_MSG_STATIC               1645
+#define IDC_RX2_CAL_EDIT                1645
 #define IDC_RX_MSG_STATIC               1646
+#define IDC_RX2_CAL_STATIC              1646
 #define IDC_SCRN_OFFSET_X_EDIT          1647
+#define IDC_RX2_CAL_SET_BUTTON          1647
 #define IDC_SCRN_OFFSET_Y_EDIT          1648
 #define IDC_SCREEN_OFFSET_STATIC        1649
 #define IDC_SCRN_OFFSET_SET_BUTTON      1650
@@ -158,6 +165,10 @@
 #define IDC_FACT_PN_SET_BUTTON          1658
 #define IDC_CAL_GROUP_STATIC            1659
 #define IDC_SYSTEM_GRP_STATIC           1660
+#define IDC_STATUS_MSG_SYS_STATIC       1661
+#define IDC_PEAK_THR_BUTTON             1663
+#define IDC_PEAK_THR_EDIT               1664
+#define IDC_PEAK_THR_STATIC             1665
 #define ID_ONE_TWO                      32775
 #define ID_ONE_THREE                    32776
 #define ID_TEST_MENU                    32777
@@ -166,9 +177,9 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        253
+#define _APS_NEXT_RESOURCE_VALUE        254
 #define _APS_NEXT_COMMAND_VALUE         32778
-#define _APS_NEXT_CONTROL_VALUE         1661
+#define _APS_NEXT_CONTROL_VALUE         1666
 #define _APS_NEXT_SYMED_VALUE           107
 #endif
 #endif
