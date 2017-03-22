@@ -149,6 +149,7 @@ int S3I2CPoll(CS3ControllerDlg *parent)
 		{
 			S3EventLogAdd("App close without shutting down all transmitters", 3, -1, -1, -1);
 			parent->AppShutdown();
+			return -1;
 		}
 
 		S3CloseAppTimeout++;
