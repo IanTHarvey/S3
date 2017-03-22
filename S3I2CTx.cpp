@@ -270,12 +270,12 @@ int S3I2CGetTxWakeUp(char Rx, char Tx)
 	if (err)
 		return 1;
 
+	S3TxClearPeakHold(Rx, Tx, 0); // Force clear
+	S3I2CTxPeakHoldLatchClear(Rx, Tx);
+
 	// ------------------------------------------------------------------------
 	// RF board(s)
 	// ------------------------------------------------------------------------
-
-	S3TxClearPeakHold(Rx, Tx, 0); // Force clear
-	S3I2CTxPeakHoldLatchClear(Rx, Tx);
 
 	char IP = S3TxGetActiveIP(Rx, Tx);
 	S3IPSetGainSent(Rx, Tx, IP, -128); // Force update
@@ -474,13 +474,40 @@ int S3I2CTxUpdateTempPath(char Rx, char Tx)
 // Set peak threshold according to path, on path change.
 // Password required.
 
-int S3I2CTxSetPeakThresh(char Rx, char Tx, char path)
+int S3I2CTxSetPeakThreshOld(char Rx, char Tx, char path)
 {
 	int err = S3I2CWriteSerialShort(S3I2C_TX_OPT_ADDR,
 				S3I2C_TX_OPT_PEAK_H, PeakThTable[path - 1]);
 
 	return err;
 }
+
+// ----------------------------------------------------------------------------
+
+int S3I2CTxSetPeakThresh(char Rx, char Tx, char path)
+{
+	int err = S3I2CWriteSerialShort(S3I2C_TX_OPT_ADDR,
+				S3I2C_TX_OPT_PEAK_THR, PeakThTable[path - 1]);
+
+	Sleep(100);
+
+	if (!err)
+	{
+		short	rval;
+		err = S3I2CReadSerialShort(S3I2C_TX_OPT_ADDR,
+				S3I2C_TX_OPT_PEAK_THR, &rval);
+
+		if (!err)
+		{
+			if (PeakThTable[path - 1] != rval)
+				err = 10;
+		}
+	}
+
+	return err;
+}
+
+// ----------------------------------------------------------------------------
 
 int S3I2CTxFixBias(char Rx, char Tx)
 {
