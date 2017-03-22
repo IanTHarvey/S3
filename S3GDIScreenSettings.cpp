@@ -439,6 +439,7 @@ void CS3GDIScreenMain::S3DrawGDISettingsRemote(void)
 	unsigned short Port = S3GetIPPort();
 	str.Format(_T("%d"), Port);
 	
+	m_SettingsPort->SetEditable(!S3GetRemote());
 	m_SettingsPort->SetValue(str);
 	m_SettingsPort->Draw(m_HDC, m_hFontS, m_hFontSB);
 
@@ -450,6 +451,7 @@ void CS3GDIScreenMain::S3DrawGDISettingsRemote(void)
 
 	SelectObject(m_HDC, m_hBrushBG4);
 
+	m_SettingsUSBPort->SetEditable(!S3GetRemote());
 	m_SettingsUSBPort->SetValue(m_Parent->GetUSBPortName());
 	m_SettingsUSBPort->Draw(m_HDC, m_hFontS, m_hFontSB);
 
@@ -509,8 +511,8 @@ void CS3GDIScreenMain::S3DrawGDISettingsDefaults(void)
 		}
 	}
 
+	m_SettingsContTComp->SetEditable(!S3GetRemote());
 	m_SettingsContTComp->Draw(m_HDC, m_hFontS, m_hFontSB);
-
 
 	switch (S3GetAGC())
 	{
@@ -520,9 +522,8 @@ void CS3GDIScreenMain::S3DrawGDISettingsDefaults(void)
 		default: m_SettingsRxAGC->SetValue(_T("Error")); break;
 	}
 
-
+	m_SettingsRxAGC->SetEditable(!S3GetRemote());
 	m_SettingsRxAGC->Draw(m_HDC, m_hFontS, m_hFontSB);
-
 
 	m_SettingsUnits->SetValue(S3GetUnitString());
 	m_SettingsUnits->Draw(m_HDC, m_hFontS, m_hFontSB);
@@ -543,20 +544,6 @@ void CS3GDIScreenMain::S3DrawGDISettingsDefaults(void)
 	str.Format(_T("%+d"), S3IPGetGain(-1, -1, -1));
 	m_SettingsGain->SetValue(str);
 	m_SettingsGain->Draw(m_HDC, m_hFontS, m_hFontSB);
-
-	/*
-	switch(S3GetSigmaTau(-1, -1, -1))
-	{
-		case TauNone:	str = _T("Off"); break;
-		case TauLo:	str = _T("0.1"); break;
-		case TauMd:	str = _T("1.0"); break;
-		case TauHi:	str = _T("10.0"); break;
-		default: str = _T("Unknown");
-	};
-	*/
-
-	// m_SettingsSigTau->SetValue(str);
-	// m_SettingsSigTau->Draw(m_HDC, m_hFontS, m_hFontSB);
 
 	switch(S3GetImpedance(-1, -1, -1))
 	{
@@ -624,7 +611,8 @@ void CS3GDIScreenMain::S3DrawGDISettingsSystem(void)
 	m_SettingsPN->Draw(m_HDC, m_hFontS, m_hFontSB);
 
 	str.Format(_T("%S"), S3SysGetSW());
-	m_SettingsSW->SetValue(str); 
+	m_SettingsSW->SetValue(str);
+	m_SettingsSW->SetEditable(!S3GetRemote());
 	m_SettingsSW->Draw(m_HDC, m_hFontS, m_hFontSB);
 	
 	str.Format(_T("%S"), S3SysGetModel());
@@ -632,7 +620,8 @@ void CS3GDIScreenMain::S3DrawGDISettingsSystem(void)
 	m_SettingsModel->Draw(m_HDC, m_hFontS, m_hFontSB);
 
 	str.Format(_T("%S %S"), S3SysGetImageDate(), S3SysGetImageTime());
-	m_SettingsImageDate->SetValue(str);  
+	m_SettingsImageDate->SetValue(str);
+	m_SettingsImageDate->SetEditable(!S3GetRemote());
 	m_SettingsImageDate->Draw(m_HDC, m_hFontS, m_hFontSB);
 
 	if (1)
@@ -834,7 +823,7 @@ int CS3GDIScreenMain::S3FindSettingsScreen(POINT p)
 		else if  (Para == S3_ACCESS)
 		{
 			if (menu_item == 0)
-				S3SetRemote(0);
+				S3SetRemote(false);
 		}
 		else if  (Para == S3_TX_START_STATE)
 		{
@@ -865,6 +854,9 @@ int CS3GDIScreenMain::S3FindSettingsScreen(POINT p)
 	{
 		if (s == 0) // Ethernet port edit
 		{
+			if (S3GetRemote())
+				return 0;
+			
 			unsigned short Port = S3GetIPPort();
 
 			CString str;
@@ -883,6 +875,9 @@ int CS3GDIScreenMain::S3FindSettingsScreen(POINT p)
 		}
 		else if (s == 1) // USB enable/disable toggle
 		{
+			if (S3GetRemote())
+				return 0;
+
 			m_ParaMenu->Init(m_HDC, p.x, p.y);
 		
 			if (m_Parent->GetUSBEnabled())
@@ -995,6 +990,9 @@ int CS3GDIScreenMain::S3FindSettingsScreen(POINT p)
 		}
 		else if (s == 7) // OS version
 		{
+			if (S3GetRemote())
+				return 0;
+
 			m_ParaMenu->Init(m_HDC, p.x, p.y);
 		
 			m_ParaMenu->AddItem(_T("Update App"));
@@ -1005,6 +1003,9 @@ int CS3GDIScreenMain::S3FindSettingsScreen(POINT p)
 		}
 		else if (s == 8) // Temp compensation mode
 		{
+			if (S3GetRemote())
+				return 0;
+
 			m_ParaMenu->Init(m_HDC, p.x, p.y);
 		
 			if (S3GetTCompGainOption())
@@ -1112,6 +1113,9 @@ int CS3GDIScreenMain::S3FindSettingsScreen(POINT p)
 		}
 		else if (s == 14) // Global Rx AGC setting
 		{
+			if (S3GetRemote())
+				return 0;
+
 			m_ParaMenu->Init(m_HDC, p.x, p.y);
 		
 			m_ParaMenu->AddItem(_T("Off"));
@@ -1125,6 +1129,9 @@ int CS3GDIScreenMain::S3FindSettingsScreen(POINT p)
 		}
 		else if (s == 15) // App version
 		{
+			if (S3GetRemote())
+				return 0;
+
 			m_ParaMenu->Init(m_HDC, p.x, p.y);
 		
 			m_ParaMenu->AddItem(_T("Update Image"));

@@ -1185,9 +1185,9 @@ const char *S3GetEventLogName()
 
 // ---------------------------------------------------------------------------
 
-int S3SetRemote(char r)
+int S3SetRemote(bool remote)
 {
-	S3Data->m_Remote = (r == 1);
+	S3Data->m_Remote = remote;
 
 	if (S3Data->m_Remote)
 	{
@@ -1201,9 +1201,9 @@ int S3SetRemote(char r)
 
 // ---------------------------------------------------------------------------
 
-char S3GetRemote()
+bool S3GetRemote()
 {
-	return (S3Data->m_Remote == 1);
+	return S3Data->m_Remote;
 }
 
 // ---------------------------------------------------------------------------

@@ -363,14 +363,19 @@ int S3I2CSetIPGain(char Rx, char Tx, char IP)
 
 		if (S3I2CSetRFAtten(Atten, Rx, Tx))
 			return 3;
- 
+
 		// *Presumed* successful as no read-back
 		S3IPSetGainSent(Rx, Tx, IP, Gain);
 		S3IPSetPathSent(Rx, Tx, IP, S3I2CCurPath);
 
 		if (S3I2CCurPath != PathSent)
 		{
-			S3I2CTxUpdateTempPath(Rx, Tx);
+			if (S3I2CTxUpdateTempPath(Rx, Tx))
+				return 7;
+				
+			if (S3TxGetPeakHoldCap(Rx, Tx))
+				if (S3I2CTxSetPeakThresh(Rx, Tx, S3I2CCurPath))
+					return 6;
 		}
 	}
 

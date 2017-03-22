@@ -1127,8 +1127,8 @@ char S3GetType(char Rx, char Tx);
 const char *S3GetConfigName();
 const char *S3GetEventLogName();
 
-int S3SetRemote(char r);
-char S3GetRemote();
+int S3SetRemote(bool remote);
+bool S3GetRemote();
 
 void S3SetUSBOpen(bool open);
 bool S3GetUSBOpen();

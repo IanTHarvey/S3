@@ -1007,7 +1007,7 @@ int CmdREPORT()
 
 int CmdLOCAL()
 {
-	S3SetRemote(0);
+	S3SetRemote(false);
 	return 0;
 }
 
@@ -1015,7 +1015,7 @@ int CmdLOCAL()
 
 int CmdREMOTE()
 {
-	S3SetRemote(1);
+	S3SetRemote(true);
 	return 0;
 }
 
