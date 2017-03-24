@@ -555,7 +555,7 @@ typedef struct sS3TxData
 	char			m_TempReport;		// Reported 'stable' temperatute
 
 	short			m_LaserPow, m_LaserLo, m_LaserHi;		// Laser power 10mdBm
-	short			m_PeakPower;
+	short			m_PeakThresh;
 	short			m_PeakHold;
 	unsigned char	m_ClearPeakHold;
 
@@ -1013,15 +1013,15 @@ wchar_t *S3TxGetTauUnits(	char Rx, char Tx, char IP);
 wchar_t *S3TxGetTauLabel(	char Rx, char Tx, SigmaT T);
 int		S3TxGetTauUnitsA(char *str,
 							char Rx, char Tx, char IP);
-// Redundant
-int S3TxSetPeakPower(		char Rx, char Tx, short power);
-short S3TxGetPeakPower(		char Rx, char Tx);
+int S3TxSetPeakThresh(		char Rx, char Tx, short power);
+short S3TxGetPeakThresh(	char Rx, char Tx);
 
 int S3TxSetPeakPulse(		short pulse);
 short S3TxGetPeakPulse();
 
 char S3TxGetAttenGainOffset(char Rx, char Tx);
 
+// TODO: Obsolete
 int S3TxSetPeakHold(		char Rx, char Tx, short hold);
 short S3TxGetPeakHold(		char Rx, char Tx);
 

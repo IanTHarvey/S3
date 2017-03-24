@@ -265,19 +265,17 @@ void CS3GDIScreenMain::S3InitGDITxScreen(void)
 
 	// ------------------------------------------------------------------------
 
-
-		m_TxPeakPower = new CS3NameValue(	m_Parent,
+		m_TxPeakThresh = new CS3NameValue(	m_Parent,
 					m_RectTxTx.left, 
 					m_RectTxTx.top + HEAD_ROW + Row++ * PARA_ROW, m_RectTxTx.Width(),
-					_T("Peak power (dBm)"), _T("-1288"), false);
-		m_TxPeakPower->RectEdit(m_HDC, m_hFontS);
+					_T("Peak thresh (mV)"), _T("-1288"), false);
+		m_TxPeakThresh->RectEdit(m_HDC, m_hFontS);
 
-		m_TxPeakHold = new CS3NameValue(	m_Parent,
-					m_RectTxTx.left, 
-					m_RectTxTx.top + HEAD_ROW + Row++ * PARA_ROW, m_RectTxTx.Width(),
-					_T("Peak hold (dBm)"), _T("-1288"), false);
-		m_TxPeakHold->RectEdit(m_HDC, m_hFontS);
-
+		//m_TxPeakHold = new CS3NameValue(	m_Parent,
+		//			m_RectTxTx.left, 
+		//			m_RectTxTx.top + HEAD_ROW + Row++ * PARA_ROW, m_RectTxTx.Width(),
+		//			_T("Peak hold (dBm)"), _T("-1288"), false);
+		//m_TxPeakHold->RectEdit(m_HDC, m_hFontS);
 
 	// ------------------------------------------------------------------------
 
@@ -414,8 +412,8 @@ void CS3GDIScreenMain::S3CloseGDITxScreen(void)
 	delete m_TxPowerMode;
 	delete m_TxLaserPow;
 	
-	delete m_TxPeakPower;
-	delete m_TxPeakHold;
+	delete m_TxPeakThresh;
+	// delete m_TxPeakHold;
 
 	delete m_TxType;
 	delete m_TxTemp;
@@ -885,16 +883,17 @@ void CS3GDIScreenMain::S3DrawGDITxTx(char Rx, char Tx)
 	// Temporary for development - this is a per-input measurement
 	if (S3TxGetPeakHoldCap(Rx, Tx))
 	{
-		short PeakPow = S3TxGetPeakPower(Rx, Tx);
+		short PeakThresh = S3TxGetPeakThresh(Rx, Tx);
 
-		if (PeakPow != SHRT_MIN)
-			str.Format(_T("%.1f"), (double)PeakPow / 100.0);
+		if (PeakThresh != SHRT_MIN)
+			str.Format(_T("%d"), PeakThresh / 10);
 		else
-			str = _T("-.-");
+			str = _T("--");
 
-		m_TxPeakPower->SetValue(str);
-		m_TxPeakPower->Draw(m_HDC, m_hFontS, m_hFontSB);
+		m_TxPeakThresh->SetValue(str);
+		m_TxPeakThresh->Draw(m_HDC, m_hFontS, m_hFontSB);
 
+		/*
 		short PeakHold = S3TxGetPeakHold(Rx, Tx);
 
 		if (PeakHold != SHRT_MIN)
@@ -904,6 +903,7 @@ void CS3GDIScreenMain::S3DrawGDITxTx(char Rx, char Tx)
 
 		m_TxPeakHold->SetValue(str);
 		m_TxPeakHold->Draw(m_HDC, m_hFontS, m_hFontSB);
+		*/
 	}
 
 	// ---------------------------------------------------------------------------
@@ -1967,8 +1967,13 @@ void CS3GDIScreenMain::S3DrawGDITxBattSeg(char Rx, char Tx, int xref, int yref)
 		}
 
 		unsigned short ATTE = S3TxGetATTE(Rx, Tx);
-		status.Format(_T("%d%c (%dh:%02dm)"), SoC, '%',
-			ATTE / 60, ATTE % 60);
+		char h = ATTE / 60;
+		char m = ATTE % 60;
+		
+		if (h < 10)
+			status.Format(_T("%d%c (%dh:%02dm)"), SoC, '%', h, m);
+		else
+			status.Format(_T("%d%c (%d h)"), SoC, '%', h);
 	}
 
 	fntRc.left = xref + m_lChBatt + 10;

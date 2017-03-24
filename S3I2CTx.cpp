@@ -227,13 +227,6 @@ int S3I2CGetTxStartUp(char Rx, char Tx)
 	
 	// NO. CANNOT READ ANYTHING FROM TxOpt HERE, AS MAYBE NOT AWAKE
 
-	//if (!S3I2CReadSerialData(S3I2C_TX_OPT_ADDR,	S3I2C_TX_OPT_FW_V, 3))
-	//{
-	//	S3TxOptSetFW(Rx, Tx, S3I2CTxReadBuf);
-	//}
-
-	//err = S3I2CTxGetPeakThresh(Rx, Tx);
-
 	// ------------------------------------------------------------------------
 	// Battery
 	// ------------------------------------------------------------------------
@@ -486,8 +479,11 @@ int S3I2CTxSetPeakThreshOld(char Rx, char Tx, char path)
 
 int S3I2CTxSetPeakThresh(char Rx, char Tx, char path)
 {
-	int err = S3I2CWriteSerialShort(S3I2C_TX_OPT_ADDR,
-				S3I2C_TX_OPT_PEAK_THR, PeakThTable[path - 1]);
+	int err = 0;
+	short thresh = 1000; // PeakThTable[path - 1]
+	
+	err = S3I2CWriteSerialShort(S3I2C_TX_OPT_ADDR,
+				S3I2C_TX_OPT_PEAK_THR, thresh);
 
 	Sleep(100);
 
@@ -496,10 +492,9 @@ int S3I2CTxSetPeakThresh(char Rx, char Tx, char path)
 		short	rval;
 		err = S3I2CReadSerialShort(S3I2C_TX_OPT_ADDR,
 				S3I2C_TX_OPT_PEAK_THR, &rval);
-
 		if (!err)
 		{
-			if (PeakThTable[path - 1] != rval)
+			if (rval != thresh)
 				err = 10;
 		}
 	}
@@ -1049,7 +1044,7 @@ int S3I2CTxGetPeakThresh(char Rx, char Tx)
 
 	if (!S3I2CReadSerialData(S3I2C_TX_OPT_ADDR, S3I2C_TX_OPT_PEAK_THR, 2))
 	{
-		S3TxSetPeakPower(Rx, Tx, S3RevByteShort(S3I2CTxReadBuf));
+		S3TxSetPeakThresh(Rx, Tx, S3RevByteShort(S3I2CTxReadBuf));
 	}
 
 	// TODO: This not correct
@@ -1139,7 +1134,7 @@ int S3I2CTxPeakHoldLatchClear(char Rx, char Tx)
 
 // ----------------------------------------------------------------------------
 // Set in max attenuation
-int S3I2CTxsetSafeMode(char Rx, char Tx)
+int S3I2CTxSetSafeMode(char Rx, char Tx)
 {	
 	char IP = S3TxGetActiveIP(Rx, Tx);
 
@@ -1175,7 +1170,7 @@ int S3I2CTxGetOptAlarms(char Rx, char Tx)
 			unsigned char alarm = *(S3I2CTxReadBuf + 1);
 			if (alarm & 0x10)
 			{
-				int err = S3I2CTxsetSafeMode(Rx, Tx);
+				int err = S3I2CTxSetSafeMode(Rx, Tx);
 
 				char IP = S3TxGetActiveIP(Rx, Tx);
 

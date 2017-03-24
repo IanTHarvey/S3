@@ -442,7 +442,7 @@ int CmdGetTXMod(char *Inbuf, int Rx, int Tx)
             S3Data->m_Rx[Rx].m_Tx[Tx].m_CurAlarmSrc,
             S3Data->m_Rx[Rx].m_Tx[Tx].m_CurAlarm,
             S3Data->m_Rx[Rx].m_Tx[Tx].m_TempTEC,
-            S3Data->m_Rx[Rx].m_Tx[Tx].m_PeakPower,
+            S3Data->m_Rx[Rx].m_Tx[Tx].m_PeakThresh,
             S3Data->m_Rx[Rx].m_Tx[Tx].m_PeakHold,
             
             S3Data->m_Rx[Rx].m_Tx[Tx].m_Tau_ns[0],

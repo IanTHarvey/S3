@@ -76,7 +76,7 @@ int S3TxInit(pS3TxData node)
 	node->m_LaserLo = SHRT_MIN;	// Disabled
 	node->m_LaserHi = SHRT_MAX;	// Disabled
 
-	node->m_PeakPower = SHRT_MIN;
+	node->m_PeakThresh = SHRT_MIN;
 	node->m_PeakHold = SHRT_MIN;
 	node->m_ClearPeakHold = 0;
 
@@ -199,7 +199,7 @@ int S3TxInserted(char Rx, char Tx, S3TxType type)
 	pTx->m_AttenGainCap = false;
 	pTx->m_PeakHoldCap = false;
 	pTx->m_AttenGainOffset = 0;
-	pTx->m_PeakPower = SHRT_MIN;
+	pTx->m_PeakThresh = SHRT_MIN;
 	pTx->m_PeakHold = SHRT_MIN;
 	pTx->m_ClearPeakHold = 0;
 
@@ -940,7 +940,7 @@ int S3TxOptSetFW(char Rx, char Tx, const unsigned char *s)
 
 	// TODO: Temporarily disable for 1.2.0 - too flaky
 	if (v0 == 1 && v1 == 2)
-		S3TxSetPeakHoldCap(Rx, Tx, false);
+		S3TxSetPeakHoldCap(Rx, Tx, true); // false);
 	else if (v0 > 1) 
 		S3TxSetPeakHoldCap(Rx, Tx, true);
 	else if (v0 == 1 && v1 >= 2)
@@ -1491,23 +1491,24 @@ bool S3TxGetEmergency(	char Rx, char Tx)
 
 // ---------------------------------------------------------------------------
 
-int S3TxSetPeakPower(char Rx, char Tx, short power)
+int S3TxSetPeakThresh(char Rx, char Tx, short thresh)
 {
-	S3Data->m_Rx[Rx].m_Tx[Tx].m_PeakPower = power;
+	S3Data->m_Rx[Rx].m_Tx[Tx].m_PeakThresh = thresh;
 	return 0;
 }
 
 // ---------------------------------------------------------------------------
 
-short S3TxGetPeakPower(char Rx, char Tx)
+short S3TxGetPeakThresh(char Rx, char Tx)
 {
-	return S3Data->m_Rx[Rx].m_Tx[Tx].m_PeakPower;	
+	return S3Data->m_Rx[Rx].m_Tx[Tx].m_PeakThresh;	
 }
 
 // ---------------------------------------------------------------------------
 
 extern short PeakThTable[];
 
+// TODO: Obsolete
 int S3TxSetPeakHold(char Rx, char Tx, short hold)
 {
 	S3Data->m_Rx[Rx].m_Tx[Tx].m_PeakHold = hold;
@@ -1525,6 +1526,7 @@ int S3TxSetPeakHold(char Rx, char Tx, short hold)
 
 // ---------------------------------------------------------------------------
 
+// TODO: Obsolete
 short S3TxGetPeakHold(char Rx, char Tx)
 {
 	return S3Data->m_Rx[Rx].m_Tx[Tx].m_PeakHold;	

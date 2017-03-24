@@ -662,7 +662,7 @@ protected:
 	// Tx screen
 	CS3NameValue	*m_TxType, *m_TxNodeName, *m_TxPowerMode,
 					*m_TxLaserPow, *m_TxTemp, *m_TxTempComp, *m_TxSN;
-	CS3NameValue	*m_TxPeakPower, *m_TxPeakHold;
+	CS3NameValue	*m_TxPeakThresh; //, *m_TxPeakHold;
 	CS3NameValue	*m_TxBattT, *m_TxBattI;
 	// CS3NameValue	*m_TxBattPN, *m_TxBattHW, *m_TxBattFW;
 	
