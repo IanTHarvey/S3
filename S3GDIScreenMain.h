@@ -154,6 +154,7 @@ private:
 	// Shutdown screen
 	CRect	m_RectShutdownScreen,
 				m_RectTxSleepAll,
+				m_RectTxWakeAll,
 				m_RectSysShutdown,
 				m_RectSysRestart;
 
@@ -611,6 +612,8 @@ protected:
 	HDC				m_hbmpTxUBatt[S3_N_BATT_SEGS + 2];
 
 	HDC				m_hbmpBlueButton;
+	HDC				m_hbmpGreyButton;
+	HDC				m_hbmpRedButton;
 //	HDC				m_hbmpBootPPM;
 
 	HDC				m_hbmpRx1RLLOn[5];

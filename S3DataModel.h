@@ -555,8 +555,8 @@ typedef struct sS3TxData
 	char			m_TempReport;		// Reported 'stable' temperatute
 
 	short			m_LaserPow, m_LaserLo, m_LaserHi;		// Laser power 10mdBm
-	short			m_PeakThresh;
-	short			m_PeakHold;
+	short			m_PeakThresh;		// 0.1mV
+	short			m_PeakHold;			// Obsolete
 	unsigned char	m_ClearPeakHold;
 
 	unsigned char	m_CompMode;
@@ -565,15 +565,15 @@ typedef struct sS3TxData
 	double			m_Tau_ns[4];
 	
 	// Links to GUI
-	int				m_Xref, m_Yref; // Used to find on main screen
-	char			m_Para;			// Used to mark selected parameter
+	int				m_Xref, m_Yref;		// Used to find on main screen
+	char			m_Para;				// Used to mark selected parameter
 } *pS3TxData, S3TxData;
 
 // ----------------------------------------------------------------------------
 // Data stored for each inserted Rx module
 typedef struct sS3RxData
 {
-	S3RxType		m_Type;		// S3_RxEmpty, S3_Rx1, 2, or 6
+	S3RxType		m_Type;				// S3_RxEmpty, S3_Rx1, 2, or 6
 	S3Fmax			m_Fmax;
 	bool			m_Detected;
 	char			m_NodeName[S3_MAX_NODE_NAME_LEN];
@@ -766,7 +766,7 @@ typedef struct sS3DataModel
 	bool			m_PowerDownPending;
 	bool			m_PowerDownFailed;
 
-	// Test only
+	// Test/dev only
 	bool			m_CloseAppPending;
 	bool			m_CloseAppFailed;
 
@@ -779,6 +779,7 @@ typedef struct sS3DataModel
 	char			m_SelectedTx, m_SelectedRx, m_SelectedIP;
 
 	bool			m_SleepAll;
+	bool			m_WakeAll;
 
     char         m_DisplayedUSBPort[S3_MAX_USB_PORT_LEN];
     char         m_DisplayedUSBDriver[S3_MAX_USB_DRIVER_LEN];
@@ -890,8 +891,11 @@ int				S3SetIPPort(	unsigned short port);
 int				S3GetMACAddrStr(char *addr);
 
 int				S3SetSleepAll(bool sleep);
+int				S3SetWakeAll(bool wake);
 bool			S3GetSleepAll();
+bool			S3GetWakeAll();
 bool			S3AllAsleep(); // Query whether all Txs asleep
+bool			S3AllAwake();
 
 int				S3IPInit(	pS3IPData node);
 int				S3TxInit(	pS3TxData node);

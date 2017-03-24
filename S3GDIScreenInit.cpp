@@ -400,6 +400,8 @@ void CS3GDIScreenMain::S3GDIInit()
 	m_hbmpInfoButton =			CreateBitmap(hh, IDB_INFO_BUTTON_BITMAP);
 	m_hbmpInfoButtonGrey =		CreateBitmap(hh, IDB_INFO_BUTTON_GREY_BITMAP);
 	m_hbmpBlueButton =			CreateBitmap(hh, IDB_BLUE_BUTTON_BITMAP);
+	m_hbmpGreyButton =			CreateBitmap(hh, IDB_GREY_BUTTON_BITMAP);
+	m_hbmpRedButton =			CreateBitmap(hh, IDB_RED_BUTTON_BITMAP);
 //	m_hbmpBootPPM =				CreateBitmap(hh, IDB_BLUE_BUTTON_BITMAP);
 
 	// ---------------------------------------------------------------------------

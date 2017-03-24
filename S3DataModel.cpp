@@ -518,6 +518,8 @@ int S3SysInit(pS3DataModel node)
 	node->m_IPPort = S3_DEFAULT_IP_PORT;
 
 	node->m_SleepAll = false;
+	node->m_WakeAll = false;
+
 	node->m_USBOpen = false;
 
 	return 0;
@@ -1408,6 +1410,7 @@ int S3SoftwareUpdate()
 }
 
 // ---------------------------------------------------------------------------
+// Mark all Txs for sleep or waking
 
 int	S3SetSleepAll(bool sleep)
 {
@@ -1430,16 +1433,50 @@ int	S3SetSleepAll(bool sleep)
 
 // ---------------------------------------------------------------------------
 
+int	S3SetWakeAll(bool wake)
+{
+	if (S3Data->m_WakeAll == wake)
+		return 0;
+	
+	S3Data->m_WakeAll = wake;
+	
+	if (wake)
+	{
+		S3TxSetPowerStat(-1, -1, S3_TX_ON);
+	}
+	else
+	{
+		S3TxSetPowerStat(-1, -1, S3_TX_SLEEP);
+	}
+
+	return 0;
+}
+
+// ---------------------------------------------------------------------------
+
 bool S3GetSleepAll()
 {
 	return S3Data->m_SleepAll;
+}
+// ---------------------------------------------------------------------------
+
+bool S3GetWakeAll()
+{
+	return S3Data->m_WakeAll;
 }
 
 // ---------------------------------------------------------------------------
 
 bool S3AllAsleep()
 {
-	for(char Rx = 0; Rx < S3_MAX_RXS; Rx++)
+	char Rxs;
+		
+	if (S3GetDemoMode())
+		Rxs = 1;
+	else
+		Rxs = S3_MAX_RXS;
+
+	for(char Rx = 0; Rx < Rxs; Rx++)
 	{
 		if (S3RxGetType(Rx) != S3_RxEmpty)
 		{
@@ -1455,6 +1492,33 @@ bool S3AllAsleep()
 	}
 
 	S3Data->m_SleepAll = false;
+
+	return true;
+}
+
+// ---------------------------------------------------------------------------
+
+bool S3AllAwake()
+{
+	char Rxs = S3_MAX_RXS;;
+		
+	for(char Rx = 0; Rx < Rxs; Rx++)
+	{
+		if (S3RxGetType(Rx) != S3_RxEmpty)
+		{
+			for(char Tx = 0; Tx < S3_MAX_TXS; Tx++)
+			{
+				if (S3TxGetType(Rx, Tx) != S3_TxUnconnected)
+				{
+					if (S3TxGetPowerStat(Tx, Rx) != S3_TX_ON)
+						return false;
+				}
+			}
+		}
+	}
+
+	S3Data->m_WakeAll = false;
+
 	return true;
 }
 

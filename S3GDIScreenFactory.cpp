@@ -102,12 +102,17 @@ void CS3GDIScreenMain::S3DrawGDIFactoryScreen(void)
 
 	if (S3GetSoftShutdownOption())
 	{
-		S3BLTR(m_hbmpBlueButton, m_RectFactoryShutdown);
-		DrawText(m_HDC, _T("Shutdown"), -1, &m_RectFactoryShutdown, S3_BTN_CENTRE);
-
-		S3BLTR(m_hbmpBlueButton, m_RectFactoryRestart);
-		DrawText(m_HDC, _T("Restart"), -1, &m_RectFactoryRestart, S3_BTN_CENTRE);
+		S3BLTR(m_hbmpRedButton, m_RectFactoryShutdown);
+		S3BLTR(m_hbmpRedButton, m_RectFactoryRestart);
 	}
+	else
+	{
+		S3BLTR(m_hbmpGreyButton, m_RectFactoryShutdown);
+		S3BLTR(m_hbmpGreyButton, m_RectFactoryRestart);
+	}
+
+	DrawText(m_HDC, _T("Shutdown"), -1, &m_RectFactoryShutdown, S3_BTN_CENTRE);
+	DrawText(m_HDC, _T("Restart"), -1, &m_RectFactoryRestart, S3_BTN_CENTRE);
 
 	S3BLTR(m_hbmpBlueButton, m_RectFactoryClose);
 	DrawText(m_HDC, _T("Close"), -1, &m_RectFactoryClose, S3_BTN_CENTRE);

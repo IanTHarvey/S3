@@ -86,6 +86,8 @@
 #define IDB_SYS_ERROR_BITMAP            251
 #define IDB_SYS_INFO_BITMAP             252
 #define IDD_SYSTEM_DIALOG               253
+#define IDB_GREY_BUTTON_BITMAP          254
+#define IDB_RED_BUTTON_BITMAP           255
 #define IDC_CONTROLLER_HIERARCHY_TREE   1000
 #define IDC_CONFIG_TAB                  1001
 #define IDC_MAIN_TAB                    1001
@@ -145,7 +147,7 @@
 #define IDC_RF_PATH_COMBO               1641
 #define IDC_GAIN_PATH_STATIC            1642
 #define IDC_CAL_SET_BUTTON              1643
-#define IDC_RX1_CAL_SET_BUTTON           1644
+#define IDC_RX1_CAL_SET_BUTTON          1644
 #define IDC_TX_MSG_STATIC               1645
 #define IDC_RX2_CAL_EDIT                1645
 #define IDC_RX_MSG_STATIC               1646
@@ -177,7 +179,7 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        254
+#define _APS_NEXT_RESOURCE_VALUE        256
 #define _APS_NEXT_COMMAND_VALUE         32778
 #define _APS_NEXT_CONTROL_VALUE         1666
 #define _APS_NEXT_SYMED_VALUE           107

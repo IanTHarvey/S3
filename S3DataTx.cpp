@@ -631,7 +631,14 @@ int S3TxSetPowerStat(char Rx, char Tx, S3TxPwrMode mode)
 	
 	if (Rx == -1 && Tx == -1)
 	{
-		for (Rx = 0; Rx < S3_MAX_RXS; Rx++)
+		char Rxs;
+		
+		if (S3GetDemoMode())
+			Rxs = 1;
+		else
+			Rxs = S3_MAX_RXS;
+		
+		for (Rx = 0; Rx < Rxs; Rx++)
 		{
 			if (S3RxExistQ(Rx))
 			{
