@@ -77,45 +77,47 @@ void CS3GDIScreenMain::S3DrawGDIShutdownScreen(void)
 	SelectObject(m_HDC, m_hFontL);
 	
 	bool AllAsleep = S3AllAsleep();
+	bool AllAwake = S3AllAwake();
 
-	if (!AllAsleep)
+	if (!(AllAsleep && AllAwake))
 	{
-		if (!S3GetSleepAll())
+		if (!AllAsleep)
 		{
-			S3BLTR(m_hbmpBlueButton, m_RectTxSleepAll);
-			DrawText(m_HDC, _T("Sleep All"), -1, &m_RectTxSleepAll, S3_BTN_CENTRE);
+			if (!S3GetSleepAll())
+			{
+				S3BLTR(m_hbmpBlueButton, m_RectTxSleepAll);
+				DrawText(m_HDC, _T("Sleep All"), -1, &m_RectTxSleepAll, S3_BTN_CENTRE);
+			}
+			else
+			{
+				S3BLTR(m_hbmpGreyButton, m_RectTxSleepAll);
+				DrawText(m_HDC, _T("Sleeping"), -1, &m_RectTxSleepAll, S3_BTN_CENTRE);
+			}
 		}
 		else
 		{
 			S3BLTR(m_hbmpGreyButton, m_RectTxSleepAll);
-			DrawText(m_HDC, _T("Sleeping"), -1, &m_RectTxSleepAll, S3_BTN_CENTRE);
+			DrawText(m_HDC, _T("All Asleep"), -1, &m_RectTxSleepAll, S3_BTN_CENTRE);
 		}
-	}
-	else
-	{
-		S3BLTR(m_hbmpGreyButton, m_RectTxSleepAll);
-		DrawText(m_HDC, _T("All Asleep"), -1, &m_RectTxSleepAll, S3_BTN_CENTRE);
-	}
 
-	bool AllAwake = S3AllAwake();
-
-	if (!AllAwake)
-	{
-		if (!S3GetWakeAll())
+		if (!AllAwake)
 		{
-			S3BLTR(m_hbmpBlueButton, m_RectTxWakeAll);
-			DrawText(m_HDC, _T("Wake All"), -1, &m_RectTxWakeAll, S3_BTN_CENTRE);
+			if (!S3GetWakeAll())
+			{
+				S3BLTR(m_hbmpBlueButton, m_RectTxWakeAll);
+				DrawText(m_HDC, _T("Wake All"), -1, &m_RectTxWakeAll, S3_BTN_CENTRE);
+			}
+			else
+			{
+				S3BLTR(m_hbmpGreyButton, m_RectTxWakeAll);
+				DrawText(m_HDC, _T("Waking"), -1, &m_RectTxWakeAll, S3_BTN_CENTRE);
+			}
 		}
 		else
 		{
 			S3BLTR(m_hbmpGreyButton, m_RectTxWakeAll);
-			DrawText(m_HDC, _T("Waking"), -1, &m_RectTxWakeAll, S3_BTN_CENTRE);
+			DrawText(m_HDC, _T("All Awake"), -1, &m_RectTxWakeAll, S3_BTN_CENTRE);
 		}
-	}
-	else
-	{
-		S3BLTR(m_hbmpGreyButton, m_RectTxWakeAll);
-		DrawText(m_HDC, _T("All Awake"), -1, &m_RectTxWakeAll, S3_BTN_CENTRE);
 	}
 
 	CRect RectTxt = m_RectShutdownScreen;
