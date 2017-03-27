@@ -1484,7 +1484,7 @@ bool S3AllAsleep()
 			{
 				if (S3TxGetType(Rx, Tx) != S3_TxUnconnected)
 				{
-					if (S3TxGetPowerStat(Tx, Rx) != S3_TX_SLEEP)
+					if (S3TxGetPowerStat(Rx, Tx) != S3_TX_SLEEP)
 						return false;
 				}
 			}
@@ -1510,7 +1510,7 @@ bool S3AllAwake()
 			{
 				if (S3TxGetType(Rx, Tx) != S3_TxUnconnected)
 				{
-					if (S3TxGetPowerStat(Tx, Rx) != S3_TX_ON)
+					if (S3TxGetPowerStat(Rx, Tx) != S3_TX_ON)
 						return false;
 				}
 			}
