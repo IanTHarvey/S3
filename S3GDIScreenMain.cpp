@@ -272,6 +272,10 @@ int CS3GDIScreenMain::S3GDIChangeScreen(char screen)
 {
 	if (screen == S3_PREVIOUS_SCREEN)
 		screen = m_PrevScreen;
+
+		// TODO: Any other factory notifications?
+	if (m_Screen == S3_FACTORY_SCREEN)
+		S3LeaveFactoryScreen();
 	
 	if (m_Screen == screen)
 		return 0;

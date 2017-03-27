@@ -444,7 +444,7 @@ void CS3GDIScreenMain::S3CloseGDITxScreen(void)
 
 void CS3GDIScreenMain::S3DrawGDITxScreen(void)
 {
-	char Tx, Rx, IP;
+	char Rx, Tx, IP;
 
 	S3GetSelected(&Rx, &Tx, &IP);
 
@@ -515,8 +515,6 @@ void CS3GDIScreenMain::S3DrawGDITxMessage(char Rx, char Tx)
 
 		TxAlarm->Enable(true);
 		TxAlarm->SetString(str);
-		// SelectObject(m_HDC, m_hFontL);
-		// DrawText(m_HDC, str, -1, &fntRc, DT_LEFT);
 	}
 	else if (!S3TxRLLStable(Rx, Tx))
 	{
@@ -1738,16 +1736,6 @@ void CS3GDIScreenMain::S3DrawGDIParaPopUp(int xref, int yref)
 	else  if (ParaType == S3_RXRX_AGC)
 	{
 		// Now global setting
-		/*
-		m_ParaMenu->Init(m_HDC, xref, yref);
-
-		if (S3RxGetAGC(Rx))
-			m_ParaMenu->AddItem(_T("Off"));
-		else
-			m_ParaMenu->AddItem(_T("On"));
-
-		m_ParaMenu->Activate();
-		*/
 	}
 	else  if (ParaType == S3_TX_TESTTONE_ALL)
 	{
@@ -1817,9 +1805,6 @@ void CS3GDIScreenMain::S3GDITxNewTx(void)
 
 	str.Format(_T("%S"), PN);
 	m_TxInfoPopup->AddItem(_T("P/N:"), str);
-
-	// str.Format(_T("%S"), HWV);
-	// m_TxInfoPopup->AddItem(_T("H/W:"), str);
 
 	str.Format(_T("%S"), S3TxGetFWDate(Rx, Tx));
 	m_TxInfoPopup->AddItem(_T("Date:"), str);

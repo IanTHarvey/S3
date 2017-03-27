@@ -962,11 +962,11 @@ int S3SetLockFile()
 	if (!err)
 	{
 		fclose(fid);
-		S3EventLogAdd("System locked", 3, -1, -1, -1);
+		S3EventLogAdd("System lock file created", 3, -1, -1, -1);
 	}
 	else
 	{
-		S3EventLogAdd("System lock failed", 3, -1, -1, -1);
+		S3EventLogAdd("System lock file creation failed", 3, -1, -1, -1);
 		return 1;
 	}
 
@@ -980,11 +980,19 @@ bool S3GetLocked()
 	return S3Data->m_Locked;
 }
 
+int S3SetTelnetAuthRegKey(DWORD data);
+
 // ---------------------------------------------------------------------------
 
 int S3SetLocked()
 {
+	int err = 0;
+	
 	S3Data->m_Locked = true;
+
+	// Require authentication
+	if (S3SetTelnetAuthRegKey(1))
+		err = 1;
 
 #ifdef TRIZEPS
 	BOOL ok = WriteRegistry();
@@ -992,11 +1000,48 @@ int S3SetLocked()
 	if (!ok)
 	{
 		S3EventLogAdd("S3SetLocked: Failed to write registry", 3, -1, -1, -1);
-		return 1;
+		err = 2;
 	}
 #endif
 
-	return S3SetLockFile();
+	if (S3SetLockFile())
+		err = 3;
+
+	return err;
+}
+
+// ---------------------------------------------------------------------------
+
+int S3SetTelnetAuthRegKey(DWORD data)
+{
+#ifdef TRIZEPS
+
+	HKEY	hKey;
+	int		err;
+
+	err = RegOpenKeyEx(HKEY_LOCAL_MACHINE, _T("Comm\\TELNETD"), 0, 
+											KEY_SET_VALUE, &hKey);
+
+	if (err == ERROR_SUCCESS)
+	{
+		err = RegSetValueEx(hKey, _T("UseAuthentication"), 0,
+			REG_DWORD, (BYTE *)(&data), sizeof(DWORD));
+
+		if (err != ERROR_SUCCESS)
+		{
+			S3EventLogAdd("Failed to set telnetd registry key", 1, -1, -1, -1);
+			return 1;
+		}
+	}
+	else
+	{
+		S3EventLogAdd("Failed to open telnetd registry key", 1, -1, -1, -1);
+		return 1;
+	}
+
+#endif
+
+	return 0;
 }
 
 // ---------------------------------------------------------------------------

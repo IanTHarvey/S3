@@ -184,6 +184,9 @@ private:
 	//		m_RectFactoryYes, m_RectFactoryNo;
 
 	CRect	m_RectCalibrate, m_RectSystem, m_RectTest, m_RectDemo;
+	CRect	m_RectFactoryMsg;
+
+	CString	m_StrFactoryMsg;
 
 // ----------------------------------------------------------------------------
 
@@ -489,6 +492,7 @@ public:
 	void	S3DrawGDIFactoryScreen(void);
 
 	int		S3FindFactoryScreen(	POINT p);
+	int		S3LeaveFactoryScreen(void);
 
 	// ------------------------------------------------------------------------
 	// SWUpdate screen

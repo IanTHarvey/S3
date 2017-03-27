@@ -71,6 +71,13 @@ void CS3GDIScreenMain::S3InitGDIFactoryScreen(void)
 	m_RectDemo.MoveToXY(2 * m_RectScreen.Width() / NButtons +
 		(m_RectScreen.Width() / NButtons -	m_RectDemo.Width()) / 2,
 		m_RectDemo.top);
+
+	m_RectFactoryMsg = m_RectScreen;
+	m_RectFactoryMsg.left += LHMARGIN;
+	m_RectFactoryMsg.top = m_RectDemo.bottom + 50;
+	m_RectFactoryMsg.bottom = m_RectFactoryMsg.top + 50;
+
+	m_StrFactoryMsg = _T("");
 }
 
 // ----------------------------------------------------------------------------
@@ -128,6 +135,9 @@ void CS3GDIScreenMain::S3DrawGDIFactoryScreen(void)
 
 	S3BLTR(m_hbmpBlueButton, m_RectCalibrate);
 	DrawText(m_HDC, _T("Calibrate"), -1, &m_RectCalibrate,	S3_BTN_CENTRE);
+
+	SetTextColor(m_HDC, m_crTextNorm);
+	DrawText(m_HDC, m_StrFactoryMsg, -1, &m_RectFactoryMsg,	DT_LEFT);
 }
 
 // ----------------------------------------------------------------------------
@@ -192,8 +202,13 @@ int CS3GDIScreenMain::S3FindFactoryScreen(POINT p)
 	}
 	else if (m_RectFactoryLock.PtInRect(p))
 	{
-		S3SetLocked();
-		S3GDIChangeScreen(S3_OVERVIEW_SCREEN);
+		if (!S3SetLocked())
+			m_StrFactoryMsg = _T("System locked");
+		else
+			m_StrFactoryMsg = _T("System lock failed");
+
+		// S3GDIChangeScreen(S3_OVERVIEW_SCREEN);
+		
 		return 1;
 	}
 	else if (m_RectDemo.PtInRect(p))
@@ -203,6 +218,15 @@ int CS3GDIScreenMain::S3FindFactoryScreen(POINT p)
 		return 1;
 	}
 	
+	return 0;
+}
+
+// ----------------------------------------------------------------------------
+
+int CS3GDIScreenMain::S3LeaveFactoryScreen()
+{
+	m_StrFactoryMsg = _T("");
+
 	return 0;
 }
 
