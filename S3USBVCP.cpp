@@ -458,7 +458,7 @@ BOOL CS3USBVCP::ClosePort()
 	{
 		// Didn't exit nicely so kill it
 		TEXT("Error RThread");
-		TerminateThread(pThreadRead->m_hThread, 0xffffffff);
+		TerminateThread(pThreadRead->m_hThread, 0xFFFFFFFF);
 	}
 
 	// Release this resource
@@ -472,7 +472,7 @@ BOOL CS3USBVCP::ClosePort()
 	{
 		// Didn't exit nicely so kill it
 		TEXT("Error WThread");
-		TerminateThread(pThreadWrite->m_hThread, 0xffffffff);
+		TerminateThread(pThreadWrite->m_hThread, 0xFFFFFFFF);
 	}
 
 	CloseHandle(m_hPort);

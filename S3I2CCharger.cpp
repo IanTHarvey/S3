@@ -34,15 +34,16 @@ unsigned char CountPins(unsigned char pins)
 }
 
 // ----------------------------------------------------------------------------
+// Charger master-select
 
 int S3I2CChMS(unsigned char Ch)
 {
 #ifdef TRIZEPS
 	int pins, GPIOPins, ExpanderPins; // = I2C_ReadRandom(S3I2C_EXPANDER_ADDR, 0x04);
 
-	unsigned short Alarms = Get_TTLPort(0xffff, 0); // & 0x003f;
+	unsigned short Alarms = Get_TTLPort(0xFFFF, 0); // & 0x003f;
 
-	if (Ch == 0xff)
+	if (Ch == 0xFF)
 	{
 		pins = I2C_ReadRandom(S3I2C_EXPANDER_ADDR, 0x04);
 
@@ -51,7 +52,7 @@ int S3I2CChMS(unsigned char Ch)
 
 		I2C_WriteRandom(S3I2C_EXPANDER_ADDR, 0x04, pins);
 
-		pins = Get_TTLOutPort(0xffff, 0);
+		pins = Get_TTLOutPort(0xFFFF, 0);
 
 		pins &= ~0x03;
 
@@ -73,7 +74,7 @@ int S3I2CChMS(unsigned char Ch)
 
 		I2C_WriteRandom(S3I2C_EXPANDER_ADDR, 0x04, pins);
 
-		pins = Get_TTLOutPort( 0xffff, 0);
+		pins = Get_TTLOutPort( 0xFFFF, 0);
 		
 		if (Ch == 0)
 		{
@@ -93,7 +94,7 @@ int S3I2CChMS(unsigned char Ch)
 	else
 	{
 		// MS on expander port 0
-		pins = Get_TTLOutPort(0xffff, 0);
+		pins = Get_TTLOutPort(0xFFFF, 0);
 
 		pins &= ~MS_BAT_1;
 		pins &= ~MS_BAT_2;
@@ -289,6 +290,7 @@ int S3I2CChargerInit(unsigned char Ch)
 // http://e2e.ti.com/support/power_management/battery_management/f/180/p/213060/820268#820268
 //
 
+bool DoBattSeal = false;
 
 int S2I2CChFactorySN();
 int S2I2CChFactoryPN();
@@ -308,7 +310,7 @@ int S3I2CChGetStatus(unsigned char Ch)
 
 	if (!ok)
 	{
-		S3I2CChMS(0xff);
+		S3I2CChMS(0xFF);
 
 		// Still nobody at home
 		if (S3Data->m_Chargers[Ch].m_Detected == false)
@@ -389,8 +391,23 @@ int S3I2CChGetStatus(unsigned char Ch)
 
 	if (!new_insert)
 	{
- 		S3I2CChMS(0xff);
+ 		S3I2CChMS(0xFF);
 		return 0;
+	}
+
+	if (DoBattSeal)
+	{
+		S3I2CChSetBattSealed();
+	}
+	else
+	{
+		S3I2CChSetBattUnseal();
+		S3I2CChSetBattFullAccess();
+		S3I2CChReadSecKeys();
+		// S3I2CChWriteSecKeys();
+		S3I2CChWriteAuthKey();
+		if (S3I2CChAuthenticate())
+			return 1;
 	}
 
 	// S2I2CChFactorySN();
@@ -406,6 +423,12 @@ int S3I2CChGetStatus(unsigned char Ch)
 	char ver[S3_MAX_SW_VER_LEN];
 
 	i2cStartAddr = 0x00;
+
+	cmd[1] = 0x00; // Control status (2B)
+	ok = I2C_WriteRead(S3I2C_CH_BATT_ADDR, cmd, 3, NULL, 0);
+	ok = I2C_WriteRead(S3I2C_CH_BATT_ADDR, &i2cStartAddr, 1, i2cCmdBufRead, 2);
+	S3ChSetBattStatus(Ch, i2cCmdBufRead);
+
 	//cmd[1] = 0x01; // Device type (~= PN)
 	//ok = I2C_WriteRead(S3I2C_CH_BATT_ADDR, cmd, 3, NULL, 0);
 	//ok = I2C_WriteRead(S3I2C_CH_BATT_ADDR, &i2cStartAddr, 1, i2cCmdBufRead, 2);
@@ -443,15 +466,28 @@ int S3I2CChGetStatus(unsigned char Ch)
 
 	// Set up access to the user/manufacturer flash
 	cmd[0] = 0x61;	// BlockDataControl
-	cmd[1] = 0x00;	// Enable
+	if (DoBattSeal)
+		cmd[1] = 0x01;  // Enable sealed mode of DataFlashBlock
+	else
+		cmd[1] = 0x00;	// Enable Block data to access general data flash
+		
+
 	ok = I2C_WriteRead(S3I2C_CH_BATT_ADDR, cmd, 2, NULL, 0);
 
-	cmd[0] = 0x3e;	// DataFlashClass
-	cmd[1] = 48;	// Subclass 'Configuration'
-	ok = I2C_WriteRead(S3I2C_CH_BATT_ADDR, cmd, 2, NULL, 0);
-
+	if (!DoBattSeal)
+	{
+		cmd[0] = 0x3e;	// DataFlashClass
+		cmd[1] = 48;	// Subclass 'Configuration'
+		ok = I2C_WriteRead(S3I2C_CH_BATT_ADDR, cmd, 2, NULL, 0);
+	}
+	
 	cmd[0] = 0x3f;	// DataFlashBlock
-	cmd[1] = 0x01;	// Offset bank: 0: '0-31', 1: 32-63
+	if (DoBattSeal)
+		cmd[1] = 0x01;	// Offset bank: 0: '0-31', 1: 32-63
+						// 0: authentication data; 1: Mfr data
+	else
+		cmd[1] = 0x01;	// Offset bank: 0: '0-31', 1: 32-63
+
 	ok = I2C_WriteRead(S3I2C_CH_BATT_ADDR, cmd, 2, NULL, 0);
 
 	i2cStartAddr = 0x40 + 0; // Device name
@@ -463,7 +499,8 @@ int S3I2CChGetStatus(unsigned char Ch)
 
 	S3ChSetBattMfr(Ch, (char *)i2cStdBufRead);
 
-	S3ChBattValidate(Ch);
+	// Now done on setting SN & PN
+	// S3ChBattValidate(Ch);
 
 	/*
 	// Not used
@@ -562,7 +599,7 @@ int S3I2CChGetStatus(unsigned char Ch)
 	ok = I2C_WriteRead(S3I2C_CH_BATT_ADDR, &i2cStartAddr, 1, i2cStdBufRead, 32);
 	*/
 
-	S3I2CChMS(0xff);
+	S3I2CChMS(0xFF);
 #endif // TRIZEPS
 
 	return 0;
@@ -579,15 +616,22 @@ int S3I2CChReadSNPN(char *SN, char *PN)
 	unsigned char i2cStdBufRead[S3_FLASH_BLOCK_SIZE];
 
 	// Get 'Manufacturer Info' block data
-	cmd[0] = 0x3e;	// DataFlashClass
-	cmd[1] = 58;	// Subclass 'Manufacturer Info'
-	ok = I2C_WriteRead(S3I2C_CH_BATT_ADDR, cmd, 2, NULL, 0);
+	if (!DoBattSeal)
+	{
+		cmd[0] = 0x3e;	// DataFlashClass
+		cmd[1] = 58;	// Subclass 'Manufacturer Info'
+		ok = I2C_WriteRead(S3I2C_CH_BATT_ADDR, cmd, 2, NULL, 0);
 
-	if (!ok)
-		return 1;
+		if (!ok)
+			return 1;
+	}
 
 	cmd[0] = 0x3f;	// DataFlashBlock
-	cmd[1] = 0x00;	// Offset bank: 0: '0-31', 1: 32-63
+	if (!DoBattSeal)
+		cmd[1] = 0x00;	// Offset bank: 0: '0-31', 1: 32-63
+	else
+		cmd[1] = 0x01;	// Offset bank: 0: '0-31', 1: 32-63
+
 	ok = I2C_WriteRead(S3I2C_CH_BATT_ADDR, cmd, 2, NULL, 0);
 
 	if (!ok)
@@ -618,18 +662,18 @@ int S3I2CRxMS(unsigned char Rx)
 
 	unsigned short pin;
 
-	if (Rx == 0xff)
+	if (Rx == 0xFF)
 		pin = 0;
 	else
 		pin = 1 << (Rx + 2); 
 		
 	// First arg appears to make no difference
-	unsigned int prev = Get_TTLOutPort(0xffff, 0);
+	unsigned int prev = Get_TTLOutPort(0xFFFF, 0);
 
 	// Clear but preserve battery MSs
 	prev &= 0x03;
 
-	Clr_TTLPortBit(0xffff, 0);
+	Clr_TTLPortBit(0xFFFF, 0);
 	
 	Set_TTLPortBit(pin | prev, 0);
 	// Set_TTLPortBit(0x00, 0);
@@ -732,19 +776,19 @@ int S3I2CTest()
 	S3I2CChEn(3, true);
 
 	unsigned char i2cBufWrite[] = {0x10, 0x11};
-	unsigned char i2cBufRead[2] = {0xff, 0xff};
+	unsigned char i2cBufRead[2] = {0xFF, 0xFF};
 
 	I2C_WriteRead(0xAA, i2cBufWrite, 2, NULL, 0);
 	I2C_WriteRead(0xAA, NULL, 0, i2cBufRead, 2);
 
 	unsigned char i2cVBufWrite[] = {0x08, 0x00};
-	unsigned char i2cVBufRead[6] = {0xff, 0xff, 0xff, 0xff, 0xff, 0xff};
+	unsigned char i2cVBufRead[6] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
 
 	I2C_WriteRead(S3I2C_CH_BATT_ADDR, i2cVBufWrite, 6, NULL, 0);
 	I2C_WriteRead(S3I2C_CH_BATT_ADDR, NULL, 0, i2cVBufRead, 6);
 
 	unsigned char i2cTBufWrite[] = {0x0c, 0x0d};
-	unsigned char i2cTBufRead[2] = {0xff, 0xff};
+	unsigned char i2cTBufRead[2] = {0xFF, 0xFF};
 
 	I2C_WriteRead(S3I2C_CH_BATT_ADDR, i2cTBufWrite, 2, NULL, 0);
 	I2C_WriteRead(S3I2C_CH_BATT_ADDR, NULL, 0, i2cTBufRead, 2);
@@ -753,31 +797,31 @@ int S3I2CTest()
 	// I2C_WriteRead(S3I2C_BATTERY_ADDRESS, i2cTBufWrite, 2, i2cTBufRead, 2);
 
 	unsigned char i2cSNBufWrite[] = {0x28, 0x29};
-	unsigned char i2cSNBufRead[2] = {0xff, 0xff};
+	unsigned char i2cSNBufRead[2] = {0xFF, 0xFF};
 
 	I2C_WriteRead(S3I2C_CH_BATT_ADDR, i2cSNBufWrite, 2, NULL, 0);
 	I2C_WriteRead(S3I2C_CH_BATT_ADDR, NULL, 0, i2cSNBufRead, 2);
 
 	unsigned char i2cIntTBufWrite[] = {0x2a, 0x2b};
-	unsigned char i2cIntTBufRead[2] = {0xff, 0xff};
+	unsigned char i2cIntTBufRead[2] = {0xFF, 0xFF};
 
 	I2C_WriteRead(S3I2C_CH_BATT_ADDR, i2cIntTBufWrite, 2, NULL, 0);
 	I2C_WriteRead(S3I2C_CH_BATT_ADDR, NULL, 0, i2cIntTBufRead, 2);
 
 	unsigned char i2cCyclesBufWrite[] = {0x2c, 0x2d};
-	unsigned char i2cCyclesBufRead[2] = {0xff, 0xff};
+	unsigned char i2cCyclesBufRead[2] = {0xFF, 0xFF};
 
 	I2C_WriteRead(S3I2C_CH_BATT_ADDR, i2cCyclesBufWrite, 2, NULL, 0);
 	I2C_WriteRead(S3I2C_CH_BATT_ADDR, NULL, 0, i2cCyclesBufRead, 2);
 
 	unsigned char i2cCapBufWrite[] = {0x3c, 0x3d};
-	unsigned char i2cCapBufRead[2] = {0xff, 0xff};
+	unsigned char i2cCapBufRead[2] = {0xFF, 0xFF};
 
 	I2C_WriteRead(S3I2C_CH_BATT_ADDR, i2cCapBufWrite, 2, NULL, 0);
 	I2C_WriteRead(S3I2C_CH_BATT_ADDR, NULL, 0, i2cCapBufRead, 2);
 
 	unsigned char i2cFWBufWrite[] = {0x00, 0x01, 0x02, 0x00};
-	unsigned char i2cFWBufRead[2] = {0xff, 0xff};
+	unsigned char i2cFWBufRead[2] = {0xFF, 0xFF};
 
 	I2C_WriteRead(S3I2C_CH_BATT_ADDR, i2cFWBufWrite, 4, NULL, 0);
 	// I2C_WriteRead(S3I2C_CH_BATT_ADDR, NULL, 0, i2cFWBufRead, 2);
@@ -786,7 +830,7 @@ int S3I2CTest()
 	i2cFWBufRead[1] = I2C_ReadRandom(S3I2C_CH_BATT_ADDR, 0x01);
 
 	unsigned char i2cHWBufWrite[] = {0x00, 0x01, 0x00, 0x00};
-	unsigned char i2cHWBufRead[2] = {0xff, 0xff};
+	unsigned char i2cHWBufRead[2] = {0xFF, 0xFF};
 
 	// I2C_WriteRandom(S3I2C_CH_BATT_ADDR, 0x00, 0x00);
 	// I2C_WriteRandom(S3I2C_CH_BATT_ADDR, 0x01, 0x02);
@@ -801,8 +845,8 @@ int S3I2CTest()
 
 	int SoC = I2C_ReadRandom(S3I2C_CH_BATT_ADDR, 0x02);
 
-	unsigned char i2cFlagsBufWrite[] = {0x0e, 0x0f};
-	unsigned char i2cFlagsBufRead[2] = {0xff, 0xff};
+	unsigned char i2cFlagsBufWrite[] = {0x0E, 0x0F};
+	unsigned char i2cFlagsBufRead[2] = {0xFF, 0xFF};
 
 	err = I2C_WriteRead(S3I2C_CH_BATT_ADDR, i2cFlagsBufWrite, 2, NULL, 0);
 	I2C_WriteRead(S3I2C_CH_BATT_ADDR, NULL, 0, i2cFlagsBufRead, 2);
@@ -869,10 +913,6 @@ int S3I2CChWriteSNPN(const char *SN, const char *PN)
 
 	CheckSum = 0xFF - CheckSum;
 
-	// Get checksum - don't need as rewriting the whold block
-	// cmd[0] = 0x60;
-	// ok = I2C_WriteRead(S3I2C_CH_BATT_ADDR, cmd, 1, i2cCmdBufRead, 1);
-
 	// Write the WHOLE data block
 	ok = I2C_WriteRead(S3I2C_CH_BATT_ADDR, cmdSN, S3_FLASH_BLOCK_SIZE + 1, NULL, 0);
 
@@ -912,7 +952,6 @@ int S2I2CChFactoryPN()
 #ifdef TRIZEPS
 	char PartNum[] =	{"S3-BAT-2P-00"};
 
-	// unsigned char i2cStdBufRead[32];
 	unsigned char i2cCmdBufRead[2];
 
 	BOOL	ok;
@@ -974,3 +1013,4 @@ int S2I2CChFactoryPN()
 }
 
 // ----------------------------------------------------------------------------
+
