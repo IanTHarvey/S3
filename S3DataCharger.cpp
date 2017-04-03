@@ -144,8 +144,8 @@ int	S3ChSetBattSN(char Ch, const char *SN)
 
 	strcpy_s(S3Data->m_Chargers[Ch].m_BattSN, S3_MAX_SN_LEN, SN);
 
-	S3Data->m_Chargers[Ch].m_BattValidated =
-		S3ChBattValidate(Ch);
+	S3Data->m_Chargers[Ch].m_BattValidated = true;
+		// S3ChBattValidate(Ch);
 
 	return 0;
 }
@@ -180,6 +180,27 @@ int S3ChSetBattHW(char Ch, const char *Ver)
 	}
 
 	return 1;
+}
+
+// ---------------------------------------------------------------------------
+
+
+int S3ChSetBattStatus(char Ch, const unsigned char *stat)
+{
+	if (S3Data->m_Chargers[Ch].m_Occupied)
+	{
+		S3Data->m_Chargers[Ch].stat_l = *stat;
+		S3Data->m_Chargers[Ch].stat_h = *(stat + 1);
+	}
+
+	return 1;
+}
+
+// ---------------------------------------------------------------------------
+
+unsigned char S3ChGetBattStatus(char Ch)
+{
+	return	S3Data->m_Chargers[Ch].stat_h;
 }
 
 // ---------------------------------------------------------------------------
@@ -245,7 +266,7 @@ const char *S3ChGetTimeToFullStr(	char Ch)
 
 	if (S3Data->m_Chargers[Ch].m_Occupied)
 	{
-		if (S3Data->m_Chargers[Ch].m_ATTF == 0xffff)
+		if (S3Data->m_Chargers[Ch].m_ATTF == 0xFFFF)
 		{
 			// TODO: This is probably a fault - the charger fuse
 			// may have tripped resulting in ~0 charge current
