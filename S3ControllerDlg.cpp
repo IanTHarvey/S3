@@ -174,16 +174,47 @@ BOOL CS3ControllerDlg::PreTranslateMessage(MSG* pMsg)
 
 bool GetBuildNum(void);
 
+extern int S3I2CTxAuthenticate();
+extern unsigned char S3I2CCurTxOptAddr;
+extern unsigned char S3I2CCurRxOptAddr;
+
+extern unsigned char S3I2CRxOptAddr[];
+extern unsigned char S3I2CTxOptAddr[];
+
 BOOL CS3ControllerDlg::OnInitDialog()
 {
 	CDialog::OnInitDialog();
+
+	/* Tx Authentication test code
+	// Initialise minimal system to run S3I2CTxAuthenticate()
+	S3GPIOInit();
+
+	I2C_Init();
+
+	for (unsigned char Ch = 0; Ch < S3_N_CHARGERS; Ch++)
+		S3I2CChEn(Ch, true);
+	
+	I2C_WriteRandom(S3I2C_EXPANDER_ADDR, 0x04, 0x00); // Zero MS_BAT_3 & MS_BAT_4
+	I2C_WriteRandom(S3I2C_EXPANDER_ADDR, 0x06, 0x80);
+
+	// Configure pins as inputs
+	I2C_WriteRandom(S3I2C_EXPANDER_ADDR, 0x0C, 0xC0);	// Port 0
+	I2C_WriteRandom(S3I2C_EXPANDER_ADDR, 0x0D, 0x07);	// Port 1
+	I2C_WriteRandom(S3I2C_EXPANDER_ADDR, 0x0E, 0x80);	// Port 2
+
+	S3I2CRxMS(0);
+	S3I2CChMS(0);
+	S3I2CCurRxOptAddr = S3I2CRxOptAddr[0];
+	S3I2CCurTxOptAddr = S3I2CTxOptAddr[0];
+	int Auth = S3I2CTxAuthenticate();
+	*/
 
 	errno_t err;
 
 	debug_print(_T("OnInitDialog: Starting\n"));
 
 	// Set the icon for this dialog.  The framework does this automatically
-	//  when the application's main window is not a dialog
+	// when the application's main window is not a dialog
 	SetIcon(m_hIcon, TRUE);			// Set big icon
 	SetIcon(m_hIcon, FALSE);		// Set small icon
 
