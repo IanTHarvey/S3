@@ -1671,6 +1671,9 @@ int S3SetFactoryMode(char Rx, char Tx, bool mode)
 			if (S3I2CRxMS(Rx))
 				return 1;
 
+		if (S3I2CChMS(0))
+			return 1;
+
 		S3I2CSetUpOptAddr(Rx, Tx);
 
 		if (Tx != -1)
