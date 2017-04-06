@@ -184,6 +184,7 @@ int CmdGetInput(char *Inbuf, int Rx, int Tx, int IP);
 #define S3_GPIB_ID_WRITE_FAILED		2226
 #define S3_GPIB_INVALID_SNPN		2227
 #define S3_GPIB_INVALID_TYPE		2228
+#define S3_GPIB_BATTERY_SEALED		2229
 
 #define S3_GPIB_COMMAND_LOCKED		2240
 

@@ -58,6 +58,11 @@ extern unsigned char S3Tx8IPMap[];
 #define S3_SCREEN_OFFSET_FILENAME	"S3ScreenOffset"
 #define S3_OSDATE_FILENAME			"S3OSDate"
 
+// All REVERSE byte order
+#define S3_BATT_UNSEAL_KEY			"67D8FF9A"	// Unseal code
+#define S3_BATT_FAS_KEY				"1DD34FF2"	// Full access
+#define S3_BATT_SHA1_HMAC_KEY		"79C56EFA0D0535D8E7138A082FE5C527" // 128-bit
+
 // #define	S3_FILE_VERSION		1.3 // double
 // #define	S3_FILE_VERSION		1.4 // Save input tone enable 20-12-16
 // #define	S3_FILE_VERSION		1.5 // Save Tx user sleep flag 17-01-17
@@ -92,6 +97,9 @@ extern unsigned char S3Tx8IPMap[];
 #define S3_MAX_IPS				8
 
 #define S3_TREE_DEPTH			3
+
+#define SHA1_DIGEST_LEN			20 // 160-bit
+#define SHA1_KEY_LEN			16 // 128-bit
 
 #define S3_MAX_MODEL_ID_LEN		64
 #define S3_MAX_SN_LEN			64
@@ -641,6 +649,8 @@ typedef struct sS3Charger
 								// current use is to distinguish between real
 								// and fake batteries in Demo Mode.
 	bool			m_Occupied;
+
+	unsigned char	stat_h, stat_l;
 
 	char			m_MfrData[S3_MAX_SN_LEN];
 	
@@ -1363,6 +1373,8 @@ int				S3ChInitAll();
 // Battery-on-charge
 const char		*S3ChGetBattHW(	char Ch);
 int				S3ChSetBattHW(	char Ch, const char *Ver);
+int				S3ChSetBattStatus(char Ch, const unsigned char *stat);
+unsigned char	S3ChGetBattStatus(char Ch);
 const char		*S3ChGetBattFW(	char Ch);
 int				S3ChSetBattFW(	char Ch, const char *Ver);
 int				S3ChSetBattTemp(char Ch, char t);
@@ -1430,8 +1442,8 @@ int S3I2CTxGetStatus(	char Rx, char Tx);
 int S3I2CRxProcessTx(	char Rx, char Tx);
 
 // Read/write battery serial and part numbers
-int S3I2CChReadSNPN(	char		*SN, char		*PN);
-int S3I2CChWriteSNPN(	const char	*SN, const char	*PN);
+int S3I2CChReadSNPN(	char Ch, char		*SN, char		*PN);
+int S3I2CChWriteSNPN(	char Ch, const char	*SN, const char	*PN);
 
 // ----------------------------------------------------------------------------
 // Global temperature compensation scheme 

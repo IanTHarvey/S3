@@ -290,8 +290,6 @@ int S3I2CChargerInit(unsigned char Ch)
 // http://e2e.ti.com/support/power_management/battery_management/f/180/p/213060/820268#820268
 //
 
-bool DoBattSeal = false;
-
 int S2I2CChFactorySN();
 int S2I2CChFactoryPN();
 
@@ -350,16 +348,6 @@ int S3I2CChGetStatus(unsigned char Ch)
 	//else
 	//	S3ChCancelAlarm(Ch, S3_CH_NO_CHARGE_VOLTAGE);
 
-
-
-	// {cmd (addr) + function (2-byte little endian 'CNTL_FUNCTION')}
-	// unsigned char cmd[3] = {0x00, 0x08, 0x00}; // Chem ID
-	// TODO: What should this be?
-	unsigned char cmd[3] = {0x00, 0x00, 0x00}; // Status
-	i2cStartAddr = 0x00;
-	// ok = I2C_WriteRead(S3I2C_CH_BATT_ADDR, cmd, 3, NULL, 0);
-	// ok = I2C_WriteRead(S3I2C_CH_BATT_ADDR, &i2cStartAddr, 1, i2cStdBufRead, 2);
-
 	i2cStartAddr = 0x1A; // 'Command' Average time to full
 	ok = I2C_WriteRead(S3I2C_CH_BATT_ADDR, &i2cStartAddr, 1, i2cCmdBufRead, 2);
 
@@ -373,12 +361,6 @@ int S3I2CChGetStatus(unsigned char Ch)
 		Sleep(10);
 		S3I2CChEn(Ch, true);
 	}
-
-	// Status
-	//i2cStartAddr = 0x00;
-	//cmd[1] = 0x00; // Status
-	//ok = I2C_WriteRead(S3I2C_CH_BATT_ADDR, cmd, 3, NULL, 0);
-	//ok = I2C_WriteRead(S3I2C_CH_BATT_ADDR, &i2cStartAddr, 1, i2cCmdBufRead, 2);
 
 	// Enable 12V supply if good
 	if (!(S3ChGetAlarms(Ch) & S3_CH_BATT_HOT))
@@ -395,45 +377,31 @@ int S3I2CChGetStatus(unsigned char Ch)
 		return 0;
 	}
 
-	if (DoBattSeal)
+	// New discovery only
+	if (1)
 	{
-		S3I2CChSetBattSealed();
-	}
-	else
-	{
-		S3I2CChSetBattUnseal();
-		S3I2CChSetBattFullAccess();
-		S3I2CChReadSecKeys();
+		//S3I2CChSetBattSealed();
+		// S3I2CChSetBattUnseal();
+		// Sleep(100);
+		// S3I2CChSetBattFullAccess();
+		// Sleep(100);
+		// S3I2CChReadSecKeys();
 		// S3I2CChWriteSecKeys();
-		S3I2CChWriteAuthKey();
+		
 		if (S3I2CChAuthenticate())
 			return 1;
 	}
-
-	// S2I2CChFactorySN();
-	// S2I2CChFactoryPN();
-
-	// i2cStartAddr = 0x28; // Serial number
-	// ok = I2C_WriteRead(S3I2C_CH_BATT_ADDR, &i2cStartAddr, 1, i2cCmdBufRead, 2);
-
-	// char SN[S3_MAX_SN_LEN];
-	// sprintf_s(SN, "%04x", *((unsigned short *)(i2cCmdBufRead)));
-	// S3ChSetBattSN(Ch, SN);
 
 	char ver[S3_MAX_SW_VER_LEN];
 
 	i2cStartAddr = 0x00;
 
+	unsigned char cmd[3] = {0, 0, 0};
+
 	cmd[1] = 0x00; // Control status (2B)
 	ok = I2C_WriteRead(S3I2C_CH_BATT_ADDR, cmd, 3, NULL, 0);
 	ok = I2C_WriteRead(S3I2C_CH_BATT_ADDR, &i2cStartAddr, 1, i2cCmdBufRead, 2);
 	S3ChSetBattStatus(Ch, i2cCmdBufRead);
-
-	//cmd[1] = 0x01; // Device type (~= PN)
-	//ok = I2C_WriteRead(S3I2C_CH_BATT_ADDR, cmd, 3, NULL, 0);
-	//ok = I2C_WriteRead(S3I2C_CH_BATT_ADDR, &i2cStartAddr, 1, i2cCmdBufRead, 2);
-	//sprintf_s(ver, S3_MAX_SW_VER_LEN, "%04x", *((unsigned short *)i2cCmdBufRead));
-	//S3ChSetBattPN(Ch, ver);
 
 	cmd[1] = 0x02; // FW
 	ok = I2C_WriteRead(S3I2C_CH_BATT_ADDR, cmd, 3, NULL, 0);
@@ -447,91 +415,8 @@ int S3I2CChGetStatus(unsigned char Ch)
 	sprintf_s(ver, S3_MAX_SW_VER_LEN, "%04x", *((unsigned short *)i2cCmdBufRead));
 	S3ChSetBattHW(Ch, ver);
 
-	/*
-	cmd[0] = 0x00; // Unseal key part 1
-	cmd[1] = 0x14; 
-	cmd[2] = 0x04; 
-	ok = I2C_WriteRead(S3I2C_CH_BATT_ADDR, cmd, 3, NULL, 0);
-
-	cmd[0] = 0x00; // Unseal key part 2
-	cmd[1] = 0x72;
-	cmd[2] = 0x36; 
-	ok = I2C_WriteRead(S3I2C_CH_BATT_ADDR, cmd, 3, NULL, 0);
-
-	cmd[0] = 0x00; // Seal key
-	cmd[1] = 0x20;
-	cmd[2] = 0x00; 
-	ok = I2C_WriteRead(S3I2C_CH_BATT_ADDR, cmd, 3, NULL, 0);
-	*/
-
-	// Set up access to the user/manufacturer flash
-	cmd[0] = 0x61;	// BlockDataControl
-	if (DoBattSeal)
-		cmd[1] = 0x01;  // Enable sealed mode of DataFlashBlock
-	else
-		cmd[1] = 0x00;	// Enable Block data to access general data flash
-		
-
-	ok = I2C_WriteRead(S3I2C_CH_BATT_ADDR, cmd, 2, NULL, 0);
-
-	if (!DoBattSeal)
-	{
-		cmd[0] = 0x3e;	// DataFlashClass
-		cmd[1] = 48;	// Subclass 'Configuration'
-		ok = I2C_WriteRead(S3I2C_CH_BATT_ADDR, cmd, 2, NULL, 0);
-	}
-	
-	cmd[0] = 0x3f;	// DataFlashBlock
-	if (DoBattSeal)
-		cmd[1] = 0x01;	// Offset bank: 0: '0-31', 1: 32-63
-						// 0: authentication data; 1: Mfr data
-	else
-		cmd[1] = 0x01;	// Offset bank: 0: '0-31', 1: 32-63
-
-	ok = I2C_WriteRead(S3I2C_CH_BATT_ADDR, cmd, 2, NULL, 0);
-
-	i2cStartAddr = 0x40 + 0; // Device name
-	ok = I2C_WriteRead(S3I2C_CH_BATT_ADDR, &i2cStartAddr, 1, i2cStdBufRead, 32);
-
-	// TODO: This may not apply generally
-	i2cStdBufRead[11] = ' ';
-	i2cStdBufRead[23] = '\0';
-
-	S3ChSetBattMfr(Ch, (char *)i2cStdBufRead);
-
-	// Now done on setting SN & PN
-	// S3ChBattValidate(Ch);
-
-	/*
-	// Not used
-	cmd[0] = 0x3e;	// DataFlashClass
-	cmd[1] = 49;	// Subclass 'Discharge'
-	ok = I2C_WriteRead(S3I2C_CH_BATT_ADDR, cmd, 2, NULL, 0);
-
-	cmd[0] = 0x3f;	// DataFlashBlock
-	cmd[1] = 0x00;	// Offset bank: 0: '0-31', 1: 32-63
-	ok = I2C_WriteRead(S3I2C_CH_BATT_ADDR, cmd, 2, NULL, 0);
-
-	i2cStartAddr = 0x40;
-	ok = I2C_WriteRead(S3I2C_CH_BATT_ADDR, &i2cStartAddr, 1, i2cStdBufRead, 12);
-	*/
-
-	// Get 'Manufacturer Info' block data
-	/*
-	cmd[0] = 0x3e;	// DataFlashClass
-	cmd[1] = 58;	// Subclass 'Manufacturer Info'
-	ok = I2C_WriteRead(S3I2C_CH_BATT_ADDR, cmd, 2, NULL, 0);
-
-	cmd[0] = 0x3f;	// DataFlashBlock
-	cmd[1] = 0x00;	// Offset bank: 0: '0-31', 1: 32-63
-	ok = I2C_WriteRead(S3I2C_CH_BATT_ADDR, cmd, 2, NULL, 0);
-
-	i2cStartAddr = 0x40;
-	ok = I2C_WriteRead(S3I2C_CH_BATT_ADDR, &i2cStartAddr, 1, i2cStdBufRead, 24);
-	*/
-
 	char SN[S3_MAX_SN_LEN], PN[S3_MAX_PN_LEN];
-	S3I2CChReadSNPN(SN, PN);
+	S3I2CChReadSNPN(Ch, SN, PN);
 
 	// Keep aligned with Tx battery functions (S3TxSetBattInfo())
 	S3ChSetBattSN(Ch, SN);
@@ -551,54 +436,6 @@ int S3I2CChGetStatus(unsigned char Ch)
 	else
 		S3I2CChEn(Ch, false);
 
-	/*
-	// WRITE_TO_FLASH TEST CODE
-
-	// Write 0x52 to subclass 56 (manufacturer data), address 0x04 (+ 0x40)
-	
-	// Calculate checksum
-	unsigned char CheckSum = 0;
-	i2cStdBufRead[4] = 0x52;
-	for(unsigned char i = 0; i < 32; i++)
-		CheckSum += i2cStdBufRead[i];
-
-	CheckSum = 0xFF - CheckSum;
-
-	// Get checksum
-	cmd[0] = 0x60;
-	ok = I2C_WriteRead(S3I2C_CH_BATT_ADDR, cmd, 1, i2cCmdBufRead, 1);
-
-	// Write to data block
-	cmd[0] = 0x44;
-	cmd[1] = 0x52;
-	ok = I2C_WriteRead(S3I2C_CH_BATT_ADDR, cmd, 2, NULL, 0);
-
-	// Set checksum to force transfer to data flash
-	cmd[0] = 0x60;
-	cmd[1] = CheckSum;
-	ok = I2C_WriteRead(S3I2C_CH_BATT_ADDR, cmd, 2, NULL, 0);
-
-	// Do reset
-	cmd[0] = 0x00;
-	cmd[1] = 0x41;
-	cmd[2] = 0x00;
-	ok = I2C_WriteRead(S3I2C_CH_BATT_ADDR, cmd, 3, NULL, 0);
-	*/
-
-	/*
-	// Read back
-	cmd[0] = 0x3e;	// DataFlashClass
-	cmd[1] = 56;	// Subclass 'Configuration'
-	ok = I2C_WriteRead(S3I2C_CH_BATT_ADDR, cmd, 2, NULL, 0);
-
-	cmd[0] = 0x3f;	// DataFlashBlock
-	cmd[1] = 0x00;	// Offset bank: 0: '0-31', 1: 32-63
-	ok = I2C_WriteRead(S3I2C_CH_BATT_ADDR, cmd, 2, NULL, 0);
-
-	i2cStartAddr = 0x40 + 0; // Device name
-	ok = I2C_WriteRead(S3I2C_CH_BATT_ADDR, &i2cStartAddr, 1, i2cStdBufRead, 32);
-	*/
-
 	S3I2CChMS(0xFF);
 #endif // TRIZEPS
 
@@ -607,7 +444,7 @@ int S3I2CChGetStatus(unsigned char Ch)
 
 // ----------------------------------------------------------------------------
 
-int S3I2CChReadSNPN(char *SN, char *PN)
+int S3I2CChReadSNPN(char Ch, char *SN, char *PN)
 {
 #ifdef TRIZEPS
 	unsigned char cmd[3] = {0x00, 0x00, 0x00};
@@ -616,8 +453,18 @@ int S3I2CChReadSNPN(char *SN, char *PN)
 	unsigned char i2cStdBufRead[S3_FLASH_BLOCK_SIZE];
 
 	// Get 'Manufacturer Info' block data
-	if (!DoBattSeal)
+
+	if (!(S3ChGetBattStatus(Ch) & BQ_SS))
 	{
+		// Unsealed
+		cmd[0] = 0x61;	// BlockDataControl
+		cmd[1] = 0x01;	// Enable SEALED mode operation of DataFlashBlock
+
+		ok = I2C_WriteRead(S3I2C_CH_BATT_ADDR, cmd, 2, NULL, 0);
+
+		if (!ok)
+			return 1;
+
 		cmd[0] = 0x3e;	// DataFlashClass
 		cmd[1] = 58;	// Subclass 'Manufacturer Info'
 		ok = I2C_WriteRead(S3I2C_CH_BATT_ADDR, cmd, 2, NULL, 0);
@@ -627,10 +474,25 @@ int S3I2CChReadSNPN(char *SN, char *PN)
 	}
 
 	cmd[0] = 0x3f;	// DataFlashBlock
-	if (!DoBattSeal)
-		cmd[1] = 0x00;	// Offset bank: 0: '0-31', 1: 32-63
-	else
+	if (1)
+	{	// Unsealed
+		// if BlockDataControl (0x61) == 0x00
+		//		0x00 transfer authentication data
+		//		0x01 transfer manufacturer data
+		// else if BlockDataControl (0x61) == 0x01
+		//		WTF?
 		cmd[1] = 0x01;	// Offset bank: 0: '0-31', 1: 32-63
+	}
+	else
+	{
+		// Sealed
+		// if BlockDataControl (0x61) == 0x01
+		//		Allows SEALED mode operation??
+		//
+		// 0x00 transfer authentication data
+		// 0x01 transfer manufacturer data
+		cmd[1] = 0x01;	// Offset bank: 0: '0-31', 1: 32-63
+	}
 
 	ok = I2C_WriteRead(S3I2C_CH_BATT_ADDR, cmd, 2, NULL, 0);
 
@@ -861,7 +723,7 @@ int S3I2CTest()
 // Factory routine
 //
 
-int S3I2CChWriteSNPN(const char *SN, const char *PN)
+int S3I2CChWriteSNPN(char Ch, const char *SN, const char *PN)
 {
 #ifdef TRIZEPS
 	// char SNc[] =	{"Demo001"};
@@ -873,10 +735,21 @@ int S3I2CChWriteSNPN(const char *SN, const char *PN)
 	if (strlen(PN) >= S3_FLASH_PN_SIZE)
 		return 2;
 
+	if ((S3ChGetBattStatus(Ch) & BQ_SS))
+		return 3;
+
 	BOOL	ok;
 	unsigned char cmd[32];
 	unsigned char cmdSN[S3_FLASH_BLOCK_SIZE + 1];
 	unsigned char i2cStartAddr = 0x00;
+
+	// Unsealed
+	cmd[0] = 0x61;	// BlockDataControl
+	cmd[1] = 0x00;	// Access general data flash (not authentication data????)
+	ok = I2C_WriteRead(S3I2C_CH_BATT_ADDR, cmd, 2, NULL, 0);
+
+	if (!ok)
+		return 4;
 
 	// Get 'Manufacturer Info' block data
 	cmd[0] = 0x3e;	// DataFlashClass
@@ -890,6 +763,10 @@ int S3I2CChWriteSNPN(const char *SN, const char *PN)
 	unsigned char i;
 	for(i = 0; i < S3_FLASH_BLOCK_SIZE + 1; i++)
 		cmdSN[i] = 0;
+	
+	// SEALED access? Manufacturer data because unsealed and... fuck knows,,,
+	// if set to 0x01 it shits on the authentication data? It doesn't work
+	// and seals battery anyway.
 	cmdSN[0] = 0x40; // Write data to offset 0x40 + offset
 	cmdSN[1] = 0x00;
 
@@ -927,9 +804,11 @@ int S3I2CChWriteSNPN(const char *SN, const char *PN)
 	cmd[2] = 0x00;
 	ok = I2C_WriteRead(S3I2C_CH_BATT_ADDR, cmd, 3, NULL, 0);
 
+	Sleep(100);
+
 	// Read back and check
 	char SNrd[S3_MAX_SN_LEN], PNrd[S3_MAX_PN_LEN];
-	if (!S3I2CChReadSNPN(SNrd, PNrd))
+	if (!S3I2CChReadSNPN(Ch, SNrd, PNrd))
 	{
 		if (strcmp(SNrd, SN))
 			return 1;

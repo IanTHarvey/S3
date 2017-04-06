@@ -29,7 +29,7 @@ extern short			S3RevByteShort(	unsigned char *b);
 
 extern unsigned char	S3I2CCurTxOptAddr;
 
-extern unsigned char	S3I2CTxReadBuf[]; // Read from optical serial link
+extern unsigned char	S3I2CTxReadBuf[S3_SERIAL_FIFO_LEN]; // Read from optical serial link
 extern unsigned char	S3I2CRxReadBuf[];
 
 extern int S3I2CTxSelfTest(		char Rx, char Tx);
@@ -480,13 +480,14 @@ int S3I2CTxSetPeakThreshOld(char Rx, char Tx, char path)
 int S3I2CTxSetPeakThresh(char Rx, char Tx, char path)
 {
 	int err = 0;
-	short thresh = 1000; // PeakThTable[path - 1]
+	short thresh = 5000; // PeakThTable[path - 1]
 	
 	err = S3I2CWriteSerialShort(S3I2C_TX_OPT_ADDR,
 				S3I2C_TX_OPT_PEAK_THR, thresh);
 
 	Sleep(100);
 
+	// Read back
 	if (!err)
 	{
 		short	rval;
@@ -983,12 +984,28 @@ int S3I2CGetTxBatt(char Rx, char Tx)
 
 int S3I2CTxGetBattSN(char Rx, char Tx)
 {
-	// BlockDataControl	
-	S3I2CWriteSerialByte(S3I2C_TX_BATT_ADDR, 0x61, 0x00);
-	// DataFlashClass 58: Manufacturer info
-	S3I2CWriteSerialByte(S3I2C_TX_BATT_ADDR, 0x3E, 58);
+	// int auth = S3I2CTxAuthenticate();
+
+	int err;
+
+	// Get status registers
+	unsigned char cmd[] = {0x00, 0x00};
+	err = S3I2CWriteSerialData(S3I2C_TX_BATT_ADDR, 0x00, cmd, 2);
+	err = S3I2CReadSerialData(S3I2C_TX_BATT_ADDR, 0x00, 0x02);
+
+	unsigned char stat_h = *(S3I2CTxReadBuf + 1);
+
+	if (!(stat_h & BQ_SS)) // Unsealed
+	{
+		// BlockDataControl	
+		S3I2CWriteSerialByte(S3I2C_TX_BATT_ADDR, 0x61, 0x01);
+		// DataFlashClass 58: Manufacturer info
+		S3I2CWriteSerialByte(S3I2C_TX_BATT_ADDR, 0x3E, 58);
+	}
+
 	// DataFlashBlock 0: Offset
-	S3I2CWriteSerialByte(S3I2C_TX_BATT_ADDR, 0x3F, 0x00);
+	S3I2CWriteSerialByte(S3I2C_TX_BATT_ADDR, 0x3F, 0x01);
+
 
 	if (!S3I2CReadSerialData(S3I2C_TX_BATT_ADDR, 0x40, 24))
 	{
@@ -1076,7 +1093,7 @@ int S3I2CTxGetPeakThresh(char Rx, char Tx)
 }
 
 // ----------------------------------------------------------------------------
-
+/*
 int S3I2CTxPeakHoldLatchSet(char Rx, char Tx)
 {
 	unsigned char cfg;
@@ -1101,6 +1118,7 @@ int S3I2CTxPeakHoldLatchSet(char Rx, char Tx)
 
 	return 0;
 }
+*/
 
 // ----------------------------------------------------------------------------
 
@@ -1136,6 +1154,8 @@ int S3I2CTxPeakHoldLatchClear(char Rx, char Tx)
 // Set in max attenuation
 int S3I2CTxSetSafeMode(char Rx, char Tx)
 {	
+	return 0;
+	
 	char IP = S3TxGetActiveIP(Rx, Tx);
 
 	// Set gain to minimum and force immediate update

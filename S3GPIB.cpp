@@ -433,6 +433,8 @@ int S3ProcessGPIBCommand(const char *cmd)
 			strcpy_s(GPIBRetBuf, S3_MAX_GPIB_RET_LEN, "E: Invalid type");
 		else if (err == S3_GPIB_COMMAND_LOCKED)
 			strcpy_s(GPIBRetBuf, S3_MAX_GPIB_RET_LEN, "E: Factory-only command");
+		else if (err == S3_GPIB_BATTERY_SEALED)
+			strcpy_s(GPIBRetBuf, S3_MAX_GPIB_RET_LEN, "E: Battery sealed");	
 		else
 			strcpy_s(GPIBRetBuf, S3_MAX_GPIB_RET_LEN, "OK:");
 	}
@@ -1872,7 +1874,7 @@ int CmdPPMBATTID()
 
 	S3I2CChMS(Ch);
 
-	int err = S3I2CChWriteSNPN(SN, PN);
+	int err = S3I2CChWriteSNPN(Ch, SN, PN);
 
 	S3SetFactoryMode(-1, -1, false);
 
@@ -1883,6 +1885,10 @@ int CmdPPMBATTID()
 	else if (err == 2)
 	{
 		return S3_GPIB_INVALID_SNPN;
+	}
+	else if (err == 3)
+	{
+		return S3_GPIB_BATTERY_SEALED;
 	}
 
 	return err;

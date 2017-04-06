@@ -21,7 +21,7 @@
 
 #include "S3DataModel.h"
 #include "S3ControllerDlg.h"
-
+#include "S3I2C.h"
 // ----------------------------------------------------------------------------
 
 // TODO: Put in class
@@ -169,6 +169,14 @@ void CS3GDIScreenMain::S3DrawGDIChScreen(void)
 		else if (!S3ChBattValidated(Ch))
 		{
 			str.Format(_T("Not validated"));
+		}
+		else if (!(S3ChGetBattStatus(Ch) & BQ_FAS))
+		{
+			str.Format(_T("Full access"));
+		}
+		else if (!(S3ChGetBattStatus(Ch) & BQ_SS))
+		{
+			str.Format(_T("Not sealed"));
 		}
 		else if (S3ChGetAlarms(Ch) & S3_CH_BATT_COLD)
 		{
