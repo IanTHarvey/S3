@@ -27,7 +27,7 @@ extern pS3DataModel S3Data;
 char	S3I2CCurPath; // 1-indexed
 
 #ifdef TRIZEPS
-extern unsigned char	S3I2CTxReadBuf[]; // Read from optical serial link
+extern unsigned char	S3I2CTxReadBuf[S3_SERIAL_FIFO_LEN]; // Read from optical serial link
 #endif
 
 // ----------------------------------------------------------------------------

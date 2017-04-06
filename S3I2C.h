@@ -26,7 +26,7 @@ class CS3ControllerDlg;
 #define S3I2C_PW_ADDR			0x19	// Common for all boards
 
 #define S3I2C_TX_OPT_FW_V		0x0F	// 3B
-#define S3I2C_TX_OPT_ADDR		0xA4	// CHECK THIS
+#define S3I2C_TX_OPT_ADDR		0xA4	// 
 #define S3I2C_TX_OPT_DSA		0xA8	// + A9
 #define S3I2C_TX_OPT_CAL_GAIN	0xAC	// + AD
 #define S3I2C_TX_OPT_RF_MON		0xDA
@@ -141,6 +141,16 @@ class CS3ControllerDlg;
 #define EN_BAT_2	16
 #define EN_BAT_1	32
 
+// Control status bits
+#define BQ_RES7		0x80
+#define BQ_FAS		0x40
+#define BQ_SS		0x20	// Sealed
+#define BQ_CALEN	0x10
+#define BQ_CCA		0x08
+#define BQ_BCA		0x04
+#define BQ_CSV		0x02
+#define BQ_RES0		0x01
+
 // Last gain sent (successfully?)
 extern int			m_GainSent[S3_MAX_RXS][S3_MAX_TXS][S3_MAX_IPS];
 extern char			m_PathSent[S3_MAX_RXS][S3_MAX_TXS][S3_MAX_IPS];
@@ -151,7 +161,7 @@ extern short		S3I2CRxOptFact[7];
 
 extern unsigned char S3I2CCurRxOptAddr;
 
-extern unsigned char	S3I2CTxReadBuf[]; // Read from optical serial link
+extern unsigned char	S3I2CTxReadBuf[S3_SERIAL_FIFO_LEN]; // Read from optical serial link
 extern unsigned char	S3I2CRxReadBuf[];
 
 unsigned short	S3RevByteUShort(	unsigned char *b);
@@ -244,10 +254,19 @@ int S3I2CChMS(			unsigned char Ch);
 int S3I2CChEn(			unsigned char Ch, bool enable);
 int S3I2CChGetStatus(	unsigned char Ch);
 
+int S3I2CChSetBattSealed();
+int S3I2CChSetBattUnseal();
+int S3I2CChSetBattFullAccess();
+int S3I2CChReadSecKeys();
+int S3I2CChWriteSecKeys();
+int S3I2CChWriteAuthKey();
+
+int S3I2CChAuthenticate();
+int S3I2CTxAuthenticate();
+
 int S3I2CRxMS(			unsigned char Rx);
 
 bool	S3I2CGetPowerSwitch();
-
 
 // Set up Tx
 int	S3I2CSetPathA(		char p, char a);
@@ -293,7 +312,7 @@ int S3I2CTxUpdateTempPath(	char Rx, char Tx);
 
 int S3I2CTxSetPeakThresh(	char Rx, char Tx, char path);
 
-int S3I2CTxPeakHoldLatchSet(	char Rx, char Tx);	// WTFWIT?
+// int S3I2CTxPeakHoldLatchSet(	char Rx, char Tx);	// WTFWIT?
 int S3I2CTxPeakHoldLatchClear(	char Rx, char Tx);
 
 int S3I2CTxSetTestTone(		char Rx, char Tx, char IP);
