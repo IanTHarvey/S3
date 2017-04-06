@@ -53,6 +53,7 @@ public:
 	afx_msg void OnBnClickedPeakThrButton();
 	CStatic m_PeakThrStatic;
 	CEdit m_PeakThrEdit;
+	afx_msg void OnBnClickedTestButton();
 };
 
 

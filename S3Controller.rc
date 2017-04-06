@@ -147,6 +147,7 @@ BEGIN
     EDITTEXT        IDC_PEAK_THR_EDIT,92,86,40,12,ES_AUTOHSCROLL
     LTEXT           "Peak thresh [N] (mVp-p):",IDC_PEAK_THR_STATIC,11,88,79,9
     LTEXT           "Perform on Rx1-Tx1-IP1 link only",IDC_STATIC,77,70,118,11
+    PUSHBUTTON      "Test",IDC_TEST_BUTTON,187,90,50,14
 END
 
 

@@ -51,6 +51,7 @@ BEGIN_MESSAGE_MAP(CS3FactorySysSetUp, CDialog)
 	ON_BN_CLICKED(IDC_FACT_SN_SET_BUTTON, &CS3FactorySysSetUp::OnBnClickedFactSnSetButton)
 	ON_BN_CLICKED(IDC_FACT_PN_SET_BUTTON, &CS3FactorySysSetUp::OnBnClickedFactPnSetButton)
 	ON_BN_CLICKED(IDC_PEAK_THR_BUTTON, &CS3FactorySysSetUp::OnBnClickedPeakThrButton)
+	ON_BN_CLICKED(IDC_TEST_BUTTON, &CS3FactorySysSetUp::OnBnClickedTestButton)
 END_MESSAGE_MAP()
 
 BOOL CS3FactorySysSetUp::OnInitDialog()
@@ -241,6 +242,15 @@ void CS3FactorySysSetUp::OnBnClickedPeakThrButton()
 	}
 	else
 		m_StatusMsgStatic.SetWindowText(_T("Threshold set OK"));
+}
+
+// ----------------------------------------------------------------------------
+
+void CS3FactorySysSetUp::OnBnClickedTestButton()
+{
+	// TODO: Add your control notification handler code here
+	// int AuthCh = S3I2CChAuthenticate();
+	int AuthTx = S3I2CTxAuthenticate();
 }
 
 // ----------------------------------------------------------------------------
