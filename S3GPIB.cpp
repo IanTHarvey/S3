@@ -541,9 +541,9 @@ int CmdIPTESTSIG()
 			return S3_GPIB_INVALID_ADDRESS;
 
 		if (!STRNCMP(GPIBCmdArgs[1], "ON", 2))
-			S3TxSetTestToneIP(GPIBRx, GPIBTx, GPIBIP);
+			S3IPSetTestToneEnable(GPIBRx, GPIBTx, GPIBIP, 1);
 		else if (!STRNCMP(GPIBCmdArgs[1], "OFF", 3))
-			S3TxSetTestToneIP(GPIBRx, GPIBTx, -1);
+			S3IPSetTestToneEnable(GPIBRx, GPIBTx, GPIBIP, 0);
 		else
 			return S3_GPIB_INVALID_PARAMETER;
 	}
@@ -566,9 +566,9 @@ int CmdIPTESTSIG()
 			return res;
 
 		if (!STRCMP(GPIBCmdArgs[4], "ON"))
-			S3TxSetTestToneIP(Rx, Tx, IP);
+			S3IPSetTestToneEnable(Rx, Tx, IP, 1);
 		else if (!STRCMP(GPIBCmdArgs[4], "OFF"))
-			S3TxSetTestToneIP(Rx, Tx, -1);
+			S3IPSetTestToneEnable(Rx, Tx, IP, 0);
 		else
 			return S3_GPIB_INVALID_PARAMETER;
 	}
@@ -862,10 +862,12 @@ int CmdCAL()
 			return res;
 
 		if (!STRCMP(GPIBCmdArgs[4], "ON"))
-			S3TxSetTestToneIP(Rx, Tx, IP);
+			S3IPSetTestToneEnable(Rx, Tx, IP, 1);
+		//	S3TxSetTestToneIP(Rx, Tx, IP);
 		// 	S3IPCal(Rx, Tx, IP, (unsigned char)1);
 		else if (!STRCMP(GPIBCmdArgs[4], "OFF"))
-			S3TxSetTestToneIP(Rx, Tx, -1);
+			S3IPSetTestToneEnable(Rx, Tx, IP, 0);
+		//	S3TxSetTestToneIP(Rx, Tx, -1);
 		//	S3IPCal(Rx, Tx, IP, (unsigned char)0);
 		else
 			return S3_GPIB_INVALID_PARAMETER;
