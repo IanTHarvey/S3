@@ -1,5 +1,7 @@
 // ----------------------------------------------------------------------------
 
+#include <windows.h>
+
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -27,7 +29,10 @@ extern unsigned char	S3I2CCurTxOptAddr;
 
 int S3I2CTxAuthenticate()
 {
-	int err;
+	int err = 0;
+
+#ifdef TRIZEPS
+
 	BYTE i;
 
 	for(i = 0; i < S3_SERIAL_FIFO_LEN; i++)
@@ -166,6 +171,8 @@ int S3I2CTxAuthenticate()
 		if (Digest[i] != S3I2CTxReadBuf[SHA1_DIGEST_LEN - i - 1])
 			ErrCnt++;
 	}
+
+#endif
 
 ERR:
 	return err;
