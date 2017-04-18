@@ -563,7 +563,7 @@ int S3IPSetSigmaTau(char Rx, char Tx, char IP, SigmaT Tau)
 	int GainChanged = S3ApplyGainLimits(Rx, Tx, IP);
 	
 	// I2C: Trigger update
-	S3IPSetGainSent(Rx, Tx, IP, -128);
+	S3IPSetGainSent(Rx, Tx, IP, SCHAR_MIN);
 
 	return GainChanged;
 }
@@ -588,7 +588,7 @@ int S3IPSetLowNoiseMode(char Rx, char Tx, char IP, bool On)
 	}
 
 	// I2C: Trigger update
-	S3IPSetGainSent(Rx, Tx, IP, -128);
+	S3IPSetGainSent(Rx, Tx, IP, SCHAR_MIN);
 
 	return GainChanged;
 }
@@ -743,7 +743,7 @@ int S3IPSetImpedance(char Rx, char Tx, char IP, InputZ z)
 	GainChanged = S3ApplyGainLimits(Rx, Tx, IP);
 
 	// I2C: Invalidate
-	S3IPSetGainSent(Rx, Tx, IP, -128);
+	S3IPSetGainSent(Rx, Tx, IP, SCHAR_MIN);
 
 	return GainChanged;
 }
