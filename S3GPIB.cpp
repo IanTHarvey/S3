@@ -1002,7 +1002,7 @@ int CmdREPORT()
 	// strcat_s(GPIBRetBuf, S3_MAX_GPIB_RET_LEN - strlen(GPIBRetBuf), ": OK");
 
 	strcpy_s(GPIBRetBufTmp, S3_MAX_GPIB_RET_LEN, GPIBRetBuf);
-	sprintf_s(GPIBRetBuf, S3_MAX_GPIB_RET_LEN, "I:\r\n%s", GPIBRetBufTmp);
+	sprintf_s(GPIBRetBuf, S3_MAX_GPIB_RET_LEN, "I:\n%s", GPIBRetBufTmp);
 
 	return 0;
 }

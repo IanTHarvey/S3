@@ -4,7 +4,6 @@
 #pragma once
 
 #define S3_MAX_GPIB_CMD_LEN	256
-// #define S3_MAX_GPIB_RET_LEN	8192
 #define S3_MAX_GPIB_RET_LEN	32768
 
 #define S3_MAX_ARGS 12
@@ -12,6 +11,12 @@
 // TODO: Worry about locale-specific
 #define STRNCMP	_strnicmp
 #define STRCMP	_stricmp
+
+#define WSA_ERR_STR_LEN	256
+extern char	WSAErrString[];
+const char *GetWSAErrString();
+const char *GetErrString();
+
 
 // Copy cmd to GPIBCmdBuf and process
 int S3ProcessGPIBCommand(const char *cmd);
