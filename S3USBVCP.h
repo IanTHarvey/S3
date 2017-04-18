@@ -1,14 +1,19 @@
 // VCPTestDlg.h : header file
 //
 
+
 #pragma once
 
-#define COM_BUF_SIZE		256
+// #define COM_BUF_SIZE		256
 #define S3USB_MAX_DEVICES	4
+
+// TODO: Repeated definition
+//#define S3_MAX_GPIB_CMD_LEN	256
+//#define S3_MAX_GPIB_RET_LEN	32768
 
 typedef struct ComBuffer
 {
-	char	cBuf[COM_BUF_SIZE];
+	char	cBuf[S3_MAX_GPIB_RET_LEN];
 	int		size;
 } COMBUFFER, *PCOMBUFFER;
 

@@ -41,7 +41,7 @@ int S3SysReport(char *Buf)
 	int len;
 
 	sprintf_s(Buf, S3_MAX_GPIB_RET_LEN,
-		"\r\n\r\nController Report\r\n------------------\r\nName:\t%s\r\nConfig:\t%s\r\nFile:\t%s\r\nFile v:\t%.2f\r\n",
+		"\n\nController Report\n------------------\nName:\t%s\nConfig:\t%s\nFile:\t%s\nFile v:\t%.2f\n",
 		S3Data->m_NodeName,
 		S3Data->m_ConfigName,
 		S3Data->m_ConfigPath,
@@ -50,7 +50,7 @@ int S3SysReport(char *Buf)
 	len = strlen(Buf);
 
 	sprintf_s(Buf + len, S3_MAX_GPIB_RET_LEN - len,
-		"S/N:\t%s\r\nP/N:\t%s\r\nSW v:\t%s\r\nModel:\t%s\r\n",
+		"S/N:\t%s\nP/N:\t%s\nSW v:\t%s\nModel:\t%s\n",
 		S3Data->m_SN,
 		S3Data->m_PN,
 		S3Data->m_SW,
@@ -62,13 +62,13 @@ int S3SysReport(char *Buf)
 
 	S3GetIPAddrStr(Addr);
 
-	sprintf_s(Buf + len, S3_MAX_GPIB_RET_LEN - len, "IP:\t%s\r\n", Addr);
+	sprintf_s(Buf + len, S3_MAX_GPIB_RET_LEN - len, "IP:\t%s\n", Addr);
 
 	len = strlen(Buf);
 
 	S3GetMACAddrStr(Addr);
 
-	sprintf_s(Buf + len, S3_MAX_GPIB_RET_LEN - len, "MAC:\t%s\r\n", Addr);
+	sprintf_s(Buf + len, S3_MAX_GPIB_RET_LEN - len, "MAC:\t%s\n", Addr);
 
 	len = strlen(Buf);
 
@@ -97,10 +97,10 @@ int S3TopologyReport(char *Buf)
 			strcat_s(Buf, S3_MAX_GPIB_RET_LEN, tmp);
 		}
 
-		strcat_s(Buf, S3_MAX_GPIB_RET_LEN, "\r\n");
+		strcat_s(Buf, S3_MAX_GPIB_RET_LEN, "\n");
 	}
 
-	strcat_s(Buf, S3_MAX_GPIB_RET_LEN, "\r\n");
+	strcat_s(Buf, S3_MAX_GPIB_RET_LEN, "\n");
 	
 	return 0;
 }
@@ -117,21 +117,21 @@ int S3RxReport(char *Buf, char Rx)
 	int len = strlen(Buf);
 
 	sprintf_s(Buf + len, S3_MAX_GPIB_RET_LEN - len,
-		"\r\nReceiver Report\r\n-------------------\r\nName:\t%s\r\nType:\tRx%d\r\n",
+		"\nReceiver Report\n-------------------\nName:\t%s\nType:\tRx%d\n",
 		rx->m_NodeName,
 		rx->m_Type);
 
 	len = strlen(Buf);
 
 	sprintf_s(Buf + len, S3_MAX_GPIB_RET_LEN - len,
-		"S/N:\t%s\r\nP/N:\t%s\r\nFW:\t%s\r\n",
+		"S/N:\t%s\nP/N:\t%s\nFW:\t%s\n",
 		rx->m_SN,
 		rx->m_PN,
 		rx->m_FW);
 
 	len = strlen(Buf);
 
-	strcat_s(Buf, S3_MAX_GPIB_RET_LEN - len, "Active TXs:\r\n");
+	strcat_s(Buf, S3_MAX_GPIB_RET_LEN - len, "Active TXs:\n");
 	len = strlen(Buf);
 
 	// TODO: Do according to RX type
@@ -139,7 +139,7 @@ int S3RxReport(char *Buf, char Rx)
 	{
 		if (S3TxExistQ(Rx, Tx))
 		{
-			sprintf_s(Buf + len, S3_MAX_GPIB_RET_LEN - len, "\t\t%d\t%s\r\n", Tx + 1,
+			sprintf_s(Buf + len, S3_MAX_GPIB_RET_LEN - len, "\t\t%d\t%s\n", Tx + 1,
 				S3Data->m_Rx[Rx].m_Tx[Tx].m_ModelName); // S3TxGetType(Rx, Tx));
 		}
 
@@ -158,14 +158,14 @@ int S3TxReport(char *Buf, char Rx, char Tx)
 	int len = strlen(Buf);
 
 	sprintf_s(Buf + len, S3_MAX_GPIB_RET_LEN - len,
-		"\r\nTransmitter Report\r\n-----------------------\r\nName:\t%s\r\nType:\tTx%d\r\n",
+		"\nTransmitter Report\n-----------------------\nName:\t%s\nType:\tTx%d\n",
 		pTx->m_NodeName,
 		pTx->m_Type);
 
 	len = strlen(Buf);
 
 	sprintf_s(Buf + len, S3_MAX_GPIB_RET_LEN - len,
-		"S/N:\t%s\r\nP/N:\t%s\r\nFW:\t%s\r\n",
+		"S/N:\t%s\nP/N:\t%s\nFW:\t%s\n",
 		pTx->m_SN,
 		pTx->m_PN,
 		pTx->m_FW);
@@ -176,7 +176,7 @@ int S3TxReport(char *Buf, char Rx, char Tx)
 	// len = strlen(Buf);
 
 	sprintf_s(Buf + len, S3_MAX_GPIB_RET_LEN - len,
-		"\r\n\r\nTx Battery\r\n-------------\r\nSN:\t%s\r\nCharge (%c):\t%02d\r\nTemp.(C):\t%.1f\r\n",
+		"\n\nTx Battery\n-------------\nSN:\t%s\nCharge (%c):\t%02d\nTemp.(C):\t%.1f\n",
 		pTx->m_BattSN,
 		'%',
 		pTx->m_SoC,
@@ -185,9 +185,9 @@ int S3TxReport(char *Buf, char Rx, char Tx)
 	len = strlen(Buf);
 
 	if (pTx->m_BattValidated)
-		strcat_s(Buf, S3_MAX_GPIB_RET_LEN - len, "Valid:\tYes\r\n");
+		strcat_s(Buf, S3_MAX_GPIB_RET_LEN - len, "Valid:\tYes\n");
 	else
-		strcat_s(Buf, S3_MAX_GPIB_RET_LEN - len, "Valid:\tNo\r\n");
+		strcat_s(Buf, S3_MAX_GPIB_RET_LEN - len, "Valid:\tNo\n");
 
 	return 0;
 }
@@ -201,7 +201,7 @@ int S3IPReport(char *Buf, char Rx, char Tx, char IP)
 	int len = strlen(Buf);
 
 	sprintf_s(Buf, S3_MAX_GPIB_RET_LEN - len,
-		"\r\n\r\nInput Report\r\n----------------\r\nName:\t\t%s\r\n",
+		"\n\nInput Report\n----------------\nName:\t\t%s\n",
 		pIP->m_NodeName);
 
 	
@@ -209,7 +209,7 @@ int S3IPReport(char *Buf, char Rx, char Tx, char IP)
 	{
 		len = strlen(Buf);
 		sprintf_s(Buf + len, S3_MAX_GPIB_RET_LEN - len,
-			"Max input (%S):\t%.2f\r\n", S3GetUnitString(), pIP->m_MaxInput);
+			"Max input (%S):\t%.2f\n", S3GetUnitString(), pIP->m_MaxInput);
 	}
 	else
 	{
@@ -217,10 +217,10 @@ int S3IPReport(char *Buf, char Rx, char Tx, char IP)
 
 		if (pIP->m_MaxInput > 1.00)
 			sprintf_s(Buf + len, S3_MAX_GPIB_RET_LEN - len,
-				"Max input (%S):\t%.2f\r\n", "V", pIP->m_MaxInput);
+				"Max input (%S):\t%.2f\n", "V", pIP->m_MaxInput);
 		else
 			sprintf_s(Buf + len, S3_MAX_GPIB_RET_LEN - len,
-				"Max input (%S):\t%.2f\r\n", "mV", 1000.0 * pIP->m_MaxInput);
+				"Max input (%S):\t%.2f\n", "mV", 1000.0 * pIP->m_MaxInput);
 	}
 
 	S3CfgReport(Buf, Rx, Tx, IP);
@@ -256,7 +256,7 @@ int S3CfgReport(char *Buf, char Rx, char Tx, char IP)
 	S3Config *cfg = &S3Data->m_Rx[Rx].m_Tx[Tx].m_Input[IP].m_Config;
 	int len = strlen(Buf);
 
-	sprintf_s(Buf + len, S3_MAX_GPIB_RET_LEN - len, "Gain (dBm):\t%d\r\n", cfg->m_Gain);
+	sprintf_s(Buf + len, S3_MAX_GPIB_RET_LEN - len, "Gain (dBm):\t%d\n", cfg->m_Gain);
 
 	strcat_s(Buf, S3_MAX_GPIB_RET_LEN - len, "Int T:\t\t");
 
@@ -264,21 +264,21 @@ int S3CfgReport(char *Buf, char Rx, char Tx, char IP)
 	S3TxGetTauUnitsA(str, Rx, Tx, IP);
 
 	strcat_s(Buf, S3_MAX_GPIB_RET_LEN - len, str);
-	strcat_s(Buf, S3_MAX_GPIB_RET_LEN - len, "\r\n");
+	strcat_s(Buf, S3_MAX_GPIB_RET_LEN - len, "\n");
 
 	len = strlen(Buf);
 
 	if (cfg->m_Tau == W50)
-		strcat_s(Buf, S3_MAX_GPIB_RET_LEN - len, "Inp Z (Ohms):\t50\r\n");
+		strcat_s(Buf, S3_MAX_GPIB_RET_LEN - len, "Inp Z (Ohms):\t50\n");
 	else
-		strcat_s(Buf, S3_MAX_GPIB_RET_LEN - len, "Inp Z (Ohms):\t1M\r\n");
+		strcat_s(Buf, S3_MAX_GPIB_RET_LEN - len, "Inp Z (Ohms):\t1M\n");
 
 	len = strlen(Buf);
 
 	if (cfg->m_LowNoiseMode)
-		strcat_s(Buf, S3_MAX_GPIB_RET_LEN - len, "Low noise:\tOn\r\n");
+		strcat_s(Buf, S3_MAX_GPIB_RET_LEN - len, "Low noise:\tOn\n");
 	else
-		strcat_s(Buf, S3_MAX_GPIB_RET_LEN - len, "Low noise:\tOff\r\n");
+		strcat_s(Buf, S3_MAX_GPIB_RET_LEN - len, "Low noise:\tOff\n");
 
 	len = strlen(Buf);
 
@@ -286,9 +286,9 @@ int S3CfgReport(char *Buf, char Rx, char Tx, char IP)
 	if (S3Data->m_WinTrackOption)
 	{
 		if (cfg->m_WindowTracking)
-			strcat_s(Buf, S3_MAX_GPIB_RET_LEN - len, "Win track:\tON\r\n");
+			strcat_s(Buf, S3_MAX_GPIB_RET_LEN - len, "Win track:\tON\n");
 		else
-			strcat_s(Buf, S3_MAX_GPIB_RET_LEN - len, "Win track:\tOFF\r\n");
+			strcat_s(Buf, S3_MAX_GPIB_RET_LEN - len, "Win track:\tOFF\n");
 
 		len = strlen(Buf);
 	}

@@ -27,9 +27,9 @@
 //#define new DEBUG_NEW
 //#endif
 
-#define WSA_ERR_STR_LEN	256
+//#define WSA_ERR_STR_LEN	256
 char	WSAErrString[WSA_ERR_STR_LEN];
-const char *GetWSAErrString();
+//const char *GetWSAErrString();
 
 #define NO_USE_TREE_ICONS
 
@@ -39,8 +39,8 @@ UINT ListenThreadProc(LPVOID pParam);
 SOCKET ListenSocket = INVALID_SOCKET;
 SOCKET ClientSocket = INVALID_SOCKET;
 
-char	RxBuf[S3_MAX_BUFLEN];
-char	TxBuf[S3_MAX_BUFLEN];
+char	RxBuf[S3_MAX_GPIB_CMD_LEN];
+char	TxBuf[S3_MAX_GPIB_RET_LEN];
 
 extern pS3DataModel S3Data;
 
@@ -56,14 +56,21 @@ int CS3ControllerDlg::RemoteOpenEth(void)
 {
 	int err = 0;
 	
-	if (m_IPThreadRun == false && m_EthEnabled && m_EthInactivityTimer > 3 * 1000)
+	// if (m_IPThreadRun == false && m_EthEnabled && m_EthInactivityTimer > 3 * 1000)
+	if (m_EthEnabled && m_EthInactivityTimer > 20 * 1000)
 	{
-		int r = recv(ClientSocket, NULL, 0, 0);
+		// int r = recv(ClientSocket, NULL, 0, 0);
+
+		// debug_print("Attempting restart: ClientSckt: %d; recv: %d\n", ClientSocket, r);
+		debug_print("Attempting restart: Inactivity: %d\n", m_EthInactivityTimer);
 
 		// TODO: WSAECONNRESET not required
-		if (ClientSocket == INVALID_SOCKET ||
-			(r == SOCKET_ERROR)) // && WSAGetLastError() == WSAECONNRESET))
+		if (1) // ClientSocket == INVALID_SOCKET ||
+			// (r == SOCKET_ERROR)) // && WSAGetLastError() == WSAECONNRESET))
 		{
+			// Kill the listener thread
+			m_IPThreadRun = false;
+			
 			unsigned char	MAC[6];
 			char			IP[S3_MAX_IP_ADDR_LEN];
 			char			IPMask[S3_MAX_IP_ADDR_LEN];
@@ -76,11 +83,14 @@ int CS3ControllerDlg::RemoteOpenEth(void)
 
 			if (!err)
 			{
+				debug_print("Resetting socket\n");
+
 				err = ResetSocket();
 				// err = InitSocket();
 				m_EthInactivityTimer = 0;
 			}
 		}
+		else debug_print("Restart failed\n");
 	}
 
 	return err;
@@ -157,8 +167,6 @@ int CS3ControllerDlg::InitSocket(void)
 {
 	int		iResult;
 
-	// Not CE
-	// struct addrinfoW *result = NULL, *ptr = NULL, hints;
 	ADDRINFOA *result = NULL, *ptr = NULL, hints;
 
 	ZeroMemory(&hints, sizeof(hints));
@@ -168,29 +176,17 @@ int CS3ControllerDlg::InitSocket(void)
 	hints.ai_flags = AI_PASSIVE;
 
 	// Resolve the local address and port to be used by the server
-	// Not CE
-	// iResult = GetAddrInfoW(NULL, _T(S3_DEFAULT_PORT), &hints, &result);
 	char port[8];
 	sprintf_s(port, 8, "%d", S3GetIPPort());
 	iResult = getaddrinfo(NULL, port, &hints, &result);
 	
 	if (iResult != 0)
 	{
-		debug_print(_T("InitSocket: getaddrinfo failed: %s\n"), GetWSAErrString());
+		debug_print("InitSocket: getaddrinfo failed: %s\n", GetWSAErrString());
 		return 1;
 	}
 	
-	// Not CE
-	// TCHAR IPAddrStr[S3_MAX_IP_ADDR_LEN];
-	// char IPAddrStr[S3_MAX_IP_ADDR_LEN];
-
 	struct sockaddr_in *sockaddr_ipv4 = (struct sockaddr_in *) result->ai_addr;
-	// Not CE
-	// InetNtop(hints.ai_family, &sockaddr_ipv4->sin_addr, IPAddrStr, S3_MAX_IP_ADDR_LEN);
-	// inet_ntoa(hints.ai_family, &sockaddr_ipv4->sin_addr, IPAddrStr, S3_MAX_IP_ADDR_LEN);
-	// WSAAddressToString(result->ai_addr,*************************************); 
-
-	// strcpy_s(IPAddrStr, S3_MAX_IP_ADDR_LEN, "NoIPString");
 	
 	// Create a SOCKET for the server to listen for client connections
 	ListenSocket = INVALID_SOCKET;
@@ -198,41 +194,36 @@ int CS3ControllerDlg::InitSocket(void)
 	ListenSocket = socket(result->ai_family, result->ai_socktype, result->ai_protocol);
 	if (ListenSocket == INVALID_SOCKET)
 	{
-		debug_print(_T("InitSocket: Error at socket(): %s\n"), GetWSAErrString());
+		debug_print("InitSocket: Error at socket(): %s\n", GetWSAErrString());
 		
 		freeaddrinfo(result);
 		return 1;
 	}
+
+	freeaddrinfo(result);
 
 	// Setup the TCP listening socket
 	iResult = bind(ListenSocket, result->ai_addr, (int)result->ai_addrlen);
 	if (iResult == SOCKET_ERROR)
 	{
-		debug_print(_T("InitSocket: Bind failed with error: %s\n"), GetWSAErrString());
+		debug_print("InitSocket: Bind failed with error: %s\n", GetWSAErrString());
 	
-		freeaddrinfo(result);
 		closesocket(ListenSocket);
 		return 1;
 	}
 
 	// Listen (waiting) for a connection
-	// if (listen(ListenSocket, SOMAXCONN) == SOCKET_ERROR)
-	if (listen(ListenSocket, 4) == SOCKET_ERROR)
+	if (listen(ListenSocket, SOMAXCONN) == SOCKET_ERROR)
 	{
-		debug_print(_T("InitSocket: Listen failed with error: %s\n"), GetWSAErrString());
+		debug_print("InitSocket: Listen failed with error: %s\n", GetWSAErrString());
 		
-		freeaddrinfo(result);
 		closesocket(ListenSocket);
 		return 1;
 	}
 
-	// Not CE
-	// FreeAddrInfoW(result);
-	freeaddrinfo(result);
-
 	m_IPThread = AfxBeginThread(ListenThreadProc, this);
 
-	debug_print(_T("InitSocket: Started thread: 0x%x\n"), (int)m_IPThread);
+	debug_print("InitSocket: Started thread: 0x%x\n", (int)m_IPThread);
 
 	return 0;
 }
@@ -273,7 +264,8 @@ UINT ListenThreadProc(LPVOID pParam)
 {
 	int iResult, iSendResult;
 	struct sockaddr sockaddr_ipv4; 
-	int		sockaddr_ipv4_len;
+	int		sockaddr_ipv4_len = sizeof(sockaddr_ipv4);
+	UINT	err = 0;
 
 	HWND *phObjectHandle = static_cast<HWND *>(pParam);
 
@@ -281,43 +273,38 @@ UINT ListenThreadProc(LPVOID pParam)
 
 	pObject->m_IPThreadRun = true;
 
-
-	debug_print(_T("ListenThreadProc: Started listening on socket...\n"));
+	debug_print("0x%x: Started listening on socket...\n", (int)pObject->m_IPThread);
 
 	while (pObject->m_IPThreadRun)
 	{	
-		ClientSocket = INVALID_SOCKET;
-
-		sockaddr_ipv4_len = sizeof(sockaddr_ipv4);
-
 		// Accept a client socket generated by client connection request
 		ClientSocket = accept(ListenSocket, &sockaddr_ipv4, &sockaddr_ipv4_len);
 		if (ClientSocket == INVALID_SOCKET)
 		{
-			debug_print(_T("ListenThreadProc: Accept failed: %S\n"), GetWSAErrString());
-			closesocket(ListenSocket);
-			pObject->m_IPThreadRun = false;
-			return 10;
+			debug_print("ListenThreadProc: Accept failed: %s\n", GetWSAErrString());
+			err = 10;
+			break;
 		}
+
+		debug_print("ListenThreadProc: Accept OK:\n");
 
 		// Receive until the peer shuts down the connection
 		do
 		{
 			// Wait for data...
-			iResult = recv(ClientSocket, RxBuf, S3_MAX_BUFLEN, 0);
+			iResult = recv(ClientSocket, RxBuf, S3_MAX_GPIB_CMD_LEN, 0);
 			if (iResult > 0)
 			{
 				S3Data->m_FactoryMode = true;
 
-				debug_print(_T("ListenThreadProc: Bytes received: %d\n"), iResult);
+				debug_print("ListenThreadProc: Bytes received: %d\n", iResult);
 				RxBuf[iResult] = '\0';
 
 				// Send a response back to the sender
 				int err = pObject->ParseMsg(RxBuf, S3_ETH);
-				strcpy_s(TxBuf, S3_MAX_BUFLEN, S3GPIBGetRetBuf());
+				strcpy_s(TxBuf, S3_MAX_GPIB_RET_LEN, S3GPIBGetRetBuf());
 
 				int len = strlen(TxBuf);
-				// TxBuf[len++] = '\n';
 				TxBuf[len] = '\0'; // For safety - NOT added to buffer!
 
 				// Do NOT send '\0' terminator
@@ -325,50 +312,48 @@ UINT ListenThreadProc(LPVOID pParam)
 				
 				if (iSendResult == SOCKET_ERROR)
 				{
-					debug_print(_T("ListenThreadProc: Send failed: %d\n"), GetWSAErrString());
-					closesocket(ClientSocket);
-					pObject->m_IPThreadRun = false;
-				
-					return 2;
+					debug_print("ListenThreadProc: Send failed: %s\n", GetWSAErrString());
+					err = 2;
+					break;
 				}
 
-				debug_print(_T("ListenThreadProc: Bytes sent: %d\n"), iSendResult);
-
-				// Obsolete message for MFC dialogs only
-				// PostMessage(pObject->GetSafeHwnd(), WM_UPDATE_CONTROL, 0, err);
+				debug_print("ListenThreadProc: Bytes sent: %d\n", iSendResult);
 				S3Data->m_FactoryMode = false;
 			}
 			else if (iResult == 0)
 			{
-				debug_print(_T("ListenThreadProc: Connection closing...\n"));
+				debug_print("ListenThreadProc: Connection closing...\n");
 			}
 			else
 			{
-				debug_print(_T("ListenThreadProc: Recv failed: %d\n"), GetWSAErrString());
-				closesocket(ClientSocket);
-				pObject->m_IPThreadRun = false;
-
-				return 3;
+				debug_print("ListenThreadProc: Recv failed: %s\n", GetWSAErrString());
+				err = 3;
+				break;
 			}
-
 		} while (iResult > 0);
+
+		if (err)
+			break;
 
 		// Shutdown the connection since we're done
 		iResult = shutdown(ClientSocket, SD_SEND); 
 		if (iResult == SOCKET_ERROR)
 		{
-			debug_print(_T("ListenThreadProc: Shutdown failed with error: %d\n"), GetWSAErrString());
-			closesocket(ClientSocket);
-			pObject->m_IPThreadRun = false;
-			return 4;
+			debug_print("ListenThreadProc: Shutdown failed with error: %S\n", GetWSAErrString());
+			err = 4;
+			break;
 		}
 	}
 
-	pObject->m_IPThreadRun = false;
+	if (!err)
+		debug_print("0x%x: Listen thread terminated normally\n", (int)pObject->m_IPThread);
+	else
+	{
+		debug_print("0x%x: Listen thread terminated: %d\n", (int)pObject->m_IPThread, err);
+		closesocket(ListenSocket);
+	}
 
-	debug_print(_T("ListenThreadProc: Listen thread terminated normally\n"));
-
-	return 0;   // Thread completed successfully
+	return err;
 }
 
 // ----------------------------------------------------------------------------
@@ -428,22 +413,22 @@ int CS3ControllerDlg::ParseMsg(const char *pMsg, char MsgSrc)
 int CS3ControllerDlg::SendMsg(const char *pMsg)
 {
 	int iSendResult, iResult;
-	char recvbuf[S3_MAX_BUFLEN];
+	char recvbuf[S3_MAX_GPIB_CMD_LEN];
 
 	// strcpy_s(recvbuf, S3_MAX_BUFLEN, S3GPIBGetRetBuf());
-	strcpy_s(recvbuf, S3_MAX_BUFLEN, "Test message");
+	strcpy_s(recvbuf, S3_MAX_GPIB_CMD_LEN, "Test message");
 
 	iResult = strlen(recvbuf);
 
 	iSendResult = send(ClientSocket, recvbuf, iResult, 0);
 	if (iSendResult == SOCKET_ERROR)
 	{
-		debug_print(_T("SendMsg: Send failed: %d\n"), WSAGetLastError());
+		debug_print("SendMsg: Send failed: %d\n", WSAGetLastError());
 		closesocket(ClientSocket);
 		return 1;
 	}
 
-	debug_print(_T("SendMsg: Bytes sent: %d\n"), iSendResult);
+	debug_print("SendMsg: Bytes sent: %d\n", iSendResult);
 
 	return 0;
 }
@@ -465,7 +450,7 @@ int GetPrimaryMACaddress(unsigned char *MAC, char *IPStr, char *IPMaskStr)
 	DWORD dwStatus = GetAdaptersInfo(AdapterInfo, &dwBufLen);
 	if (dwStatus != ERROR_SUCCESS)
 	{
-		debug_print(_T("GetPrimaryMACaddress: GetAdaptersInfo failed. err = %d\n"), GetLastError());
+		debug_print("GetPrimaryMACaddress: GetAdaptersInfo failed. err = %d\n", GetLastError());
 		return 1;
 	}
 
@@ -483,7 +468,7 @@ int GetPrimaryMACaddress(unsigned char *MAC, char *IPStr, char *IPMaskStr)
 	// both WiFi and Ethernet with default gateways!!, I guess you can use the
 	// Type field to pick Ethernet..
 	//
-	// ITH: This is unproven...
+	// TODO: This is unproven...
 	
 	do
 	{
@@ -518,7 +503,7 @@ int GetPrimaryMACaddress(unsigned char *MAC, char *IPStr, char *IPMaskStr)
 
 	if (primary)
 	{
-		debug_print(_T("GetPrimaryMACaddress: GetAdaptersInfo: Found primary\n"));
+		debug_print("GetPrimaryMACaddress: GetAdaptersInfo: Found primary\n");
 
 		for (int i = 0; i < 6; i++)
 			MAC[i] = primary->Address[i];
@@ -530,7 +515,7 @@ int GetPrimaryMACaddress(unsigned char *MAC, char *IPStr, char *IPMaskStr)
 	}
 	else
 	{
-		debug_print(_T("GetPrimaryMACaddress: GetAdaptersInfo: Failed to find primary adapter\n"));
+		debug_print("GetPrimaryMACaddress: GetAdaptersInfo: Failed to find primary adapter\n");
 
 		strcpy_s(IPStr, S3_MAX_IP_ADDR_LEN, "No Ethernet");
 		strcpy_s(IPMaskStr, S3_MAX_IP_ADDR_LEN, "N/A");

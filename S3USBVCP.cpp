@@ -1,11 +1,11 @@
 // S3USBVCP.cpp : implementation file
 //
-//
 // Multithreaded MFC based  
 // 1.	Enumerate FTDI and Prolific VCP devices
 // 2.	Open, Close, Read and Write to the device
 //	
-
+// See: http://www.ftdichip.com/Support/SoftwareExamples/CodeExamples/VC++/VCPTest_vcpp.zip
+//
 #ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
 #endif
@@ -21,7 +21,11 @@
 
 #include "resource.h"
 
+#include "S3DataModel.h"
+
+#include "S3GPIB.h"
 #include "S3USBVCP.h"
+#include "S3ControllerDlg.h"
 
 #ifdef S3_USB_SLAVE
 #include "S3DataModel.h"
@@ -87,8 +91,8 @@ int CS3USBVCP::InitData(CWnd* pParent)
 {
 	m_hPort = INVALID_HANDLE_VALUE;
 	fContinue = TRUE;
-	sReadBuffer.size = COM_BUF_SIZE;
-	sWriteBuffer.size = COM_BUF_SIZE;
+	sReadBuffer.size = S3_MAX_GPIB_CMD_LEN;
+	sWriteBuffer.size = S3_MAX_GPIB_RET_LEN;
 	m_DevCnt = 0;
 	m_DevOpen = -1;
 
@@ -135,15 +139,16 @@ int CS3USBVCP::Write(const char *msg)
 
 	int iCount = strlen(msg);
 
-	if (iCount >= COM_BUF_SIZE) 
-		iCount = COM_BUF_SIZE - 1;
+	if (iCount >= S3_MAX_GPIB_RET_LEN) 
+		iCount = S3_MAX_GPIB_RET_LEN - 1;
 
-	strcpy_s(sWriteBuffer.cBuf, COM_BUF_SIZE, msg);
+	strcpy_s(sWriteBuffer.cBuf, S3_MAX_GPIB_RET_LEN, msg);
 	sWriteBuffer.cBuf[iCount++] = '\n';
 	// sWriteBuffer.cBuf[iCount++] = '\0'; // No, terminated on .size
 
 	sWriteBuffer.size = iCount;
 
+	// Allow the write thread to write to the USB stream
 	SetEvent(m_hEventWrite);
 
 	if (m_Master)
@@ -153,10 +158,7 @@ int CS3USBVCP::Write(const char *msg)
 }
 
 // ----------------------------------------------------------------------------
-//	Name: SendThread
-//
-//	Purpose: Signal from a button press this will send characters to the
-//	serial port
+//	Purpose: Signal from a read will send characters to the serial port
 
 UINT SendThread (LPVOID pArg) 
 {
@@ -166,11 +168,15 @@ UINT SendThread (LPVOID pArg)
 	// Infinite loop to write to port until close
     while (pMyHndl->fContinue)
 	{
-		// Wait for a signal from button press to write
+		// Wait for a signal to write (or terminate the thread)
 		dwGoCode = WaitForSingleObject(pMyHndl->m_hEventWrite, INFINITE);
 
-        if (dwGoCode == WAIT_OBJECT_0)
+		// Don't try to write if thread is being shut down (fContinue)
+        if (dwGoCode == WAIT_OBJECT_0 && pMyHndl->fContinue)
 		{
+			*(pMyHndl->sWriteBuffer.cBuf + pMyHndl->sWriteBuffer.size) = 3; // EOM 
+			pMyHndl->sWriteBuffer.size++;
+
 			// Write size worth of data to the port
             WriteFile(
 				pMyHndl->m_hPort,
@@ -320,12 +326,22 @@ BOOL CS3USBVCP::OpenPort()
 	int Ports = EnumCOMPorts();
 
 	if (Ports)
+	{
 		for(char i = 0; i < m_DevCnt; i++)
+		{
 			if (OpenPort(m_DeviceList[i]))
 			{
 				m_DevOpen = i;
 				return true;
 			}
+			else
+			{
+				// No point in doing this if handle is already invalid
+				// from attempt to open
+				ClosePort();
+			}
+		}
+	}
 
 	return false;
 }
@@ -417,6 +433,7 @@ BOOL CS3USBVCP::OpenPort(CString PortName)
 		else
 		{
 			// Failed to open - return false
+			GetErrString();
 			return FALSE;
 		}
 	}
@@ -450,7 +467,7 @@ BOOL CS3USBVCP::ClosePort()
 	// Stop both threads from looping
 	fContinue = FALSE;
 
-	// Stop the writing thread by signal
+	// Stop the writing thread by signal (by allowing to see fContinue)
 	SetEvent(m_hEventWrite);
 
 	if (pThreadRead &&
@@ -810,3 +827,23 @@ BOOL CS3USBVCP::GetDriverPrefix(TCHAR * szPrefix, DWORD dwPrefixSize, HKEY hSubK
 }
 
 // ----------------------------------------------------------------------------
+
+const char *GetErrString()
+{
+	wchar_t *s = NULL;
+	int err = GetLastError();
+	FormatMessageW(	FORMAT_MESSAGE_ALLOCATE_BUFFER |
+					FORMAT_MESSAGE_FROM_SYSTEM |
+					FORMAT_MESSAGE_IGNORE_INSERTS,
+		NULL, err,
+		MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+		(LPWSTR)&s, 0, NULL);
+
+	sprintf_s(WSAErrString, WSA_ERR_STR_LEN, "%d: %S", err, s);
+
+	LocalFree(s); // FormatMessageW uses LocalAlloc()
+
+	return WSAErrString;
+}
+
+// ------------------------------ The End -------------------------------------
