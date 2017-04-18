@@ -20,8 +20,8 @@ class CS3ControllerDlg;
 #define S3I2C_TX_OPT_TCOMP_M	0xC0	// 2B Gain compensation slope
 #define S3I2C_TX_OPT_TCOMP_ON	0xCC	// bit2 gain switch
 
-#define S3I2C_RX_OP_ADDR		0xA4
-#define S3I2C_RX_OP_DSA			0xA4	// + A5
+#define S3I2C_RX_OPT_ADDR		0xA4
+#define S3I2C_RX_OPT_DSA		0xA4	// + A5
 
 #define S3I2C_PW_ADDR			0x19	// Common for all boards
 
@@ -254,7 +254,7 @@ int S3I2CChMS(			unsigned char Ch);
 int S3I2CChEn(			unsigned char Ch, bool enable);
 int S3I2CChGetStatus(	unsigned char Ch);
 
-int S3I2CChSetBattSealed();
+int S3I2CChSetBattSealed(char Ch);
 int S3I2CChSetBattUnseal();
 int S3I2CChSetBattFullAccess();
 int S3I2CChReadSecKeys();
@@ -267,6 +267,10 @@ int S3I2CTxAuthenticate();
 int S3I2CRxMS(			unsigned char Rx);
 
 bool	S3I2CGetPowerSwitch();
+
+int S3I2CWriteLocalShort(	unsigned char	DevAddr,
+							unsigned char	RegAddr,
+							unsigned short	Data);
 
 // Set up Tx
 int	S3I2CSetPathA(		char p, char a);

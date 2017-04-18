@@ -246,7 +246,7 @@ int	S3I2CSetRxOptDSA(char Rx, char Tx, char dsa)
 		val += 2 * (1200 - RLL);
 	}
 
-	wbuf[0] = S3I2C_RX_OP_DSA;
+	wbuf[0] = S3I2C_RX_OPT_DSA;
 	wbuf[1] = *((unsigned char *)&val + 1);
 	wbuf[2] = *((unsigned char *)&val + 0);
 	
