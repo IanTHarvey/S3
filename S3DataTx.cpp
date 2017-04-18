@@ -35,6 +35,7 @@ int S3TxInit(pS3TxData node)
 	node->m_EmergencySleep = false;
 	node->m_ActiveInput = 0;
 	node->m_TestSigInput = -1; // Off
+	node->m_SelfTestPending = false;
 
 	node->m_OldTauOrder = false;
 	node->m_PeakHoldCap = false;
@@ -204,6 +205,8 @@ int S3TxInserted(char Rx, char Tx, S3TxType type)
 	pTx->m_ClearPeakHold = 0;
 
 	pTx->m_EmergencySleep = false;
+	
+	pTx->m_SelfTestPending = S3Data->m_SelfTest;
 
 	pTx->m_TempStableCnt = 0;
 	pTx->m_TempReport = SCHAR_MIN;
@@ -1703,6 +1706,13 @@ char S3TxGetAttenGainOffset(char Rx, char Tx)
 pS3TxData S3TxGetPtr(char Rx, char Tx)
 {
 	return &(S3Data->m_Rx[Rx].m_Tx[Tx]);
+}
+
+// ---------------------------------------------------------------------------
+
+bool S3TxSelfTestPending(char Rx, char Tx)
+{
+	return S3Data->m_Rx[Rx].m_Tx[Tx].m_SelfTestPending;
 }
 
 // ---------------------------------------------------------------------------

@@ -370,6 +370,11 @@ int S3SysSave(FILE *fid, pS3DataModel Sys)
 		fwrite(&(Sys->m_AGC), sizeof(unsigned char), 1, fid);
 	}
 
+	if (LATER_VERSION(S3_FILE_VERSION, 1.8))
+	{
+		fwrite(&Sys->m_SelfTest, sizeof(bool), 1, fid);
+	}
+
 	return 0;
 }
 
@@ -384,6 +389,11 @@ int S3SysRead(FILE *fid, pS3DataModel pSys)
 	{
 		fread(&pSys->m_TxStartState, sizeof(unsigned char), 1, fid);
 		fread(&pSys->m_AGC, sizeof(unsigned char), 1, fid);
+	}
+
+	if (LATER_VERSION(readModel.m_FileVersion, 1.8))
+	{
+		fread(&pSys->m_SelfTest, sizeof(bool), 1, fid);
 	}
 	
 	return 0;

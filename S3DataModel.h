@@ -13,6 +13,8 @@
 
 class CS3ControllerDlg;
 
+// #define BYTE unsigned char
+
 #define ROUND(x)	(x<0?ceil((x) - 0.5):floor((x) + 0.5))
 #define ABS(A)		((A)<0?-(A):A)
 
@@ -29,14 +31,18 @@ class CS3ControllerDlg;
 // ----------------------------------------------------------------------------
 
 #ifdef _DEBUG
-#define DBGLOG 0
 // #define DBGLOG 1
+#define DBGLOG 0
 #else
 #define DBGLOG 0
 #endif
 
+#define S3_TRACE_FILE
+
 #ifdef S3_TRACE_FILE
-#define debug_print(fmt, ...) do { if (DBGLOG) fprintf(S3DbgLog, fmt, __VA_ARGS__); } while(0)
+// #define debug_printw(fmt, ...) do { if (DBGLOG) fprintf(S3DbgLog, fmt, __VA_ARGS__); } while(0)
+#define debug_print(fmt, ...) do { if (DBGLOG) printf(fmt, __VA_ARGS__); } while(0)
+#define debug_printw	TRACE
 #else
 #define debug_print		TRACE
 #endif
@@ -68,7 +74,8 @@ extern unsigned char S3Tx8IPMap[];
 // #define	S3_FILE_VERSION		1.5 // Save Tx user sleep flag 17-01-17
 // #define	S3_FILE_VERSION		1.6 // Save default Tx start state 17-01-17
 // #define	S3_FILE_VERSION		1.7 // Save global AGC setting 17-01-17
-#define	S3_FILE_VERSION			1.8 // Save Rx active Tx 03-03-17
+// #define	S3_FILE_VERSION		1.8 // Save Rx active Tx 03-03-17
+#define	S3_FILE_VERSION			1.9 // Save Tx self test 18-04-17
 
 // TODO: Move all 'common' configurables to this section
 // ----------------------------------------------------------------------------
@@ -91,27 +98,7 @@ extern unsigned char S3Tx8IPMap[];
 #define S3_USB					1
 #define S3_ETH					2
 
-// Maximal configurations
-#define S3_MAX_RXS				6
-#define S3_MAX_TXS				6
-#define S3_MAX_IPS				8
-
-#define S3_TREE_DEPTH			3
-
-#define SHA1_DIGEST_LEN			20 // 160-bit
-#define SHA1_KEY_LEN			16 // 128-bit
-
-#define S3_MAX_MODEL_ID_LEN		64
-#define S3_MAX_SN_LEN			64
-#define S3_MAX_PN_LEN			64
-#define S3_MAX_SW_VER_LEN		32
-#define S3_MAX_FW_DATE_LEN		16
-#define S3_MAX_TIME_STR_LEN		32		// In ISO 8601 standard format
-#define S3_MAX_INFO_STR_LEN		128
-#define S3_MAX_OS_IMAGE_ID_LEN	64		// Normally ~30
-#define S3_MAX_BUILD_NUM_LEN	64
-#define S3_MAX_USB_PORT_LEN     64
-#define S3_MAX_USB_DRIVER_LEN   64
+#include "S3DataModelDefs.h"
 
 #define S3_MAX_BATT_SN_LEN		9
 #define S3_MAX_BATT_PN_LEN		21
@@ -124,8 +111,6 @@ extern unsigned char S3Tx8IPMap[];
 
 #define S3_MAX_NODE_NAME_LEN	32
 #define S3_MAX_EDIT_LEN			32
-
-#define S3_N_CHARGERS			4
 
 #define S3_DEF_WIN_TRACK_OPTION	false
 #define S3_DEF_OVERDRIVE_OPTION	false
@@ -212,7 +197,7 @@ typedef enum SigmaT				{TauNone, TauLo, TauMd, TauHi, TauUnknown};
 
 #define S3_MAX_IP_ADDR_LEN		64
 #define S3_MAX_PORT_LEN			256
-#define S3_MAX_BUFLEN			32768
+// #define S3_MAX_BUFLEN			32768
 #define S3_MAX_MESSAGE_LEN		512
 #define S3_DEFAULT_IP_ADDR		"10.0.0.102"
 #define S3_DEFAULT_IP_PORT		65000
@@ -333,6 +318,7 @@ typedef enum SigmaT				{TauNone, TauLo, TauMd, TauHi, TauUnknown};
 #define S3_ACCESS				25
 #define S3_TX_START_STATE		26
 #define S3_GLOBAL_AGC			27
+#define S3_TX_SELF_TEST			28
 
 // See S3GDIScreenRx.cpp
 #define S3_ACTIVE_TX			30
@@ -436,6 +422,9 @@ typedef enum SigmaT				{TauNone, TauLo, TauMd, TauHi, TauUnknown};
 
 typedef char S3Addr; // Rx, Tx, IP addressing
 
+//#define S3_MAX_GPIB_CMD_LEN	256
+//#define S3_MAX_GPIB_RET_LEN	32768
+
 // TODO: Use for chargers and Txs
 typedef struct sS3Battery
 {
@@ -538,6 +527,8 @@ typedef struct sS3TxData
 	S3TxPwrMode		m_PowerStat;		// On, Sleep
 	bool			m_UserSleep;		// Explicitly sleeped
 	bool			m_EmergencySleep;	// TODO: Combine with above?
+
+	bool			m_SelfTestPending;
 
 	S3IPData		m_Input[S3_MAX_IPS];
 	char			m_ActiveInput;		// Selected RF input
@@ -1114,6 +1105,9 @@ bool S3RxIsActiveTx(	char Rx, char Tx);
 bool S3TxConnected(		char Rx, char Tx);
 char S3TxGetBattValid(	char Rx, char Tx);
 
+bool S3TxSelfTestPending(char Rx, char Tx);
+
+
 int S3AllReport(		char *Buf);
 int S3SysReport(		char *Buf);
 int S3TopologyReport(	char *Buf);
@@ -1535,6 +1529,9 @@ unsigned char	S3TxGetWavelength(	char Rx, char Tx);
 
 unsigned char S3GetTxStartState();
 int S3SetTxStartState(unsigned char state);
+
+bool S3GetTxSelfTest();
+int S3SetTxSelfTest(bool on);
 
 bool S3GetTCompGainOption(); // TODO: Frig-to-go
 bool S3GetLowNoiseOption();

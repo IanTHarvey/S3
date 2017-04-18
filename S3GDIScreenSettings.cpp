@@ -166,6 +166,10 @@ void CS3GDIScreenMain::S3InitSettingsScreen(void)
 								m_RectSettingsSysWide.top + SUBHEAD_ROW + RowCnt++ * PARA_ROW, WCol,
 								_T("Tx start state"), _T("Sleep"), true);
 
+	m_SettingsTxSelfTest = new CS3NameValue(	m_RectSettingsDefaults.left, 
+								m_RectSettingsSysWide.top + SUBHEAD_ROW + RowCnt++ * PARA_ROW, WCol,
+								_T("Tx self test"), _T("Off"), true);
+
 	m_RectSettingsSysWide.bottom = m_RectSettingsSysWide.top +
 		SUBHEAD_ROW + RowCnt * PARA_ROW + BMARGIN;
 	
@@ -293,6 +297,7 @@ void CS3GDIScreenMain::S3InitSettingsScreen(void)
 	Selectable[NSelect++] = m_SettingsTxStart->RectEdit(m_HDC, m_hFontSB);
 	Selectable[NSelect++] = m_SettingsRxAGC->RectEdit(m_HDC, m_hFontSB);
 	Selectable[NSelect++] = m_SettingsImageDate->RectEdit(m_HDC, m_hFontSB);
+	Selectable[NSelect++] = m_SettingsTxSelfTest->RectEdit(m_HDC, m_hFontSB);
 
 	// Attach an S3NumEdit editors to the settings
 	m_SettingsPort->AttachEditor(m_HDC, m_GDIIPPortEdit);
@@ -329,6 +334,7 @@ void CS3GDIScreenMain::S3CloseSettingsScreen(void)
 	delete m_SettingsImp;
 	delete m_SettingsLowNoise;
 	delete m_SettingsTxStart;
+	delete m_SettingsTxSelfTest;
 
 	delete m_SettingsDate;
 	delete m_SettingsTime;
@@ -537,6 +543,13 @@ void CS3GDIScreenMain::S3DrawGDISettingsDefaults(void)
 	}
 
 	m_SettingsTxStart->Draw(m_HDC, m_hFontS, m_hFontSB);
+
+	if (S3GetTxSelfTest())
+		m_SettingsTxSelfTest->SetValue(_T("On"));
+	else
+		m_SettingsTxSelfTest->SetValue(_T("Off"));
+
+	m_SettingsTxSelfTest->Draw(m_HDC, m_hFontS, m_hFontSB);
 
 	fntRc.left += LHMARGIN;
 	DrawText(m_HDC, _T("Defaults"), -1, &fntRc, DT_LEFT);
@@ -843,6 +856,13 @@ int CS3GDIScreenMain::S3FindSettingsScreen(POINT p)
 			else if (menu_item == 2)
 				S3SetAGC(S3_AGC_GAIN + 100);
 		}
+		else if  (Para == S3_TX_SELF_TEST)
+		{
+			if (menu_item == 0)
+				S3SetTxSelfTest(true);
+			else if (menu_item == 1)
+				S3SetTxSelfTest(false);
+		}
 
 		return 0;
 	}
@@ -1139,6 +1159,22 @@ int CS3GDIScreenMain::S3FindSettingsScreen(POINT p)
 			m_ParaMenu->Activate();
 
 			return S3SetSelectedPara(-1, -1, -1, S3_OS_UPDATE);
+		}
+		else if (s == 16) // Tx self test
+		{
+			m_ParaMenu->Init(m_HDC, p.x, p.y);
+		
+			m_ParaMenu->AddItem(_T("On"));
+			m_ParaMenu->AddItem(_T("Off"));
+		
+			if (S3GetTxSelfTest())
+				m_ParaMenu->SelectItem(0);
+			else
+				m_ParaMenu->SelectItem(1);
+
+			m_ParaMenu->Activate();
+
+			return S3SetSelectedPara(-1, -1, -1, S3_TX_SELF_TEST);
 		}
 	
 

@@ -644,6 +644,7 @@ protected:
 	CS3NameValue	*m_SettingsRxAGC;
 	CS3NameValue	*m_SettingsUnits;
 	CS3NameValue	*m_SettingsTxStart;
+	CS3NameValue	*m_SettingsTxSelfTest;
 
 	CS3NameValue	*m_SettingsGain;
 	CS3NameValue	*m_SettingsSigTau;

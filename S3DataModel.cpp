@@ -96,7 +96,7 @@ unsigned char S3Tx8IPMap[8] = {0, 1, 2, 3, 4, 5, 6, 7};
 FILE	*S3DbgLog = NULL;
 
 #ifdef S3_TRACE_FILE
-FILE	*S3DbgLog;
+//FILE	*S3DbgLog;
 #endif
 
 pS3DataModel S3Init(bool DemoMode)
@@ -176,7 +176,7 @@ int S3DataModelInit(pS3DataModel dm, bool DemoMode)
 	dm->m_Modified = false;
 
 	dm->m_Locked = false;
-	dm->m_SelfTest = false;
+	dm->m_SelfTest = true;
 
 	dm->m_FactoryMode = false;
 
@@ -868,7 +868,7 @@ int S3SetGain(char Rx, char Tx, char IP, char gain)
 		if (S3GetTCompMode() == S3_TCOMP_GAIN)
 			S3TxSetTempComp(Rx, Tx, S3TxGetTemp(Rx, Tx));
 
-		S3IPSetGainSent(Rx, Tx, IP, -128); // Invalidate to force update
+		S3IPSetGainSent(Rx, Tx, IP, SCHAR_MIN); // Invalidate to force update
 	}
 
 	return GainLimited;
@@ -1644,6 +1644,7 @@ int S3SetDemoMode(bool DemoMode)
 	return 0;
 }
 
+// ---------------------------------------------------------------------------
 
 bool S3SelfTestEnabled()
 {
@@ -1770,6 +1771,20 @@ unsigned char S3GetTxStartState()
 int S3SetTxStartState(unsigned char state)
 {
 	S3Data->m_TxStartState = state;
+
+	return 0;
+}
+
+// ---------------------------------------------------------------------------
+
+bool S3GetTxSelfTest()
+{
+	return S3Data->m_SelfTest;
+}
+
+int S3SetTxSelfTest(bool on)
+{
+	S3Data->m_SelfTest = on;
 
 	return 0;
 }
