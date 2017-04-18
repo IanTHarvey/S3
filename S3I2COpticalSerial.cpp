@@ -359,7 +359,9 @@ int S3I2CWriteSerialStr(	unsigned char	DevAddr,
 	I2C_WriteRandom(S3I2CCurTxOptAddr, 0x00 << 3, RegAddr);
 
 	for(unsigned char i = 0; i < len; i++)
+	{
 		I2C_WriteRandom(S3I2CCurTxOptAddr, 0x00 << 3, Str[i]);
+	}
 
 	I2C_WriteRandom(S3I2CCurTxOptAddr, 0x00 << 3, STOP);
 #endif
@@ -378,7 +380,7 @@ int S3I2CWriteSerialData(	unsigned char		DevAddr,
 #ifdef TRIZEPS
 	if (S3I2CWaitForEmpty())
 		return 1;
-
+	
 	I2C_WriteRandom(S3I2CCurTxOptAddr, 0x00 << 3, START);
 	I2C_WriteRandom(S3I2CCurTxOptAddr, 0x00 << 3, DevAddr);
 
@@ -391,7 +393,24 @@ int S3I2CWriteSerialData(	unsigned char		DevAddr,
 	I2C_WriteRandom(S3I2CCurTxOptAddr, 0x00 << 3, RegAddr);
 
 	for(unsigned char i = 0; i < NBytes; i++)
+	{
 		I2C_WriteRandom(S3I2CCurTxOptAddr, 0x00 << 3, Data[i]);
+
+		/*
+		unsigned char	cnt = 0;
+		int				LSR;
+		while(cnt++ < S3_POLL_SERIAL_RX)
+		{
+			LSR = I2C_ReadRandom(S3I2CCurTxOptAddr, SC16_LSR_ADDR);
+
+			if (LSR & 0x40) // Transmit buffer empty
+				break;
+		}
+
+		if (cnt == S3_POLL_SERIAL_RX)
+			return 1;
+		*/
+	}
 
 	I2C_WriteRandom(S3I2CCurTxOptAddr, 0x00 << 3, STOP);
 #endif
