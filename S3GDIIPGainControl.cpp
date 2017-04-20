@@ -257,7 +257,9 @@ int CS3GDIScreenMain::S3GDIIPGainProcess(POINT p)
 				SWP_SHOWWINDOW);
 
 			CString str;
-			str.Format(_T("%+d"), gain);
+			if (gain == 0)
+				str = _T("-0");
+			else str.Format(_T("%+d"), gain);
 			m_GDIGainEdit->SetWindowText(str);
 			m_GDIGainEdit->SetFocus();
 			m_GDIGainEdit->SetSel(0, -1); // select all text and move cursor at the end

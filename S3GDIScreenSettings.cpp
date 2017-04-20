@@ -554,7 +554,10 @@ void CS3GDIScreenMain::S3DrawGDISettingsDefaults(void)
 	fntRc.left += LHMARGIN;
 	DrawText(m_HDC, _T("Defaults"), -1, &fntRc, DT_LEFT);
 
-	str.Format(_T("%+d"), S3IPGetGain(-1, -1, -1));
+	int gain = S3IPGetGain(-1, -1, -1);
+	if (gain == 0)
+		str = _T("-0");
+	else str.Format(_T("%+d"), gain);
 	m_SettingsGain->SetValue(str);
 	m_SettingsGain->Draw(m_HDC, m_hFontS, m_hFontSB);
 
