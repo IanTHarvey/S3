@@ -60,7 +60,7 @@ void CS3GDIScreenMain::S3InitGDIChScreen(void)
 		row++; // Separator
 
 		str.Format(_T("\u03F4 (%d - %+d%cC)"),
-					S3_BATT_CHARGE_MIN_T, S3_BATT_CHARGE_MAX_T, 0x00b0);
+					S3_BATT_CHARGE_MIN_T / 10, S3_BATT_CHARGE_MAX_T / 10, 0x00b0);
 
 		m_ChBattT[Ch] = new CS3NameValue(	m_RectCh[Ch].left, 
 						m_RectCh[Ch].top + HEAD_ROW + row++ * PARA_ROW, m_RectCh[Ch].Width(),
@@ -212,7 +212,7 @@ void CS3GDIScreenMain::S3DrawGDIChScreen(void)
 			m_ChTimeRemain[Ch]->SetValue(str);
 			m_ChTimeRemain[Ch]->Draw(m_HDC, m_hFontS, m_hFontSB);
 			
-			str.Format(_T("%+d"), S3ChGetBattTemp(Ch));
+			str.Format(_T("%+d"), S3ChGetBattTemp(Ch) / 10);
 			m_ChBattT[Ch]->SetValue(str);
 			m_ChBattT[Ch]->Draw(m_HDC, m_hFontS, m_hFontSB);
 

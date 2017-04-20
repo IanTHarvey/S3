@@ -332,10 +332,11 @@ int S3I2CChGetStatus(unsigned char Ch)
 	S3ChSetSoC(Ch, i2cStdBufRead[0x02]);
 	
 	// x 0.1 deg K
-	unsigned short t;
-	t = *((unsigned short *)(i2cStdBufRead + 0x0c)) / 10 - 273;
-	S3ChSetBattTemp(Ch, (char)t);
+	unsigned short temp;
+	temp = *((short *)(i2cStdBufRead + 0x0c)) - 2730;
+	S3ChSetBattTemp(Ch, temp);
 
+	unsigned short t;
 	t  = *((unsigned short *)(i2cStdBufRead + 0x08));
 	S3ChSetBattV(Ch, (double)t / 1000.0);
 
@@ -380,7 +381,7 @@ int S3I2CChGetStatus(unsigned char Ch)
 	// New discovery only
 	if (1)
 	{
-		//S3I2CChSetBattSealed();
+		//S3I2CChSetBattSealed(Ch);
 		// S3I2CChSetBattUnseal();
 		// Sleep(100);
 		// S3I2CChSetBattFullAccess();
