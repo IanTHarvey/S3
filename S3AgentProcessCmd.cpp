@@ -240,7 +240,7 @@ int CmdGetSysI(char *Inbuf)
         S3Data->m_ImageDate,
         S3Data->m_BuildNum,
         S3Data->m_ModelId,
-        CurrentTime.GetYear(), CurrentTime.GetMonth(), CurrentTime.GetDay(),
+        CurrentTime.GetYear(), CurrentTime.GetMonth(), CurrentTime.GetDay(),		// 11
         CurrentTime.GetHour(), CurrentTime.GetMinute(), CurrentTime.GetSecond(),
         S3GetRemote(),
         S3Data->m_ConfigName,
@@ -248,7 +248,7 @@ int CmdGetSysI(char *Inbuf)
         S3Data->m_ConfigPath,
         S3Data->m_EventLogName,
         S3Data->m_EventLogPath,
-        S3Data->m_TestName,
+        S3Data->m_TestName,			// 21
         
         S3Data->m_AppDateTime,
         S3Data->m_Type,
@@ -258,8 +258,8 @@ int CmdGetSysI(char *Inbuf)
         S3Data->m_SoftShutdownOption,
         S3Data->m_AGC,
         S3Data->m_TxStartState,
-        S3Data->m_SelfTest,
-        S3Data->m_SWVersionD,
+        S3Data->m_TxSelfTest,
+        S3Data->m_SWVersionD,		// 31
 
         S3Data->m_ImageID,
         S3Data->m_ImageOS,
@@ -267,7 +267,7 @@ int CmdGetSysI(char *Inbuf)
         S3Data->m_OSUpdateFail,
         S3Data->m_PowerDownPending,
         S3Data->m_PowerDownFailed,
-        S3Data->m_SleepAll);
+        S3Data->m_SleepAll);		// 38
     return 0;
 }
 int CmdGetInit(char *Inbuf)
