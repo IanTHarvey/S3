@@ -1,5 +1,7 @@
 // ----------------------------------------------------------------------------
 
+#include <windows.h>
+
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -49,7 +51,7 @@ int S3I2CChWriteAuthKey()
 	BOOL ok;
 	unsigned char i2cStartAddr = 0x00;
 	unsigned char i2cStdBufRead[S3_FLASH_BLOCK_SIZE];
-	unsigned char AuthKey[16];
+	unsigned char AuthKey[SHA1_KEY_LEN];
 
 	HexStr2Hex(AuthKey, KeyStr);
 
@@ -57,13 +59,16 @@ int S3I2CChWriteAuthKey()
 	cmd[1] = 0x00;	// Enable authentication commands
 	ok = I2C_WriteRead(S3I2C_CH_BATT_ADDR, cmd, 2, NULL, 0);
 
+	if (!ok)
+		return 1;
+
 	// Get 'Security' block data
 	cmd[0] = 0x3e;	// DataFlashClass
 	cmd[1] = 0x70;	// Subclass 'Security'
 	ok = I2C_WriteRead(S3I2C_CH_BATT_ADDR, cmd, 2, NULL, 0);
 
 	if (!ok)
-		return 1;
+		return 2;
 
 	cmd[0] = 0x3f;	// DataFlashBlock
 	cmd[1] = 0x00;	// Offset bank: 0: '0-31', 1: 32-63
@@ -71,13 +76,16 @@ int S3I2CChWriteAuthKey()
 	ok = I2C_WriteRead(S3I2C_CH_BATT_ADDR, cmd, 2, NULL, 0);
 
 	if (!ok)
-		return 1;
+		return 3;
 
 	// Read and copy old data block
 	i2cStartAddr = 0x40;
 	ok = I2C_WriteRead(S3I2C_CH_BATT_ADDR,
 				&i2cStartAddr,	1,
-				i2cStdBufRead,	32);
+				i2cStdBufRead,	S3_FLASH_BLOCK_SIZE);
+
+	if (!ok)
+		return 4;
 
 	// Build write command and data
 	unsigned char i;
@@ -89,7 +97,7 @@ int S3I2CChWriteAuthKey()
 	for(i = 0; i < S3_FLASH_BLOCK_SIZE; i++)
 		cmdSec[i + 1] = i2cStdBufRead[i];
 
-	for(i = 0; i < 16; i++)
+	for(i = 0; i < SHA1_KEY_LEN; i++)
 		cmdSec[i + 1 + 0x08] = AuthKey[i];
 
 	// Copy data then write to flash
@@ -110,7 +118,7 @@ int S3I2CChWriteAuthKey()
 	ok = I2C_WriteRead(S3I2C_CH_BATT_ADDR, cmd, 2, NULL, 0);
 
 	if (!ok)
-		return 1;
+		return 5;
 
 	// Do reset
 	//cmd[0] = 0x00;
@@ -134,7 +142,15 @@ int S3I2CChWriteAuthKey()
 	i2cStartAddr = 0x40;
 	ok = I2C_WriteRead(S3I2C_CH_BATT_ADDR,
 				&i2cStartAddr,	1,
-				i2cStdBufRead,	32);
+				i2cStdBufRead,	S3_FLASH_BLOCK_SIZE);
+
+	if (ok)
+	{
+		for(i = 0; i < S3_FLASH_BLOCK_SIZE; i++)
+			if (i2cStdBufRead[i] != cmdSec[i + 1])
+				return 6;
+	}
+	else return 7;
 
 #endif
 
@@ -147,13 +163,16 @@ extern int HMAC3(unsigned char *Digest, unsigned char *Message, unsigned char *K
 
 int S3I2CChAuthenticate()
 {
+	BYTE ErrCnt = 0;
+
+#ifdef TRIZEPS
 	BYTE	Message[SHA1_DIGEST_LEN];
 	BYTE	MessageTmp[SHA1_DIGEST_LEN];
 	BYTE	Digest[SHA1_DIGEST_LEN];
 
 	BYTE i;
 
-	unsigned char AuthKey[16];
+	unsigned char AuthKey[SHA1_KEY_LEN];
 
 	S3GenerateChallenge(MessageTmp);
 
@@ -216,14 +235,14 @@ int S3I2CChAuthenticate()
 				&i2cStartAddr,	1,
 				i2cStdBufRead,	SHA1_DIGEST_LEN);
 
-	BYTE ErrCnt = 0;
+	
 
 	for(i = 0; i < SHA1_DIGEST_LEN; i++)
 	{
 		if (Digest[i] != i2cStdBufRead[SHA1_DIGEST_LEN - i - 1])
 			ErrCnt++;
 	}
-
+#endif
 	return ErrCnt;
 }
 
@@ -243,7 +262,7 @@ static void SHA1Finalize (SHA1Context * context, uint8_t Pad_Byte);
 static void SHA1PadMessage (SHA1Context *, uint8_t Pad_Byte);
 static void SHA1ProcessMessageBlock (SHA1Context *);
 
-#define BYTE unsigned char
+// #define BYTE unsigned char
 
 int HMAC3(unsigned char *Digest, unsigned char *Message, unsigned char *Key)
 {
@@ -1084,13 +1103,35 @@ int HMAC(unsigned char *Digest, unsigned char *Message, char *password)
 
 // ----------------------------------------------------------------------------
 
-int S3I2CChSetBattSealed()
+int S3I2CChSetBattSealed(char Ch)
 {
+	BOOL ok = TRUE;
+
+#ifdef TRIZEPS
 	unsigned char cmd[3] = {0x00, 0x20, 0x00};
 
-	BOOL ok = I2C_WriteRead(S3I2C_CH_BATT_ADDR, cmd, 3, NULL, 0);
+	ok = I2C_WriteRead(S3I2C_CH_BATT_ADDR, cmd, 3, NULL, 0);
 
-	return (int)(ok != 0);
+	if (ok)
+	{
+		BOOL ok;
+		unsigned char i2cCmdBufRead[2];
+		unsigned char cmd[3] = {0, 0, 0};
+		unsigned char i2cStartAddr = 0x00;
+
+		ok = I2C_WriteRead(S3I2C_CH_BATT_ADDR, cmd, 3, NULL, 0);
+		ok = I2C_WriteRead(S3I2C_CH_BATT_ADDR, &i2cStartAddr, 1, i2cCmdBufRead, 2);
+		S3ChSetBattStatus(Ch, i2cCmdBufRead);
+
+		// Check FAS and Sealed bits set
+		if ((S3ChGetBattStatus(Ch) & (BQ_SS | BQ_FAS)) == (BQ_SS | BQ_FAS))
+			return 1;
+
+		return 0;
+	}
+
+#endif
+	return (int)(ok != TRUE);
 }
 
 // ----------------------------------------------------------------------------
@@ -1098,6 +1139,10 @@ int S3I2CChSetBattSealed()
 
 int S3I2CChSetBattUnseal()
 {
+	BOOL ok = TRUE;
+
+#ifdef TRIZEPS
+
 	// BQ34Z100 defaults
 	// unsigned char cmd1[3] = {0x00, 0x14, 0x04};
 	// unsigned char cmd2[3] = {0x00, 0x72, 0x36};
@@ -1114,10 +1159,10 @@ int S3I2CChSetBattUnseal()
 	cmd2[1] = buf[3];
 	cmd2[2] = buf[2];
 
-	BOOL ok = I2C_WriteRead(S3I2C_CH_BATT_ADDR, cmd2, 3, NULL, 0);
+	ok = I2C_WriteRead(S3I2C_CH_BATT_ADDR, cmd2, 3, NULL, 0);
 	if (ok)
 		ok = I2C_WriteRead(S3I2C_CH_BATT_ADDR, cmd1, 3, NULL, 0);
-
+#endif
 	return (int)(ok != TRUE);
 }
 
@@ -1126,6 +1171,10 @@ int S3I2CChSetBattUnseal()
 
 int S3I2CChSetBattFullAccess()
 {
+	BOOL ok = TRUE;
+
+#ifdef TRIZEPS
+
 	// BQ34Z100 defaults
 	// unsigned char cmd1[3] = {0x00, 0xFF, 0xFF};
 	// unsigned char cmd2[3] = {0x00, 0xFF, 0xFF};
@@ -1142,9 +1191,11 @@ int S3I2CChSetBattFullAccess()
 	cmd2[1] = buf[3];
 	cmd2[2] = buf[2];
 
-	BOOL ok = I2C_WriteRead(S3I2C_CH_BATT_ADDR, cmd2, 3, NULL, 0);
+	ok = I2C_WriteRead(S3I2C_CH_BATT_ADDR, cmd2, 3, NULL, 0);
 	if (ok)
 		ok = I2C_WriteRead(S3I2C_CH_BATT_ADDR, cmd1, 3, NULL, 0);
+
+#endif
 
 	return (int)(ok != TRUE);
 }
@@ -1194,6 +1245,7 @@ int S3I2CChReadSecKeys()
 	return 0;
 }
 // ----------------------------------------------------------------------------
+// Assumes charger set up and battery has full access
 
 int S3I2CChWriteSecKeys()
 {
@@ -1212,6 +1264,13 @@ int S3I2CChWriteSecKeys()
 	for(i = 0; i < S3_FLASH_BLOCK_SIZE + 1; i++)
 		datablock[i] = 0;
 
+	cmd[0] = 0x61;	// BlockDataControl
+	cmd[1] = 0x00;	// Enable authentication commands
+	ok = I2C_WriteRead(S3I2C_CH_BATT_ADDR, cmd, 2, NULL, 0);
+
+	if (!ok)
+		return 1;
+
 	// Get 'Security' block data
 	cmd[0] = 0x3e;	// DataFlashClass
 	cmd[1] = 112;	// Subclass 'Security'
@@ -1225,7 +1284,7 @@ int S3I2CChWriteSecKeys()
 	ok = I2C_WriteRead(S3I2C_CH_BATT_ADDR, cmd, 2, NULL, 0);
 
 	if (!ok)
-		return 1;
+		return 2;
 
 	// Build write command and data
 	cmdSec[0] = 0x40; // Write data to offset 0x40 + offset
@@ -1248,12 +1307,17 @@ int S3I2CChWriteSecKeys()
 
 	// Write the WHOLE data block
 	ok = I2C_WriteRead(S3I2C_CH_BATT_ADDR, cmdSec, S3_FLASH_BLOCK_SIZE + 1, NULL, 0);
+	if (!ok)
+		return 3;
 
 	// Set checksum to force transfer to data flash
 	cmd[0] = 0x60;
 	cmd[1] = CheckSum;
 	ok = I2C_WriteRead(S3I2C_CH_BATT_ADDR, cmd, 2, NULL, 0);
+	if (!ok)
+		return 4;
 
+	/*
 	// Do reset
 	cmd[0] = 0x00;
 	cmd[1] = 0x41;
@@ -1261,13 +1325,52 @@ int S3I2CChWriteSecKeys()
 	ok = I2C_WriteRead(S3I2C_CH_BATT_ADDR, cmd, 3, NULL, 0);
 
 	if (!ok)
-		return 1;
+		return 5;
+
+
+	cmd[0] = 0x61;	// BlockDataControl
+	cmd[1] = 0x00;	// Enable authentication commands
+	ok = I2C_WriteRead(S3I2C_CH_BATT_ADDR, cmd, 2, NULL, 0);
+
+	if (!ok)
+		return 10;
+
+	// Get 'Security' block data
+	cmd[0] = 0x3e;	// DataFlashClass
+	cmd[1] = 112;	// Subclass 'Security'
+	ok = I2C_WriteRead(S3I2C_CH_BATT_ADDR, cmd, 2, NULL, 0);
+
+	if (!ok)
+		return 11;
+
+	cmd[0] = 0x3f;	// DataFlashBlock
+	cmd[1] = 0x00;	// Offset bank: 0: '0-31', 1: 32-63
+	ok = I2C_WriteRead(S3I2C_CH_BATT_ADDR, cmd, 2, NULL, 0);
+
+	if (!ok)
+		return 12;
+	*/
+
+	Sleep(100);
 
 	// Read back new data
 	i2cStartAddr = 0x40;
 	ok = I2C_WriteRead(S3I2C_CH_BATT_ADDR,
 				&i2cStartAddr,	1,
 				i2cStdBufRead,	S3_FLASH_BLOCK_SIZE);
+
+	if (ok)
+	{
+		for(i = 0; i < S3_FLASH_BLOCK_SIZE; i++)
+		{
+			if (i2cStdBufRead[i] != cmdSec[i + 1])
+			{
+				int err = 100 + i;
+				return err;
+			}
+		}
+	}
+	else return 7;
 
 	if (0)
 	{
@@ -1276,6 +1379,9 @@ int S3I2CChWriteSecKeys()
 		cmd[1] = 0x20;
 		cmd[2] = 0x00; 
 		ok = I2C_WriteRead(S3I2C_CH_BATT_ADDR, cmd, 3, NULL, 0);
+
+		if (!ok)
+			return 8;
 	}
 
 #endif
@@ -1357,3 +1463,5 @@ int HexStr2Hex(BYTE *buf, char *str)
 	
 	fclose(diag);
  }
+
+ // ----------------------------------------------------------------------------

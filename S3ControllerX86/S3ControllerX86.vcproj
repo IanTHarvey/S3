@@ -513,6 +513,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath="..\S3I2CChAuth.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\S3I2CFactory.cpp"
 				>
 				<FileConfiguration
@@ -611,6 +615,10 @@
 						UsePrecompiledHeader="0"
 					/>
 				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\S3I2CTxAuth.cpp"
+				>
 			</File>
 			<File
 				RelativePath="..\S3I2CTxDiag.cpp"
