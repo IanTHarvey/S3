@@ -109,11 +109,13 @@ CS3ControllerDlg::CS3ControllerDlg(CWnd* pParent /*=NULL*/)
 	// _CrtSetDbgFlag ( _CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF );
 
 #if DBGLOG == 1
+	// If in WEC7 root, will disappear on reboot - put in \Flashdisk if want
+	// non-volatile.
 	S3DbgLog = NULL;
 	errno_t err = fopen_s(&S3DbgLog, "S3GUI.log", "w");
 #endif
 
-	debug_print(_T("CS3ControllerDlg: ctor start\n"));
+	debug_print("CS3ControllerDlg: ctor start\n");
 
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 
@@ -132,7 +134,7 @@ CS3ControllerDlg::CS3ControllerDlg(CWnd* pParent /*=NULL*/)
 
 	OSDetect();
 	
-	debug_print(_T("CS3ControllerDlg: ctor end\n"));
+	debug_print("CS3ControllerDlg: ctor end\n");
 }
 
 // ----------------------------------------------------------------------------
@@ -185,33 +187,9 @@ BOOL CS3ControllerDlg::OnInitDialog()
 {
 	CDialog::OnInitDialog();
 
-	/* Tx Authentication test code
-	// Initialise minimal system to run S3I2CTxAuthenticate()
-	S3GPIOInit();
-
-	I2C_Init();
-
-	for (unsigned char Ch = 0; Ch < S3_N_CHARGERS; Ch++)
-		S3I2CChEn(Ch, true);
-	
-	I2C_WriteRandom(S3I2C_EXPANDER_ADDR, 0x04, 0x00); // Zero MS_BAT_3 & MS_BAT_4
-	I2C_WriteRandom(S3I2C_EXPANDER_ADDR, 0x06, 0x80);
-
-	// Configure pins as inputs
-	I2C_WriteRandom(S3I2C_EXPANDER_ADDR, 0x0C, 0xC0);	// Port 0
-	I2C_WriteRandom(S3I2C_EXPANDER_ADDR, 0x0D, 0x07);	// Port 1
-	I2C_WriteRandom(S3I2C_EXPANDER_ADDR, 0x0E, 0x80);	// Port 2
-
-	S3I2CRxMS(0);
-	S3I2CChMS(0);
-	S3I2CCurRxOptAddr = S3I2CRxOptAddr[0];
-	S3I2CCurTxOptAddr = S3I2CTxOptAddr[0];
-	int Auth = S3I2CTxAuthenticate();
-	*/
-
 	errno_t err;
 
-	debug_print(_T("OnInitDialog: Starting\n"));
+	debug_printw(_T("OnInitDialog: Starting\n"));
 
 	// Set the icon for this dialog.  The framework does this automatically
 	// when the application's main window is not a dialog
@@ -227,7 +205,7 @@ BOOL CS3ControllerDlg::OnInitDialog()
 
 	S3SetTCompMode(CompMode + 100); // Force update
 
-	debug_print(_T("OnInitDialog: Initialised model\n"));
+	debug_printw(_T("OnInitDialog: Initialised model\n"));
 	// See comments in S3EventLog.cpp
 	// S3EventAddNotifyFn(&S3EventNotification);
 
@@ -260,8 +238,6 @@ BOOL CS3ControllerDlg::OnInitDialog()
 	m_FactorySysDlg->SetWindowPos(&wndTop, 0, 0, M_SCREEN_WIDTH, M_SCREEN_HEIGHT,
 								SWP_NOMOVE);
 
-	m_EthInactivityTimer = 31 * 1000;
-	
 	// Initialize Winsock
 	int		iResult;
 	WORD	VersionReqd;
@@ -284,7 +260,7 @@ BOOL CS3ControllerDlg::OnInitDialog()
 
 		if (iResult != WSASYSNOTREADY)
 		{
-			debug_print(_T("OnInitDialog: WSAStartup failed: %d\n"),
+			debug_print("OnInitDialog: WSAStartup failed: %d\n",
 													iResult);
 			return 1;
 		}
@@ -292,7 +268,7 @@ BOOL CS3ControllerDlg::OnInitDialog()
 
 	if (retries >= 10)
 	{
-		debug_print(_T("OnInitDialog: WSAStartup failed: %d (retries: %d)\n"),
+		debug_print("OnInitDialog: WSAStartup failed: %d (retries: %d)\n",
 													iResult, retries);
 		return 1;
 	}
@@ -301,7 +277,7 @@ BOOL CS3ControllerDlg::OnInitDialog()
 	
 	if (err == 1)
 	{
-		debug_print(_T("OnInitDialog: RemoteOpenEth failed: %d\n"), err);
+		debug_print("OnInitDialog: RemoteOpenEth failed: %d\n", err);
 		S3EventLogAdd("Failed to initialise socket stream", 1, -1, -1, -1);
 	}
 
@@ -309,7 +285,7 @@ BOOL CS3ControllerDlg::OnInitDialog()
 	
 	if (err == 2)
 	{
-		debug_print(_T("OnInitDialog: RemoteOpenUSB failed: %d\n"), err);
+		debug_print("OnInitDialog: RemoteOpenUSB failed: %d\n", err);
 
 		char msg[S3_EVENTS_LINE_LEN];
 		sprintf_s(msg, S3_EVENTS_LINE_LEN, "Failed to open USB port: %S", 
@@ -332,8 +308,8 @@ BOOL CS3ControllerDlg::OnInitDialog()
 	//	S3_ROOT_DIR, S3_DEF_CONFIG_FILENAME);
 
 	// ...now kick everything off
-	SetTimer(IDT_S3_GUI_UPDATE_TIMER,	500,					NULL);
-	SetTimer(IDT_S3_RX_POLL_TIMER,		500,					NULL);
+	SetTimer(IDT_S3_GUI_UPDATE_TIMER,	S3_GUI_UPDATE_INTERVAL,	NULL);
+	SetTimer(IDT_S3_RX_POLL_TIMER,		S3_RX_POLL_INTERVAL,	NULL);
 	SetTimer(IDT_S3_COMM_POLL_TIMER,	S3_COMM_POLL_INTERVAL,	NULL);
 
     //StartCounter();
@@ -568,8 +544,8 @@ void CS3ControllerDlg::OnI2CPollTimer(void)
 #ifdef S3TXBATTLOG
 	battlogcnt++;
 
-	// TEST:
-	if (battlogcnt == 60 * 3)
+	// TEST: 5 min interval
+	if (battlogcnt == (int)(5 * 60.0 * 1000.0 / (double)S3_RX_POLL_INTERVAL))
 	{
 		battlogcnt = 0;
 		for(char Rx = 0; Rx < 6; Rx++)
@@ -595,8 +571,8 @@ void CS3ControllerDlg::OnCommPollTimer(void)
 		RemoteOpenEth();
 
 		// Limit just to prevent wraparound
-		if (m_EthInactivityTimer < 100 * S3_COMM_POLL_INTERVAL)
-			m_EthInactivityTimer += S3_COMM_POLL_INTERVAL;
+		if (m_EthInactivityTimer < 100)
+			m_EthInactivityTimer++;
 
 		RemoteOpenUSB();
 		
@@ -1030,8 +1006,9 @@ int CS3ControllerDlg::TxLogBatt(char Rx, char Tx)
 	char t[S3_DATETIME_LEN];
 	GetTimeStrA(t);
 
-	fprintf(fid, "%s:\t%03d\t%03d\n", t,
-		S3TxGetBattSoC(Rx, Tx), S3TxGetATTE(Rx, Tx));
+	fprintf(fid, "%s:\t%03d\t%03d\t%3d\t%5.1f\n", t,
+		S3TxGetBattSoC(Rx, Tx), S3TxGetATTE(Rx, Tx),
+		(double)S3TxGetBattTemp(Rx, Tx) / 10.0, S3TxGetBattI(Rx, Tx));
 
 	fflush(fid);
 	fclose(fid);

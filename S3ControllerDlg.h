@@ -8,6 +8,7 @@
 #include "afxwin.h"
 
 #include "resource.h"
+#include "S3GPIB.h"
 #include "S3USBVCP.h"
 #include "S3GDIScreenMain.h"
 #include "S3FactorySetUp.h"
@@ -18,7 +19,10 @@
 #define IDT_S3_RX_POLL_TIMER	(WM_USER + 202)	// Scan receivers
 #define IDT_S3_COMM_POLL_TIMER	(WM_USER + 203) // Re-acquire ethernet and USB comms
 
+#define S3_GUI_UPDATE_INTERVAL	500	// ms
+#define S3_RX_POLL_INTERVAL		500	// ms
 #define S3_COMM_POLL_INTERVAL	1225	// ms
+#define S3_ETH_ACTIVITY_TIMEOUT 20
 
 #define M_SCREEN_WIDTH			800
 #define M_SCREEN_HEIGHT			480
@@ -54,7 +58,7 @@ class CS3ControllerDlg : public CDialog
 	void			WriteWindow(void);
 
 	bool			m_EthEnabled; // TODO: Use 
-	CWinThread		*m_IPThread;
+
 	// bool			m_DemoMode;
 	unsigned int	m_EthInactivityTimer; // ms
 
@@ -101,6 +105,10 @@ protected:
 	DECLARE_MESSAGE_MAP()
 
 public:
+
+	// TEMP: Should be private
+	CWinThread		*m_IPThread;
+	
 	CS3ControllerDlg(CWnd* pParent = NULL);	// standard constructor
 
 	void			S3GDIReInitialise(void);
