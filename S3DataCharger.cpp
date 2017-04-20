@@ -415,7 +415,7 @@ int	S3ChRemove(unsigned char Ch)
 
 // ----------------------------------------------------------------------------
 
-char S3ChGetBattTemp(char Ch)
+short S3ChGetBattTemp(char Ch)
 {
 	// Should be an error?
 	if (!S3Data->m_Chargers[Ch].m_Occupied)
@@ -426,7 +426,7 @@ char S3ChGetBattTemp(char Ch)
 
 // ----------------------------------------------------------------------------
 
-int	S3ChSetBattTemp(char Ch, char t)
+int	S3ChSetBattTemp(char Ch, short t)
 {
 	// Should be an error?
 	if (!S3Data->m_Chargers[Ch].m_Occupied)
@@ -506,14 +506,14 @@ int S3ChSetBattV(char Ch, double v)
 
 // ---------------------------------------------------------------------------
 
-unsigned short S3ChGetBattI(char Ch)
+short S3ChGetBattI(char Ch)
 {
 	return S3Data->m_Chargers[Ch].m_I;
 }
 
 // ---------------------------------------------------------------------------
 
-int S3ChSetBattI(char Ch, unsigned short i)
+int S3ChSetBattI(char Ch, short i)
 {
 	S3Data->m_Chargers[Ch].m_I = i;
 

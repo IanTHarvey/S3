@@ -31,8 +31,7 @@ class CS3ControllerDlg;
 // ----------------------------------------------------------------------------
 
 #ifdef _DEBUG
-// #define DBGLOG 1
-#define DBGLOG 0
+#define DBGLOG 1
 #else
 #define DBGLOG 0
 #endif
@@ -40,9 +39,9 @@ class CS3ControllerDlg;
 #define S3_TRACE_FILE
 
 #ifdef S3_TRACE_FILE
-// #define debug_printw(fmt, ...) do { if (DBGLOG) fprintf(S3DbgLog, fmt, __VA_ARGS__); } while(0)
-#define debug_print(fmt, ...) do { if (DBGLOG) printf(fmt, __VA_ARGS__); } while(0)
-#define debug_printw	TRACE
+#define debug_printw(fmt, ...) do { if (DBGLOG) fwprintf(S3DbgLog, fmt, __VA_ARGS__); } while(0)
+#define debug_print(fmt, ...) do { if (DBGLOG) fprintf(S3DbgLog, fmt, __VA_ARGS__); } while(0)
+// #define debug_printw	TRACE
 #else
 #define debug_print		TRACE
 #endif
@@ -226,7 +225,7 @@ typedef enum SigmaT				{TauNone, TauLo, TauMd, TauHi, TauUnknown};
 #define S3_TX_OVER_TEMP			0x0800
 #define S3_TX_UNDER_TEMP		0x1000
 #define S3_TX_RLL_UNSTABLE		0x2000
-#define S3_TX_14				0x4000
+#define S3_TX_SELF_TEST_RETRY	0x4000
 #define S3_TX_15				0x8000
 
 // Tx battery alarms
@@ -380,11 +379,11 @@ typedef enum SigmaT				{TauNone, TauLo, TauMd, TauHi, TauUnknown};
 #define S3_SOC_MIN				3
 
 // Ambient temperatures
-#define S3_BATT_CHARGE_MIN_T	-10	// degC
-#define S3_BATT_CHARGE_MAX_T	40	// degC
+#define S3_BATT_CHARGE_MIN_T	-100	// 0.1 degC
+#define S3_BATT_CHARGE_MAX_T	400		// 0.1 degC
 
-#define S3_BATT_DISCHG_MIN_T	-20	// degC
-#define S3_BATT_DISCHG_MAX_T	60	// degC
+#define S3_BATT_DISCHG_MIN_T	-200	// 0.1 degC
+#define S3_BATT_DISCHG_MAX_T	600		// 0.1 degC
 
 // Shutdown temperatures
 #define	S3_RX_UNDER_TEMP_LIM	-20	// degC
@@ -515,7 +514,7 @@ typedef struct sS3TxData
 	char			m_BattSN[S3_MAX_SN_LEN];
 	char			m_BattPN[S3_MAX_PN_LEN];
 	
-	char			m_BattTemp;			// DegC
+	short			m_BattTemp;			// 0.1 DegC
 	short			m_I;				// mA
 	bool			m_BattValidated;	// PPM 'approved'
 	char			m_BattHW[S3_MAX_SW_VER_LEN];
@@ -529,6 +528,7 @@ typedef struct sS3TxData
 	bool			m_EmergencySleep;	// TODO: Combine with above?
 
 	bool			m_SelfTestPending;
+	unsigned char	m_SelfTestRetries;
 
 	S3IPData		m_Input[S3_MAX_IPS];
 	char			m_ActiveInput;		// Selected RF input
@@ -650,14 +650,14 @@ typedef struct sS3Charger
 	unsigned short	m_ATTF;		// Average time to full
 
 	double			m_V;		// Charge/discharge (mV)
-	unsigned short	m_I;		// Charge/discharge current (mA, +ve = charging)
+	short			m_I;		// Charge/discharge current (mA, +ve = charging)
 
 	// Battery pack info TODO: Ditto
 	char			m_BattType;
 	char			m_BattSN[S3_MAX_SN_LEN];
 	char			m_BattPN[S3_MAX_PN_LEN];	// PPM part number
 	unsigned char	m_SoC;						// State of charge (%)
-	char			m_BattTemp;					// DegC
+	short			m_BattTemp;					// 0.1 DegC
 	bool			m_BattValidated;			// PPM approved
 
 	// Model ID?
@@ -723,7 +723,7 @@ typedef struct sS3DataModel
 	char			m_ScreenOffsetFileName[S3_MAX_FILENAME_LEN]; // Path & file
 
 	bool			m_Locked;
-	bool			m_SelfTest;
+	bool			m_TxSelfTest;
 	
 	short			m_ScrnOSx, m_ScrnOSy;
 
@@ -1371,14 +1371,14 @@ int				S3ChSetBattStatus(char Ch, const unsigned char *stat);
 unsigned char	S3ChGetBattStatus(char Ch);
 const char		*S3ChGetBattFW(	char Ch);
 int				S3ChSetBattFW(	char Ch, const char *Ver);
-int				S3ChSetBattTemp(char Ch, char t);
-char			S3ChGetBattTemp(char Ch);
+int				S3ChSetBattTemp(char Ch, short t);
+short			S3ChGetBattTemp(char Ch);
 
 int				S3ChSetBattV(	char Ch, double v);
 double			S3ChGetBattV(	char Ch);
 
-int				S3ChSetBattI(	char Ch, unsigned short i);
-unsigned short	S3ChGetBattI(	char Ch);
+int				S3ChSetBattI(	char Ch, short i);
+short			S3ChGetBattI(	char Ch);
 
 const char		*S3ChGetBattMfr(char Ch);
 int				S3ChSetBattMfr(	char Ch, const char *MfrData);
@@ -1395,8 +1395,8 @@ int				S3TxGetBattInfo(char Rx, char Tx,
 
 unsigned char	S3TxGetBattSoC(		char Rx, char Tx);
 int				S3TxSetBattSoC(		char Rx, char Tx, unsigned char charge);
-int				S3TxSetBattTemp(	char Rx, char Tx, char t);
-char			S3TxGetBattTemp(	char Rx, char Tx);
+int				S3TxSetBattTemp(	char Rx, char Tx, short t);
+short			S3TxGetBattTemp(	char Rx, char Tx);
 
 int				S3TxSetBattI(		char Rx, char Tx, short i);
 short			S3TxGetBattI(		char Rx, char Tx);
@@ -1451,7 +1451,7 @@ unsigned char	S3GetAGC();
 int				S3SetAGC(unsigned char AGCOn);
 
 // Tx self-test
-bool S3SelfTestEnabled();
+// bool S3SelfTestEnabled();
 
 // ----------------------------------------------------------------------------
 // Disable factory set-up features for deliverable system.

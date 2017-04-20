@@ -90,7 +90,7 @@ unsigned short S3TxGetATTE(char Rx, char Tx)
 
 // ---------------------------------------------------------------------------
 
-int S3TxSetBattTemp(char Rx, char Tx, char t)
+int S3TxSetBattTemp(char Rx, char Tx, short t)
 {
 	int update = 0;
 
@@ -126,7 +126,7 @@ int S3TxSetBattTemp(char Rx, char Tx, char t)
 
 // ----------------------------------------------------------------------------
 
-char S3TxGetBattTemp(char Rx, char Tx)
+short S3TxGetBattTemp(char Rx, char Tx)
 {
 	if (S3Data->m_Rx[Rx].m_Tx[Tx].m_Type == S3_TxUnconnected)
 		return S3_INVALID_TEMP;

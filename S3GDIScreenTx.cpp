@@ -314,7 +314,7 @@ void CS3GDIScreenMain::S3InitGDITxScreen(void)
 	Row = 0;
 
 	str.Format(_T("\u03F4 (%d - %d%cC)"),
-		S3_BATT_DISCHG_MIN_T, S3_BATT_DISCHG_MAX_T, 0x00b0);
+		S3_BATT_DISCHG_MIN_T / 10, S3_BATT_DISCHG_MAX_T / 10, 0x00b0);
 
 	m_TxBattT = new CS3NameValue(	m_RectTxBatt.left, 
 				m_RectTxBatt.top + m_wChBatt + 3 + HEAD_ROW + Row++ * PARA_ROW,
@@ -943,7 +943,7 @@ void CS3GDIScreenMain::S3DrawGDITxTx(char Rx, char Tx)
 		(S3TxBattGetAlarms(Rx, Tx) & S3_TX_BATT_HOT) || 
 		(S3TxBattGetAlarms(Rx, Tx) & S3_TX_BATT_COLD));
 
-	str.Format(_T("%+d"), S3TxGetBattTemp(Rx, Tx));
+	str.Format(_T("%+d"), S3TxGetBattTemp(Rx, Tx) / 10);
 	m_TxBattT->SetValue(str);
 	m_TxBattT->Draw(m_HDC, m_hFontS, m_hFontSB);
 
@@ -1322,7 +1322,10 @@ void CS3GDIScreenMain::S3DrawGDITxGain(char Rx, char Tx, char IP,
 
 	SelectObject(m_HDC, m_hFontS);
 	CString str;
-	str.Format(_T("%+d"), Gain);
+	if (Gain == 0)
+		str = _T("-0");
+	else str.Format(_T("%+d"), Gain);
+
 	DrawText(m_HDC, str, -1, &fntRc, DT_RIGHT);
 
 }
@@ -1812,14 +1815,16 @@ void CS3GDIScreenMain::S3GDITxNewTx(void)
 	str.Format(_T("%S"), FWV);
 	m_TxInfoPopup->AddItem(_T("F/W:"), str);
 
-	char t = S3TxGetBattTemp(Rx, Tx);
+	
 	
 	/*
+	short t = S3TxGetBattTemp(Rx, Tx);
+
 	// This is live data but pop-ups not updated, so would be misleading
 	CString str1;
 	
 	str1.Format(_T("\u03F4 (%d - %d%cC)"),
-		S3_BATT_DISCHG_MIN_T, S3_BATT_DISCHG_MAX_T, 0x00b0);
+		S3_BATT_DISCHG_MIN_T / 10, S3_BATT_DISCHG_MAX_T / 10, 0x00b0);
 	
 	str.Format(_T("%+d"), t);
 
@@ -1904,7 +1909,7 @@ void CS3GDIScreenMain::S3DrawGDITxBattSeg(char Rx, char Tx, int xref, int yref)
 			xref + m_lChBatt / 2 - 8/2, yref + m_wChBatt / 2 - 28/2, 8, 28);
 
 		status.Format(_T("\u03F4: %d < %d%cC"),
-			S3TxGetBattTemp(Rx, Tx), S3_BATT_DISCHG_MIN_T, 0x00b0);
+			S3TxGetBattTemp(Rx, Tx) / 10, S3_BATT_DISCHG_MIN_T, 0x00b0);
 	}
 	else if (S3TxBattGetAlarms(Rx, Tx) & S3_TX_BATT_HOT)
 	{
@@ -1912,7 +1917,7 @@ void CS3GDIScreenMain::S3DrawGDITxBattSeg(char Rx, char Tx, int xref, int yref)
 			xref + m_lChBatt / 2 - 8/2, yref + m_wChBatt / 2 - 28/2, 8, 28);
 
 		status.Format(_T("\u03F4: %d > %d%cC"),
-			S3TxGetBattTemp(Rx, Tx), S3_BATT_DISCHG_MAX_T, 0x00b0);
+			S3TxGetBattTemp(Rx, Tx) / 10, S3_BATT_DISCHG_MAX_T, 0x00b0);
 	}
 	else // Discharging normally
 	{
