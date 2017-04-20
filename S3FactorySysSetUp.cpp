@@ -11,6 +11,7 @@
 #include <afxext.h>         // MFC extensions
 #include <stdio.h>
 #include "S3DataModel.h"
+#include "S3GPIB.h"
 #include "S3USBVCP.h"
 #include "S3I2C.h"
 
@@ -52,6 +53,8 @@ BEGIN_MESSAGE_MAP(CS3FactorySysSetUp, CDialog)
 	ON_BN_CLICKED(IDC_FACT_PN_SET_BUTTON, &CS3FactorySysSetUp::OnBnClickedFactPnSetButton)
 	ON_BN_CLICKED(IDC_PEAK_THR_BUTTON, &CS3FactorySysSetUp::OnBnClickedPeakThrButton)
 	ON_BN_CLICKED(IDC_TEST_BUTTON, &CS3FactorySysSetUp::OnBnClickedTestButton)
+	ON_BN_CLICKED(IDC_SEAL_BUTTON, &CS3FactorySysSetUp::OnBnClickedSealButton)
+	ON_BN_CLICKED(IDC_SELF_TEST_BUTTON, &CS3FactorySysSetUp::OnBnClickedSelfTestButton)
 END_MESSAGE_MAP()
 
 BOOL CS3FactorySysSetUp::OnInitDialog()
@@ -97,6 +100,8 @@ void CS3FactorySysSetUp::Init()
 
 	tmp.Format(_T("%d"), PeakThTable[S3IPGetPathSent(0, 0, 0) - 1]);
 	m_PeakThrEdit.SetWindowText(tmp);
+
+	m_StatusMsgStatic.SetWindowText(_T(""));
 }
 
 // ----------------------------------------------------------------------------
@@ -248,9 +253,68 @@ void CS3FactorySysSetUp::OnBnClickedPeakThrButton()
 
 void CS3FactorySysSetUp::OnBnClickedTestButton()
 {
-	// TODO: Add your control notification handler code here
 	// int AuthCh = S3I2CChAuthenticate();
 	int AuthTx = S3I2CTxAuthenticate();
+}
+
+// ----------------------------------------------------------------------------
+
+void CS3FactorySysSetUp::OnBnClickedSealButton()
+{
+	char Ch = 0;
+
+	if (S3ChGetBattStatus(Ch) & BQ_SS)
+	{
+		m_StatusMsgStatic.SetWindowText(_T("Battery already sealed"));
+		return;
+	}
+
+	if (S3ChGetBattStatus(Ch) & BQ_FAS)
+	{
+		m_StatusMsgStatic.SetWindowText(_T("Full access required"));
+		return;
+	}
+
+	int err = S3I2CChWriteSecKeys();
+
+	if (err)
+	{
+		CString tmp;
+
+		tmp.Format(_T("Failed to seal battery: Err %d"), err);
+		m_StatusMsgStatic.SetWindowText(tmp);
+	}
+	else
+	{
+		if (S3I2CChAuthenticate())
+			m_StatusMsgStatic.SetWindowText(_T("Authentication failed"));
+		else if (S3I2CChSetBattSealed(Ch))
+			m_StatusMsgStatic.SetWindowText(_T("Seal command failed"));
+		else
+			m_StatusMsgStatic.SetWindowText(_T("Battery sealed OK"));
+	}
+}
+
+// ----------------------------------------------------------------------------
+
+extern int S3I2CTxSelfTest(short *v1, short *v2, char Rx, char Tx);
+
+void CS3FactorySysSetUp::OnBnClickedSelfTestButton()
+{
+	CString tmp;
+
+	tmp.Format(_T("SelfTest:"));
+	m_StatusMsgStatic.SetWindowText(tmp);
+	m_StatusMsgStatic.Invalidate();
+	m_StatusMsgStatic.UpdateWindow();
+
+	char Rx = 0, Tx = 0;
+	short v1, v2;
+
+	int err = S3I2CTxSelfTest(&v1, &v2, Rx, Tx);
+
+	tmp.Format(_T("SelfTest: %d %d; Err: %d"), v1, v2, err);
+	m_StatusMsgStatic.SetWindowText(tmp);
 }
 
 // ----------------------------------------------------------------------------

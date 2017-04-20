@@ -35,7 +35,9 @@ int S3TxInit(pS3TxData node)
 	node->m_EmergencySleep = false;
 	node->m_ActiveInput = 0;
 	node->m_TestSigInput = -1; // Off
+
 	node->m_SelfTestPending = false;
+	node->m_SelfTestRetries = 0;
 
 	node->m_OldTauOrder = false;
 	node->m_PeakHoldCap = false;
@@ -206,7 +208,8 @@ int S3TxInserted(char Rx, char Tx, S3TxType type)
 
 	pTx->m_EmergencySleep = false;
 	
-	pTx->m_SelfTestPending = S3Data->m_SelfTest;
+	pTx->m_SelfTestPending = S3Data->m_TxSelfTest;
+	pTx->m_SelfTestRetries = 0;
 
 	pTx->m_TempStableCnt = 0;
 	pTx->m_TempReport = SCHAR_MIN;

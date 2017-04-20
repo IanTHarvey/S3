@@ -372,7 +372,7 @@ int S3SysSave(FILE *fid, pS3DataModel Sys)
 
 	if (LATER_VERSION(S3_FILE_VERSION, 1.8))
 	{
-		fwrite(&Sys->m_SelfTest, sizeof(bool), 1, fid);
+		fwrite(&Sys->m_TxSelfTest, sizeof(bool), 1, fid);
 	}
 
 	return 0;
@@ -393,7 +393,7 @@ int S3SysRead(FILE *fid, pS3DataModel pSys)
 
 	if (LATER_VERSION(readModel.m_FileVersion, 1.8))
 	{
-		fread(&pSys->m_SelfTest, sizeof(bool), 1, fid);
+		fread(&pSys->m_TxSelfTest, sizeof(bool), 1, fid);
 	}
 	
 	return 0;

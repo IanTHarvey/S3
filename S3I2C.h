@@ -179,6 +179,9 @@ int S3I2CTest();
 int S3I2CWriteByte();
 int S3I2CReadByte();
 
+int S3I2CTxSelfTest(	short *v1, short *v2, char Rx, char Tx);
+int S3I2CTx8SelfTest(	short *v1, short *v2, char Rx, char Tx);
+
 // I2C interface board IO expander functions
 int S3I2CIOInit();
 int S3I2CIORead(unsigned char pins[]);

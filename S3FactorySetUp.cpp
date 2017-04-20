@@ -11,6 +11,7 @@
 #include <afxext.h>         // MFC extensions
 #include <stdio.h>
 #include "S3DataModel.h"
+#include "S3GPIB.h"
 #include "S3USBVCP.h"
 #include "S3I2C.h"
 

@@ -87,6 +87,7 @@ int CmdSYSRESET();
 int CmdSYSSETTIME();
 int CmdTXSLEEP();
 int CmdTXSTARTSTATE();
+int CmdTXSELFTEST();
 int CmdTXCHARGE();
 int CmdCAL();
 int CmdAGC();
@@ -217,7 +218,7 @@ struct DbgPollTxStruct {
 	short	IPPower[S3_MAX_IPS];
 	unsigned char	SoC;		// 0 bad - >100 fully charge
 	char	Temp;
-	char	BattTemp;
+	short	BattTemp;
 	char	BrownOut;		// 5, 4, 3, 2, 1... count down
 	char	BattSN[S3_MAX_SN_LEN];
 	char	BattPN[S3_MAX_PN_LEN];
@@ -250,7 +251,7 @@ struct DbgPollRxStruct {
 struct DbgPollChStruct {
 	bool	Occupied;
 	char	SoC;
-	char	BattTemp;
+	short	BattTemp;
 	char	SN[S3_MAX_SN_LEN];
 	char	PN[S3_MAX_PN_LEN];
 	char	HW[S3_MAX_SW_VER_LEN];

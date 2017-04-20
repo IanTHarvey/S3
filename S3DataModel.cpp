@@ -176,7 +176,7 @@ int S3DataModelInit(pS3DataModel dm, bool DemoMode)
 	dm->m_Modified = false;
 
 	dm->m_Locked = false;
-	dm->m_SelfTest = true;
+	dm->m_TxSelfTest = true;
 
 	dm->m_FactoryMode = false;
 
@@ -1645,13 +1645,6 @@ int S3SetDemoMode(bool DemoMode)
 }
 
 // ---------------------------------------------------------------------------
-
-bool S3SelfTestEnabled()
-{
-	return S3Data->m_SelfTest;
-}
-
-// ---------------------------------------------------------------------------
 // Disable Rx polling and switch to Rx[0], Tx[0]
 
 int S3SetFactoryMode(char Rx, char Tx, bool mode)
@@ -1779,12 +1772,12 @@ int S3SetTxStartState(unsigned char state)
 
 bool S3GetTxSelfTest()
 {
-	return S3Data->m_SelfTest;
+	return S3Data->m_TxSelfTest;
 }
 
 int S3SetTxSelfTest(bool on)
 {
-	S3Data->m_SelfTest = on;
+	S3Data->m_TxSelfTest = on;
 
 	return 0;
 }

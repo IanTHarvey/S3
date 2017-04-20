@@ -258,6 +258,16 @@ int S3TxSetAlarm(char Rx, char Tx, unsigned short alarms)
 			StateChange = 1;
 		}
 	}
+
+	if (alarms & S3_TX_SELF_TEST_RETRY)
+	{
+		if (!(pTx->m_Alarms & S3_TX_SELF_TEST_RETRY))
+		{
+			S3EventLogAdd("Tx self-test abandoned after retries", 3, Rx, Tx, -1);
+			pTx->m_Alarms |= S3_TX_SELF_TEST_RETRY;
+			StateChange = 1;
+		}
+	}
 	
 	if (alarms & S3_TX_INIT_FAIL)
 	{
@@ -376,6 +386,14 @@ int S3TxAlarmGetString(char Rx, char Tx, char *S3AlarmString, int len)
 		strcpy_s(S3AlarmString, len, "I:Tx self-test failed to run");
 		pTx->m_CurAlarmSrc = 0;
 		pTx->m_CurAlarm = S3_TX_SELF_TEST_NOT_RUN;
+		return 1;
+	}
+
+	if (pTx->m_Alarms & S3_TX_SELF_TEST_RETRY)
+	{
+		strcpy_s(S3AlarmString, len, "I:Tx self-test abandoned after retries");
+		pTx->m_CurAlarmSrc = 0;
+		pTx->m_CurAlarm = S3_TX_SELF_TEST_RETRY;
 		return 1;
 	}
 
@@ -656,6 +674,16 @@ int S3TxCancelAlarm(char Rx, char Tx, unsigned short alarms)
 		{
 			S3EventLogAdd("Tx self-test run failure cancelled", 1, Rx, Tx, -1);
 			pTx->m_Alarms &= ~S3_TX_SELF_TEST_NOT_RUN;
+			StateChange = 1;
+		}
+	}
+
+	if (alarms & S3_TX_SELF_TEST_RETRY)
+	{
+		if (pTx->m_Alarms & S3_TX_SELF_TEST_RETRY)
+		{
+			S3EventLogAdd("Tx self-test abandoned cancelled", 1, Rx, Tx, -1);
+			pTx->m_Alarms &= ~S3_TX_SELF_TEST_RETRY;
 			StateChange = 1;
 		}
 	}

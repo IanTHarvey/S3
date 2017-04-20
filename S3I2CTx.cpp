@@ -32,7 +32,8 @@ extern unsigned char	S3I2CCurTxOptAddr;
 extern unsigned char	S3I2CTxReadBuf[S3_SERIAL_FIFO_LEN]; // Read from optical serial link
 extern unsigned char	S3I2CRxReadBuf[];
 
-extern int S3I2CTxSelfTest(		char Rx, char Tx);
+extern int S3I2CTxSelfTest(		short *v1, short *v2, char Rx, char Tx);
+extern int S3I2CTx8SelfTest(	short *v1, short *v2, char Rx, char Tx);
 extern int S3I2CTxSelfTest2(	char Rx, char Tx);
 
 int S3I2CTxDumpOptConfig(		char Rx, char Tx);
@@ -271,14 +272,16 @@ int S3I2CGetTxWakeUp(char Rx, char Tx)
 	// ------------------------------------------------------------------------
 
 	char IP = S3TxGetActiveIP(Rx, Tx);
-	S3IPSetGainSent(Rx, Tx, IP, -128); // Force update
+	S3IPSetGainSent(Rx, Tx, IP, SCHAR_MIN); // Force update
 
 	char ToneEnabled = S3IPGetTestToneEnable(Rx, Tx, IP);
 	S3IPSetTestToneEnable(Rx, Tx, IP, ToneEnabled + 100);
 
 	S3TxSetTCompMode(Rx, Tx, S3TxGetTCompMode(Rx, Tx) + 100);
 
-	err = S3I2CTxSelfTest2(Rx, Tx);
+	/*
+	short v1, v2;
+	err = S3I2CTxSelfTest(&v1, &v2, Rx, Tx);
 	if (err)
 	{
 		if (err < 100)
@@ -291,6 +294,7 @@ int S3I2CGetTxWakeUp(char Rx, char Tx)
 		S3TxCancelAlarm(Rx, Tx,
 			S3_TX_SELF_TEST_NOT_RUN | S3_TX_SELF_TEST_FAIL);
 	}
+	*/
 
 #ifdef S3_TX_DIAGS
 	// S3I2CTxOptAlarmMask();
@@ -480,7 +484,7 @@ int S3I2CTxSetPeakThreshOld(char Rx, char Tx, char path)
 int S3I2CTxSetPeakThresh(char Rx, char Tx, char path)
 {
 	int err = 0;
-	short thresh = 5000; // PeakThTable[path - 1]
+	short thresh = 13000; // PeakThTable[path - 1]
 	
 	err = S3I2CWriteSerialShort(S3I2C_TX_OPT_ADDR,
 				S3I2C_TX_OPT_PEAK_THR, thresh);
@@ -756,8 +760,8 @@ int S3I2CTxSetStatus(char Rx, char Tx)
 	}
 
 	// Ensure AGC correction is performed on stable RLL
-	if (S3Data->m_Rx[Rx].m_Tx[Tx].m_Uptime == S3_RLL_WARMUP_POLLS && S3GetAGC() == S3_AGC_GAIN)
-		S3IPSetGainSent(Rx, Tx, IP, -128);
+	// if (S3Data->m_Rx[Rx].m_Tx[Tx].m_Uptime == S3_RLL_WARMUP_POLLS && S3GetAGC() == S3_AGC_GAIN)
+	//	S3IPSetGainSent(Rx, Tx, IP, SCHAR_MIN);
 
 	err = S3I2CSetIPGain(Rx, Tx, IP);
 	
@@ -765,12 +769,12 @@ int S3I2CTxSetStatus(char Rx, char Tx)
 	{
 		switch(err)
 		{
-			case 1:		S3EventLogAdd("S3I2CSetIPGain: Generic fail", 3, Rx, Tx, -1); break;
-			case 2:		S3EventLogAdd("S3I2CSetIPGain: Path fail", 3, Rx, Tx, -1); break;
-			case 3:		S3EventLogAdd("S3I2CSetIPGain: RF DSA fail", 3, Rx, Tx, -1); break;
-			case 4:		S3EventLogAdd("S3I2CSetIPGain: Rx DSA fail", 3, Rx, Tx, -1); break;
-			case 5:		S3EventLogAdd("S3I2CSetIPGain: Tx DSA fail", 3, Rx, Tx, -1); break;
-			default:	S3EventLogAdd("S3I2CSetIPGain: Unknown error", 3, Rx, Tx, -1); break;
+			case 1:	S3EventLogAdd("S3I2CSetIPGain: Generic fail", 3, Rx, Tx, -1); break;
+			case 2:	S3EventLogAdd("S3I2CSetIPGain: Path fail", 3, Rx, Tx, -1); break;
+			case 3:	S3EventLogAdd("S3I2CSetIPGain: RF DSA fail", 3, Rx, Tx, -1); break;
+			case 4:	S3EventLogAdd("S3I2CSetIPGain: Rx DSA fail", 3, Rx, Tx, -1); break;
+			case 5:	S3EventLogAdd("S3I2CSetIPGain: Tx DSA fail", 3, Rx, Tx, -1); break;
+			default:S3EventLogAdd("S3I2CSetIPGain: Unknown error", 3, Rx, Tx, -1); break;
 		}
 	}
 
@@ -779,6 +783,13 @@ int S3I2CTxSetStatus(char Rx, char Tx)
 	S3I2CTxDoComp(Rx, Tx);
 
 	S3I2CTxSetTestTone(Rx, Tx, IP);
+
+	if (S3Data->m_Rx[Rx].m_Tx[Tx].m_Uptime > 0)
+	{
+		short v1, v2;
+		err = S3I2CTxSelfTest(&v1, &v2, Rx, Tx);
+
+	}
 	
 	return 0;
 }
@@ -794,9 +805,6 @@ int S3I2CTxGetStatus(char Rx, char Tx)
 	S3TimerStart(0);
 
 	int	err = 0;
-
-	// if (S3TxGetPowerStat(Rx, Tx) == S3_TX_SLEEP_PENDING)
-	//	goto RETERR;
 
 	// Now look for Txs on the on the serial link(s)
 	S3TxType Old = S3TxGetType(Rx, Tx);
@@ -959,10 +967,9 @@ int S3I2CGetTxBatt(char Rx, char Tx)
 	{
 		S3TxSetBattSoC(Rx, Tx, S3I2CTxReadBuf[0]);
 
-		short Ts = *(short *)(S3I2CTxReadBuf + 10);
-		char T = (char)((double)Ts / 10.0 - 273);
+		short Ts = *(short *)(S3I2CTxReadBuf + 10) - 2730;
 
-		S3TxSetBattTemp(Rx, Tx, T);
+		S3TxSetBattTemp(Rx, Tx, Ts);
 		S3TxSetBattI(Rx, Tx, *(short *)(S3I2CTxReadBuf + 14));
 	}
 	else return 1;
@@ -1513,7 +1520,7 @@ int select_RF_input(unsigned char input, bool test_tone_on)
 }
 
 // ----------------------------------------------------------------------------
-//function sends three bytes from the *buf to the I2C @RF_BOARD_ADD
+// Function sends three bytes from the *buf to the I2C @RF_BOARD_ADD
 // ----------------------------------------------------------------------------
 
 int RF_i2c(unsigned char I2C_address, unsigned char *buf)

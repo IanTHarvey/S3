@@ -341,6 +341,7 @@ int S3ProcessGPIBCommand(const char *cmd)
 		if		(!STRCMP(Cmd,	"TXCHARGE"))	err = CmdTXCHARGE();
 		else if (!STRCMP(Cmd,	"TXPOWER"))		err = CmdTXSLEEP();
         else if (!STRCMP(Cmd,	"TXSTARTSTATE"))err = CmdTXSTARTSTATE();
+		else if (!STRCMP(Cmd,	"TXSELFTEST"))	err = CmdTXSELFTEST();
 		else if (!STRCMP(Cmd,	"TX"))			err = CmdTX();
 		else if (!STRCMP(Cmd,	"TESTNAME"))	err = CmdTESTNAME();
 		else if (!STRCMP(Cmd,	"TCOMPMODE"))	err = CmdTCOMPMODE();
@@ -2563,3 +2564,21 @@ int CmdTXSTARTSTATE()
 		return S3_GPIB_INVALID_MODE;
 	return 0;
 }
+
+// ----------------------------------------------------------------------------
+
+int CmdTXSELFTEST()
+{
+	if (GPIBNArgs != 2)
+		return S3_GPIB_ERR_NUMBER_PARAS;
+
+	if (!STRCMP(GPIBCmdArgs[1], "ON"))
+		S3SetTxSelfTest(true);
+    else if (!STRCMP(GPIBCmdArgs[1], "OFF"))
+		S3SetTxSelfTest(false);
+	else
+		return S3_GPIB_INVALID_MODE;
+	return 0;
+}
+
+// ----------------------------------------------------------------------------

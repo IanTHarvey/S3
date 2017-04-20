@@ -19,12 +19,18 @@ extern pS3DataModel S3Data;
 extern int set_RF_inp_board(unsigned char  path, unsigned char attenuation,
 							char Rx, char Tx);
 
+extern int select_RF_input(unsigned char IP, bool TestTone);
+
 // ----------------------------------------------------------------------------
 // Read back from Tx (local) and Rx (full fibre channel)
 int S3I2CTxSelfTest(short *v1, short *v2, char Rx, char Tx)
 {
 	int		err;
 
+	// May have been changed by user
+	if (!S3GetTxSelfTest())
+		S3Data->m_Rx[Rx].m_Tx[Tx].m_SelfTestPending = false;
+		
 	if (!S3TxSelfTestPending(Rx, Tx))
 		return 0;
 
@@ -51,10 +57,17 @@ int S3I2CTxSelfTest(short *v1, short *v2, char Rx, char Tx)
 			{ err = 1;  goto ENDTEST; }
 	}
 	
-	// Path 1 ------------------------------------------------
+	// ------------------------------------------------------------------------
+	//  Path 1
+
+	if (S3TxGetType(Rx, Tx) == S3_Tx8)
+		if (err = select_RF_input((unsigned char)S3Tx8IPMap[0] + 1, false))
+			{ err = 13;  goto ENDTEST; }
 
 	if (set_RF_inp_board(1, 0, Rx, Tx))
 		{ err = 11;  goto ENDTEST; }
+
+	Sleep(300);
 
 	short RFLevelBG = 0;
 	if (!S3I2CReadSerialShort(S3I2C_TX_OPT_ADDR, S3I2C_TX_OPT_RF_MON, &RFLevelBG))
@@ -63,6 +76,9 @@ int S3I2CTxSelfTest(short *v1, short *v2, char Rx, char Tx)
 	}
 	else
 		{ err = 14;  goto ENDTEST; }
+
+	if (RFLevelBG > 0)
+		{ err = 50; goto ENDTEST;	}
 
 	if (S3I2CSwitchTestTone(true))
 		{ err = 15;  goto ENDTEST; }
@@ -90,18 +106,10 @@ int S3I2CTxSelfTest(short *v1, short *v2, char Rx, char Tx)
 		else
 			{ err = 14;  goto ENDTEST; }
 
-		// TODO: May need to do more than set alarm?
-		if (0) // RFLevel1 < 1000)
-		{
-			S3TxSetAlarm(Rx, Tx, S3_TX_SELF_TEST_FAIL);
-			err = 210;
-			goto ENDTEST;
-		}
-		else
-			S3TxCancelAlarm(Rx, Tx, S3_TX_SELF_TEST_FAIL);
 	}
 
-	// Path 3 ------------------------------------------------
+	// ------------------------------------------------------------------------
+	// Path 3 
 
 	if (set_RF_inp_board(3, 0, Rx, Tx))
 		{ err = 11;  goto ENDTEST; }
@@ -194,7 +202,8 @@ int S3I2CTxSelfTest(short *v1, short *v2, char Rx, char Tx)
 		{ err = 14;  goto ENDTEST; }
 
 
-	// Path 7 ------------------------------------------------
+	// ------------------------------------------------------------------------
+	// Path 7
 
 	if (set_RF_inp_board(7, 0, Rx, Tx))
 		{ err = 11;  goto ENDTEST; }
@@ -223,160 +232,192 @@ int S3I2CTxSelfTest(short *v1, short *v2, char Rx, char Tx)
 	else
 		{ err = 14;  goto ENDTEST; }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-	if (0)
-	{
-	if (S3I2CWriteSerialByte(S3I2C_TX_CTRL_ADDR, S3I2C_TX_RF_DSA, 16))
-		{ err = 31;  goto ENDTEST; }
-
-	Sleep(600);
-	if (!S3I2CReadSerialData(S3I2C_TX_OPT_ADDR, S3I2C_TX_OPT_RF_MON, 2))
-	{
-		RFLevel3_16 = S3RevByteShort(S3I2CTxReadBuf);
-		RxRFLevel3_16 = S3I2CRxGetRFLevel();
-
-		if (ABS(RxRFLevel3_16 - RxRFLevel3_0) < 800)
-		{
-			S3EventLogAdd("PAD16 in test fail", 3, Rx, Tx, -1);
-			err = 230;
-			goto ENDTEST;
-		}
-	}
-	else	{ err = 22;  goto ENDTEST; }
-
-	// Switch out PAD16
-	if (S3I2CWriteSerialByte(S3I2C_TX_CTRL_ADDR, S3I2C_TX_RF_DSA, 0))
-		{ err = 33;  goto ENDTEST; }
-
-	Sleep(600);
-	if (!S3I2CReadSerialData(S3I2C_TX_OPT_ADDR, S3I2C_TX_OPT_RF_MON, 2))
-	{
-		RFLevel3_16 = S3RevByteShort(S3I2CTxReadBuf);
-		RxRFLevel3_16 = S3I2CRxGetRFLevel();
-
-		if (ABS(RxRFLevel3_16 - RxRFLevel3_0) > 300)
-		{
-			S3EventLogAdd("PAD16 out test fail", 3, Rx, Tx, -1);
-			err = 240;
-			goto ENDTEST;
-		}
-	}
-	else	{ err = 34;  goto ENDTEST; }
-
-	// ------------------------------------------------------------------------
-	// Switch in PAD32
-	if (S3I2CWriteSerialByte(S3I2C_TX_CTRL_ADDR, S3I2C_TX_RF_DSA, 32))
-		{ err = 41;  goto ENDTEST; }
-
-	Sleep(2000);
-	if (!S3I2CReadSerialData(S3I2C_TX_OPT_ADDR, S3I2C_TX_OPT_RF_MON, 2))
-	{
-		RFLevel3_32 = S3RevByteShort(S3I2CTxReadBuf);
-		RxRFLevel3_32 = S3I2CRxGetRFLevel();
-
-		if (ABS(RxRFLevel3_32 - RxRFLevel3_0) < 800)
-		{
-			S3EventLogAdd("PAD32 in test fail", 3, Rx, Tx, -1);
-			err = 250;
-			goto ENDTEST;
-		}
-	}
-	else
-		{ err = 42;  goto ENDTEST; }
-
-	// Switch out PAD32
-	if (S3I2CWriteSerialByte(S3I2C_TX_CTRL_ADDR, S3I2C_TX_RF_DSA, 0))
-		{ err = 43;  goto ENDTEST; }
-
-	Sleep(600);
-	if (!S3I2CReadSerialData(S3I2C_TX_OPT_ADDR, S3I2C_TX_OPT_RF_MON, 2))
-	{
-		RFLevel3_32 = S3RevByteShort(S3I2CTxReadBuf);
-		RxRFLevel3_32 = S3I2CRxGetRFLevel();
-
-		if (ABS(RxRFLevel3_32 - RxRFLevel3_0) > 300)
-		{
-			S3EventLogAdd("PAD32 out test fail", 3, Rx, Tx, -1);
-			err = 260;
-			goto ENDTEST;
-		}
-	}
-	else { err = 44;  goto ENDTEST; }
-
-	// Path 7 ------------------------------------------------
-
-	if (S3I2CWriteSerialByte(S3I2C_TX_CTRL_ADDR, S3I2C_TX_RF_PATH, 7))
-		{ err = 51;  goto ENDTEST; }
-
-	Sleep(1000);
-	if (!S3I2CReadSerialData(S3I2C_TX_OPT_ADDR, S3I2C_TX_OPT_RF_MON, 2))
-	{
-		RFLevel7 = S3RevByteShort(S3I2CTxReadBuf);
-		RxRFLevel7 = S3I2CRxGetRFLevel();
-
-		if (ABS(RxRFLevel7 - RxRFLevel3_0) < 10)
-		{
-			S3EventLogAdd("HIZ test fail", 3, Rx, Tx, -1);
-			err = 270;
-			goto ENDTEST;
-		}
-	}
-	else	{ err = 52;  goto ENDTEST; }
-
-	//if (S3I2CWriteSerialByte(S3I2C_TX_CTRL_ADDR,
-	//		S3I2C_TX_CTRL_TEST_TONE, 0x00))
-	//	{ err = 19;  goto ENDTEST; }
-
-	Sleep(200);
-	}
-
-	// TODO: Compare relative RFLevels
-
-	double RatLevel1 = 0, RatLevel3_0 = 0, RatLevel3_16 = 0, RatLevel3_32 = 0, RatLevel7 = 0;
-	RatLevel1 =		(double)(RxRFLevel1 - RxRFLevel3_0) / RxRFLevel1; //	(double)(RFLevel1 - RxRFLevel1); // / RxRFLevel1;
-	RatLevel3_0 =	(double)(RxRFLevel3_0 - RxRFLevel7) / RxRFLevel3_0; // (double)(RFLevel3_0 - RxRFLevel3_0); //  / RxRFLevel3_0;
-	// RatLevel3_16 =	(double)(RFLevel3_16 - RxRFLevel3_16); //  / RxRFLevel3_16;
-	// RatLevel3_32 =	(double)(RFLevel3_32 - RxRFLevel3_32); //  / RxRFLevel3_32;
-	// RatLevel7 =		(double)(RFLevel7 - RxRFLevel7); //  / RxRFLevel7;
-
-
-
 ENDTEST:
-
-	S3IPSetGainSent(Rx, Tx, IP, SCHAR_MIN);
-	// S3I2CSetIPGain(Rx, Tx, IP);
 
 	if (S3I2CSwitchTestTone(false))
 		err = 60;
 #endif // TRIZEPS
 
 	if (!err)
+	{
+		S3IPSetGainSent(Rx, Tx, IP, SCHAR_MIN);
 		S3Data->m_Rx[Rx].m_Tx[Tx].m_SelfTestPending = false;
+
+		S3TxCancelAlarm(Rx, Tx,
+				S3_TX_SELF_TEST_NOT_RUN | S3_TX_SELF_TEST_FAIL);
+
+		if (S3TxGetType(Rx, Tx) == S3_Tx8)
+			err = S3I2CTx8SelfTest(v1, v2, Rx, Tx);
+
+	}
+	else
+	{
+		if (err == 50)
+		{
+			// TODO: Separate "signal connected" alarm?
+			// Live input connected? Abandon 
+			S3TxCancelAlarm(Rx, Tx, S3_TX_SELF_TEST_FAIL);
+			S3TxSetAlarm(Rx, Tx, S3_TX_SELF_TEST_NOT_RUN);
+
+			S3IPSetGainSent(Rx, Tx, IP, SCHAR_MIN);
+			S3Data->m_Rx[Rx].m_Tx[Tx].m_SelfTestPending = false;
+		}
+		else if (S3Data->m_Rx[Rx].m_Tx[Tx].m_SelfTestRetries < 3)
+		{
+			S3Data->m_Rx[Rx].m_Tx[Tx].m_SelfTestRetries++;
+
+			if (err < 100)
+				S3TxSetAlarm(Rx, Tx, S3_TX_SELF_TEST_NOT_RUN);
+			else
+				S3TxSetAlarm(Rx, Tx, S3_TX_SELF_TEST_FAIL);
+		}
+		else
+		{
+			S3TxCancelAlarm(Rx, Tx, S3_TX_SELF_TEST_NOT_RUN | S3_TX_SELF_TEST_FAIL);
+			S3TxSetAlarm(Rx, Tx, S3_TX_SELF_TEST_RETRY);
+
+			S3IPSetGainSent(Rx, Tx, IP, SCHAR_MIN);
+			S3Data->m_Rx[Rx].m_Tx[Tx].m_SelfTestPending = false;
+		}
+	}
 
 	return err; // All good
 }
 
 // ----------------------------------------------------------------------------
+
+int S3I2CTx8SelfTest(short *v1, short *v2, char Rx, char Tx)
+{
+	int		err;
+
+	// May have been changed by user
+	if (!S3GetTxSelfTest())
+		S3Data->m_Rx[Rx].m_Tx[Tx].m_SelfTestPending = false;
+		
+	if (!S3TxSelfTestPending(Rx, Tx))
+		return 0;
+
+#ifdef TRIZEPS
+
+	char	IP = 0;
+	short	RFLevel1 = 0;
+	short	RFLevelBG = 0;
+
+	// Max out Rx & Tx DSAs
+	if (0)
+	{
+		short RxCal = S3RxGetCalGain(Rx, Tx);
+		short TxCal = S3TxGetCalOpt(Rx, Tx);
+
+		err = S3I2CWriteSerialShort(S3I2C_TX_OPT_ADDR, S3I2C_TX_OPT_DSA, TxCal);
+		if (err)
+			{ err = 1;  goto ENDTEST; }
+
+		err = S3I2CWriteLocalShort(S3I2CCurRxOptAddr, S3I2C_RX_OPT_DSA, RxCal);
+		if (err)
+			{ err = 1;  goto ENDTEST; }
+	}
+	
+	// ------------------------------------------------------------------------
+	//  Path 1
+
+	if (err = select_RF_input((unsigned char)S3Tx8IPMap[0] + 1, false))
+		{ err = 13;  goto ENDTEST; }
+
+	if (set_RF_inp_board(1, 0, Rx, Tx))
+		{ err = 11;  goto ENDTEST; }
+
+	Sleep(300);
+
+	if (!S3I2CReadSerialShort(S3I2C_TX_OPT_ADDR, S3I2C_TX_OPT_RF_MON, &RFLevelBG))
+	{
+		*v1 = RFLevelBG;
+	}
+	else
+		{ err = 14;  goto ENDTEST; }
+
+	if (RFLevelBG > 0)
+		{ err = 50; goto ENDTEST;	}
+
+	if (S3I2CSwitchTestTone(true))
+		{ err = 15;  goto ENDTEST; }
+
+	Sleep(400);
+
+	for(char IP = 0; IP < S3TxGetNIP(Rx, Tx); IP++)
+	{
+		// Test all Tx8 input select relays
+		if (IP)
+		if (err = select_RF_input((unsigned char)S3Tx8IPMap[IP] + 1, true))
+				{ err = 13;  goto ENDTEST; }
+
+		if (!S3I2CReadSerialShort(S3I2C_TX_OPT_ADDR, S3I2C_TX_OPT_RF_MON, &RFLevel1))
+		{
+			*v2 = RFLevel1;
+
+			if (RFLevel1 - RFLevelBG < 3000)
+			{ err = 200; goto ENDTEST; }
+			
+			Sleep(400);
+		}
+		else
+			{ err = 14;  goto ENDTEST; }
+
+	}
+
+ENDTEST:
+
+	if (S3I2CSwitchTestTone(false))
+		err = 60;
+#endif // TRIZEPS
+
+	if (!err)
+	{
+		S3IPSetGainSent(Rx, Tx, IP, SCHAR_MIN);
+		S3Data->m_Rx[Rx].m_Tx[Tx].m_SelfTestPending = false;
+
+		S3TxCancelAlarm(Rx, Tx,
+				S3_TX_SELF_TEST_NOT_RUN | S3_TX_SELF_TEST_FAIL);
+	}
+	else
+	{
+		if (err == 50)
+		{
+			// TODO: Separate "signal connected" alarm?
+			// Live input connected? Abandon 
+			S3TxCancelAlarm(Rx, Tx, S3_TX_SELF_TEST_FAIL);
+			S3TxSetAlarm(Rx, Tx, S3_TX_SELF_TEST_NOT_RUN);
+
+			S3IPSetGainSent(Rx, Tx, IP, SCHAR_MIN);
+			S3Data->m_Rx[Rx].m_Tx[Tx].m_SelfTestPending = false;
+		}
+		else if (S3Data->m_Rx[Rx].m_Tx[Tx].m_SelfTestRetries < 3)
+		{
+			S3Data->m_Rx[Rx].m_Tx[Tx].m_SelfTestRetries++;
+
+			if (err < 100)
+				S3TxSetAlarm(Rx, Tx, S3_TX_SELF_TEST_NOT_RUN);
+			else
+				S3TxSetAlarm(Rx, Tx, S3_TX_SELF_TEST_FAIL);
+		}
+		else
+		{
+			S3TxCancelAlarm(Rx, Tx, S3_TX_SELF_TEST_NOT_RUN | S3_TX_SELF_TEST_FAIL);
+			S3TxSetAlarm(Rx, Tx, S3_TX_SELF_TEST_RETRY);
+
+			S3IPSetGainSent(Rx, Tx, IP, SCHAR_MIN);
+			S3Data->m_Rx[Rx].m_Tx[Tx].m_SelfTestPending = false;
+		}
+	}
+
+	return err; // All good
+}
+// ----------------------------------------------------------------------------
 // Reads back from Rx only
 
 int S3I2CTxSelfTest2(char Rx, char Tx)
 {
-	if (!S3SelfTestEnabled())
+	if (!S3GetTxSelfTest())
 		return 0;
 
 #ifdef TRIZEPS

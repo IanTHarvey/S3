@@ -54,6 +54,8 @@ public:
 	CStatic m_PeakThrStatic;
 	CEdit m_PeakThrEdit;
 	afx_msg void OnBnClickedTestButton();
+	afx_msg void OnBnClickedSealButton();
+	afx_msg void OnBnClickedSelfTestButton();
 };
 
 
