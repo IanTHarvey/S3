@@ -582,11 +582,11 @@ int S3I2CTempLog(char Rx, char Tx)
 		int err = fopen_s(&fid, S3_TLOG_FILENAME, "a");
 		if (!err)
 		{
-			fprintf(fid, "%d,%d,%d,%d\n",
+			fprintf(fid, "%d,%d,%d,%4.1f\n",
 				S3Data->wMinute,
 				S3TxGetTemp(Rx, Tx),
 				S3TxGetTempTEC(Rx, Tx) / 256,
-				S3TxGetBattTemp(Rx, Tx));
+				(double)S3TxGetBattTemp(Rx, Tx) / 10.0);
 			fclose(fid);
 
 			return err;
