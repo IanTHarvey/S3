@@ -46,6 +46,7 @@ class CS3ControllerDlg;
 class CTextInputPopup;
 class CS3GDIInfoPopup;
 class CS3NameValue;
+class CS3Button;
 
 // Convenience macros
 #define S3BLT_BLK(BMP, X, Y, W, H) 	TransparentBlt(m_HDC, X, Y, W, H, BMP, 0, 0, W, H, RGB(0, 0, 0))
@@ -152,11 +153,16 @@ private:
 	CRect	m_RectTxNodeName, m_RectTxType, m_RectTxPowerMode, m_RectTxDoComp;
 
 	// Shutdown screen
-	CRect	m_RectShutdownScreen,
-				m_RectTxSleepAll,
+	CRect	m_RectShutdownScreen;
+				/*m_RectTxSleepAll,
 				m_RectTxWakeAll,
 				m_RectSysShutdown,
-				m_RectSysRestart;
+				m_RectSysRestart;*/
+
+	CS3Button	*m_ButtonTxSleepAll,
+				*m_ButtonTxWakeAll,
+				*m_ButtonSysShutdown,
+				*m_ButtonSysRestart;
 
 	// Factory screen
 	// CRect	m_RectFactoryScreen; // , m_RectTxSleepAll, m_RectSysShutdown,
@@ -483,6 +489,7 @@ public:
 	// Shutdown screen
 	void	S3InitGDIShutdownScreen(void);
 	void	S3DrawGDIShutdownScreen(void);
+	void	S3CloseGDIShutdownScreen(void);
 
 	int		S3FindShutdownScreen(	POINT p);
 

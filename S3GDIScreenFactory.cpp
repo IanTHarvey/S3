@@ -5,7 +5,7 @@
 #include <ceconfig.h>
 #endif
 
-#include "afxpriv.h"
+// #include "afxpriv.h"
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
@@ -36,7 +36,7 @@ void CS3GDIScreenMain::S3InitGDIFactoryScreen(void)
 	m_RectFactoryRestart.right = m_RectFactoryRestart.left + 150;
 
 	m_RectFactoryClose = m_RectFactoryLock;
-	m_RectFactoryClose.left = m_RectSysRestart.right;
+	m_RectFactoryClose.left = m_RectFactoryRestart.right;
 	m_RectFactoryClose.right = m_RectFactoryClose.left + 150;
 
 	// Distribute horizontally
@@ -207,8 +207,6 @@ int CS3GDIScreenMain::S3FindFactoryScreen(POINT p)
 		else
 			m_StrFactoryMsg = _T("System lock failed");
 
-		// S3GDIChangeScreen(S3_OVERVIEW_SCREEN);
-		
 		return 1;
 	}
 	else if (m_RectDemo.PtInRect(p))

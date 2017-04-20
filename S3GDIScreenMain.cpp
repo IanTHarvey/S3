@@ -93,6 +93,7 @@ void CS3GDIScreenMain::S3CloseGDIMainScreen()
 	S3CloseGDIRxScreen();
 	S3CloseGDITxScreen();
 	S3CloseGDIChScreen();
+	S3CloseGDIShutdownScreen();
 }
 
 // ----------------------------------------------------------------------------

@@ -57,7 +57,7 @@ int CS3ControllerDlg::RemoteOpenEth(void)
 	int err = 0;
 	
 	// if (m_IPThreadRun == false && m_EthEnabled && m_EthInactivityTimer > 3 * 1000)
-	if (m_EthEnabled && m_EthInactivityTimer > 20 * 1000)
+	if (m_EthEnabled && m_EthInactivityTimer > S3_ETH_ACTIVITY_TIMEOUT)
 	{
 		// int r = recv(ClientSocket, NULL, 0, 0);
 

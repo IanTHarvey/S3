@@ -223,8 +223,8 @@ double S3P1dBTableOld[S3_GAIN_VALUES] = {
 55.8, 40.3, 40.3, 40.3, 40.3, 40.3, 40.2, 40.2, 40.2, 40.2,
 40.2, 40.1, 40.1, 40.0, 40.0, 39.9, 39.8, 24.3, 24.3, 24.2,
 24.3, 24.2, 24.2, 24.2, 24.2, 24.2, 24.1, 24.1, 24.1, 24.0,
-24.0, 23.9, 23.8,  8.3,  8.3, 8.3,  8.3,  8.2,  8.3,  8.2,
-8.2,   8.2,  8.1,  8.2,  8.0, 8.0,  8.0,  7.9,  7.8,
+24.0, 23.9, 23.8,  8.3,  8.3,  8.3,  8.3,  8.2,  8.3,  8.2,
+ 8.2,  8.2,  8.1,  8.2,  8.0,  8.0,  8.0,  7.9,  7.8,
 //-13.9,
 //-13.8,
 //-13.9,
@@ -245,6 +245,7 @@ const char *S3GetGainParas_dB(char g_dB)
 }
 
 // ----------------------------------------------------------------------------
+// TODO: Obsolete
 
 const char *S3GetGainParas_Pmax(char p_dBm)
 {
@@ -254,6 +255,8 @@ const char *S3GetGainParas_Pmax(char p_dBm)
 // ----------------------------------------------------------------------------
 // TODO: This may need to be split over a number of polls for large systems.
 // Not used for Tx1, may be required for Rx6
+
+// TODO: Obsolete
 
 int S3I2CSetGain(char Rx)
 {

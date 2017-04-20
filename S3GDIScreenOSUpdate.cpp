@@ -55,7 +55,8 @@ void CS3GDIScreenMain::S3InitGDISWUpdateScreen(void)
 
 // Layout 0
 const wchar_t SWUpdateInstr[] = {
-	_T("Only attempt update if you have a Sentinel 3 image file provided by PPM and located in the root folder of a USB Mass Storage class device.")};
+	_T("Only attempt update if you have a Sentinel 3 image file provided by PPM")
+	_T("and located in the root folder of a USB Mass Storage class device.")};
 
 // Layout 1
 const wchar_t SWUpdateNoImage[] = {
@@ -73,11 +74,13 @@ const wchar_t SWUpdateProcessFail[] = {
 
 // Layout 2
 const wchar_t SWUpdateDoUpdate[] = {
-	_T("Sentinel 3 will update and restart, configuration data will be retained. Ensure that power is not interrupted during the update.")};
+	_T("Sentinel 3 will update and restart, configuration data will be retained.")
+	_T("Ensure that power is not interrupted during the update.")};
 
 // Layout 3
 const wchar_t SWUpdateUpdating[] = {
-	_T("Updating will take 1-2 minutes.\nDo not switch off mains power.\nPlease wait until Sentinel 3 restarts fully.")};
+	_T("Updating will take 1-2 minutes.\nDo not switch off mains power.\n")
+	_T("Please wait until Sentinel 3 restarts fully.")};
 
 unsigned char m_Layout = 0;
 unsigned char m_UpdateMsg = 0;
