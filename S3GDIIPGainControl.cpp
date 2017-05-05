@@ -162,8 +162,11 @@ void CS3GDIScreenMain::S3DrawGDIIPGain(char Rx, char Tx, char IP)
 	Polygon(m_HDC, mIPGainTriangleDown2, 3);
 
 	CString str;
+	int gain = S3IPGetGain(Rx, Tx, IP);
+	if (gain == 0)
+		str = _T("-0");
+	else str.Format(_T("%+d"), gain);
 
-	str.Format(_T("%+d"), S3IPGetGain(Rx, Tx,  IP));
 	SelectObject(m_HDC, m_hFontL);
 	DrawText(m_HDC, str, -1, &m_IPGainRectText, DT_RIGHT);
 
