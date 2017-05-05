@@ -35,7 +35,7 @@ void CS3GDIScreenMain::S3DrawGDITxSel(char Rx, char Tx,
 	TxType = S3TxGetType(Rx, Tx);
 	S3TxPwrMode PowerState = S3TxGetPowerStat(Rx, Tx);
 	ActiveTx = S3RxGetActiveTx(Rx);
-	char BattValid = S3TxGetBattValid(Rx, Tx);
+	char BattValid = S3TxGetBattValidated(Rx, Tx);
 
 	S3TxSetCoords(Rx, Tx, xref, yref);
 
@@ -201,7 +201,7 @@ void CS3GDIScreenMain::S3DrawGDITxSel(char Rx, char Tx,
 
 		S3DrawGDITxId(Rx, Tx, xref, yref);
 
-		if (PowerState < S3_TX_SLEEP)
+		// if (PowerState < S3_TX_SLEEP)
 			S3DrawGDIBatt(Rx, Tx, xref, yref);
 	}
 	else
@@ -421,7 +421,7 @@ void CS3GDIScreenMain::S3DrawGDITxUnsel(char Rx, char Tx,
 
 		S3DrawGDITxIdUnsel(Rx, Tx, xref, yref, IsLeft);
 
-		if (PowerState < S3_TX_SLEEP)
+		// if (PowerState < S3_TX_SLEEP)
 			S3DrawGDIBattUnsel(Rx, Tx, xref, yref, IsLeft);
 	}
 	else
@@ -570,14 +570,14 @@ void CS3GDIScreenMain::S3DrawGDIBatt(char Rx, char Tx, int xref, int yref)
 	unsigned short a = S3TxGetAlarms(Rx, Tx);
 
 	// Don't flash if invalid
-	if (S3TxGetBattValid(Rx, Tx) &&	(a & S3_TX_BATT_ALARM) &&
+	if (S3TxGetBattValidated(Rx, Tx) &&	(a & S3_TX_BATT_ALARM) &&
 												m_Parent->m_AnimateState)
 		return;
 
 	int	batt_xref = xref + 25;
 	int batt_yref = yref - 30;
 
-	if (!S3TxGetBattValid(Rx, Tx))
+	if (!S3TxGetBattValidated(Rx, Tx))
 	{
 		// Draw dead battery
 		S3BLT(m_hbmpTxBatt[S3_N_BATT_SEGS + 1], batt_xref, batt_yref,
@@ -631,7 +631,7 @@ void CS3GDIScreenMain::S3DrawGDIBattUnsel(char Rx, char Tx,
 	unsigned short a = S3TxGetAlarms(Rx, Tx);
 
 	// Don't flash if invalid
-	if (S3TxGetBattValid(Rx, Tx) && (a & S3_TX_BATT_ALARM) && m_Parent->m_AnimateState)
+	if (S3TxGetBattValidated(Rx, Tx) && (a & S3_TX_BATT_ALARM) && m_Parent->m_AnimateState)
 		return;
 
 	int	batt_xref, batt_yref;
@@ -643,7 +643,7 @@ void CS3GDIScreenMain::S3DrawGDIBattUnsel(char Rx, char Tx,
 
 	batt_yref = yref - m_radTxUnsel - m_radTxUnsel / 2 + 3;
 
-	if (!S3TxGetBattValid(Rx, Tx))
+	if (!S3TxGetBattValidated(Rx, Tx))
 	{
 		S3BLT(m_hbmpTxUBatt[S3_N_BATT_SEGS + 1], batt_xref, batt_yref, 9, 20);
 		S3BLT(m_hbmpTxUnselBattInvalid, batt_xref - 9, batt_yref - 2, 24, 24);

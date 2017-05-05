@@ -167,7 +167,7 @@ int S3TxSetBattInfo(char Rx, char Tx,
 	{
 		if (*BattSN == '\0' || strcmp(pTx->m_BattSN, BattSN))
 		{
-			if (pTx->m_BattValidated = S3BattValidate(BattSN))
+			if (pTx->m_BattValidated) //  = S3BattValidate(BattSN))
 				S3TxCancelAlarm(Rx, Tx, S3_TX_BATT_INVALID);
 			else
 				S3TxSetAlarm(Rx, Tx, S3_TX_BATT_INVALID);
@@ -236,7 +236,7 @@ int S3TxGetBattInfo(char Rx, char Tx,
 // TODO: Placeholder
 bool S3BattValidate(const char *str)
 {
-#ifdef VALIDBATTDISABLED
+#ifdef S3_VALIDBATTDISABLED
 	return true;
 #else
 	if (!strcmp("bq34z100-g1 Creasefield", str))

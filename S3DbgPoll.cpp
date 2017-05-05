@@ -173,6 +173,8 @@ int S3DbgPoll()
 
 		if (S3Data->m_Chargers[Ch].m_Occupied)
 		{
+			S3Data->m_Chargers[Ch].m_BattValidated = true;
+
 			Update += S3ChSetBattTemp(Ch, DbgPollSysData.Ch[Ch].BattTemp);
 
 			// This should only be interrogated on insertion
@@ -277,6 +279,8 @@ int	S3DbgPollRx(char Rx)
 
 				if (pTx->m_ActiveInput >= S3_PENDING)
 					pTx->m_ActiveInput -= S3_PENDING;
+
+				pTx->m_BattValidated = true;
 			}
 
 			if (DbgPollSysData.Rx[Rx].Txs[Tx].type != S3_TxUnconnected)

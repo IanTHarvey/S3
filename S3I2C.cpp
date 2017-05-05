@@ -62,6 +62,10 @@ int S3I2CRxMS(unsigned char Rx);
 extern unsigned char	*pS3I2CRxReadBuf;
 extern unsigned char	*pS3I2CTxReadBuf;
 
+extern int	HexStr2Hex(BYTE *buf, char *str);
+extern char	S3BattAuthKeyStr[];
+extern BYTE	S3BattAuthKey[];
+
 // ----------------------------------------------------------------------------
 // BE (I2C 16-bit registers) to LE (Windows)
 unsigned short S3RevByteUShort(unsigned char *b)
@@ -252,7 +256,7 @@ int S3I2CPoll1()
 {
 	int Update = 0;
 #ifdef TRIZEPS
-	for (unsigned char Ch = 0; Ch < S3_N_CHARGERS; Ch++)
+	for(unsigned char Ch = 0; Ch < S3_N_CHARGERS; Ch++)
 		Update += S3I2CChGetStatus(Ch);
 
 	S3I2CChGetFault();
@@ -298,11 +302,14 @@ int S3I2CInit()
 	pS3I2CTxReadBuf = S3I2CTxReadBuf;
 	pS3I2CRxReadBuf = S3I2CRxReadBuf;
 
+	HexStr2Hex(S3BattAuthKey, S3BattAuthKeyStr);
+
 #ifdef TRIZEPS
 	I2C_Init();
 
 	S3I2CIOInit();
 
+	// Enable by default, may be disabled later due to fault or failed validation
 	for (unsigned char Ch = 0; Ch < S3_N_CHARGERS; Ch++)
 		S3I2CChEn(Ch, true);
 

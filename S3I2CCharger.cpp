@@ -296,6 +296,7 @@ int S2I2CChFactoryPN();
 int S3I2CChGetStatus(unsigned char Ch)
 {
 #ifdef TRIZEPS
+	S3TimerStart(1);
 
 	S3I2CChMS(Ch);
 	
@@ -318,9 +319,7 @@ int S3I2CChGetStatus(unsigned char Ch)
 		S3Data->m_Chargers[Ch].m_Occupied = false;
 		S3Data->m_Chargers[Ch].m_Detected = false;
 		S3ChInit(Ch);
-		
-		// S3I2CChEn(Ch, false);
-		
+			
 		return 1;
 	}
 
@@ -355,45 +354,30 @@ int S3I2CChGetStatus(unsigned char Ch)
 	unsigned short tmin = *((unsigned short *)i2cCmdBufRead);
 	S3ChSetTimeToFull(Ch, tmin);
 
-	// Attempt to clear tripped charger
-	if (S3ChGetAlarms(Ch) & S3_CH_CHARGE_FAULT)
-	{
-		S3I2CChEn(Ch, false);
-		Sleep(10);
-		S3I2CChEn(Ch, true);
-	}
-
-	// Enable 12V supply if good
-	if (!(S3ChGetAlarms(Ch) & S3_CH_BATT_HOT))
-		S3I2CChEn(Ch, true);
-	else
-		S3I2CChEn(Ch, false);
-
 	// ---------------------------------------------------------------------------
 	// TODO: Is there any danger in not polling every time?
 
 	if (!new_insert)
 	{
+		// Attempt to clear tripped charger
+		if ((S3ChGetAlarms(Ch) & S3_CH_CHARGE_FAULT) && S3ChBattValidated(Ch))
+		{
+			S3I2CChEn(Ch, false);
+			Sleep(10);
+			S3I2CChEn(Ch, true);
+		}
+
+		// Enable 12V supply if good
+		if (!(S3ChGetAlarms(Ch) & S3_CH_BATT_HOT) && S3ChBattValidated(Ch))
+			S3I2CChEn(Ch, true);
+		else
+			S3I2CChEn(Ch, false);
+
  		S3I2CChMS(0xFF);
 		return 0;
 	}
 
-	// New discovery only
-	if (1)
-	{
-		//S3I2CChSetBattSealed(Ch);
-		// S3I2CChSetBattUnseal();
-		// Sleep(100);
-		// S3I2CChSetBattFullAccess();
-		// Sleep(100);
-		// S3I2CChReadSecKeys();
-		// S3I2CChWriteSecKeys();
-		
-		if (S3I2CChAuthenticate())
-			return 1;
-	}
-
-	char ver[S3_MAX_SW_VER_LEN];
+	S3I2CChEn(Ch, true);
 
 	i2cStartAddr = 0x00;
 
@@ -403,6 +387,22 @@ int S3I2CChGetStatus(unsigned char Ch)
 	ok = I2C_WriteRead(S3I2C_CH_BATT_ADDR, cmd, 3, NULL, 0);
 	ok = I2C_WriteRead(S3I2C_CH_BATT_ADDR, &i2cStartAddr, 1, i2cCmdBufRead, 2);
 	S3ChSetBattStatus(Ch, i2cCmdBufRead);
+
+	// New discovery only
+	if (1)
+	{
+		// S3I2CChSetBattSealed(Ch);
+		// S3I2CChSetBattUnseal();
+		// Sleep(100);
+		// S3I2CChSetBattFullAccess();
+		// Sleep(100);
+		// S3I2CChReadSecKeys();
+		// S3I2CChWriteSecKeys();
+		int ChAuth = S3I2CChAuthenticate(Ch);
+		S3ChSetBattValidated(Ch, ChAuth == 0);
+	}
+
+	char ver[S3_MAX_SW_VER_LEN];
 
 	cmd[1] = 0x02; // FW
 	ok = I2C_WriteRead(S3I2C_CH_BATT_ADDR, cmd, 3, NULL, 0);
@@ -438,6 +438,8 @@ int S3I2CChGetStatus(unsigned char Ch)
 		S3I2CChEn(Ch, false);
 
 	S3I2CChMS(0xFF);
+
+	S3TimerStop(1);
 #endif // TRIZEPS
 
 	return 0;

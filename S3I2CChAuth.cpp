@@ -18,20 +18,20 @@ extern pS3DataModel S3Data;
 
 #define S3_FLASH_BLOCK_SIZE	32
 
-int HexStr2Hex(BYTE *buf, char *str);
-BYTE hextobyte(const char *pHex);
+BYTE	Hex2Byte(const char *pHex);
 
-char MessageStr[2 * SHA1_DIGEST_LEN + 1] =
-		{"1234560000000000000000000000000000000000"};
-char KeyStr[2 * SHA1_KEY_LEN + 1] =
-		{"10000000000000000000000000000000"};
+int		HexStr2Hex(BYTE *buf, char *str);
+char	S3BattAuthKeyStr[2 * SHA1_KEY_LEN + 1] = S3_BATT_SHA1_HMAC_KEY;
+BYTE	S3BattAuthKey[SHA1_KEY_LEN];
+
+// ----------------------------------------------------------------------------
 
 int S3GenerateChallenge(BYTE *chal)
 {
 	srand(GetTickCount());
 	unsigned short n;
 
-	for(BYTE i = 0; i < 10; i++)
+	for(BYTE i = 0; i < SHA1_DIGEST_LEN / 2; i++)
 	{
 		n = (unsigned short)rand();
 		*(unsigned short *)(chal + i * 2) = n;
@@ -51,9 +51,6 @@ int S3I2CChWriteAuthKey()
 	BOOL ok;
 	unsigned char i2cStartAddr = 0x00;
 	unsigned char i2cStdBufRead[S3_FLASH_BLOCK_SIZE];
-	unsigned char AuthKey[SHA1_KEY_LEN];
-
-	HexStr2Hex(AuthKey, KeyStr);
 
 	cmd[0] = 0x61;	// BlockDataControl
 	cmd[1] = 0x00;	// Enable authentication commands
@@ -98,7 +95,7 @@ int S3I2CChWriteAuthKey()
 		cmdSec[i + 1] = i2cStdBufRead[i];
 
 	for(i = 0; i < SHA1_KEY_LEN; i++)
-		cmdSec[i + 1 + 0x08] = AuthKey[i];
+		cmdSec[i + 1 + 0x08] = S3BattAuthKey[i];
 
 	// Copy data then write to flash
 
@@ -161,37 +158,29 @@ int S3I2CChWriteAuthKey()
 extern int HMAC(unsigned char *Digest, unsigned char *Message, char *Key);
 extern int HMAC3(unsigned char *Digest, unsigned char *Message, unsigned char *Key);
 
-int S3I2CChAuthenticate()
+int S3I2CChAuthenticate(char Ch)
 {
 	BYTE ErrCnt = 0;
 
 #ifdef TRIZEPS
-	BYTE	Message[SHA1_DIGEST_LEN];
-	BYTE	MessageTmp[SHA1_DIGEST_LEN];
-	BYTE	Digest[SHA1_DIGEST_LEN];
+	BYTE	Challenge[SHA1_DIGEST_LEN]; // Random challenge
+	BYTE	ChallengeRev[SHA1_DIGEST_LEN]; // Applied in reverse byte-order
+	BYTE	Digest[SHA1_DIGEST_LEN]; // Expected response
 
 	BYTE i;
 
-	unsigned char AuthKey[SHA1_KEY_LEN];
-
-	S3GenerateChallenge(MessageTmp);
-
-	// HexStr2Hex(MessageTmp, MessageStr);
-	HexStr2Hex(AuthKey, S3_BATT_SHA1_HMAC_KEY);
+	S3GenerateChallenge(Challenge);
 
 	for(i = 0; i < SHA1_DIGEST_LEN; i++)
-	{
-		Message[i] = MessageTmp[SHA1_DIGEST_LEN - i - 1];
-	}
+		ChallengeRev[i] = Challenge[SHA1_DIGEST_LEN - i - 1];
 
 	unsigned char cmd[3] = {0x00, 0x00, 0x00};
 	unsigned char cmdSec[SHA1_DIGEST_LEN + 1];
 	BOOL ok;
 	unsigned char i2cStartAddr = 0x00;
 	unsigned char i2cStdBufRead[SHA1_DIGEST_LEN];
-	// unsigned char i2cRead[S3_FLASH_BLOCK_SIZE];
 
-	int err = HMAC3(Digest, MessageTmp, (unsigned char *)AuthKey);
+	int err = HMAC3(Digest, Challenge, S3BattAuthKey);
 
 	cmd[0] = 0x61;	// BlockDataControl
 	cmd[1] = 0x01;	// Enable authentication commands (unsealed)
@@ -208,18 +197,18 @@ int S3I2CChAuthenticate()
 
 	cmdSec[0] = 0x40; // Write data to offset 0x40
 	for(i = 0; i < SHA1_DIGEST_LEN; i++)
-		cmdSec[i + 1] = Message[i];
+		cmdSec[i + 1] = ChallengeRev[i];
 
 	// Calculate checksum
 	unsigned char CheckSum = 0;
-	for(unsigned char i = 0; i < SHA1_DIGEST_LEN; i++)
+	for(i = 0; i < SHA1_DIGEST_LEN; i++)
 		CheckSum += cmdSec[i + 1];
 
 	CheckSum = 0xFF - CheckSum;
 
 	ok = I2C_WriteRead(S3I2C_CH_BATT_ADDR, cmdSec, SHA1_DIGEST_LEN + 1, NULL, 0);
 
-	// Set authenticate checksum for battery's SHA1-HMAC response
+	// Set authenticate checksum to trigger battery's SHA1-HMAC response
 	cmd[0] = 0x54;
 	cmd[1] = CheckSum;
 	ok = I2C_WriteRead(S3I2C_CH_BATT_ADDR, cmd, 2, NULL, 0);
@@ -229,21 +218,20 @@ int S3I2CChAuthenticate()
 
 	Sleep(100);
 
-	// Read back response digest
+	// Read back response digest...
 	i2cStartAddr = 0x40;
 	ok = I2C_WriteRead(S3I2C_CH_BATT_ADDR,
 				&i2cStartAddr,	1,
 				i2cStdBufRead,	SHA1_DIGEST_LEN);
 
-	
-
+	// ...and validate
 	for(i = 0; i < SHA1_DIGEST_LEN; i++)
 	{
 		if (Digest[i] != i2cStdBufRead[SHA1_DIGEST_LEN - i - 1])
 			ErrCnt++;
 	}
 #endif
-	return ErrCnt;
+	return (int)ErrCnt;
 }
 
 // ----------------------------------------------------------------------------
@@ -1108,6 +1096,7 @@ int S3I2CChSetBattSealed(char Ch)
 	BOOL ok = TRUE;
 
 #ifdef TRIZEPS
+	// Seal command, sets SS & FAS bits
 	unsigned char cmd[3] = {0x00, 0x20, 0x00};
 
 	ok = I2C_WriteRead(S3I2C_CH_BATT_ADDR, cmd, 3, NULL, 0);
@@ -1124,10 +1113,12 @@ int S3I2CChSetBattSealed(char Ch)
 		S3ChSetBattStatus(Ch, i2cCmdBufRead);
 
 		// Check FAS and Sealed bits set
-		if ((S3ChGetBattStatus(Ch) & (BQ_SS | BQ_FAS)) == (BQ_SS | BQ_FAS))
-			return 1;
+		unsigned char s = S3ChGetBattStatus(Ch);
 
-		return 0;
+		if ((s & (BQ_SS | BQ_FAS)) == (BQ_SS | BQ_FAS))
+			return 0;
+
+		return 1;
 	}
 
 #endif
@@ -1372,7 +1363,7 @@ int S3I2CChWriteSecKeys()
 	}
 	else return 7;
 
-	if (0)
+	if (1)
 	{
 		// Seal the battery
 		cmd[0] = 0x00; // Seal key
@@ -1407,7 +1398,7 @@ int HexStr2Hex(BYTE *buf, char *str)
 		d[1] = str[i * 2 + 1];
 		d[2] = '\0';
 
-		buf[i] = hextobyte(d);
+		buf[i] = Hex2Byte(d);
 	}
 
 	return 0;
@@ -1415,21 +1406,23 @@ int HexStr2Hex(BYTE *buf, char *str)
 
 // ----------------------------------------------------------------------------
 
- BYTE hextobyte(const char *pHex) 
- {  
-   int result = 0; 
-   char ch; 
+BYTE Hex2Byte(const char *pHex) 
+{  
+	int		result = 0; 
+	char	ch; 
  
-   while (ch = *pHex++) {  
-     result <<= 4; 
- 
-     if ((ch >= '0') && (ch <= '9')) result += ch - '0';  
-     else if ((ch >= 'a') && (ch <= 'f')) result += ch - 'a' + 10;  
-     else if ((ch >= 'A') && (ch <= 'F')) result += ch - 'A' + 10;  
-     else break;  
-   }  
-   return (result); 
- }
+	while(ch = *pHex++)
+	{  
+		result <<= 4; 
+
+		if		((ch >= '0') && (ch <= '9')) result += ch - '0';  
+		else if	((ch >= 'a') && (ch <= 'f')) result += ch - 'a' + 10;  
+		else if	((ch >= 'A') && (ch <= 'F')) result += ch - 'A' + 10;  
+		else break;  
+	}  
+	
+	return result; 
+}
 
  // ----------------------------------------------------------------------------
 

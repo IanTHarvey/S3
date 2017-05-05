@@ -36,14 +36,15 @@ class CS3ControllerDlg;
 #define DBGLOG 0
 #endif
 
-#define S3_TRACE_FILE
+// #define S3_TRACE_FILE
 
 #ifdef S3_TRACE_FILE
 #define debug_printw(fmt, ...) do { if (DBGLOG) fwprintf(S3DbgLog, fmt, __VA_ARGS__); } while(0)
 #define debug_print(fmt, ...) do { if (DBGLOG) fprintf(S3DbgLog, fmt, __VA_ARGS__); } while(0)
 // #define debug_printw	TRACE
 #else
-#define debug_print		TRACE
+#define debug_print(A, ...)		TRACE(_T(A), __VA_ARGS__)
+#define debug_printw(A, ...)	TRACE(_T(A), __VA_ARGS__)
 #endif
 
 extern FILE *S3DbgLog;
@@ -52,9 +53,9 @@ extern unsigned char S3Tx8IPMap[];
 
 // ----------------------------------------------------------------------------
 
-#define S3_DEF_DEMO_CONFIG_FILENAME		"S3Demo"
-#define S3_DEF_CONFIG_FILENAME			"S3Default"
-#define S3_DEF_EVENT_LOG_FILENAME		"S3Default"
+#define S3_DEF_DEMO_CONFIG_FILENAME	"S3Demo"
+#define S3_DEF_CONFIG_FILENAME		"S3Default"
+#define S3_DEF_EVENT_LOG_FILENAME	"S3Default"
 
 #define S3_LOCK_FILENAME			"S3Lock"
 #define S3_UNLOCK_FILENAME			"S3Unlock"
@@ -1103,7 +1104,9 @@ int S3RxSetActiveTx(	char Rx, char Tx);
 char S3RxGetActiveTx(	char Rx);
 bool S3RxIsActiveTx(	char Rx, char Tx);
 bool S3TxConnected(		char Rx, char Tx);
-char S3TxGetBattValid(	char Rx, char Tx);
+
+char S3TxGetBattValidated(	char Rx, char Tx);
+int S3TxSetBattValidated(	char Rx, char Tx, bool valid);
 
 bool S3TxSelfTestPending(char Rx, char Tx);
 
@@ -1357,6 +1360,7 @@ const char		*S3ChGetTimeToFullStr(	char Ch);
 int				S3ChInsert(			unsigned char Ch, char *SN, char *PN);
 int				S3ChRemove(			unsigned char Ch);
 bool			S3ChBattValidated(	unsigned char Ch);
+int				S3ChSetBattValidated(	unsigned char Ch, bool valid);
 bool			S3ChBattValidate(	unsigned char Ch);	// Placeholder
 
 // ----------------------------------------------------------------------------
@@ -1404,7 +1408,8 @@ short			S3TxGetBattI(		char Rx, char Tx);
 int				S3TxSetATTE(		char Rx, char Tx, unsigned short atte);
 unsigned short	S3TxGetATTE(		char Rx, char Tx);
 
-char			S3TxGetBattValid(	char Rx, char Tx);
+char			S3TxGetBattValidated(	char Rx, char Tx);
+
 
 bool			S3BattValidate(	const char *Ch);	// Placeholder
 
@@ -1430,10 +1435,11 @@ int S3IPGetInfoStr(		char *info, char Rx, char Tx, char IP);
 
 int S3ConfigGetInfoStr(	char *tmp, char Rx, char Tx, char IP);
 
-int S3I2CChGetStatus(unsigned char Ch);
+int S3I2CChGetStatus(	unsigned char Ch);
 int S3I2CRxGetStatus(	char Rx);
 int S3I2CTxGetStatus(	char Rx, char Tx);
 int S3I2CRxProcessTx(	char Rx, char Tx);
+int S3I2CRxSetAGC(		char Rx, char Tx);
 
 // Read/write battery serial and part numbers
 int S3I2CChReadSNPN(	char Ch, char		*SN, char		*PN);

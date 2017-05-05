@@ -46,7 +46,9 @@ int S3ChInit(unsigned char Ch)
 	S3Data->m_Chargers[Ch].m_BattTemp = 0;
 	S3Data->m_Chargers[Ch].m_SoC = 0;
 	S3Data->m_Chargers[Ch].m_Charged = false;
+
 	S3Data->m_Chargers[Ch].m_BattValidated = false;
+
 	S3Data->m_Chargers[Ch].m_ATTF = 0;
 
 	return 0;
@@ -144,8 +146,8 @@ int	S3ChSetBattSN(char Ch, const char *SN)
 
 	strcpy_s(S3Data->m_Chargers[Ch].m_BattSN, S3_MAX_SN_LEN, SN);
 
-	S3Data->m_Chargers[Ch].m_BattValidated = true;
-		// S3ChBattValidate(Ch);
+	// S3Data->m_Chargers[Ch].m_BattValidated = true;
+	// S3ChBattValidate(Ch);
 
 	return 0;
 }
@@ -362,7 +364,7 @@ int	S3ChInsert(unsigned char Ch, char *SN, char *PN)
 	if (SN)
 		strcpy_s(S3Data->m_Chargers[Ch].m_BattSN, S3_MAX_SN_LEN, SN);
 
-	if (!(S3Data->m_Chargers[Ch].m_BattValidated = S3BattValidate(SN)))
+	if (!S3Data->m_Chargers[Ch].m_BattValidated) // = S3BattValidate(SN)))
 		S3ChSetAlarm(Ch, S3_CH_BATT_INVALID);
 	else
 		S3ChCancelAlarm(Ch, S3_CH_BATT_INVALID);
@@ -472,7 +474,27 @@ bool S3ChBattValidated(unsigned char Ch)
 	if (!S3Data->m_Chargers[Ch].m_Occupied)
 		return true;
 
+#ifdef S3_CH_VALIDBATTDISABLED
+	return true;
+#else
 	return S3Data->m_Chargers[Ch].m_BattValidated;
+#endif
+}
+
+// ----------------------------------------------------------------------------
+
+int S3ChSetBattValidated(unsigned char Ch, bool valid)
+{
+	if (!S3Data->m_Chargers[Ch].m_Occupied)
+		return true;
+
+#ifdef S3_CH_VALIDBATTDISABLED
+	S3Data->m_Chargers[Ch].m_BattValidated = true;
+#else
+	S3Data->m_Chargers[Ch].m_BattValidated = valid;
+#endif
+
+	return 0;
 }
 
 // ----------------------------------------------------------------------------

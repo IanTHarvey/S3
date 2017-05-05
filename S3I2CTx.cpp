@@ -195,7 +195,16 @@ int S3I2CGetTxStartUp(char Rx, char Tx)
 	// err = S3I2CTxDumpCtrlConfig(Rx, Tx);
 #endif
 
+	
+	// ------------------------------------------------------------------------
+	// Battery
+	// ------------------------------------------------------------------------
+	S3I2CTxGetBattSN(Rx, Tx);
+
 	unsigned char StartState = S3GetTxStartState();
+
+	if (!S3TxGetBattValidated(Rx, Tx))
+		StartState = S3_TXSTART_SLEEP;
 
 	if (StartState == S3_TXSTART_SLEEP)
 	{
@@ -213,12 +222,14 @@ int S3I2CGetTxStartUp(char Rx, char Tx)
 		else // Not shut down by system (ie S3TxGetPowerStat = S3_TX_ON)
 		{
 			// Force restart
+			// TODO: This short-cuts S3TxSetPowerStat
 			S3Data->m_Rx[Rx].m_Tx[Tx].m_PowerStat = S3_TX_ON_PENDING;
 		}		
 	}
 	else if (StartState == S3_TXSTART_ON)
 	{
 		// Force restart
+		// TODO: This short-cuts S3TxSetPowerStat
 		S3Data->m_Rx[Rx].m_Tx[Tx].m_PowerStat = S3_TX_ON_PENDING;
 	}
 
@@ -228,10 +239,7 @@ int S3I2CGetTxStartUp(char Rx, char Tx)
 	
 	// NO. CANNOT READ ANYTHING FROM TxOpt HERE, AS MAYBE NOT AWAKE
 
-	// ------------------------------------------------------------------------
-	// Battery
-	// ------------------------------------------------------------------------
-	S3I2CTxGetBattSN(Rx, Tx);
+
 	
 	// err = S3I2CTxInit();
 
@@ -786,8 +794,8 @@ int S3I2CTxSetStatus(char Rx, char Tx)
 
 	if (S3Data->m_Rx[Rx].m_Tx[Tx].m_Uptime > 0)
 	{
-		short v1, v2;
-		err = S3I2CTxSelfTest(&v1, &v2, Rx, Tx);
+		// short v1, v2;
+		// err = S3I2CTxSelfTest(&v1, &v2, Rx, Tx);
 
 	}
 	
@@ -912,10 +920,6 @@ int S3I2CTxGetStatus(char Rx, char Tx)
 	// Catch-all for Kludge above
 	S3TxCancelAlarm(Rx, Tx, S3_TX_INIT_FAIL);
 
-	// DIAG
-	// S3I2CReadSerialData(S3I2C_TX_CTRL_ADDR, S3I2C_TX_RF_IP, 1);
-	// char t = (char)S3I2CTxReadBuf[0];
-
 #ifdef S3_TEMP_LOG
 	//DIAG:
 	S3I2CTempLog(Rx, Tx);
@@ -991,7 +995,9 @@ int S3I2CGetTxBatt(char Rx, char Tx)
 
 int S3I2CTxGetBattSN(char Rx, char Tx)
 {
-	// int auth = S3I2CTxAuthenticate();
+	int AuthFail = S3I2CTxAuthenticate(Rx, Tx);
+
+	S3TxSetBattValidated(Rx, Tx, AuthFail == 0);
 
 	int err;
 
@@ -1335,6 +1341,7 @@ int S3I2CTxSetTestTone(char Rx, char Tx, char IP)
 
 	if (!err)
 		S3IPSetTestToneEnable(Rx, Tx, IP, ToneEnabled); // Reset to ack
+
 #endif			
 	return err;
 }

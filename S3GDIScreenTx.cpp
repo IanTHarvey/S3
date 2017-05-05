@@ -593,9 +593,12 @@ int CS3GDIScreenMain::S3FindTxScreen(POINT p)
 
 	if (m_RectTxPowerMode.PtInRect(p))
 	{
-		S3SetSelected(Rx, Tx, -1);
-		S3SetSelectedPara(Rx, Tx, -1, S3_TX_POWER_MODE);
-		S3DrawGDIParaPopUp(p.x, p.y);
+		if (S3TxGetBattValidated(Rx, Tx))
+		{
+			S3SetSelected(Rx, Tx, -1);
+			S3SetSelectedPara(Rx, Tx, -1, S3_TX_POWER_MODE);
+			S3DrawGDIParaPopUp(p.x, p.y);
+		}
 
 		m_NumericPad->PopDown();
 
@@ -673,7 +676,7 @@ int CS3GDIScreenMain::S3FindTxScreen(POINT p)
 
 		return 0;
 	}
-	// To allow off-line set-up
+	// Removed to allow off-line set-up
 	// else if (m_TxPowerState >= S3_TX_SLEEP || menu_item == -2)
 	else if (menu_item == -2)
 	{
@@ -818,6 +821,14 @@ void CS3GDIScreenMain::S3DrawGDITxTx(char Rx, char Tx)
 		m_TxInfoPopup->Disable(false);
 		m_TxBattInfoPopup->Disable(false);
 		m_TxTempComp->SetEditable(false);
+	}
+
+	if (!S3TxGetBattValidated(Rx, Tx))
+	{
+		m_TxInfoPopup->Disable(true);
+		m_TxBattInfoPopup->Disable(false);
+		m_TxTempComp->SetEditable(false);
+		m_TxPowerMode->SetEditable(false);
 	}
 
 	if (S3TxGetTCompMode(Rx, Tx) == S3_TCOMP_GAIN)
@@ -1888,7 +1899,7 @@ void CS3GDIScreenMain::S3DrawGDITxBattSeg(char Rx, char Tx, int xref, int yref)
 	CString status;
 
 	// TEST: Uncomment
-	if (!S3TxGetBattValid(Rx, Tx))
+	if (!S3TxGetBattValidated(Rx, Tx))
 	{
 		S3BLT(m_hbmpBattExclam,
 			xref + m_lChBatt / 2 - 48/2, yref + m_wChBatt / 2 - 48/2, 48, 48);

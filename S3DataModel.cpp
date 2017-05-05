@@ -170,9 +170,6 @@ int S3DataModelInit(pS3DataModel dm, bool DemoMode)
 	dm->m_WinTrackOption = S3_DEF_WIN_TRACK_OPTION;
 	dm->m_SoftShutdownOption = true;
 	
-	// No! Per-Tx option
-	// dm->m_OverdriveOption = true; // S3_DEF_OVERDRIVE_OPTION;
-
 	dm->m_Modified = false;
 
 	dm->m_Locked = false;
@@ -285,7 +282,6 @@ int S3End(void)
 {
 	// S3Save2(S3_DEFAULT_CONFIG_FILENAME);
 
-	// delete S3Data;
 	S3EventLogAdd("S3End invoked", 1, -1, -1, -1);
 
 	S3EventLogClose();
@@ -1654,7 +1650,7 @@ int S3SetFactoryMode(char Rx, char Tx, bool mode)
 	if (mode == true)
 	{
 		// Special case where may specify a channel rather than a Tx
-		if (S3RxGetType(Rx) != S3_Rx2)
+		if (Rx != -1 && S3RxGetType(Rx) != S3_Rx2)
 		{
 			if (Tx != -1)
 				if (!S3TxExistQ(Rx, Tx))

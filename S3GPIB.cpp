@@ -303,6 +303,7 @@ int S3ProcessGPIBCommand(const char *cmd)
 		if		(!STRCMP(Cmd,	"PPMCALRX"))	err = CmdPPMCALRX(); 
 		else if (!STRCMP(Cmd,	"PPMCALTXRF"))	err = CmdPPMCALTXRF();
 		else if (!STRCMP(Cmd,	"PPMCALTXOPT"))	err = CmdPPMCALTXOPT();
+		else if (!STRCMP(Cmd,	"PPMBATTAUTH"))	err = CmdPPMBATTAUTH();
 		else if (!STRCMP(Cmd,	"PPMBATTID"))	err = CmdPPMBATTID();
 		else if (!STRCMP(Cmd,	"PPMTXID"))		err = CmdPPMTXID();
 		else if (!STRCMP(Cmd,	"PPMRXID"))		err = CmdPPMRXID();
@@ -426,6 +427,10 @@ int S3ProcessGPIBCommand(const char *cmd)
 			strcpy_s(GPIBRetBuf, S3_MAX_GPIB_RET_LEN, "E: Calibration failed");
 		else if (err == S3_GPIB_CH_NOT_EXIST)
 			strcpy_s(GPIBRetBuf, S3_MAX_GPIB_RET_LEN, "E: No battery on charger port");
+		else if (err == S3_GPIB_CH_VALIDATED)
+			strcpy_s(GPIBRetBuf, S3_MAX_GPIB_RET_LEN, "W: Battery already validated");
+		else if (err == S3_GPIB_CH_AUTH_FAILED)
+			strcpy_s(GPIBRetBuf, S3_MAX_GPIB_RET_LEN, "E: Battery validation failed");
 		else if (err == S3_GPIB_ID_WRITE_FAILED)
 			strcpy_s(GPIBRetBuf, S3_MAX_GPIB_RET_LEN, "E: Tx ID write failed");
 		else if (err == S3_GPIB_INVALID_SNPN)
@@ -1892,6 +1897,46 @@ int CmdPPMBATTID()
 	else if (err == 3)
 	{
 		return S3_GPIB_BATTERY_SEALED;
+	}
+
+	return err;
+}
+
+// ----------------------------------------------------------------------------
+
+int CmdPPMBATTAUTH()
+{
+	int err = 0;
+
+	if (S3GetLocked())
+		return S3_GPIB_COMMAND_LOCKED;
+	
+	if (GPIBNArgs != 2)
+		return S3_GPIB_ERR_NUMBER_PARAS;
+
+	// TODO: Get Ch from command?
+	char Ch = (char)GetShortArg(GPIBCmdArgs[1]) - 1;
+
+	if (Ch < 0 || Ch >= S3_N_CHARGERS)
+		return S3_GPIB_CH_NOT_EXIST;
+
+	if (!S3ChOccupied(Ch))
+		return S3_GPIB_CH_NOT_EXIST;
+
+	if (S3ChBattValidated(Ch))
+		return S3_GPIB_CH_VALIDATED;
+
+	S3SetFactoryMode(-1, -1, true);
+
+	S3I2CChMS(Ch); // S3SetFactoryMode sets to 0
+
+	err = S3I2CChWriteSecKeys();
+
+	S3SetFactoryMode(-1, -1, false);
+
+	if (err)
+	{
+		return S3_GPIB_CH_AUTH_FAILED;
 	}
 
 	return err;

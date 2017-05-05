@@ -264,8 +264,8 @@ int S3I2CChReadSecKeys();
 int S3I2CChWriteSecKeys();
 int S3I2CChWriteAuthKey();
 
-int S3I2CChAuthenticate();
-int S3I2CTxAuthenticate();
+int S3I2CChAuthenticate(char Ch);
+int S3I2CTxAuthenticate(char Rx, char Tx);
 
 int S3I2CRxMS(			unsigned char Rx);
 

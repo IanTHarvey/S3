@@ -206,7 +206,7 @@ void CS3GDIScreenMain::S3DrawGDIChScreen(void)
 
 		SelectObject(m_HDC, m_hFontS);
 
-		if (S3ChOccupied(Ch) && S3ChBattValidated(Ch))
+		if (S3ChOccupied(Ch)) //  && S3ChBattValidated(Ch))
 		{
 			str.Format(_T("%S"), S3ChGetTimeToFullStr(Ch));
 			m_ChTimeRemain[Ch]->SetValue(str);

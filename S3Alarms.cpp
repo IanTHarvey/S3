@@ -311,6 +311,14 @@ int S3TxAlarmGetString(char Rx, char Tx, char *S3AlarmString, int len)
 	pS3TxData pTx = &S3Data->m_Rx[Rx].m_Tx[Tx];
 	pTx->m_CurAlarmSrc = -1;
 
+	if (pTx->m_Alarms & S3_TX_BATT_INVALID)
+	{
+		strcpy_s(S3AlarmString, len, "E:Transmitter battery not validated");
+		pTx->m_CurAlarmSrc = 0;
+		pTx->m_CurAlarm = pTx->m_Alarms;
+		return 1;
+	}
+
 	if (pTx->m_Alarms & S3_TX_RLL_UNSTABLE)
 	{
 		strcpy_s(S3AlarmString, len, "I:RLL stabilising. Please wait");

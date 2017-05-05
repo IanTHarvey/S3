@@ -253,8 +253,19 @@ void CS3FactorySysSetUp::OnBnClickedPeakThrButton()
 
 void CS3FactorySysSetUp::OnBnClickedTestButton()
 {
+		CString tmp;
+
+	tmp.Format(_T("Authenticate:"));
+	m_StatusMsgStatic.SetWindowText(tmp);
+	m_StatusMsgStatic.Invalidate();
+	m_StatusMsgStatic.UpdateWindow();
+
+	char Rx = 0, Tx = 0;
 	// int AuthCh = S3I2CChAuthenticate();
-	int AuthTx = S3I2CTxAuthenticate();
+	int AuthTx = S3I2CTxAuthenticate(Rx, Tx);
+
+	tmp.Format(_T("Authenticate: Err: %d"), AuthTx);
+	m_StatusMsgStatic.SetWindowText(tmp);
 }
 
 // ----------------------------------------------------------------------------
@@ -281,12 +292,12 @@ void CS3FactorySysSetUp::OnBnClickedSealButton()
 	{
 		CString tmp;
 
-		tmp.Format(_T("Failed to seal battery: Err %d"), err);
+		tmp.Format(_T("Failed to secure battery: Err %d"), err);
 		m_StatusMsgStatic.SetWindowText(tmp);
 	}
 	else
 	{
-		if (S3I2CChAuthenticate())
+		if (S3I2CChAuthenticate(Ch))
 			m_StatusMsgStatic.SetWindowText(_T("Authentication failed"));
 		else if (S3I2CChSetBattSealed(Ch))
 			m_StatusMsgStatic.SetWindowText(_T("Seal command failed"));

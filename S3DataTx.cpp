@@ -634,6 +634,9 @@ int S3TxSetPowerStat(char Rx, char Tx, S3TxPwrMode mode)
 	// Update data model
 	if (mode != S3_TX_ON && mode != S3_TX_SLEEP)
 		return 1;
+
+	if (!S3TxGetBattValidated(Rx, Tx))
+		mode = S3_TX_SLEEP;
 	
 	if (Rx == -1 && Tx == -1)
 	{
@@ -1061,7 +1064,7 @@ bool S3TxFOLLive(char Rx, char Tx)
 
 	return	S3TxGetPowerStat(Rx, Tx) < S3_TX_SLEEP &&
 			S3TxGetType(Rx, Tx) != S3_TxUnconnected &&
-			S3TxGetBattValid(Rx, Tx);
+			S3TxGetBattValidated(Rx, Tx);
 }
 
 // ----------------------------------------------------------------------------
@@ -1452,12 +1455,12 @@ unsigned char S3TxGetWavelength(char Rx, char Tx)
 // ---------------------------------------------------------------------------
 // TODO: Assign valid serial numbers to test batteries
 
-char S3TxGetBattValid(char Rx, char Tx)
+char S3TxGetBattValidated(char Rx, char Tx)
 {
 	if (Rx == -1 || Tx == -1)
 		return -1;
 
-#ifdef VALIDBATTDISABLED
+#ifdef S3_TX_VALIDBATTDISABLED
 	return 1;
 #else
 	pS3TxData pTx = &S3Data->m_Rx[Rx].m_Tx[Tx];
@@ -1465,6 +1468,22 @@ char S3TxGetBattValid(char Rx, char Tx)
 	return pTx->m_BattValidated ? 1 : 0;
 	
 #endif
+}
+
+int S3TxSetBattValidated(char Rx, char Tx, bool valid)
+{
+	if (Rx == -1 || Tx == -1)
+		return -1;
+
+	pS3TxData pTx = &S3Data->m_Rx[Rx].m_Tx[Tx];
+
+#ifdef S3_TX_VALIDBATTDISABLED
+	pTx->m_BattValidated = true;
+#else
+	pTx->m_BattValidated = valid;
+#endif
+
+	return 0;
 }
 
 // ---------------------------------------------------------------------------
