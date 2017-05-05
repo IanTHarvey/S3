@@ -242,7 +242,7 @@ int	S3EventLogSysInfo(void)
 		return err;
 	}
 
-	fprintf(fid, "=====================================================\n");
+	fprintf(fid, "\n\n=====================================================\n");
 	fprintf(fid, "System Information\n");
 	fprintf(fid, "=====================================================\n\n");
 
@@ -250,7 +250,14 @@ int	S3EventLogSysInfo(void)
 	fprintf(fid, "PN:\t\t%s\n", S3SysGetPN());
 	fprintf(fid, "OS:\t\t%s %s\n", S3SysGetImageDate(), S3SysGetImageTime());
 	fprintf(fid, "App:\t%s\n", S3SysGetAppDateTime());
-	fprintf(fid, "=====================================================\n\n");
+	fprintf(fid, "\n=====================================================\n\n");
+
+	if (S3GetDemoMode())
+	{
+		fprintf(fid, "=====================================================\n");
+		fprintf(fid, "\tRUNNING IN DEMONSTRATION MODE\n");
+		fprintf(fid, "=====================================================\n\n");
+	}
 
 	fflush(fid); // TODO: fclose() force this?
 	fclose(fid);

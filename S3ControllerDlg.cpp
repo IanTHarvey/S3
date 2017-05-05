@@ -176,7 +176,7 @@ BOOL CS3ControllerDlg::PreTranslateMessage(MSG* pMsg)
 
 bool GetBuildNum(void);
 
-extern int S3I2CTxAuthenticate();
+// extern int S3I2CTxAuthenticate();
 extern unsigned char S3I2CCurTxOptAddr;
 extern unsigned char S3I2CCurRxOptAddr;
 
@@ -189,7 +189,7 @@ BOOL CS3ControllerDlg::OnInitDialog()
 
 	errno_t err;
 
-	debug_printw(_T("OnInitDialog: Starting\n"));
+	debug_print("OnInitDialog: Starting\n");
 
 	// Set the icon for this dialog.  The framework does this automatically
 	// when the application's main window is not a dialog
@@ -205,7 +205,7 @@ BOOL CS3ControllerDlg::OnInitDialog()
 
 	S3SetTCompMode(CompMode + 100); // Force update
 
-	debug_printw(_T("OnInitDialog: Initialised model\n"));
+	debug_print("OnInitDialog: Initialised model\n");
 	// See comments in S3EventLog.cpp
 	// S3EventAddNotifyFn(&S3EventNotification);
 
@@ -995,8 +995,8 @@ int CS3ControllerDlg::TxLogBatt(char Rx, char Tx)
 	FILE	*fid = NULL;
 
 	char tmp[S3_MAX_FILENAME_LEN];
-	sprintf_s(tmp, S3_MAX_FILENAME_LEN, "%s\\%s.s3l",
-		m_S3Data->m_EventLogPath, "TXBatt");
+	sprintf_s(tmp, S3_MAX_FILENAME_LEN, "%s\\%s_%d_%d.s3l",
+		m_S3Data->m_EventLogPath, "TXBatt", Rx, Tx);
 
 	int err = fopen_s(&fid, tmp, "a");
 
@@ -1006,9 +1006,14 @@ int CS3ControllerDlg::TxLogBatt(char Rx, char Tx)
 	char t[S3_DATETIME_LEN];
 	GetTimeStrA(t);
 
-	fprintf(fid, "%s:\t%03d\t%03d\t%3d\t%5.1f\n", t,
-		S3TxGetBattSoC(Rx, Tx), S3TxGetATTE(Rx, Tx),
-		(double)S3TxGetBattTemp(Rx, Tx) / 10.0, S3TxGetBattI(Rx, Tx));
+	t[5] = '\0';
+
+	fprintf(fid, "%s:\t%03d\t%03d\t%3d\t%5.1f\n",
+		t,
+		S3TxGetBattSoC(Rx, Tx),
+		S3TxGetATTE(Rx, Tx),
+		S3TxGetBattI(Rx, Tx),
+		(double)S3TxGetBattTemp(Rx, Tx) / 10.0);
 
 	fflush(fid);
 	fclose(fid);

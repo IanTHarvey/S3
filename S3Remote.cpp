@@ -23,19 +23,12 @@
 #include "S3GPIB.h"
 #include "S3ControllerDlg.h"
 
-//#ifdef _DEBUG
-//#define new DEBUG_NEW
-//#endif
-
-//#define WSA_ERR_STR_LEN	256
 char	WSAErrString[WSA_ERR_STR_LEN];
-//const char *GetWSAErrString();
 
 #define NO_USE_TREE_ICONS
 
 // Socket stuff
 UINT ListenThreadProc(LPVOID pParam);
-// WSADATA wsaData;
 SOCKET ListenSocket = INVALID_SOCKET;
 SOCKET ClientSocket = INVALID_SOCKET;
 
@@ -206,7 +199,7 @@ int CS3ControllerDlg::InitSocket(void)
 	iResult = bind(ListenSocket, result->ai_addr, (int)result->ai_addrlen);
 	if (iResult == SOCKET_ERROR)
 	{
-		debug_print("InitSocket: Bind failed with error: %s\n", GetWSAErrString());
+		debug_print("InitSocket: Bind failed with error: %S\n", GetWSAErrString());
 	
 		closesocket(ListenSocket);
 		return 1;
@@ -215,7 +208,7 @@ int CS3ControllerDlg::InitSocket(void)
 	// Listen (waiting) for a connection
 	if (listen(ListenSocket, SOMAXCONN) == SOCKET_ERROR)
 	{
-		debug_print("InitSocket: Listen failed with error: %s\n", GetWSAErrString());
+		debug_print("InitSocket: Listen failed with error: %S\n", GetWSAErrString());
 		
 		closesocket(ListenSocket);
 		return 1;
@@ -281,7 +274,7 @@ UINT ListenThreadProc(LPVOID pParam)
 		ClientSocket = accept(ListenSocket, &sockaddr_ipv4, &sockaddr_ipv4_len);
 		if (ClientSocket == INVALID_SOCKET)
 		{
-			debug_print("ListenThreadProc: Accept failed: %s\n", GetWSAErrString());
+			debug_print("ListenThreadProc: Accept failed: %S\n", GetWSAErrString());
 			err = 10;
 			break;
 		}
