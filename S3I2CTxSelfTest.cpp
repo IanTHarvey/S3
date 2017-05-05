@@ -28,10 +28,10 @@ int S3I2CTxSelfTest(short *v1, short *v2, char Rx, char Tx)
 	int		err;
 
 	// May have been changed by user
-	if (!S3GetTxSelfTest())
+	if (0) // !S3GetTxSelfTest())
 		S3Data->m_Rx[Rx].m_Tx[Tx].m_SelfTestPending = false;
 		
-	if (!S3TxSelfTestPending(Rx, Tx))
+	if (0) // (!S3TxSelfTestPending(Rx, Tx))
 		return 0;
 
 #ifdef TRIZEPS
@@ -61,8 +61,11 @@ int S3I2CTxSelfTest(short *v1, short *v2, char Rx, char Tx)
 	//  Path 1
 
 	if (S3TxGetType(Rx, Tx) == S3_Tx8)
-		if (err = select_RF_input((unsigned char)S3Tx8IPMap[0] + 1, false))
+		if (select_RF_input(1, false))
 			{ err = 13;  goto ENDTEST; }
+
+	if (S3I2CSwitchTestTone(false))
+		{ err = 15;  goto ENDTEST; }
 
 	if (set_RF_inp_board(1, 0, Rx, Tx))
 		{ err = 11;  goto ENDTEST; }
@@ -78,39 +81,32 @@ int S3I2CTxSelfTest(short *v1, short *v2, char Rx, char Tx)
 		{ err = 14;  goto ENDTEST; }
 
 	if (RFLevelBG > 0)
-		{ err = 50; goto ENDTEST;	}
+		{ err = 50; goto ENDTEST; }
+
+	if (S3TxGetType(Rx, Tx) == S3_Tx8)
+		if (select_RF_input(1, true))
+			{ err = 13;  goto ENDTEST; }
 
 	if (S3I2CSwitchTestTone(true))
 		{ err = 15;  goto ENDTEST; }
 
 	Sleep(400);
+	
+	short Dummy;
+	S3I2CReadSerialShort(S3I2C_TX_CTRL_ADDR, 0xD2, &Dummy); // Dummy
 
-	for(char IP = 0; IP < S3TxGetNIP(Rx, Tx); IP++)
+	if (!S3I2CReadSerialShort(S3I2C_TX_OPT_ADDR, S3I2C_TX_OPT_RF_MON, &RFLevel1))
 	{
-		// Test all Tx8 input select relays
-		
-		// if (S3I2CWriteSerialByte(S3I2C_TX_CTRL_ADDR, S3I2C_TX_RF_IP,
-		// 	(unsigned char)S3Tx8IPMap[IP] + 1))
+		*v2 = RFLevel1;
 
-		// if (S3I2CTxSwitchInput(Rx, Tx, IP))
-		//	{ err = 13;  goto ENDTEST; }
-
-		if (!S3I2CReadSerialShort(S3I2C_TX_OPT_ADDR, S3I2C_TX_OPT_RF_MON, &RFLevel1))
-		{
-			*v2 = RFLevel1;
-
-			if (RFLevel1 - RFLevelBG < 3000)
-			{ err = 200; goto ENDTEST; }
-			// RxRFLevel1 = S3I2CRxGetRFLevel();
-		}
-		else
-			{ err = 14;  goto ENDTEST; }
-
+		if (RFLevel1 - RFLevelBG < 3000)
+		{ err = 200; goto ENDTEST; }
 	}
+	else
+		{ err = 24;  goto ENDTEST; }
 
 	// ------------------------------------------------------------------------
 	// Path 3 
-
 	if (set_RF_inp_board(3, 0, Rx, Tx))
 		{ err = 11;  goto ENDTEST; }
 
@@ -119,15 +115,18 @@ int S3I2CTxSelfTest(short *v1, short *v2, char Rx, char Tx)
 	if (!S3I2CReadSerialShort(S3I2C_TX_OPT_ADDR, S3I2C_TX_OPT_RF_MON, &RFLevel3_0))
 	{
 		*v2 = RFLevel3_0;
-		// RxRFLevel1 = S3I2CRxGetRFLevel();
 	}
 	else
-		{ err = 14;  goto ENDTEST; }
+		{ err = 34;  goto ENDTEST; }
 
-	if (S3I2CSwitchTestTone(false))
+	if (S3TxGetType(Rx, Tx) == S3_Tx8)
+		if (err = select_RF_input((unsigned char)S3Tx8IPMap[0] + 1, true))
+			{ err = 13;  goto ENDTEST; }
+
+	 if (S3I2CSwitchTestTone(false))
 		{ err = 15;  goto ENDTEST; }
 
-	Sleep(300);
+	Sleep(400);
 
 	if (!S3I2CReadSerialShort(S3I2C_TX_OPT_ADDR, S3I2C_TX_OPT_RF_MON, &RFLevelBG))
 	{
@@ -136,8 +135,7 @@ int S3I2CTxSelfTest(short *v1, short *v2, char Rx, char Tx)
 			{ err = 210; goto ENDTEST; }
 	}
 	else
-		{ err = 14;  goto ENDTEST; }
-
+		{ err = 44;  goto ENDTEST; }
 
 	// ------------------------------------------------------------------------
 	// Path 3 with PAD16
@@ -150,16 +148,18 @@ int S3I2CTxSelfTest(short *v1, short *v2, char Rx, char Tx)
 	if (!S3I2CReadSerialShort(S3I2C_TX_OPT_ADDR, S3I2C_TX_OPT_RF_MON, &RFLevelBG))
 	{
 		*v1 = RFLevelBG;
-		// RxRFLevel1 = S3I2CRxGetRFLevel();
-
 	}
 	else
-		{ err = 14;  goto ENDTEST; }
+		{ err = 54;  goto ENDTEST; }
 
+	if (S3TxGetType(Rx, Tx) == S3_Tx8)
+		if (err = select_RF_input((unsigned char)S3Tx8IPMap[0] + 1, true))
+			{ err = 13;  goto ENDTEST; }
+	
 	if (S3I2CSwitchTestTone(true))
 		{ err = 15;  goto ENDTEST; }
 
-	Sleep(300);
+	Sleep(400);
 
 	if (!S3I2CReadSerialShort(S3I2C_TX_OPT_ADDR, S3I2C_TX_OPT_RF_MON, &RFLevel3_16))
 	{
@@ -168,7 +168,7 @@ int S3I2CTxSelfTest(short *v1, short *v2, char Rx, char Tx)
 			{ err = 220; goto ENDTEST; }
 	}
 	else
-		{ err = 14;  goto ENDTEST; }
+		{ err = 64;  goto ENDTEST; }
 
 	// ------------------------------------------------------------------------
 	// Path 3 with PAD16 + PAD16
@@ -185,13 +185,21 @@ int S3I2CTxSelfTest(short *v1, short *v2, char Rx, char Tx)
 
 	}
 	else
-		{ err = 14;  goto ENDTEST; }
+		{ err = 74;  goto ENDTEST; }
+
+	if (S3TxGetType(Rx, Tx) == S3_Tx8)
+		if (err = select_RF_input((unsigned char)S3Tx8IPMap[0] + 1, false))
+			{ err = 13;  goto ENDTEST; }
 
 	if (S3I2CSwitchTestTone(false))
 		{ err = 15;  goto ENDTEST; }
 
-	Sleep(300);
+	Sleep(400);
 
+	S3I2CReadSerialShort(S3I2C_TX_CTRL_ADDR, 0xD2, &Dummy); // Dummy
+
+
+	// TxCtrl CRASHES HERE
 	if (!S3I2CReadSerialShort(S3I2C_TX_OPT_ADDR, S3I2C_TX_OPT_RF_MON, &RFLevelBG))
 	{
 		*v1 = RFLevelBG;
@@ -199,8 +207,7 @@ int S3I2CTxSelfTest(short *v1, short *v2, char Rx, char Tx)
 			{ err = 220; goto ENDTEST; }
 	}
 	else
-		{ err = 14;  goto ENDTEST; }
-
+		{ err = 84;  goto ENDTEST; }
 
 	// ------------------------------------------------------------------------
 	// Path 7
@@ -216,12 +223,16 @@ int S3I2CTxSelfTest(short *v1, short *v2, char Rx, char Tx)
 		// RxRFLevel1 = S3I2CRxGetRFLevel();
 	}
 	else
-		{ err = 14;  goto ENDTEST; }
+		{ err = 94;  goto ENDTEST; }
+
+	if (S3TxGetType(Rx, Tx) == S3_Tx8)
+		if (err = select_RF_input((unsigned char)S3Tx8IPMap[0] + 1, true))
+			{ err = 13;  goto ENDTEST; }
 
 	if (S3I2CSwitchTestTone(true))
 		{ err = 15;  goto ENDTEST; }
 
-	Sleep(300);
+	Sleep(400);
 
 	if (!S3I2CReadSerialShort(S3I2C_TX_OPT_ADDR, S3I2C_TX_OPT_RF_MON, &RFLevel7))
 	{
@@ -230,12 +241,20 @@ int S3I2CTxSelfTest(short *v1, short *v2, char Rx, char Tx)
 			{ err = 230; goto ENDTEST; }
 	}
 	else
-		{ err = 14;  goto ENDTEST; }
+		{ err = 95;  goto ENDTEST; }
 
 ENDTEST:
+	if (S3TxGetType(Rx, Tx) == S3_Tx8)
+		if (select_RF_input(1, false))
+			err = 13;
 
 	if (S3I2CSwitchTestTone(false))
 		err = 60;
+
+	Sleep(400);
+
+	S3I2CReadSerialShort(S3I2C_TX_CTRL_ADDR, 0xD2, &Dummy); // Dummy
+
 #endif // TRIZEPS
 
 	if (!err)
@@ -248,7 +267,6 @@ ENDTEST:
 
 		if (S3TxGetType(Rx, Tx) == S3_Tx8)
 			err = S3I2CTx8SelfTest(v1, v2, Rx, Tx);
-
 	}
 	else
 	{
