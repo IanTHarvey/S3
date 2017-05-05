@@ -174,7 +174,9 @@ UINT SendThread (LPVOID pArg)
 		// Don't try to write if thread is being shut down (fContinue)
         if (dwGoCode == WAIT_OBJECT_0 && pMyHndl->fContinue)
 		{
-			*(pMyHndl->sWriteBuffer.cBuf + pMyHndl->sWriteBuffer.size) = 3; // EOM 
+			*(pMyHndl->sWriteBuffer.cBuf + pMyHndl->sWriteBuffer.size - 1) = 0x03; // EOM 
+
+			*(pMyHndl->sWriteBuffer.cBuf + pMyHndl->sWriteBuffer.size) = 0x0A; // NL 
 			pMyHndl->sWriteBuffer.size++;
 
 			// Write size worth of data to the port
