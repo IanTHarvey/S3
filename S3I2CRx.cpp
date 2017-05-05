@@ -138,8 +138,6 @@ int S3I2CRxGetStatus(char Rx)
 	{
 		S3RxSetTemp(Rx, SCHAR_MIN);
 		S3RxSetVcc(Rx, 0);
-	
-		// S3RxSetRFGain(Rx, Tx, SHRT_MIN);
 
 		S3RxSetAlarm(Rx, -1, S3_RX_INT_FAIL);
 	}
@@ -214,14 +212,12 @@ int S3I2CSetUpOptAddr(char Rx, char Tx)
 }
 
 // ----------------------------------------------------------------------------
+// Contains all get & set comms with an individual Tx and per-Tx Rx comms
 
 int S3I2CRxProcessTx(char Rx, char Tx)
 {
 	int				update = 0;
 #ifdef TRIZEPS
-	unsigned char	wbuf;
-	int				ok = 0;
-
 	S3TimerStart(2);
 	
 	int err = 0;
@@ -254,44 +250,7 @@ int S3I2CRxProcessTx(char Rx, char Tx)
 		else
 			S3TxCancelAlarm(Rx, Tx, S3_TX_COMM_FAIL);
 
-		// Read and compare Rx setting with user value.
-		wbuf = S3I2C_RX_OPT_CFG_FLAGS;
-		ok = I2C_WriteRead(S3I2CCurRxOptAddr, &wbuf, 1, S3I2CRxReadBuf, 2);
-		unsigned char AGC = S3I2CRxReadBuf[1] & 0x02;
-
-		unsigned char UserAGC = S3RxGetAGC(Rx, Tx);
-
-		// Has AGC setting changed?
-		if (UserAGC >= 100)
-		{
-			// Force gain update in next poll
-			for(char IP = 0; IP < S3TxGetNIP(Rx, Tx); IP++)
-				S3IPSetGainSent(Rx, Tx, IP, SCHAR_MIN);
-
-			UserAGC -= 100;
-
-			S3RxSetAGC(Rx, Tx, UserAGC);
-		}
-
-		if (AGC > 0 && (UserAGC != S3_AGC_CONT))
-		{
-			unsigned char wwbuf[2];
-	
-			// b:2 enables software gain setting
-			wwbuf[0] = S3I2C_RX_OPT_CFG_FLAGS + 1;				
-			wwbuf[1] = 0x04; // S3I2CRxReadBuf[1] & 0x04;	// Turn off
-
-			ok = I2C_WriteRead(S3I2CCurRxOptAddr, wwbuf, 2, NULL, 0);
-		}
-		else if (AGC == 0 && UserAGC == S3_AGC_CONT)
-		{
-			unsigned char wwbuf[2];
-	
-			wwbuf[0] = S3I2C_RX_OPT_CFG_FLAGS + 1;
-			wwbuf[1] = 0x06; // S3I2CRxReadBuf[1] & 0x06;	// Turn on
-
-			ok = I2C_WriteRead(S3I2CCurRxOptAddr, wwbuf, 2, NULL, 0);
-		}
+		S3I2CRxSetAGC(Rx, Tx);
 	}
 
 	S3TimerStop(2);
@@ -303,6 +262,54 @@ int S3I2CRxProcessTx(char Rx, char Tx)
 }
 
 // ----------------------------------------------------------------------------
+
+int S3I2CRxSetAGC(char Rx, char Tx)
+{
+	unsigned char	wbuf;
+	int				ok = 0;
+
+	// Read and compare Rx setting with user value.
+	wbuf = S3I2C_RX_OPT_CFG_FLAGS;
+	ok = I2C_WriteRead(S3I2CCurRxOptAddr, &wbuf, 1, S3I2CRxReadBuf, 2);
+
+	unsigned char AGC =		S3I2CRxReadBuf[1] & 0x02;
+	unsigned char UserAGC =	S3RxGetAGC(Rx, Tx);
+
+	// Has AGC setting changed?
+	if (UserAGC >= 100)
+	{
+		// Force gain update in next poll
+		for(char IP = 0; IP < S3TxGetNIP(Rx, Tx); IP++)
+			S3IPSetGainSent(Rx, Tx, IP, SCHAR_MIN);
+
+		UserAGC -= 100;
+
+		S3RxSetAGC(Rx, Tx, UserAGC);
+	}
+
+	if (AGC > 0 && (UserAGC != S3_AGC_CONT))
+	{
+		unsigned char wwbuf[2];
+
+		// b:2 enables software gain setting
+		wwbuf[0] = S3I2C_RX_OPT_CFG_FLAGS + 1;				
+		wwbuf[1] = 0x04; // S3I2CRxReadBuf[1] & 0x04;	// Turn off
+
+		ok = I2C_WriteRead(S3I2CCurRxOptAddr, wwbuf, 2, NULL, 0);
+	}
+	else if (AGC == 0 && UserAGC == S3_AGC_CONT)
+	{
+		unsigned char wwbuf[2];
+
+		wwbuf[0] = S3I2C_RX_OPT_CFG_FLAGS + 1;
+		wwbuf[1] = 0x06; // S3I2CRxReadBuf[1] & 0x06;	// Turn on
+
+		ok = I2C_WriteRead(S3I2CCurRxOptAddr, wwbuf, 2, NULL, 0);
+	}
+
+	return 0;
+}
+
 // ----------------------------------------------------------------------------
 // Get start-up parameters from Rxs & Txs - generally not stuff polled
 
