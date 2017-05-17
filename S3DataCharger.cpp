@@ -349,7 +349,7 @@ void S3ChGetMainCoords(char Ch, int *x, int *y)
 // ---------------------------------------------------------------------------
 // Eventually SN, PN etc will be interrogated from charger
 
-int	S3ChInsert(unsigned char Ch, char *SN, char *PN)
+int	S3ChInsert(char Ch, char *SN, char *PN)
 {
 	if (S3Data->m_Chargers[Ch].m_Detected)
 		return 1;
@@ -383,7 +383,7 @@ int	S3ChInsert(unsigned char Ch, char *SN, char *PN)
 
 // ----------------------------------------------------------------------------
 // TODO: Placeholder
-bool S3ChBattValidate(unsigned char Ch)
+bool S3ChBattValidate(char Ch)
 {
 	if (!strcmp("bq34z100-G1 Creasefield", S3Data->m_Chargers[Ch].m_MfrData))
 		return true;
@@ -403,7 +403,7 @@ bool S3ChBattValidate(unsigned char Ch)
 
 // ----------------------------------------------------------------------------
 
-int	S3ChRemove(unsigned char Ch)
+int	S3ChRemove(char Ch)
 {
 	if (!S3Data->m_Chargers[Ch].m_Occupied)
 		return 1;
@@ -469,7 +469,7 @@ int	S3ChSetBattTemp(char Ch, short t)
 
 // ----------------------------------------------------------------------------
 
-bool S3ChBattValidated(unsigned char Ch)
+bool S3ChBattValidated(char Ch)
 {
 	if (!S3Data->m_Chargers[Ch].m_Occupied)
 		return true;
@@ -483,7 +483,7 @@ bool S3ChBattValidated(unsigned char Ch)
 
 // ----------------------------------------------------------------------------
 
-int S3ChSetBattValidated(unsigned char Ch, bool valid)
+int S3ChSetBattValidated(char Ch, bool valid)
 {
 	if (!S3Data->m_Chargers[Ch].m_Occupied)
 		return true;

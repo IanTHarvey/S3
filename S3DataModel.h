@@ -1109,7 +1109,7 @@ char S3TxGetBattValidated(	char Rx, char Tx);
 int S3TxSetBattValidated(	char Rx, char Tx, bool valid);
 
 bool S3TxSelfTestPending(char Rx, char Tx);
-
+int S3TxSetSelfTestPending(char Rx, char Tx, bool pending);
 
 int S3AllReport(		char *Buf);
 int S3SysReport(		char *Buf);
@@ -1289,8 +1289,8 @@ int S3TxOptSetFW(			char Rx, char Tx, const unsigned char *s); // a.b.c
 int S3TxSetUnconnected(	pS3TxData Tx);
 int S3TxSetConnected(	pS3TxData Tx);
 
-int S3TxSetLaserPow(char Rx, char Tx, short p);
-short S3TxGetLaserPow(char Rx, char Tx);
+int S3TxSetLaserPow(	char Rx, char Tx, short p);
+short S3TxGetLaserPow(	char Rx, char Tx);
 
 int				S3TxGetInfo(	char Rx, char Tx,
 								const char **SN, const char **PN,
@@ -1357,11 +1357,11 @@ int				S3ChSetTimeToFull(	char Ch, unsigned short tmin);
 unsigned short	S3ChGetTimeToFull(	char Ch);
 const char		*S3ChGetTimeToFullStr(	char Ch);
 
-int				S3ChInsert(			unsigned char Ch, char *SN, char *PN);
-int				S3ChRemove(			unsigned char Ch);
-bool			S3ChBattValidated(	unsigned char Ch);
-int				S3ChSetBattValidated(	unsigned char Ch, bool valid);
-bool			S3ChBattValidate(	unsigned char Ch);	// Placeholder
+int				S3ChInsert(				char Ch, char *SN, char *PN);
+int				S3ChRemove(				char Ch);
+bool			S3ChBattValidated(		char Ch);
+int				S3ChSetBattValidated(	char Ch, bool valid);
+bool			S3ChBattValidate(		char Ch);	// Placeholder
 
 // ----------------------------------------------------------------------------
 // Chargers collectively
@@ -1369,14 +1369,14 @@ unsigned char	S3ChGetNOnCharge();
 int				S3ChInitAll();
 												
 // Battery-on-charge
-const char		*S3ChGetBattHW(	char Ch);
-int				S3ChSetBattHW(	char Ch, const char *Ver);
-int				S3ChSetBattStatus(char Ch, const unsigned char *stat);
-unsigned char	S3ChGetBattStatus(char Ch);
-const char		*S3ChGetBattFW(	char Ch);
-int				S3ChSetBattFW(	char Ch, const char *Ver);
-int				S3ChSetBattTemp(char Ch, short t);
-short			S3ChGetBattTemp(char Ch);
+const char		*S3ChGetBattHW(		char Ch);
+int				S3ChSetBattHW(		char Ch, const char *Ver);
+int				S3ChSetBattStatus(	char Ch, const unsigned char *stat);
+unsigned char	S3ChGetBattStatus(	char Ch);
+const char		*S3ChGetBattFW(		char Ch);
+int				S3ChSetBattFW(		char Ch, const char *Ver);
+int				S3ChSetBattTemp(	char Ch, short t);
+short			S3ChGetBattTemp(	char Ch);
 
 int				S3ChSetBattV(	char Ch, double v);
 double			S3ChGetBattV(	char Ch);
