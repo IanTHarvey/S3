@@ -25,19 +25,12 @@ extern pS3DataModel S3Data;
 #include "S3Gain.h"
 
 extern int S3I2CSetGain(char Rx);
-extern int WriteSerialByte(	unsigned char DevAddr,
-							unsigned char RegAddr,
-							unsigned char Data);
-extern int WriteSerialShort(unsigned char DevAddr,
-							unsigned char RegAddr,
-							unsigned short Data);
 
 // TODO: Include in model
 int			m_GainSent[S3_MAX_RXS][S3_MAX_TXS][S3_MAX_IPS];
 char		m_PathSent[S3_MAX_RXS][S3_MAX_TXS][S3_MAX_IPS];
 
 #define S3_N_POLL_CYCLES	6
-
 char S3PollCycle;
 
 int	S3I2CPoll();
@@ -45,17 +38,11 @@ int	S3I2CPoll0();
 int S3I2CPoll1();
 int	S3I2CPoll2();
 int	S3I2CPoll3();
-int S3I2CGetRxStartUp(	char Rx);
-int S3I2CGetTxStartUp(	char Rx, char Tx);
-int S3I2CTxSetStatus(	char Rx, char Tx);
+extern int S3I2CGetRxStartUp(	char Rx);
+extern int S3I2CGetTxStartUp(	char Rx, char Tx);
+extern int S3I2CTxSetStatus(	char Rx, char Tx);
 
 int S3I2CTxDoComp(		char Rx, char Tx);
-
-int S3I2CUpdateIP(		char Rx, char Tx, char IP);
-
-int	S3I2CUpdateTx(		char Rx, char Tx);
-int	S3I2CUpdateRx(		char Rx);
-int	S3I2CUpdateSys();
 
 int S3I2CRxMS(unsigned char Rx);
 
@@ -422,75 +409,6 @@ int S3I2CIOWrite(unsigned char pins[])
 	I2C_WriteRandom(S3I2C_EXPANDER_ADDR, 0x06, pins[2]);
 #endif // TRIZEPS
 	return 0;
-}
-
-// ----------------------------------------------------------------------------
-// TODO: Not used
-
-int S3I2CUpdateIP(char Rx, char Tx, char IP)
-{
-	return 0;
-	
-	//char g = S3IPGetGain(Rx, Tx, IP);
-
-	//if (g == m_GainSent[Rx][Tx][IP])
-	//	return 0;
-
-	//m_GainSent[Rx][Tx][IP] = g;
-
-	//S3I2CSetRxOptDSA(Rx, S3GainTable[g + 78][DSA3]);
-
-	return S3I2CSetIPGain(Rx, Tx, IP);
-}
-
-// ----------------------------------------------------------------------------
-// TODO: Not used
-
-int	S3I2CUpdateTx(char Rx, char Tx)
-{
-	return 0;
-
-	if (S3TxGetType(Rx, Tx) == S3_TxUnconnected)
-		return 0;
-	
-	unsigned char NIP = S3TxGetNIP(Rx, Tx);
-
-	unsigned char FailCnt = 0;
-	for(unsigned char IP = 0; IP < NIP; IP++)
-		FailCnt += S3I2CUpdateIP(Rx, Tx, IP);
-
-	return (int)FailCnt;
-}
-
-// ----------------------------------------------------------------------------
-// TODO: Not used
-int	S3I2CUpdateRx(char Rx)
-{
-	return 0;
-
-	if (S3RxGetType(Rx) == S3_RxEmpty)
-		return 0;
-
-	unsigned char NTx = S3RxGetNTx(Rx);
-
-	unsigned char FailCnt = 0;
-	for(unsigned char Tx = 0; Tx < NTx; Tx++)
-		FailCnt += S3I2CUpdateTx(Rx, Tx);
-
-	return (int)FailCnt;
-}
-
-// ----------------------------------------------------------------------------
-// TODO: Not used
-int	S3I2CUpdateSys()
-{
-	return 0;
-
-	unsigned char FailCnt = 0;
-	for(unsigned char Rx = 0; Rx < S3_MAX_RXS; Rx++)
-		FailCnt += S3I2CUpdateRx(Rx);
-
-	return (int)FailCnt;
 }
 
 // ----------------------------------------------------------------------------
