@@ -12,7 +12,7 @@
 #include <afxsock.h>		// MFC socket extensions
 #include "afxpriv.h"
 
-#include "S3Controller.h"
+
 
 #include "S3DataModel.h"
 #include "S3ControllerDlg.h"

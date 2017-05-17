@@ -4,8 +4,9 @@
 
 #pragma once
 
-#include "afxcmn.h"
-#include "afxwin.h"
+#include <afxsock.h>		// MFC socket extensions
+#include <afxcmn.h>
+#include <afxwin.h>
 
 #include "resource.h"
 #include "S3GPIB.h"
@@ -13,6 +14,8 @@
 #include "S3GDIScreenMain.h"
 #include "S3FactorySetUp.h"
 #include "S3FactorySysSetUp.h"
+
+#include "S3Controller.h"
 
 #define IDT_S3_GUI_UPDATE_TIMER	(WM_USER + 200)	// Update display
 #define IDT_S3_ALARM_TIMER		(WM_USER + 201)	// Not used
@@ -57,7 +60,7 @@ class CS3ControllerDlg : public CDialog
 	int				SendMsg(const char *pMsg);
 	void			WriteWindow(void);
 
-	bool			m_EthEnabled; // TODO: Use 
+	bool			m_EthEnabled; 
 
 	// bool			m_DemoMode;
 	unsigned int	m_EthInactivityTimer; // ms
@@ -105,10 +108,11 @@ protected:
 	DECLARE_MESSAGE_MAP()
 
 public:
+	CWinThread	*m_IPThread;
+	char		m_AnimateState; // Toggled by timer
+	bool		m_IPThreadRun; // = true; // False to terminate IP thread
+	SOCKET		m_ListenSocket;
 
-	// TEMP: Should be private
-	CWinThread		*m_IPThread;
-	
 	CS3ControllerDlg(CWnd* pParent = NULL);	// standard constructor
 
 	void			S3GDIReInitialise(void);
@@ -117,8 +121,8 @@ public:
 	// Dialog Data
 	enum { IDD = IDD_S3CONTROLLER_DIALOG };
 
-	bool			m_SWUpdateScheduled;
-	bool			m_AppUpdateScheduled;
+	bool		m_SWUpdateScheduled;
+	bool		m_AppUpdateScheduled;
 
 	void S3DrawGDITxSel(void);
 	void ShowFactory(char screen);
@@ -143,8 +147,7 @@ public:
 	int		SetSysTime(short h, short m, short s);
 	int		SetSysDate(short y, short m, short d);
 
-	char	m_AnimateState; // Toggled by timer
-	bool	m_IPThreadRun; // = true; // False to terminate IP thread
+
 
 	int		ParseMsg(const char *pMsg, char MsgSrc);
 	
