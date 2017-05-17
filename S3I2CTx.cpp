@@ -272,8 +272,9 @@ int S3I2CGetTxWakeUp(char Rx, char Tx)
 	if (err)
 		return 1;
 
-	S3TxClearPeakHold(Rx, Tx, 0); // Force clear
-	S3I2CTxPeakHoldLatchClear(Rx, Tx);
+	// This has moved to gain setting
+	// S3TxClearPeakHold(Rx, Tx, 0); // Force clear
+	// S3I2CTxPeakHoldLatchClear(Rx, Tx);
 
 	// ------------------------------------------------------------------------
 	// RF board(s)
@@ -287,7 +288,6 @@ int S3I2CGetTxWakeUp(char Rx, char Tx)
 
 	S3TxSetTCompMode(Rx, Tx, S3TxGetTCompMode(Rx, Tx) + 100);
 
-	/*
 	short v1, v2;
 	err = S3I2CTxSelfTest(&v1, &v2, Rx, Tx);
 	if (err)
@@ -302,7 +302,6 @@ int S3I2CGetTxWakeUp(char Rx, char Tx)
 		S3TxCancelAlarm(Rx, Tx,
 			S3_TX_SELF_TEST_NOT_RUN | S3_TX_SELF_TEST_FAIL);
 	}
-	*/
 
 #ifdef S3_TX_DIAGS
 	// S3I2CTxOptAlarmMask();
@@ -1077,61 +1076,8 @@ int S3I2CTxGetPeakThresh(char Rx, char Tx)
 		S3TxSetPeakThresh(Rx, Tx, S3RevByteShort(S3I2CTxReadBuf));
 	}
 
-	// TODO: This not correct
-
-	/*
-	if (!S3I2CReadSerialData(S3I2C_TX_OPT_ADDR, S3I2C_TX_OPT_PEAK_PWR, 4))
-	{
-		// S3I2C_TX_OPT_PEAK_PWR	0xEC	// 2B
-		// S3I2C_TX_OPT_PEAK_HOLD	0xEE	// 2B
-		S3TxSetPeakPower(Rx, Tx, S3RevByteShort(S3I2CTxReadBuf));
-		int OutLimits = S3TxSetPeakHold(Rx, Tx, S3RevByteShort(S3I2CTxReadBuf + 2));
-
-		if (OutLimits) //  && (S3IPGetAlarms(Rx, Tx, IP) & S3_IP_OVERDRIVE))
-		{
-			char IP = S3TxGetActiveIP(Rx, Tx);
-
-			// Set gain to minimum and force immediate update
-			S3SetGain(Rx, Tx, IP, S3_MIN_GAIN);
-			S3IPSetGainSent(Rx, Tx, IP, SCHAR_MIN);
-			S3I2CSetIPGain(Rx, Tx, IP);
-			
-			// Raise alarm and lock out gain changes on this input
-			S3IPSetAlarm(Rx, Tx, IP, S3_IP_OVERDRIVE);
-		}
-	}
-*/
-
 	return 0;
 }
-
-// ----------------------------------------------------------------------------
-/*
-int S3I2CTxPeakHoldLatchSet(char Rx, char Tx)
-{
-	unsigned char cfg;
-
-	int err  = S3I2CReadSerialByte(S3I2C_TX_OPT_ADDR, S3I2C_TX_OPT_CFG, &cfg);
-	cfg |= 0x01;
-	err  = S3I2CWriteSerialByte(S3I2C_TX_OPT_ADDR, S3I2C_TX_OPT_CFG, cfg);
-
-	if (0) // S3TxGetClearPeakHold(Rx, Tx))
-	{
-		int err  = S3I2CReadSerialByte(S3I2C_TX_OPT_ADDR, S3I2C_TX_OPT_CFG, &cfg);
-		
-		cfg |= 0x01;
-
-		err  = S3I2CWriteSerialByte(S3I2C_TX_OPT_ADDR, S3I2C_TX_OPT_CFG, cfg);
-
-		if (!err)
-			S3TxClearPeakHold(Rx, Tx, 1); // Ack
-
-		return err;
-	}
-
-	return 0;
-}
-*/
 
 // ----------------------------------------------------------------------------
 
