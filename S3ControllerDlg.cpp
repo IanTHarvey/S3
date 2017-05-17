@@ -124,7 +124,7 @@ CS3ControllerDlg::CS3ControllerDlg(CWnd* pParent /*=NULL*/)
 
 	m_IPThreadRun = false;
 	m_EthEnabled = true;
-	m_EthInactivityTimer = 0;
+	m_EthInactivityTimer = S3_ETH_ACTIVITY_TIMEOUT;
 
 	m_USBEnabled = true; // false; // TEST:
 	// m_DemoMode = false;
