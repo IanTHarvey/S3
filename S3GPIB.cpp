@@ -419,6 +419,8 @@ int S3ProcessGPIBCommand(const char *cmd)
 			strcpy_s(GPIBRetBuf, S3_MAX_GPIB_RET_LEN, "E: Specified input not available");
 		else if (err == S3_GPIB_GAIN_LIMITED)
 			strcpy_s(GPIBRetBuf, S3_MAX_GPIB_RET_LEN, "W: Requested gain constrained by settings");
+		else if (err == S3_GPIB_TX_PROT_MODE)
+			strcpy_s(GPIBRetBuf, S3_MAX_GPIB_RET_LEN, "W: Tx in protection mode. Gain not changed");
 		else if (err == S3_GPIB_GAIN_CHANGED)
 			strcpy_s(GPIBRetBuf, S3_MAX_GPIB_RET_LEN, "W: Command required gain setting to be adjusted");
 		else if (err == S3_GPIB_TIME_CHANGE_FAILED)
@@ -547,9 +549,15 @@ int CmdIPTESTSIG()
 			return S3_GPIB_INVALID_ADDRESS;
 
 		if (!STRNCMP(GPIBCmdArgs[1], "ON", 2))
-			S3IPSetTestToneEnable(GPIBRx, GPIBTx, GPIBIP, 1);
+		{
+			if (S3IPSetTestToneEnable(GPIBRx, GPIBTx, GPIBIP, 1) == 2)
+				return S3_GPIB_TX_PROT_MODE;
+		}
 		else if (!STRNCMP(GPIBCmdArgs[1], "OFF", 3))
-			S3IPSetTestToneEnable(GPIBRx, GPIBTx, GPIBIP, 0);
+		{
+			if (S3IPSetTestToneEnable(GPIBRx, GPIBTx, GPIBIP, 0) == 2)
+				return S3_GPIB_TX_PROT_MODE;
+		}
 		else
 			return S3_GPIB_INVALID_PARAMETER;
 	}
@@ -572,9 +580,15 @@ int CmdIPTESTSIG()
 			return res;
 
 		if (!STRCMP(GPIBCmdArgs[4], "ON"))
-			S3IPSetTestToneEnable(Rx, Tx, IP, 1);
+		{
+			if (S3IPSetTestToneEnable(Rx, Tx, IP, 1) == 2)
+				return S3_GPIB_TX_PROT_MODE;
+		}
 		else if (!STRCMP(GPIBCmdArgs[4], "OFF"))
-			S3IPSetTestToneEnable(Rx, Tx, IP, 0);
+		{
+			if (S3IPSetTestToneEnable(Rx, Tx, IP, 0) == 2)
+				return S3_GPIB_TX_PROT_MODE;
+		}
 		else
 			return S3_GPIB_INVALID_PARAMETER;
 	}
@@ -676,13 +690,30 @@ int CmdGAIN()
 		if (err = S3IPInvalidQ(GPIBRx, GPIBTx, GPIBIP))
 			return err;
 
-		val = GetShortArg(GPIBCmdArgs[1]);
+		if (!STRCMP(GPIBCmdArgs[4], "CLEAR"))
+		{
+			if (S3IPGetAlarms(GPIBRx, GPIBTx, GPIBIP) & S3_IP_OVERDRIVE)
+			{
+				S3IPCancelAlarm(GPIBRx, GPIBTx, GPIBIP, S3_IP_OVERDRIVE);
+				S3TxClearPeakHold(GPIBRx, GPIBTx, 0);
+			}
+			else
+				return S3_GPIB_INVALID_PARAMETER;
+		}
+		else
+		{
+			val = GetShortArg(GPIBCmdArgs[1]);
 
-		if (val == SHRT_MIN)
-			return S3_GPIB_INVALID_PARAMETER;
+			if (val == SHRT_MIN)
+				return S3_GPIB_INVALID_PARAMETER;
 
-		if (S3SetGain(GPIBRx, GPIBTx, GPIBIP, (char)val) == 1)
-			return S3_GPIB_GAIN_LIMITED;
+			int GainLimited = S3SetGain(GPIBRx, GPIBTx, GPIBIP, (char)val);
+
+			if (GainLimited == 1)
+				return S3_GPIB_GAIN_LIMITED;
+			else if (GainLimited == 2)
+				return S3_GPIB_TX_PROT_MODE;
+		}
 	}
     else if (GPIBNArgs == 3 && !STRCMP(GPIBCmdArgs[1],"DEF"))
     {
@@ -711,13 +742,30 @@ int CmdGAIN()
 		else if (res > 2000)
 			return res;
 
-		val = GetShortArg(GPIBCmdArgs[4]);
+		if (!STRCMP(GPIBCmdArgs[4], "CLEAR"))
+		{
+			if (S3IPGetAlarms(Rx, Tx, IP) & S3_IP_OVERDRIVE)
+			{
+				S3IPCancelAlarm(Rx, Tx, IP, S3_IP_OVERDRIVE);
+				S3TxClearPeakHold(Rx, Tx, 0);
+			}
+			else
+				return S3_GPIB_INVALID_PARAMETER;
+		}
+		else
+		{
+			val = GetShortArg(GPIBCmdArgs[4]);
 		
-		if (val == SHRT_MIN)
-			return S3_GPIB_INVALID_PARAMETER;
+			if (val == SHRT_MIN)
+				return S3_GPIB_INVALID_PARAMETER;
 
-		if (S3SetGain(Rx, Tx, IP, (char)val) == 1)
-			return S3_GPIB_GAIN_LIMITED;
+			int GainLimited = S3SetGain(Rx, Tx, IP, (char)val);
+
+			if (GainLimited == 1)
+				return S3_GPIB_GAIN_LIMITED;
+			else if (GainLimited == 2)
+				return S3_GPIB_TX_PROT_MODE;
+		}
 	}
 	else
 		return S3_GPIB_ERR_NUMBER_PARAS;
@@ -791,8 +839,11 @@ int CmdIMP()
 		if (IPz == ZUnknown)
 			return S3_GPIB_INVALID_PARAMETER;
 		
-		if (S3SetImpedance(GPIBRx, GPIBTx, GPIBIP, IPz))
-				return S3_GPIB_GAIN_CHANGED;
+		int update = S3SetImpedance(GPIBRx, GPIBTx, GPIBIP, IPz);
+		if (update == 1)
+			return S3_GPIB_GAIN_CHANGED;
+		else if (update == 2)
+			return S3_GPIB_TX_PROT_MODE;
 	}
 	else if (GPIBNArgs == 5)
 	{
@@ -820,8 +871,11 @@ int CmdIMP()
 		if (IPz == ZUnknown)
 			return S3_GPIB_INVALID_PARAMETER;
 		
-		if (S3SetImpedance(Rx, Tx, IP, IPz))
+		int update = S3SetImpedance(Rx, Tx, IP, IPz);
+		if (update == 1)
 			return S3_GPIB_GAIN_CHANGED;
+		else if (update == 2)
+			return S3_GPIB_TX_PROT_MODE;
 	}
 	else
 		return S3_GPIB_ERR_NUMBER_PARAS;
@@ -840,12 +894,10 @@ int CmdCAL()
 		if (!S3IPValidQ(GPIBRx, GPIBTx, GPIBIP))
 			return S3_GPIB_INVALID_ADDRESS;
 
-		if (!STRNCMP(GPIBCmdArgs[1], "ON", 2))
-			// S3IPCal(GPIBRx, GPIBTx, GPIBIP, (unsigned char)1);
+		if (!STRCMP(GPIBCmdArgs[1], "ON"))
 			S3TxSetTestToneIP(GPIBRx, GPIBTx, GPIBIP);
-		else if (!STRNCMP(GPIBCmdArgs[1], "OFF", 3))
+		else if (!STRCMP(GPIBCmdArgs[1], "OFF"))
 			S3TxSetTestToneIP(GPIBRx, GPIBTx, -1);
-			// S3IPCal(GPIBRx, GPIBTx, GPIBIP, (unsigned char)0);
 		else
 			return S3_GPIB_INVALID_PARAMETER;
 	}
@@ -869,12 +921,8 @@ int CmdCAL()
 
 		if (!STRCMP(GPIBCmdArgs[4], "ON"))
 			S3IPSetTestToneEnable(Rx, Tx, IP, 1);
-		//	S3TxSetTestToneIP(Rx, Tx, IP);
-		// 	S3IPCal(Rx, Tx, IP, (unsigned char)1);
 		else if (!STRCMP(GPIBCmdArgs[4], "OFF"))
 			S3IPSetTestToneEnable(Rx, Tx, IP, 0);
-		//	S3TxSetTestToneIP(Rx, Tx, -1);
-		//	S3IPCal(Rx, Tx, IP, (unsigned char)0);
 		else
 			return S3_GPIB_INVALID_PARAMETER;
 	}
@@ -1082,6 +1130,9 @@ int CmdSET()
 	}
 	else return S3_GPIB_ERR_NUMBER_PARAS;
 
+	if (S3IPGetAlarms(Rx, Tx, IP) & S3_IP_OVERDRIVE)
+		return S3_GPIB_TX_PROT_MODE;
+
 	// if (!S3IPValidQ(GPIBRx, GPIBTx, GPIBIP))
 	//	return S3_GPIB_INVALID_ADDRESS;
 
@@ -1288,6 +1339,9 @@ int CmdITAU()
 		if (!S3IPValidQ(GPIBRx, GPIBTx, GPIBIP))
 			return S3_GPIB_INVALID_ADDRESS;
 
+		if (S3IPGetAlarms(GPIBRx, GPIBTx, GPIBIP) & S3_IP_OVERDRIVE)
+			return S3_GPIB_TX_PROT_MODE;
+
 		SigmaT	Tau = S3Str2SigmaT(GPIBCmdArgs[1]);
 		if (Tau == TauUnknown)
 			return S3_GPIB_INVALID_PARAMETER;
@@ -1300,6 +1354,9 @@ int CmdITAU()
 		// Try to get an address
 		char	all, Rx, Tx, IP;
 		int		res = GetAddress2(&all, &Rx, &Tx, &IP);
+
+		if (S3IPGetAlarms(Rx, Tx, IP) & S3_IP_OVERDRIVE)
+			return S3_GPIB_TX_PROT_MODE;
 		
 		if (res < 0)
 		{
@@ -1432,9 +1489,6 @@ int CmdLOGF()
 	if (GPIBNArgs < 2)
 		return S3_GPIB_MISSING_PARAMETER;
 	
-	// strcpy_s(S3Data->m_EventLogName, S3_MAX_FILENAME_LEN,
-	//	GPIBCmdBuf + os);
-
 	// OK for file or path/file
 	if (S3EventLogInit(GPIBCmdArgs[1]))
 		return S3_GPIB_LOG_INIT_FAILED;
@@ -2584,7 +2638,7 @@ InputZ S3Str2InputZ(const char *str)
 	{
 		return W50;
 	}
-	else if (!STRCMP(str, "HIZ"))
+	else if (!STRCMP(str, "HIZ") || !STRCMP(str, "1M"))
 	{
 		return W1M;
 	}

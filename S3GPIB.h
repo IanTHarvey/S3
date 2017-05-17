@@ -200,6 +200,7 @@ int CmdGetInput(char *Inbuf, int Rx, int Tx, int IP);
 
 #define S3_GPIB_GAIN_LIMITED		2400
 #define S3_GPIB_GAIN_CHANGED		2401
+#define S3_GPIB_TX_PROT_MODE		2402
 
 #define S3_GPIB_TIME_CHANGE_FAILED	2501
 

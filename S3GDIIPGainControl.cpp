@@ -1,5 +1,5 @@
 // ----------------------------------------------------------------------------
-// Tx gain control drawing
+// Tx gain control pop-up drawing
 
 #ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
@@ -41,6 +41,9 @@ CRect	m_IPGainRect, m_IPGainRectText, m_IPGainRectText2,
 void CS3GDIScreenMain::S3InitGDIIPGain(char Rx, char Tx, char IP,
 	int xref, int yref)
 {
+	if (S3IPGetAlarms(Rx, Tx, IP) & S3_IP_OVERDRIVE)
+		return;
+
 	xref -= S3_GAIN_CTRL_W - 10; // Push left but leave a bit of overlap
 
 	m_IPGainRect.left = xref;

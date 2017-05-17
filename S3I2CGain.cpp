@@ -376,6 +376,11 @@ int S3I2CSetIPGain(char Rx, char Tx, char IP)
 			if (S3TxGetPeakHoldCap(Rx, Tx))
 				if (S3I2CTxSetPeakThresh(Rx, Tx, S3I2CCurPath))
 					return 6;
+
+			// When changing path, may trigger peak detectiion
+			// TODO: Required for all path changes or just -> path 1
+			S3TxClearPeakHold(Rx, Tx, 0); // Force latch reset
+			S3I2CTxPeakHoldLatchClear(Rx, Tx);
 		}
 	}
 

@@ -767,6 +767,7 @@ int CS3GDIScreenMain::S3FindTxScreenPara(POINT p)
 	{
 		if (p.y < m_RectTxTable.top + pTxIPRows[i])
 		{
+			// Column header
 			return S3SetSelectedPara(Rx, Tx, IP, S3GDI_RowParaMap[i - 1]);
 		}
 	}
@@ -980,6 +981,19 @@ void CS3GDIScreenMain::S3DrawGDITxIP(char Rx, char Tx, char IP,
 
 	char RowCnt = 0;
 	COLORREF cr;
+
+	if (S3IPGetAlarms(Rx, Tx, IP) & S3_IP_OVERDRIVE)
+	{
+		TxSigTau[IP]->Enable(false);
+		TxHiZ[IP]->Enable(false);
+		TxTestTone[IP]->Enable(false);
+	}
+	else
+	{
+		TxSigTau[IP]->Enable(true);
+		TxHiZ[IP]->Enable(true);
+		TxTestTone[IP]->Enable(true);
+	}
 
 	if (m_TxPowerState < S3_TX_SLEEP)
 	{
@@ -1299,7 +1313,7 @@ void CS3GDIScreenMain::S3DrawGDITxGain(char Rx, char Tx, char IP,
 
 	// S3TxPwrMode PowerState = S3TxGetPowerStat(Rx, Tx);
 
-	if (m_TxPowerState >= S3_TX_SLEEP)
+	if (m_TxPowerState >= S3_TX_SLEEP || S3IPGetAlarms(Rx, Tx, IP) & S3_IP_OVERDRIVE)
 		SelectObject(m_HDC, m_hBrushMediumGrey);
 	else
 		SelectObject(m_HDC, m_hBrushMenuBGLight);
