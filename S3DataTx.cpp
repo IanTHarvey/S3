@@ -680,19 +680,27 @@ int S3TxSetPowerStat(char Rx, char Tx, S3TxPwrMode mode)
 		if ((pTx->m_PowerStat == S3_TX_ON || 
 			pTx->m_PowerStat == S3_TX_ON_PENDING) && mode == S3_TX_SLEEP)
 		{
+			// Preparing to sleep
 			pTx->m_PowerStat = S3_TX_SLEEP_PENDING;
 		}
 		else if (pTx->m_PowerStat == S3_TX_SLEEP_PENDING && mode == S3_TX_SLEEP)
 		{
+			// Sleep confirmed
 			pTx->m_PowerStat = mode;
 
 			pTx->m_LaserPow = SHRT_MIN;
 			pTx->m_Uptime = 0;
 			pTx->m_Alarms = 0;
 			pTx->m_RLLStableCnt = 0;
+
+			// If was in protection mode, safe to cancel alarms and allow
+			// changing of IP parameters when sleeping.
+			for(char IP = 0; IP < S3_MAX_IPS; IP++)
+				S3IPCancelAlarm(Rx, Tx, IP, S3_ALARMS_ALL);
 		}
 		else if (pTx->m_PowerStat == S3_TX_SLEEP && mode == S3_TX_ON)
 		{
+			// Preparing to wake
 			pTx->m_PowerStat = S3_TX_ON_PENDING;
 
 			pTx->m_LaserPow = SHRT_MIN;
@@ -701,7 +709,10 @@ int S3TxSetPowerStat(char Rx, char Tx, S3TxPwrMode mode)
 			pTx->m_RLLStableCnt = 0;
 		}
 		else if (pTx->m_PowerStat == S3_TX_ON_PENDING && mode == S3_TX_ON)
+		{
+			// Wake confirmed
 			pTx->m_PowerStat = mode;
+		}
 	}
 
 	return 0;
@@ -1735,6 +1746,15 @@ pS3TxData S3TxGetPtr(char Rx, char Tx)
 bool S3TxSelfTestPending(char Rx, char Tx)
 {
 	return S3Data->m_Rx[Rx].m_Tx[Tx].m_SelfTestPending;
+}
+
+// ---------------------------------------------------------------------------
+
+int S3TxSetSelfTestPending(char Rx, char Tx, bool pending)
+{
+	S3Data->m_Rx[Rx].m_Tx[Tx].m_SelfTestPending = pending;
+
+	return 0;
 }
 
 // ---------------------------------------------------------------------------
