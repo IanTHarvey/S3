@@ -879,10 +879,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\S3Edit.h"
-				>
-			</File>
-			<File
 				RelativePath=".\S3FactorySetUp.h"
 				>
 			</File>
