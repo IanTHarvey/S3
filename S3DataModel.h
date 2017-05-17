@@ -197,7 +197,8 @@ typedef enum SigmaT				{TauNone, TauLo, TauMd, TauHi, TauUnknown};
 
 #define S3_MAX_IP_ADDR_LEN		64
 #define S3_MAX_PORT_LEN			256
-// #define S3_MAX_BUFLEN			32768
+#define MAC_LEN					6
+// #define S3_MAX_BUFLEN		32768
 #define S3_MAX_MESSAGE_LEN		512
 #define S3_DEFAULT_IP_ADDR		"10.0.0.102"
 #define S3_DEFAULT_IP_PORT		65000
@@ -744,7 +745,7 @@ typedef struct sS3DataModel
 	char			m_IPv4Addr[S3_MAX_IP_ADDR_LEN];
 	char			m_IPv4Mask[S3_MAX_IP_ADDR_LEN];
 	unsigned short	m_IPv6Addr[8];
-	unsigned char	m_MACAddr[6];
+	unsigned char	m_MACAddr[MAC_LEN];
 	unsigned short	m_IPPort;
 
 	bool			m_Remote;		// Exclusive local/remote config mode
@@ -882,12 +883,14 @@ bool			S3GetCloseAppPending();
 int				S3SetCloseAppFailed(bool set);
 bool			S3GetCloseAppFailed();
 
-int				S3SetMACAddr(	unsigned char *MAC);
-int				S3SetIPAddr(	unsigned char *IP);
-int				S3GetIPAddrStr(	char *addr);
+int				S3SetMACAddr(	const unsigned char *MAC);
+// int			S3SetIPAddr(	const unsigned char *IP);
 int				S3SetIPAddrStr(	const char *addr);
-int				S3GetIPMaskStr(	char *addr);
 int				S3SetIPMaskStr(	const char *addr);
+
+int				S3GetIPAddrStr(	char *addr);
+int				S3GetIPMaskStr(	char *addr);
+
 unsigned short	S3GetIPPort();
 int				S3SetIPPort(	unsigned short port);
 int				S3GetMACAddrStr(char *addr);

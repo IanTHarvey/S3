@@ -300,9 +300,9 @@ const char *S3GetTestName()
 
 // ----------------------------------------------------------------------------
 
-int	S3SetMACAddr(unsigned char *MAC)
+int	S3SetMACAddr(const unsigned char *MAC)
 {
-	for (unsigned char i = 0; i < 6; i++)
+	for (unsigned char i = 0; i < MAC_LEN; i++)
 		S3Data->m_MACAddr[i] = MAC[i];
 
 	return 0;
@@ -310,13 +310,15 @@ int	S3SetMACAddr(unsigned char *MAC)
 
 // ----------------------------------------------------------------------------
 
-int	S3SetIPAddr(unsigned char *IPAddr)
+/*
+int	S3SetIPAddr(const unsigned char *IPAddr)
 {
 	for (unsigned char i = 0; i < 4; i++)
 		S3Data->m_IPv4Addr[i] = IPAddr[i];
 
 	return 0;
 }
+*/
 
 // ----------------------------------------------------------------------------
 
