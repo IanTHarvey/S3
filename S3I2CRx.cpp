@@ -265,10 +265,12 @@ int S3I2CRxProcessTx(char Rx, char Tx)
 
 int S3I2CRxSetAGC(char Rx, char Tx)
 {
-	unsigned char	wbuf;
 	int				ok = 0;
 
+#ifdef TRIZEPS
+
 	// Read and compare Rx setting with user value.
+	unsigned char	wbuf;
 	wbuf = S3I2C_RX_OPT_CFG_FLAGS;
 	ok = I2C_WriteRead(S3I2CCurRxOptAddr, &wbuf, 1, S3I2CRxReadBuf, 2);
 
@@ -306,6 +308,8 @@ int S3I2CRxSetAGC(char Rx, char Tx)
 
 		ok = I2C_WriteRead(S3I2CCurRxOptAddr, wwbuf, 2, NULL, 0);
 	}
+
+#endif
 
 	return 0;
 }

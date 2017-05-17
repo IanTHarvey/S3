@@ -30,6 +30,7 @@ extern BYTE	S3BattAuthKey[];
 int S3I2CTxAuthenticate(char Rx, char Tx)
 {
 	int err = 0;
+	BYTE ErrCnt = 0;
 
 #ifdef TRIZEPS
 	BYTE i;
@@ -97,8 +98,6 @@ int S3I2CTxAuthenticate(char Rx, char Tx)
 	BYTE	tmp[SHA1_DIGEST_LEN];
 	for(i = 0; i < SHA1_DIGEST_LEN; i++)
 		tmp[i] = S3I2CTxReadBuf[SHA1_DIGEST_LEN - i - 1];
-
-	BYTE ErrCnt = 0;
 	
 	for(i = 0; i < SHA1_DIGEST_LEN; i++)
 	{
@@ -106,9 +105,10 @@ int S3I2CTxAuthenticate(char Rx, char Tx)
 			ErrCnt++;
 	}
 
+ERR:
 #endif
 
-ERR:
+
 	if (err)
 	{
 		S3EventLogAdd("TxBattAuth: Failed comms", 3, Rx, Tx, -1);

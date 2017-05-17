@@ -573,14 +573,17 @@ int S3I2CWriteLocalShort(	unsigned char	DevAddr,
 							unsigned char	RegAddr,
 							unsigned short	Data)
 {
+	BOOL ok = TRUE;
+
+#ifdef TRIZEPS
 	unsigned char wbuf[3];
 	wbuf[0] = RegAddr;
 	wbuf[1] = *((unsigned char *)&Data + 1);
 	wbuf[2] = *((unsigned char *)&Data + 0);
 		
-	BOOL ok = I2C_WriteRead(DevAddr, wbuf, 3, NULL, 0);
-
-	return ok != 1;
+	ok = I2C_WriteRead(DevAddr, wbuf, 3, NULL, 0);
+#endif
+	return ok != TRUE;
 }
 
 // ----------------------------------------------------------------------------
