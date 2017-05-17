@@ -134,22 +134,22 @@ int S3SetParaValue(	char Rx, char Tx, char IP, char Para, char MenuItem)
 		case S3_SIGMA_TAU:
 			if (MenuItem == 0)
 			{
-				S3IPSetSigmaTau(Rx, Tx, IP, TauNone);
+				S3SetSigmaTau(Rx, Tx, IP, TauNone);
 				break;
 			}
 			else if (MenuItem == 1)
 			{
-				S3IPSetSigmaTau(Rx, Tx, IP, TauLo);
+				S3SetSigmaTau(Rx, Tx, IP, TauLo);
 				break;
 			}
 			else if (MenuItem == 2)
 			{
-				S3IPSetSigmaTau(Rx, Tx, IP, TauMd);
+				S3SetSigmaTau(Rx, Tx, IP, TauMd);
 				break;
 			}
 			else if (MenuItem == 3)
 			{
-				S3IPSetSigmaTau(Rx, Tx, IP, TauHi);
+				S3SetSigmaTau(Rx, Tx, IP, TauHi);
 				break;
 			}
 			break;
@@ -450,6 +450,9 @@ int S3IPSetGainSent(char Rx, char Tx, char IP, char Gain)
 {
 	m_GainSent[Rx][Tx][IP] = (int)Gain;
 
+	if (Gain == SCHAR_MIN)
+		m_PathSent[Rx][Tx][IP] = SCHAR_MIN;
+
 	return 0;
 }
 
@@ -701,6 +704,9 @@ int S3SetImpedance(char Rx, char Tx, char IP, InputZ z)
 {
 	int GainChanged = 0;
 
+	if (S3IPGetAlarms(Rx, Tx, IP) & S3_IP_OVERDRIVE)
+	 	return 2;
+
 	if (Rx == -1)
 	{		
 		if (S3Data->m_Config.m_InputZ != z)
@@ -719,6 +725,39 @@ int S3SetImpedance(char Rx, char Tx, char IP, InputZ z)
 	else
 	{
 		GainChanged = S3IPSetImpedance(Rx, Tx, IP, z);
+	}
+
+	return GainChanged;
+}
+
+// ----------------------------------------------------------------------------
+// This is tied into Gain (LNAs and PADs), High-Z enabled etc. Uses SetGain()
+// to update gain limits if necessary and kick off I2C comms. Same for
+// S3SetImpedance
+
+int S3SetSigmaTau(char Rx, char Tx, char IP, SigmaT Tau)
+{
+	int GainChanged = 0;
+
+	if (S3IPGetAlarms(Rx, Tx, IP) & S3_IP_OVERDRIVE)
+	 	return 2;
+
+	if (Rx == -1)
+	{		
+		if (S3Data->m_Config.m_Tau != Tau)
+		{
+			S3Data->m_Config.m_Tau = Tau;
+			S3SetGain(Rx, Tx, IP, S3Data->m_Config.m_Gain);
+		}
+	}
+	else if (Tx == -1)
+	{
+		// Shouldn't be used
+		S3Data->m_Rx[Rx].m_Config.m_Tau = Tau;
+	}
+	else
+	{
+		GainChanged = S3IPSetSigmaTau(Rx, Tx, IP, Tau);
 	}
 
 	return GainChanged;
@@ -842,6 +881,9 @@ int S3IPWindowTrack(char Rx, char Tx, char IP, unsigned char On)
 
 int S3IPSetTestToneEnable(char Rx, char Tx, char IP, char Enable)
 {
+	if (S3IPGetAlarms(Rx, Tx, IP) & S3_IP_OVERDRIVE)
+	 	return 2;
+
 	if (Enable >= 200) // ASSERT:
 		Enable -= 100;
 	

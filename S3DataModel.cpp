@@ -819,7 +819,7 @@ int S3SetGain(char Rx, char Tx, char IP, char gain)
 	//	return 0;
 
 	if (S3IPGetAlarms(Rx, Tx, IP) & S3_IP_OVERDRIVE)
-	 	return 1;
+	 	return 2;
 
 	char	low, high;
 	int		GainLimited = 0;
@@ -905,35 +905,6 @@ SigmaT S3GetSigmaTau(char Rx, char Tx, char IP)
 }
 
 // ----------------------------------------------------------------------------
-// This is tied into Gain (LNAs and PADs), High-Z enabled etc. Uses SetGain()
-// to update gain limits if necessary and kick off I2C comms. Same for
-// S3SetImpedance
-
-int S3SetSigmaTau(char Rx, char Tx, char IP, SigmaT Tau)
-{
-	int GainChanged = 0;
-
-	if (Rx == -1)
-	{		
-		if (S3Data->m_Config.m_Tau != Tau)
-		{
-			S3Data->m_Config.m_Tau = Tau;
-			S3SetGain(Rx, Tx, IP, S3Data->m_Config.m_Gain);
-		}
-	}
-	else if (Tx == -1)
-	{
-		// Shouldn't be used
-		S3Data->m_Rx[Rx].m_Config.m_Tau = Tau;
-	}
-	else
-	{
-		GainChanged = S3IPSetSigmaTau(Rx, Tx, IP, Tau);
-	}
-
-	return GainChanged;
-}
-
 
 bool S3GetLowNoiseMode(char Rx, char Tx, char IP)
 {
