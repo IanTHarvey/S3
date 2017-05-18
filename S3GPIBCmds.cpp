@@ -1,5 +1,5 @@
 // ----------------------------------------------------------------------------
-// GPIB remote command parser/interpreter
+// GPIB remote commands
 //
 // Incoming GPIB messages use 1-based indexing, internally zero-based node
 // addressing is used, with -1 indicating invalid nodes. See:
@@ -10,8 +10,6 @@
 //
 // ----------------------------------------------------------------------------
 
-// See AfxGetMainWnd()->PostMessage(REM_SHUTDOWNREQ, 0, 0);
-// #include "afxwin.h"
 #include <windows.h>
 #include <string.h>
 #include <stdlib.h>
@@ -31,22 +29,16 @@ extern char		GPIBRetBuf[S3_MAX_GPIB_RET_LEN];
 extern char		GPIBRetBufTmp[S3_MAX_GPIB_RET_LEN];
 extern unsigned	GPIBBufLen;
 
-extern char		GPIBRx;
-extern char		GPIBTx;
-extern char		GPIBIP;
+extern char		GPIBRx, GPIBTx, GPIBIP;
 
 extern pS3DataModel S3Data;
-
-extern unsigned char S3GetArgs();
 
 extern SigmaT S3Str2SigmaT(const char *str);
 extern InputZ S3Str2InputZ(const char *str);
 
-// TODO: This should be used for single-digit addresses rather than strtol
 extern char		GetAddArg(		const char *carg);
 extern short	GetShortArg(	const char *carg);
 extern double	GetDoubleArg(	const char *carg);
-
 
 // ----------------------------------------------------------------------------
 // Nod to GPIB-ness
@@ -521,9 +513,9 @@ int CmdSYS()
 	S3RxReport(GPIBRetBuf, GPIBRx); 
 	S3TxReport(GPIBRetBuf, GPIBRx, GPIBTx);
 
-	// For each IP, 
-	for (unsigned char i = 0; i < S3TxGetNIP(GPIBRx, GPIBTx); i++)
-		S3IPReport(GPIBRetBuf, GPIBRx, GPIBTx, i);
+	// ... and for each IP, 
+	for(char IP = 0; IP < S3TxGetNIP(GPIBRx, GPIBTx); IP++)
+		S3IPReport(GPIBRetBuf, GPIBRx, GPIBTx, IP);
 
 	return 0;
 }
@@ -563,8 +555,6 @@ int CmdREPORT()
 		Rx = GPIBRx;
 		Tx = GPIBTx;
 		IP = GPIBIP;
-
-		// cmd = GPIBCmdArgs[1];
 	}
 
 	if (!STRCMP(cmd, "ALL"))
@@ -608,14 +598,8 @@ int CmdREPORT()
 		return S3_GPIB_INVALID_PARAMETER;
 	}
 
-	// if (err)
-	// 	return S3_GPIB_INVALID_IP;
-
 	// Dump to file if required
 	S3ReportToFile(GPIBRetBuf);
-
-	// Indicate success
-	// strcat_s(GPIBRetBuf, S3_MAX_GPIB_RET_LEN - strlen(GPIBRetBuf), ": OK");
 
 	strcpy_s(GPIBRetBufTmp, S3_MAX_GPIB_RET_LEN, GPIBRetBuf);
 	sprintf_s(GPIBRetBuf, S3_MAX_GPIB_RET_LEN, "I:\n%s", GPIBRetBufTmp);
