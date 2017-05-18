@@ -589,6 +589,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\S3GPIBCmds.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\S3GPIO.cpp"
 				>
 				<FileConfiguration
