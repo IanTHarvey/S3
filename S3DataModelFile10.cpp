@@ -341,7 +341,7 @@ int S3Read2(const char *Filename)
 
 	fclose(fid);
 
-	pSys->m_AGC = pSys->m_Rx[0].m_AGC[0];
+	// pSys->m_AGC = pSys->m_Rx[0].m_AGC[0];
 
 	// TODO: Could be done by just swapping pointers
 	// All good, so copy. 
@@ -404,7 +404,7 @@ int S3SysRead(FILE *fid, pS3DataModel pSys)
 int S3RxSave(FILE *fid, pS3RxData Rx)
 {
 	fwrite(&(Rx->m_Type),	sizeof(unsigned char), 1, fid);
-	
+
 	if (LATER_VERSION(S3_FILE_VERSION, 1.8))
 		fwrite(&(Rx->m_ActiveTx),	sizeof(char), 1, fid);
 	else
