@@ -335,4 +335,9 @@ int S3I2CRxWriteID(const char * Type, const char *PN, const char *SN);
 
 int S3I2CTempLog(char Rx, char Tx);
 
+int S3I2CTxDumpOptConfig(		char Rx, char Tx);
+int S3I2CTxDumpCtrlConfig(		char Rx, char Tx);
+int S3I2CRxDumpOptConfig(		char Rx);
+int S3I2CRxDumpCtrlConfig(		char Rx);
+
 // ----------------------------------------------------------------------------

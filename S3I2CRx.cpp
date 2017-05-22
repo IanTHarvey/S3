@@ -33,9 +33,6 @@ void I2CRxTestPassword();
 
 int S3I2CRxMS(unsigned char Rx);
 
-extern int S3I2CRxWriteOptConfig(char Rx);
-extern int S3I2CRxWriteCtrlConfig(char Rx);
-
 unsigned char S3I2CTxOptAddr[S3_MAX_RXS] = 
 {
 	S3I2C_RX_OPT0_ADDR,
@@ -373,12 +370,12 @@ int S3I2CGetRxStartUp(char Rx)
 	err = S3I2CRxWriteCtrlConfig(Rx);
 	
 	S3I2CSetUpOptAddr(Rx, 0);
-	err = S3I2CRxWriteOptConfig(Rx);
+	err = S3I2CRxDumpOptConfig(Rx);
 	
 	if (RxType == S3_Rx2)
 	{
 		S3I2CSetUpOptAddr(Rx, 1);
-		err = S3I2CRxWriteOptConfig(Rx);
+		err = S3I2CRxDumpOptConfig(Rx);
 	}
 	
 #endif

@@ -17,9 +17,6 @@
 
 extern char S3TxGetRFPath(char Rx, char Tx, char IP);
 
-int S3I2CTxDumpOptConfig(	char Rx, char Tx);
-int S3I2CTxDumpCtrlConfig(	char Rx, char Tx);
-
 extern int set_RF_inp_board(unsigned char  path, unsigned char attenuation,
 							char Rx, char Tx);
 
@@ -29,6 +26,15 @@ char	S3I2CCurPath; // 1-indexed
 #ifdef TRIZEPS
 extern unsigned char	S3I2CTxReadBuf[S3_SERIAL_FIFO_LEN]; // Read from optical serial link
 #endif
+
+
+// Debug vars
+
+unsigned char	Dbg_RF1_DSA = 0;
+short			Dbg_TxOpt = 0;	// Gain soft set 0xA8-9
+short			Dbg_RxOpt = 0;	// Gain soft set 0xA4-5
+short			Dbg_RLL = 0;
+char			Dbg_Path = 0;
 
 // ----------------------------------------------------------------------------
 
@@ -83,7 +89,9 @@ unsigned char S3I2CCalcRFAtten(char atten)
 }
 
 // ----------------------------------------------------------------------------
-// Tx Ctrl (RF). How atten arg used depends on selected RF path.
+// Tx Ctrl (RF). Applied value is attenuation.
+// How atten arg used depends on selected RF path.
+
 int	S3I2CSetRFAtten(char atten, char Rx, char Tx)
 {
 #ifdef TRIZEPS
@@ -106,6 +114,9 @@ int	S3I2CSetRFAtten(char atten, char Rx, char Tx)
 	}
 
 	int err = set_RF_inp_board(S3I2CCurPath, val, Rx, Tx);
+
+	Dbg_RF1_DSA = val;
+	Dbg_Path = S3I2CCurPath;
 
 	if (err)
 		return err;
@@ -153,6 +164,7 @@ short	S3I2CCalcTxOptDSA(char Rx, char Tx, char IP, char dsa)
 }
 
 // ----------------------------------------------------------------------------
+// Tx Opt. Applied value is gain.
 
 int	S3I2CSetTxOptDSA(char Rx, char Tx, char IP, char dsa)
 {
@@ -180,6 +192,8 @@ int	S3I2CSetTxOptDSA(char Rx, char Tx, char IP, char dsa)
 	val -= S3TxGetCalRF(Rx, Tx, S3I2CCurPath - 1);
 
 	int err = S3I2CWriteSerialShort(S3I2C_TX_OPT_ADDR, S3I2C_TX_OPT_DSA, val);
+
+	Dbg_TxOpt = val;
 
 	if (err)
 		return err;
@@ -221,7 +235,8 @@ short S3I2CCalcRxOptDSA(char Rx, char Tx, char dsa)
 }
 
 // ----------------------------------------------------------------------------
-// Rx Opt
+// Rx Opt. Applied value is gain
+
 int	S3I2CSetRxOptDSA(char Rx, char Tx, char dsa)
 {
 #ifdef TRIZEPS
@@ -242,6 +257,8 @@ int	S3I2CSetRxOptDSA(char Rx, char Tx, char dsa)
 	if (S3GetAGC() == S3_AGC_GAIN)
 	{
 		short RLL = S3RxGetRLL(Rx, Tx);
+
+		Dbg_RLL = RLL;
 		
 		val += 2 * (1200 - RLL);
 	}
@@ -251,6 +268,8 @@ int	S3I2CSetRxOptDSA(char Rx, char Tx, char dsa)
 	wbuf[2] = *((unsigned char *)&val + 0);
 	
 	BOOL ok = I2C_WriteRead(S3I2CCurRxOptAddr, wbuf, 3, NULL, 0);
+
+	Dbg_RxOpt = val;
 
 	if (!ok)
 		return 1;
