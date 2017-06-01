@@ -1,16 +1,15 @@
 // Draws the Overview screen RLL bar-graph display
 
-#ifndef TRIZEPS
-#include "S3ControllerX86/targetver.h"
-#else
-#define WINVER _WIN32_WCE
-#include <ceconfig.h>
-#endif
+#include "stdafx.h"
 
 #include <stdio.h>
-
 #include "S3DataModel.h"
+
+#ifdef S3_AGENT
+#include "S3Agent/S3AgentDlg.h"
+#else
 #include "S3ControllerDlg.h"
+#endif
 
 const int CS3GDIScreenMain::m_RxRLLBar_h[S3_MAIN_RX_RLL_BARS] = { 6, 7, 8, 9, 10 };
 const int CS3GDIScreenMain::m_RxRLLBar_w[S3_MAIN_RX_RLL_BARS] = { 7, 9, 14, 22, 32 };

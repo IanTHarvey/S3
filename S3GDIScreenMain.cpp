@@ -1,30 +1,18 @@
 // S3GDIScreenLogCopy.cpp : implementation file
 //
 
-//
-#ifndef WIN32_LEAN_AND_MEAN
-#define WIN32_LEAN_AND_MEAN
-#endif
-
-#ifndef TRIZEPS
-#include "S3ControllerX86/targetver.h"
-#else
-#define WINVER _WIN32_WCE
-#include <ceconfig.h>
-#endif
-
-#include "afxpriv.h"
+#include "stdafx.h"
 
 #include <stdio.h>
-#include <string.h>
 #include <math.h>
-
 #include "mathdefs.h"
-
 #include "S3DataModel.h"
-#include "S3GPIB.h"
 
+#ifdef S3_AGENT
+#include "S3Agent/S3AgentDlg.h"
+#else
 #include "S3ControllerDlg.h"
+#endif
 
 extern pS3DataModel S3Data;
 
@@ -163,12 +151,14 @@ void CS3GDIScreenMain::OnPaint()
 	else
 	{
 		// Watermark
-		if (0)
+		if (isS3GUIWatermarked)
 		{
+            //USe PPM as watermark
 			S3OPBLTR(m_hbmpPPMBG, m_RectPhysicalScreen);
 		}
 		else
 		{
+            //No watermark
 			S3_RECT(m_HDC, m_RectPhysicalScreen);
 
 			SelectObject(m_HDC, m_hBrushBG1);
@@ -205,10 +195,12 @@ void CS3GDIScreenMain::OnPaint()
 	{
 		S3DrawGDISettingsScreen();
 	}
+#ifndef S3_AGENT
 	else if (m_Screen == S3_FACTORY_SCREEN)
 	{
 		S3DrawGDIFactoryScreen();
 	}
+#endif
 	else if (m_Screen == S3_SHUTDOWN_SCREEN)
 	{
 		S3DrawGDIShutdownScreen();
@@ -221,18 +213,22 @@ void CS3GDIScreenMain::OnPaint()
 	{
 		S3DrawGDISWUpdateScreen();
 	}
+#ifndef S3_AGENT
 	else if (m_Screen == S3_APP_UPDATE_SCREEN)
 	{
 		S3DrawGDIAppUpdateScreen();
 	}
+#endif
 	else if (m_Screen == S3_LOG_COPY_SCREEN)
 	{
 		S3DrawGDILogCopyScreen();
 	}
+#ifndef S3_AGENT
 	else if (m_Screen == S3_CLOSED_SCREEN)
 	{
 		S3DrawGDIClosedScreen();
 	}
+#endif
 
 	// Blt the changes to the screen DC.
 	BitBlt(	hDC, 0, 0, m_ndh, m_ndv,
@@ -275,8 +271,10 @@ int CS3GDIScreenMain::S3GDIChangeScreen(char screen)
 		screen = m_PrevScreen;
 
 		// TODO: Any other factory notifications?
+#ifndef S3_AGENT
 	if (m_Screen == S3_FACTORY_SCREEN)
 		S3LeaveFactoryScreen();
+#endif
 	
 	if (m_Screen == screen)
 		return 0;
@@ -565,10 +563,13 @@ void CS3GDIScreenMain::S3GDIRemoteCmd(void)
 
 void CS3GDIScreenMain::S3DrawGDIInfo(void)
 {
+
+#ifndef S3_AGENT
     CT2A ascii1(m_Parent->GetUSBPortName());
     strcpy_s(S3Data->m_DisplayedUSBPort, S3_MAX_USB_DRIVER_LEN, ascii1.m_psz);
     CT2A ascii(m_Parent->GetUSBDriverType());
     strcpy_s(S3Data->m_DisplayedUSBDriver, S3_MAX_USB_DRIVER_LEN, ascii.m_psz);
+#endif
 
 	if (S3GetRemote())
 	{
@@ -577,7 +578,11 @@ void CS3GDIScreenMain::S3DrawGDIInfo(void)
 	}
 
 	CString tmp;
+#ifdef S3_AGENT
+    tmp.Format(_T("%s %s"), LastUpdateDateStr, LastUpdateTimeStr);
+#else
 	m_Parent->GetDateTimeStr(tmp);
+#endif
 
 	RECT fntRc = m_RectInfo;
 	fntRc.left += 20;
@@ -727,11 +732,13 @@ void CS3GDIScreenMain::S3DrawGDIDbg()
 
 	CString tmp;
 
+#ifndef S3_AGENT
 	if (S3GetUSBOpen())
 	{
 		tmp = m_Parent->GetUSBPortName();
 	}
 	else
+#endif
 		tmp = _T("---");
 
 	CRect fntRc = m_RectDbg;
@@ -778,11 +785,13 @@ int CS3GDIScreenMain::S3Find(POINT p)
 		if (S3FindSettingsScreen(p))
 			return 1;
 	}
+#ifndef S3_AGENT
 	else if (m_Screen == S3_FACTORY_SCREEN)
 	{
 		if (S3FindFactoryScreen(p))
 			return 1;
 	}
+#endif
 	else if (m_Screen == S3_SHUTDOWN_SCREEN)
 	{
 		if (S3FindShutdownScreen(p))
@@ -793,11 +802,13 @@ int CS3GDIScreenMain::S3Find(POINT p)
 		if (S3FindSWUpdateScreen(p))
 			return 1;
 	}
+#ifndef S3_AGENT
 	else if (m_Screen == S3_APP_UPDATE_SCREEN)
 	{
 		if (S3FindAppUpdateScreen(p))
 			return 1;
 	}
+#endif
 	else if (m_Screen == S3_LOG_COPY_SCREEN)
 	{
 		if (S3FindLogCopyScreen(p))
@@ -832,9 +843,11 @@ int CS3GDIScreenMain::S3FindHeader(POINT p)
 
 		if (m_RectShutdownButton.PtInRect(p))
 		{
+#ifndef S3_AGENT
 			if (!S3GetLocked())
 				S3GDIChangeScreen(S3_FACTORY_SCREEN);
 			else
+#endif
 				S3GDIChangeScreen(S3_SHUTDOWN_SCREEN);
 
 			return 1;
@@ -966,11 +979,17 @@ void CS3GDIScreenMain::SelectionChanged()
 
 // ----------------------------------------------------------------------------
 // Selection changed outside GDI control
-void CS3GDIScreenMain::SetSelection()
+void CS3GDIScreenMain::SetSelection(bool goToOverview = false)
 {
 	char Rx, Tx, IP;
 	char level = S3GetSelected(&Rx, &Tx, &IP);
 
+    if(goToOverview)
+    {
+        S3GDIChangeScreen(S3_OVERVIEW_SCREEN);
+    }
+    else
+    {
 	switch(level)
 	{
 	// If nothing selected, don't change screen
@@ -979,7 +998,7 @@ void CS3GDIScreenMain::SetSelection()
 	case 2:	S3GDIChangeScreen(S3_TX_SCREEN); break;
 	case 3:	S3GDIChangeScreen(S3_TX_SCREEN); break;
 	}
-	
+    }
 	SelectionChanged();
 }
 

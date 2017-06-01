@@ -4,10 +4,14 @@
 #include "stdafx.h"
 
 #include "S3DataModel.h"
-#include "S3ControllerDlg.h"
-#include "S3GDITextInputPopup.h"
 
-// CTextInputPopup dialog
+#ifdef S3_AGENT
+#include "S3Agent/S3AgentDlg.h"
+#else
+#include "S3ControllerDlg.h"
+#endif
+
+#include "S3GDITextInputPopup.h"
 
 IMPLEMENT_DYNAMIC(CTextInputPopup, CDialog)
 

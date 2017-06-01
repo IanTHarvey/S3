@@ -1,26 +1,16 @@
 // ----------------------------------------------------------------------------
 // Rx drawing functions for main overview screen
 
-#ifndef WIN32_LEAN_AND_MEAN
-#define WIN32_LEAN_AND_MEAN
-#endif
+#include "stdafx.h"
 
-#ifndef TRIZEPS
-#include "S3ControllerX86/targetver.h"
-#else
-#define WINVER _WIN32_WCE
-#include <ceconfig.h>
-#endif
-
-#include "afxpriv.h"
 #include <stdio.h>
-#include <string.h>
-#include <math.h>
-
-#include "mathdefs.h"
-
 #include "S3DataModel.h"
+
+#ifdef S3_AGENT
+#include "S3Agent/S3AgentDlg.h"
+#else
 #include "S3ControllerDlg.h"
+#endif
 
 // ----------------------------------------------------------------------------
 

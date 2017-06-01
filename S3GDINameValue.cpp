@@ -14,17 +14,16 @@
 
 #pragma once
 
-#ifndef TRIZEPS
-#include "S3ControllerX86/targetver.h"
-#else
-#define WINVER _WIN32_WCE
-#include <ceconfig.h>
-#endif
+#include "stdafx.h"
 
 #include <stdio.h>
-
 #include "S3DataModel.h"
+
+#ifdef S3_AGENT
+#include "S3Agent/S3AgentDlg.h"
+#else
 #include "S3ControllerDlg.h"
+#endif
 
 // ----------------------------------------------------------------------------
 // String val should provide a hint to the size of actual values for future use.
@@ -49,7 +48,12 @@ CS3NameValue::CS3NameValue(int xref, int yref, int xright,
 // ----------------------------------------------------------------------------
 // String val should provide a hint to the size of actual values for future use.
 
-CS3NameValue::CS3NameValue(CS3ControllerDlg *Parent,
+CS3NameValue::CS3NameValue(
+#ifdef S3_AGENT
+						   CS3AgentDlg *Parent,
+#else
+						   CS3ControllerDlg *Parent,
+#endif						   
 						   int xref, int yref, int xright,
 						   CString lbl, CString val, bool editable)
 {

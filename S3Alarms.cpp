@@ -1,19 +1,19 @@
 // ---------------------------------------------------------------------------
 // Implementation of alarms for all devices
 
-#include "windows.h"
-// #include "stdafx.h"
+#include "stdafx.h"
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <ctype.h>
 
 #include "S3DataModel.h"
-#include "S3GPIB.h"
+
+#ifdef S3_AGENT
+#include "S3Agent\S3Comms.h"
+#endif
 
 extern pS3DataModel S3Data;
-
-
 
 // ---------------------------------------------------------------------------
 
@@ -585,6 +585,16 @@ int S3TxCancelCurAlarm(char Rx, char Tx)
 	}
 
 	pTx->m_CurAlarmSrc = -1;
+
+#ifdef S3_AGENT
+	CString Command, Args, Response;
+    Command = L"S3CLEARCURALARM";
+    Args.Format(_T(" %d %d"), (Rx + 1), (Tx + 1));
+    
+    Command.Append(Args);
+
+    Response = SendSentinel3Message(Command);
+#endif
 
 	return 0;
 }
@@ -1342,6 +1352,16 @@ int S3RxCancelCurAlarm(char Rx)
 	}
 
 	pRx->m_CurAlarmSrc = -1;
+
+#ifdef S3_AGENT
+	CString Command, Args, Response;
+    Command = L"S3CLEARCURALARM";
+    Args.Format(_T(" %d"), (Rx + 1));
+    
+    Command.Append(Args);
+
+    Response = SendSentinel3Message(Command);
+#endif
 
 	return 0;
 }

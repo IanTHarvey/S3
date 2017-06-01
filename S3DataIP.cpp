@@ -1,7 +1,7 @@
 //
 // TODO: Make Rx/Tx/IP indexing char and use -1 to indicate non-existence
 
-
+#include "stdafx.h"
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -9,13 +9,15 @@
 #include <float.h>
 #include <math.h>
 
-#include <windows.h>
-
 #include "S3SystemDetails.h"
 #include "S3DataModel.h"
 #include "S3GPIB.h"
 #include "S3I2C.h"
 #include "S3Gain.h"
+
+#ifdef S3_AGENT
+#include "S3Agent/S3AgentDlg.h" 
+#endif
 
 extern pS3DataModel S3Data;
 
@@ -190,8 +192,21 @@ int S3SetParaValue(	char Rx, char Tx, char IP, char Para, char MenuItem)
 			}
 			break;
 		case S3_ALARM_LED:
+
+#ifdef S3_AGENT
+			{
+				CString Command, Args, Response;
+                Command = L"S3CLROVERDRIVE";
+                Args.Format(_T(" %d %d %d"), (Rx + 1), (Tx + 1), (IP + 1));
+                
+                Command.Append(Args);
+
+                Response = SendSentinel3Message(Command);
+			}
+#else
 			S3IPCancelAlarm(Rx, Tx, IP, S3_IP_OVERDRIVE);
 			S3TxClearPeakHold(Rx, Tx, 0);
+#endif
 			break;
 		case S3_OS_UPDATE:
 			// S3SoftwareUpdate();
@@ -223,11 +238,11 @@ int S3SetParaValue(	char Rx, char Tx, char IP, char Para, char MenuItem)
 			if (MenuItem == 0)
 				S3RxCancelCurAlarm(Rx);
 			break;
-		case S3_RXRX_AGC:
-			// Not used
-			if (MenuItem == 0)
-				S3RxSetAGC(Rx, Tx, !S3RxGetAGC(Rx, Tx));
-			break;
+		//case S3_RXRX_AGC:
+		//	// Not used
+		//	if (MenuItem == 0)
+		//		S3RxSetAGC(Rx, Tx, !S3RxGetAGC(Rx, Tx));
+		//	break;
 		case S3_TX_TESTTONE_ALL:
 			if (MenuItem == 0)
 				S3TxSetTestToneEnableAll(Rx, Tx, 1);
@@ -243,6 +258,41 @@ int S3SetParaValue(	char Rx, char Tx, char IP, char Para, char MenuItem)
 
 int S3SetNodeNameNew(char Rx, char Tx, char IP, char *NodeName)
 {
+#ifdef S3_AGENT
+	CString Command = L"NAME", Name(NodeName), Args;
+    
+    Name.Remove(' ');
+
+    if (Name.IsEmpty())
+        return 0;
+
+	if (Rx == -1)
+		return 0;
+
+	if (Tx == -1)
+	{
+        Args.Format(_T(" %d "), (Rx + 1));
+        Command.Append(Args);
+        Command.Append(Name);
+        CString Response = SendSentinel3Message(Command);
+		return 0;
+	}
+
+	if (IP == -1)
+	{
+        Args.Format(_T(" %d %d "), (Rx + 1), (Tx + 1));
+        Command.Append(Args);
+        Command.Append(Name);
+        CString Response = SendSentinel3Message(Command);
+		return 0;
+	}
+
+    Args.Format(_T(" %d %d %d "), (Rx + 1), (Tx + 1), (IP + 1));
+    Command.Append(Args);
+    Command.Append(Name);
+    CString Response = SendSentinel3Message(Command);
+	return 0;
+#else
 	if (Rx == -1)
 		return 0;
 
@@ -264,6 +314,7 @@ int S3SetNodeNameNew(char Rx, char Tx, char IP, char *NodeName)
 		S3_MAX_NODE_NAME_LEN, NodeName);
 
 	return 0;
+#endif
 }
 
 // ----------------------------------------------------------------------------
@@ -441,17 +492,17 @@ int S3IPGetGain(char Rx, char Tx, char IP)
 // Store gain actually transmitted
 char S3IPGetGainSent(char Rx, char Tx, char IP)
 {
-	return (char)m_GainSent[Rx][Tx][IP];
+	return (char)S3Data->m_GainSent[Rx][Tx][IP];
 }
 
 // ----------------------------------------------------------------------------
 
 int S3IPSetGainSent(char Rx, char Tx, char IP, char Gain)
 {
-	m_GainSent[Rx][Tx][IP] = (int)Gain;
+	S3Data->m_GainSent[Rx][Tx][IP] = (int)Gain;
 
 	if (Gain == SCHAR_MIN)
-		m_PathSent[Rx][Tx][IP] = SCHAR_MIN;
+		S3Data->m_PathSent[Rx][Tx][IP] = SCHAR_MIN;
 
 	return 0;
 }
@@ -460,14 +511,14 @@ int S3IPSetGainSent(char Rx, char Tx, char IP, char Gain)
 // Store path actually transmitted - this may change without a gain change
 char S3IPGetPathSent(char Rx, char Tx, char IP)
 {
-	return m_PathSent[Rx][Tx][IP];
+	return S3Data->m_PathSent[Rx][Tx][IP];
 }
 
 // ----------------------------------------------------------------------------
 
 int S3IPSetPathSent(char Rx, char Tx, char IP, char Path)
 {
-	m_PathSent[Rx][Tx][IP] = Path;
+	S3Data->m_PathSent[Rx][Tx][IP] = Path;
 
 	return 0;
 }
@@ -488,6 +539,27 @@ int S3ApplyGainLimits(char Rx, char Tx, char IP)
 
 int S3IPSetMaxInput(char Rx, char Tx, char IP, double maxip)
 {
+#ifdef S3_AGENT
+	int gain = S3IPCalcGain(maxip);
+
+	char low, high;
+
+	S3GetGainLimits(Rx, Tx, IP, &low, &high);
+
+	// TODO: ? This is treated as an error - different to S3SetGain();
+	if (gain < low || gain > high)
+		return 1;
+
+    CString Command, Args, Response;
+    Command = L"MAXIP";
+    Args.Format(_T(" %d %d %d %f"), (Rx + 1), (Tx + 1), (IP + 1), maxip);
+    
+    Command.Append(Args);
+
+    Response = SendSentinel3Message(Command);
+
+	return 0;
+#else
 	int gain = S3IPCalcGain(maxip);
 
 	char low, high;
@@ -505,6 +577,7 @@ int S3IPSetMaxInput(char Rx, char Tx, char IP, double maxip)
 	pIP->m_P1dB = S3CalcP1dB(gain);
 	
 	return 0;
+#endif
 }
 
 // ----------------------------------------------------------------------------
@@ -540,6 +613,40 @@ double S3IPGetP1dB(char Rx, char Tx, char IP)
 
 int S3IPSetSigmaTau(char Rx, char Tx, char IP, SigmaT Tau)
 {
+#ifdef S3_AGENT
+	if (S3Data->m_Rx[Rx].m_Tx[Tx].m_Input[IP].m_Config.m_Tau == Tau)
+        return 0;
+
+	int GainChanged = 0;
+	CString Command, Args, Response, Taustr;
+    Command = L"ITAU";
+    switch(Tau)
+    {
+    case TauNone:
+        Taustr = L"OFF";
+        break;
+    case TauLo:
+        Taustr = L"LO";
+        break;
+    case TauMd:
+        Taustr = L"MED";
+        break;
+    case TauHi:
+        Taustr = L"HI";
+        break;
+    }
+
+    Args.Format(_T(" %d %d %d %s"), (Rx + 1), (Tx + 1), (IP + 1), Taustr);
+    
+    Command.Append(Args);
+
+    Response = SendSentinel3Message(Command);
+
+    if(Response.CompareNoCase(L"W: Command required gain setting to be adjusted"))
+        GainChanged = 1;
+
+	return GainChanged;
+#else
 	if (S3Data->m_Rx[Rx].m_Tx[Tx].m_Input[IP].m_Config.m_Tau == Tau)
 		return 0;
 	
@@ -569,6 +676,7 @@ int S3IPSetSigmaTau(char Rx, char Tx, char IP, SigmaT Tau)
 	S3IPSetGainSent(Rx, Tx, IP, SCHAR_MIN);
 
 	return GainChanged;
+#endif
 }
 
 // ----------------------------------------------------------------------------
@@ -702,6 +810,39 @@ int S3GetGainLimits(char Rx, char Tx, char IP, char *low, char *high)
 
 int S3SetImpedance(char Rx, char Tx, char IP, InputZ z)
 {
+#ifdef S3_AGENT
+	int GainChanged = 0;
+
+    CString Command, Args, Response, InZ;
+    Command = L"IPZ";
+
+    switch(z)
+    {
+    case W50:
+        InZ = L"50";
+        break;
+    case W1M:
+        InZ = L"HIZ";
+        break;
+    }
+    if(Rx != -1)
+    {
+        Args.Format(_T(" %d %d %d %s"), (Rx + 1), (Tx + 1), (IP + 1), InZ);
+    }
+    else
+    {
+        Args.Format(_T(" DEFAULT %s"), InZ);
+    }
+    
+    Command.Append(Args);
+
+    Response = SendSentinel3Message(Command);
+
+    if(Response.CompareNoCase(L"W: Command required gain setting to be adjusted"))
+        GainChanged = 1;
+
+	return GainChanged;
+#else
 	int GainChanged = 0;
 
 	if (S3IPGetAlarms(Rx, Tx, IP) & S3_IP_OVERDRIVE)
@@ -728,6 +869,7 @@ int S3SetImpedance(char Rx, char Tx, char IP, InputZ z)
 	}
 
 	return GainChanged;
+#endif
 }
 
 // ----------------------------------------------------------------------------
@@ -737,6 +879,22 @@ int S3SetImpedance(char Rx, char Tx, char IP, InputZ z)
 
 int S3SetSigmaTau(char Rx, char Tx, char IP, SigmaT Tau)
 {
+#ifdef S3_AGENT
+	int GainChanged = 0;
+
+    CString Command, Args, Response;
+    Command = L"ITAU";
+    Args.Format(_T(" %d %d %d %d"), (Rx + 1), (Tx + 1), (IP + 1), Tau);
+    
+    Command.Append(Args);
+
+    Response = SendSentinel3Message(Command);
+
+    if(Response.CompareNoCase(L"W: Command required gain setting to be adjusted"))
+        GainChanged = 1;
+
+	return GainChanged;
+#else
 	int GainChanged = 0;
 
 	if (S3IPGetAlarms(Rx, Tx, IP) & S3_IP_OVERDRIVE)
@@ -761,12 +919,43 @@ int S3SetSigmaTau(char Rx, char Tx, char IP, SigmaT Tau)
 	}
 
 	return GainChanged;
+#endif
 }
 
 // ----------------------------------------------------------------------------
 
 int S3IPSetImpedance(char Rx, char Tx, char IP, InputZ z)
 {
+#ifdef S3_AGENT
+	int GainChanged = 0;
+	
+	if (S3Data->m_Rx[Rx].m_Tx[Tx].m_Input[IP].m_Config.m_InputZ == z)
+		return 0;
+
+    CString Command, Args, Response, InZ;
+    Command = L"IPZ";
+
+    switch(z)
+    {
+    case W50:
+        InZ = L"50";
+        break;
+    case W1M:
+        InZ = L"HIZ";
+        break;
+    }
+
+    Args.Format(_T(" %d %d %d %s"), (Rx + 1), (Tx + 1), (IP + 1), InZ);
+    
+    Command.Append(Args);
+
+    Response = SendSentinel3Message(Command);
+
+    if(Response.CompareNoCase(L"W: Command required gain setting to be adjusted"))
+        GainChanged = 1;
+
+	return GainChanged;
+#else
 	int GainChanged = 0;
 	
 	if (S3Data->m_Rx[Rx].m_Tx[Tx].m_Input[IP].m_Config.m_InputZ == z)
@@ -785,6 +974,7 @@ int S3IPSetImpedance(char Rx, char Tx, char IP, InputZ z)
 	S3IPSetGainSent(Rx, Tx, IP, SCHAR_MIN);
 
 	return GainChanged;
+#endif
 }
 
 // ----------------------------------------------------------------------------
@@ -881,6 +1071,25 @@ int S3IPWindowTrack(char Rx, char Tx, char IP, unsigned char On)
 
 int S3IPSetTestToneEnable(char Rx, char Tx, char IP, char Enable)
 {
+#ifdef S3_AGENT
+	CString Command, Args, Response, InZ;
+    Command = L"TONE";
+
+    if(Enable)
+    {
+        Args.Format(_T(" %d %d %d ON"), (Rx + 1), (Tx + 1), (IP + 1));
+    }
+    else
+    {
+        Args.Format(_T(" %d %d %d OFF"), (Rx + 1), (Tx + 1), (IP + 1));
+    }
+
+    Command.Append(Args);
+
+    Response = SendSentinel3Message(Command);
+
+	return 0;
+#else
 	if (S3IPGetAlarms(Rx, Tx, IP) & S3_IP_OVERDRIVE)
 	 	return 2;
 
@@ -906,6 +1115,7 @@ int S3IPSetTestToneEnable(char Rx, char Tx, char IP, char Enable)
 	}
 
 	return 0;
+#endif
 }
 
 // ----------------------------------------------------------------------------

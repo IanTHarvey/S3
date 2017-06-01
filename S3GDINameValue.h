@@ -7,6 +7,8 @@
 #define LHMARGIN	5	// For headers
 #define BMARGIN		10
 
+// class CS3AgentDlg;
+
 class CS3NameValue
 {
 public:
@@ -15,10 +17,14 @@ public:
 					bool editable);
 	
 	// Allow alarms to be displayed (flashing text)
-	CS3NameValue(	CS3ControllerDlg *Parent,
-					int xref, int yref, int xright,
-					CString lbl, CString val,
-					bool editable);
+	CS3NameValue::CS3NameValue(
+#ifdef S3_AGENT
+							CS3AgentDlg *Parent,
+#else
+							CS3ControllerDlg *Parent,
+#endif
+						   int xref, int yref, int xright,
+						   CString lbl, CString val, bool editable);
 
 	void	Draw(HDC hdc, HFONT hFont, HFONT hFontB);
 	CRect	RectEdit(HDC hdc, HFONT hFont);
@@ -30,7 +36,11 @@ public:
 	char	FindSelect(POINT p);
 
 private:
-	CS3ControllerDlg *m_Parent;
+#ifdef S3_AGENT
+			CS3AgentDlg *m_Parent;
+#else
+			CS3ControllerDlg *m_Parent;
+#endif
 	bool	m_Alarm;
 
 	int		m_xref;

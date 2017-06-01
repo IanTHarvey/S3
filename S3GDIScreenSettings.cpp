@@ -1,28 +1,19 @@
 // S3GDIScreenMain.cpp : implementation file
 //
 
-//
-#ifndef WIN32_LEAN_AND_MEAN
-#define WIN32_LEAN_AND_MEAN
-#endif
+#include "stdafx.h"
 
-#ifndef TRIZEPS
-#include "S3ControllerX86/targetver.h"
-#else
-#define WINVER _WIN32_WCE
-#include <ceconfig.h>
-#endif
-
-#include "afxpriv.h"
 #include <stdio.h>
-#include <string.h>
 #include <math.h>
 #include "mathdefs.h"
-
 #include "S3DataModel.h"
-#include "S3GPIB.h"
 
+#ifdef S3_AGENT
+#include "S3Agent/S3AgentDlg.h"
+#else
 #include "S3ControllerDlg.h"
+#endif
+
 #include "S3GDIInfoPopup.h"
 
 #define S3_MAX_SELECTABLES	18
@@ -221,6 +212,7 @@ void CS3GDIScreenMain::S3InitSettingsScreen(void)
 
 	int Start = m_RectSystemDateTime.top;
 
+#ifndef S3_AGENT
 	m_SettingsDate = new CS3NameValue(m_RectSystemDateTime.left,
 			Start + 0 * PARA_ROW, WCol, _T("Date"), _T("YYYY-MM-DD"), true);
 	m_SettingsDate->RectEdit(m_HDC, m_hFontSB);
@@ -228,6 +220,15 @@ void CS3GDIScreenMain::S3InitSettingsScreen(void)
 	m_SettingsTime = new CS3NameValue(m_RectSystemDateTime.left,
 			Start + 1 * PARA_ROW, WCol, _T("Time"), _T("hhhh:mm:ss"), true);
 	m_SettingsTime->RectEdit(m_HDC, m_hFontSB);
+#else
+	m_SettingsDate = new CS3NameValue(m_RectSystemDateTime.left,
+			Start + 0 * PARA_ROW, WCol, _T("Last Update Date"), _T("YYYY-MM-DD"), false);
+	m_SettingsDate->RectEdit(m_HDC, m_hFontSB);
+
+	m_SettingsTime = new CS3NameValue(m_RectSystemDateTime.left,
+			Start + 1 * PARA_ROW, WCol, _T("Last Update Time"), _T("hhhh:mm:ss"), false);
+	m_SettingsTime->RectEdit(m_HDC, m_hFontSB);
+#endif
 
 	m_RectSystemDateTime.bottom = m_RectSystemDateTime.top + 2 * PARA_ROW + BMARGIN;
 
@@ -382,6 +383,8 @@ void CS3GDIScreenMain::S3DrawGDISettingsScreen(void)
 
 // ----------------------------------------------------------------------------
 
+extern pS3DataModel S3Data;
+
 void CS3GDIScreenMain::S3DrawGDISettingsRemote(void)
 {
 	SetTextColor(m_HDC, m_crTextNorm);
@@ -457,12 +460,21 @@ void CS3GDIScreenMain::S3DrawGDISettingsRemote(void)
 
 	SelectObject(m_HDC, m_hBrushBG4);
 
+#ifndef S3_AGENT
 	m_SettingsUSBPort->SetEditable(!S3GetRemote());
 	m_SettingsUSBPort->SetValue(m_Parent->GetUSBPortName());
 	m_SettingsUSBPort->Draw(m_HDC, m_hFontS, m_hFontSB);
 
 	m_SettingsUSBDriver->SetValue(m_Parent->GetUSBDriverType());
 	m_SettingsUSBDriver->Draw(m_HDC, m_hFontS, m_hFontSB);
+#else
+	m_SettingsUSBPort->SetEditable(!S3GetRemote());
+	// m_SettingsUSBPort->SetValue(m_Parent->GetUSBPortName());
+	m_SettingsUSBPort->Draw(m_HDC, m_hFontS, m_hFontSB);
+
+	m_SettingsUSBDriver->SetValue(CString(S3Data->m_DisplayedUSBDriver));
+	m_SettingsUSBDriver->Draw(m_HDC, m_hFontS, m_hFontSB);
+#endif
 }
 
 // ----------------------------------------------------------------------------
@@ -610,6 +622,7 @@ void CS3GDIScreenMain::S3DrawGDISettingsSystem(void)
 	Rectangle(m_HDC, fntRc.left, fntRc.top,
 		fntRc.right, fntRc.bottom);
 
+#ifndef S3_AGENT
 	m_Parent->GetDateStr(str);
 	m_SettingsDate->SetValue(str);
 	m_SettingsDate->Draw(m_HDC, m_hFontS, m_hFontSB);
@@ -617,6 +630,15 @@ void CS3GDIScreenMain::S3DrawGDISettingsSystem(void)
 	m_Parent->GetTimeStr(str);
 	m_SettingsTime->SetValue(str);
 	m_SettingsTime->Draw(m_HDC, m_hFontS, m_hFontSB);
+#else
+    str = LastUpdateDateStr;
+	m_SettingsDate->SetValue(str);
+	m_SettingsDate->Draw(m_HDC, m_hFontS, m_hFontSB);
+
+    str = LastUpdateTimeStr;
+	m_SettingsTime->SetValue(str);
+	m_SettingsTime->Draw(m_HDC, m_hFontS, m_hFontSB);
+#endif
 
 	str.Format(_T("%S"), S3SysGetSN());
 	m_SettingsSN->SetValue(str);
@@ -628,7 +650,9 @@ void CS3GDIScreenMain::S3DrawGDISettingsSystem(void)
 
 	str.Format(_T("%S"), S3SysGetSW());
 	m_SettingsSW->SetValue(str);
+#ifndef S3_AGENT
 	m_SettingsSW->SetEditable(!S3GetRemote());
+#endif
 	m_SettingsSW->Draw(m_HDC, m_hFontS, m_hFontSB);
 	
 	str.Format(_T("%S"), S3SysGetModel());
@@ -637,7 +661,9 @@ void CS3GDIScreenMain::S3DrawGDISettingsSystem(void)
 
 	str.Format(_T("%S %S"), S3SysGetImageDate(), S3SysGetImageTime());
 	m_SettingsImageDate->SetValue(str);
+#ifndef S3_AGENT
 	m_SettingsImageDate->SetEditable(!S3GetRemote());
+#endif
 	m_SettingsImageDate->Draw(m_HDC, m_hFontS, m_hFontSB);
 
 	if (1)
@@ -760,17 +786,34 @@ int CS3GDIScreenMain::S3FindSettingsScreen(POINT p)
 
 		if (Para == S3_USB_ENABLE)
 		{
+#ifndef S3_AGENT
 			if (m_Parent->GetUSBEnabled())
 				m_Parent->SetUSBEnabled(false);
 			else
 				m_Parent->SetUSBEnabled(true);
+#endif
 		}
 		else if  (Para == S3_T_COMP_MODE)
 		{
 			if (S3GetTCompGainOption())
 			{
 				if (menu_item == 3)
+#ifndef S3_AGENT
+				{
 					S3DoComp(-1, -1);
+				}
+#else
+                {
+				    CString Command, Args, Response;
+                    Command = L"TCOMP";
+
+                    Args.Format(_T(" All"));
+
+                    Command.Append(Args);
+
+                    Response = SendSentinel3Message(Command);
+                }
+#endif
 				else if (menu_item == 0)
 					S3SetTCompMode(S3_TCOMP_OFF);
 				else if (menu_item == 1)
@@ -838,8 +881,21 @@ int CS3GDIScreenMain::S3FindSettingsScreen(POINT p)
 		}
 		else if  (Para == S3_ACCESS)
 		{
+#ifndef S3_AGENT
 			if (menu_item == 0)
 				S3SetRemote(false);
+#else
+            CString Command, Response;
+			if(S3GetRemote())
+            {
+                Command = L"LOCAL";
+            }
+            else
+            {
+                Command = L"REMOTE";
+            }
+            Response = SendSentinel3Message(Command);
+#endif
 		}
 		else if  (Para == S3_TX_START_STATE)
 		{
@@ -877,6 +933,9 @@ int CS3GDIScreenMain::S3FindSettingsScreen(POINT p)
 	{
 		if (s == 0) // Ethernet port edit
 		{
+#ifndef S3_AGENT
+            //S3Agent Remote application shouldn't be able to modify the IP PORT
+
 			if (S3GetRemote())
 				return 0;
 			
@@ -891,13 +950,13 @@ int CS3GDIScreenMain::S3FindSettingsScreen(POINT p)
 
 			m_NumericPad->PopUp(m_HDC, p.x, p.y, m_GDIIPPortEdit,
 				S3_NP_POSITIVE | S3_NP_INTEGER, 5);
-
-			// m_GDIIPPortEdit->SetSel(2, 2);
-			// Indicate that a system parameter is being edited
+#endif
 			return S3SetSelectedPara(-1, -1, -1, S3_IP_PORT);
 		}
 		else if (s == 1) // USB enable/disable toggle
 		{
+#ifndef S3_AGENT
+			//S3Agent Remote application shouldn't be able to modify the USB enabled/disabled
 			if (S3GetRemote())
 				return 0;
 
@@ -913,6 +972,7 @@ int CS3GDIScreenMain::S3FindSettingsScreen(POINT p)
 			m_ParaMenu->Activate();
 
 			return S3SetSelectedPara(-1, -1, -1, S3_USB_ENABLE);
+#endif
 		}
 		else if (s == 2) // Power units selector
 		{
@@ -1013,8 +1073,10 @@ int CS3GDIScreenMain::S3FindSettingsScreen(POINT p)
 		}
 		else if (s == 7) // OS version
 		{
+#ifndef S3_AGENT
 			if (S3GetRemote())
 				return 0;
+#endif
 
 			m_ParaMenu->Init(m_HDC, p.x, p.y);
 		
@@ -1026,9 +1088,10 @@ int CS3GDIScreenMain::S3FindSettingsScreen(POINT p)
 		}
 		else if (s == 8) // Temp compensation mode
 		{
+#ifndef S3_AGENT
 			if (S3GetRemote())
 				return 0;
-
+#endif
 			m_ParaMenu->Init(m_HDC, p.x, p.y);
 		
 			if (S3GetTCompGainOption())
@@ -1080,6 +1143,9 @@ int CS3GDIScreenMain::S3FindSettingsScreen(POINT p)
 		}
 		else if (s == 10) // Date edit
 		{
+			//Disallow the user from changing the date & time remotely
+			// this can still be done using the manual SYSSETTIME command
+#ifndef S3_AGENT
 			CString str;
 
 			m_Parent->GetDateStr(str);
@@ -1087,13 +1153,14 @@ int CS3GDIScreenMain::S3FindSettingsScreen(POINT p)
 			m_GDIDateEdit->SetWindowText(str);
 			m_GDIDateEdit->ShowWindow(true);
 
-			// m_NumericPad->PopUp(m_HDC, p.x, p.y, m_GDIIPPortEdit,
-			//	S3_NP_POSITIVE | S3_NP_INTEGER, 5);
-
 			return S3SetSelectedPara(-1, -1, -1, S3_DATE_EDIT);
+#endif
 		}
 		else if (s == 11) // Time edit
 		{
+			//Disallow the user from changing the date & time remotely
+            // this can still be done using the manual SYSSETTIME command
+#ifndef S3_AGENT
 			CString str;
 
 			m_Parent->GetTimeStr(str);
@@ -1101,10 +1168,8 @@ int CS3GDIScreenMain::S3FindSettingsScreen(POINT p)
 			m_GDITimeEdit->SetWindowText(str);
 			m_GDITimeEdit->ShowWindow(true);
 
-			// m_NumericPad->PopUp(m_HDC, p.x, p.y, m_GDIIPPortEdit,
-			//	S3_NP_POSITIVE | S3_NP_INTEGER, 5);
-
 			return S3SetSelectedPara(-1, -1, -1, S3_TIME_EDIT);
+#endif
 		}
 		else if (s == 12) // Access
 		{
@@ -1113,7 +1178,6 @@ int CS3GDIScreenMain::S3FindSettingsScreen(POINT p)
 			if (S3GetRemote())
 			{
 				m_ParaMenu->AddItem(_T("Local"));
-				// m_ParaMenu->SelectItem(0);
 
 				m_ParaMenu->Activate();
 
@@ -1136,8 +1200,10 @@ int CS3GDIScreenMain::S3FindSettingsScreen(POINT p)
 		}
 		else if (s == 14) // Global Rx AGC setting
 		{
+#ifndef S3_AGENT		
 			if (S3GetRemote())
 				return 0;
+#endif
 
 			m_ParaMenu->Init(m_HDC, p.x, p.y);
 		

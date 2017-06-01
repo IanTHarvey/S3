@@ -6,22 +6,20 @@
 //
 // ----------------------------------------------------------------------------
 
-#ifndef TRIZEPS
-#include "S3ControllerX86/targetver.h"
+
+#include "stdafx.h"
+
+#include <stdio.h>
+#include <math.h>
+#include "mathdefs.h"
+#include "S3DataModel.h"
+
+#ifdef S3_AGENT
+#include "S3Agent/S3AgentDlg.h"
 #else
-#define WINVER _WIN32_WCE
-#include <ceconfig.h>
+#include "S3ControllerDlg.h"
 #endif
 
-#include "afxpriv.h"
-#include <stdio.h>
-#include <string.h>
-#include <math.h>
-
-#include "mathdefs.h"
-
-#include "S3DataModel.h"
-#include "S3ControllerDlg.h"
 #include "S3GDIClickText.h"
 
 #define S3_RX_TABLE_R_MARG	8
@@ -602,8 +600,10 @@ int CS3GDIScreenMain::S3FindRxScreen(POINT p)
 	char Rx, Tx, IP, Para;
 	S3GetSelected(&Rx, &Tx, &IP);
 
+#ifndef S3_AGENT
 	if (S3GetRemote())
 		return 0;
+#endif
 
 	if (menu_item != -1)
 	{		

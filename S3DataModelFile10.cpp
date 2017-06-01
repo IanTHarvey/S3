@@ -4,7 +4,7 @@
 // OVER-WRITES THE MAIN BLOCK (AND ANY CHANGES MADE USING THE STANDARD
 // ACCESSORS)
 
-#include "windows.h"
+#include "stdafx.h"
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -348,8 +348,9 @@ int S3Read2(const char *Filename)
 	memcpy(S3Shadow, &readModel, sizeof(S3DataModel));
 
 	// Make sure shadow updated
+#ifndef S3_AGENT
 	S3DbgPollInit();
-
+#endif
 	// TODO: We may try and set Tx active with invalidated battery
 	// for (char Rx = 0; Rx < S3_MAX_RXS; Rx++)
 	// 	S3RxSetActiveTx(Rx, 0);

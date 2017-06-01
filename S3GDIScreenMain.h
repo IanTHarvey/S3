@@ -42,7 +42,11 @@
 #define S3_BTN_CENTRE			(DT_SINGLELINE | DT_VCENTER | DT_CENTER)
 
 // CS3GDIScreenMain
+#ifdef S3_AGENT
+class CS3AgentDlg;
+#else
 class CS3ControllerDlg;
+#endif
 class CTextInputPopup;
 class CS3GDIInfoPopup;
 class CS3NameValue;
@@ -342,7 +346,12 @@ public:
 	S3TxPwrMode		m_TxPowerState;
 
 	unsigned char		m_MsgID;  // SW update screen mode...
+
+#ifdef S3_AGENT
+	CS3AgentDlg			*m_Parent;
+#else
 	CS3ControllerDlg	*m_Parent;
+#endif
 	
 	// Public to maintain universal theme for children only...
 	COLORREF	m_crMenuBGDark, m_crMenuBGMed, m_crMenuBGLight,
@@ -558,7 +567,7 @@ public:
 	int		S3GDITextSupplied(CString txt);
 
 	void	SelectionChanged();
-	void	SetSelection();
+	void	SetSelection(bool goToOverview);
 
 protected:
 	DECLARE_MESSAGE_MAP()

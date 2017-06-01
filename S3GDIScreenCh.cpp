@@ -4,24 +4,27 @@
 // m_Screen == S3_CH_SCREEN
 // ----------------------------------------------------------------------------
 
+#include "stdafx.h"
 
-#ifndef TRIZEPS
-#include "S3ControllerX86/targetver.h"
+#include <stdio.h>
+#include "S3DataModel.h"
+
+#ifdef S3_AGENT
+#include "S3Agent/S3AgentDlg.h"
 #else
-#define WINVER _WIN32_WCE
-#include <ceconfig.h>
+#include "S3ControllerDlg.h"
 #endif
 
-#include "afxpriv.h"
-#include <stdio.h>
-#include <string.h>
-#include <math.h>
+// Control status bits
+#define BQ_RES7		0x80
+#define BQ_FAS		0x40
+#define BQ_SS		0x20	// Sealed
+#define BQ_CALEN	0x10
+#define BQ_CCA		0x08
+#define BQ_BCA		0x04
+#define BQ_CSV		0x02
+#define BQ_RES0		0x01
 
-#include "mathdefs.h"
-
-#include "S3DataModel.h"
-#include "S3ControllerDlg.h"
-#include "S3I2C.h"
 // ----------------------------------------------------------------------------
 
 // TODO: Put in class

@@ -1,8 +1,8 @@
 //
 // TODO: Make Rx/Tx/IP indexing char and use -1 to indicate non-existence
 
+#include "stdafx.h"
 
-// #include "stdafx.h"
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -10,13 +10,15 @@
 #include <float.h>
 #include <math.h>
 
-#include <windows.h>
-
 #include "S3SystemDetails.h"
 #include "S3DataModel.h"
 #include "S3GPIB.h"
 #include "S3I2C.h"
 #include "S3Gain.h"
+
+#ifdef S3_AGENT
+#include "S3Agent\S3Comms.h"
+#endif
 
 #ifdef TRIZEPS
 #include "drvLib_app.h"
@@ -85,11 +87,11 @@ pS3DataModel S3Shadow = NULL;
 extern int S3GPIOtest();
 extern int S3I2CSetIPGain(char Rx, char Tx, char IP);
 
-extern int	m_GainSent[S3_MAX_RXS][S3_MAX_TXS][S3_MAX_IPS];
-extern char	m_PathSent[S3_MAX_RXS][S3_MAX_TXS][S3_MAX_IPS];
-
 // TODO: TBD... Map user input to internal Tx input
 unsigned char S3Tx8IPMap[8] = {0, 1, 2, 3, 4, 5, 6, 7};
+
+short PeakThTable[S3_TX_N_RF_PATH] =
+	{200,	200,	-700,	-700,	-700,	-700,	-700};
 
 // ----------------------------------------------------------------------------
 
@@ -113,9 +115,8 @@ pS3DataModel S3Init(bool DemoMode)
 	S3Shadow =	&sS3Data;
 	
 	S3ChInitAll();
-
+#ifndef S3_AGENT
 	S3DbgPollInit();
-
 	S3EventLogInit(NULL);
 
 #ifndef	S3VIRGIN
@@ -140,6 +141,7 @@ pS3DataModel S3Init(bool DemoMode)
 
 		S3EventLogAdd(Msg, 1, -1, -1, -1);
 	}
+#endif // S3_AGENT
 
 	S3SetUnits(-1);
 
@@ -181,6 +183,10 @@ int S3DataModelInit(pS3DataModel dm, bool DemoMode)
 
 	dm->m_DemoMode = DemoMode;
 
+    dm->m_SelectedIP = -1;
+    dm->m_SelectedTx = -1;
+    dm->m_SelectedRx = -1;
+
 	// Too dumb to remember, every time...
 #ifdef _NEVER_DEBUG
 	dm->m_Remote = true;
@@ -193,6 +199,7 @@ int S3DataModelInit(pS3DataModel dm, bool DemoMode)
 	*dm->m_ReportFileName = '\0';
 	*dm->m_TestName = '\0';
 
+#ifndef S3_AGENT
 	// TODO: Should all files be tied to the same system (config) name (and fixed path)?
 	if (dm->m_DemoMode)
 		strcpy_s(dm->m_ConfigName, S3_MAX_CFG_NAME_LEN, S3_DEF_DEMO_CONFIG_FILENAME);	// Load/save filename
@@ -226,6 +233,7 @@ int S3DataModelInit(pS3DataModel dm, bool DemoMode)
 			S3_ROOT_DIR, S3_SCREEN_OFFSET_FILENAME);
 
 	S3ReadScreenOffsets();
+#endif
 
 	// TODO: Override above from registry if available
 	// ...
@@ -258,8 +266,8 @@ int S3DataModelInit(pS3DataModel dm, bool DemoMode)
 				S3IPInit(pIP);
 				sprintf_s(pIP->m_NodeName, S3_MAX_NODE_NAME_LEN, "RF%d", IP + 1);
 
-				m_GainSent[Rx][Tx][IP] = -128;
-				m_PathSent[Rx][Tx][IP] = -128;
+				S3Data->m_GainSent[Rx][Tx][IP] = -128;
+				S3Data->m_PathSent[Rx][Tx][IP] = -128;
 			}
 		}
 	}
@@ -507,7 +515,10 @@ int S3SysInit(pS3DataModel node)
 	S3SysSetSW(S3_SYS_SW);
 	S3SysSetModel(S3_SYS_MODEL);
 	S3OSGetImageID();
+
+#ifndef S3_AGENT
 	S3SetAppDateTime();
+#endif
 
 	S3ConfigInit(&(node->m_Config));
 
@@ -839,6 +850,22 @@ int S3SetGain(char Rx, char Tx, char IP, char gain)
 		gain = high;
 	}
 
+#ifdef S3_AGENT
+    CString Command, Args, Response;
+    Command = L"GAIN";
+    
+    if(Rx == -1 && Tx == -1 && IP == -1)
+    {
+        Args.Format(_T(" DEF %d"), gain);
+    }
+    else
+    {
+        Args.Format(_T(" %d %d %d %d"), (Rx + 1), (Tx + 1), (IP + 1), gain);
+    }
+    Command.Append(Args);
+
+    Response = SendSentinel3Message(Command);
+#else
 	if (Rx == -1)
 	{
 		S3Data->m_Config.m_Gain = gain;
@@ -868,6 +895,7 @@ int S3SetGain(char Rx, char Tx, char IP, char gain)
 
 		S3IPSetGainSent(Rx, Tx, IP, SCHAR_MIN); // Invalidate to force update
 	}
+#endif
 
 	return GainLimited;
 
@@ -1037,6 +1065,27 @@ int S3IPCalcGain(double maxip)
 
 int S3SetUnits(unsigned char Units)
 {
+#ifdef S3_AGENT
+    CString Command, Args, Response, InZ;
+    Command = L"UNITS";
+
+    switch(Units)
+    {
+    case S3_UNITS_DBM:
+        Args = L" DBM";
+        break;
+    case S3_UNITS_DBUV:
+        Args = L" DBUV";
+        break;
+    case S3_UNITS_MV:
+        Args = L" MV";
+        break;
+    }
+
+    Command.Append(Args);
+
+    Response = SendSentinel3Message(Command);
+#else
 	if (Units != 0xFF)
 		S3Data->m_DisplayUnits = Units;
 
@@ -1065,7 +1114,7 @@ int S3SetUnits(unsigned char Units)
 			}
 		}
 	}
-
+#endif
 	return 0;
 }
 
@@ -1383,6 +1432,23 @@ int S3SoftwareUpdate()
 
 int	S3SetSleepAll(bool sleep)
 {
+#ifdef S3_AGENT
+	if (S3Data->m_SleepAll == sleep)
+		return 0;
+	
+	S3Data->m_SleepAll = sleep;
+	
+	if (sleep)
+	{
+		CString Response = SendSentinel3Message(L"SLEEPALL");
+	}
+	else
+	{
+		CString Response = SendSentinel3Message(L"WAKEALL");
+	}
+
+	return 0;
+#else
 	if (S3Data->m_SleepAll == sleep)
 		return 0;
 	
@@ -1398,6 +1464,8 @@ int	S3SetSleepAll(bool sleep)
 	}
 
 	return 0;
+
+#endif
 }
 
 // ---------------------------------------------------------------------------
@@ -1427,6 +1495,7 @@ bool S3GetSleepAll()
 {
 	return S3Data->m_SleepAll;
 }
+
 // ---------------------------------------------------------------------------
 
 bool S3GetWakeAll()
@@ -1523,6 +1592,8 @@ int S3SetAGC(unsigned char AGC)
 	else
 		S3Data->m_AGC = AGC;
 
+	// Backwards compatibility only
+	// OBSOLETE
 	for(char Rx = 0; Rx < S3_MAX_RXS; Rx++)
 	{
 		S3RxSetAGC(Rx, 0, AGC);
@@ -1536,6 +1607,26 @@ int S3SetAGC(unsigned char AGC)
 
 int S3SetTCompMode(unsigned char ContMode)
 {
+#ifdef S3_AGENT
+    CString Command, Args, Response;
+    Command = L"TCOMPMODE";
+    switch(ContMode)
+    {
+    default:
+    case 0: 
+        Args = L" OFF";
+        break;
+    case 1: 
+        Args = L" CONT";
+        break;
+    case 2: 
+        Args = L" GAIN";
+        break;
+    }
+    Command.Append(Args);
+
+    Response = SendSentinel3Message(Command);	
+#else
 	if (ContMode < 100)
 	{
 		// Make pending
@@ -1551,6 +1642,7 @@ int S3SetTCompMode(unsigned char ContMode)
 		S3Data->m_ContTComp = ContMode - 100;
 		S3TxSetTCompMode(-1, -1, ContMode);
 	}
+#endif
 
 	return 0;
 }
@@ -1566,8 +1658,14 @@ unsigned char S3GetTCompMode()
 
 int S3TempComp()
 {
-	// TODO: Perform temperature compensation on all links
+#ifdef S3_AGENT
+    CString Command, Args, Response;
+    Command = L"TCOMP";
+    Args = L" ALL";
+	Command.Append(Args);
 
+    Response = SendSentinel3Message(Command);
+#endif
 	return 0;
 }
 
@@ -1618,6 +1716,7 @@ int S3SetDemoMode(bool DemoMode)
 
 int S3SetFactoryMode(char Rx, char Tx, bool mode)
 {
+#ifndef S3_AGENT
 	S3Data->m_FactoryMode = mode;
 	
 	if (mode == true)
@@ -1648,6 +1747,8 @@ int S3SetFactoryMode(char Rx, char Tx, bool mode)
 		S3EventLogAdd("S3SetFactoryMode: Entered factory mode", 1, Rx, Tx, -1);
 	else
 		S3EventLogAdd("S3SetFactoryMode: Closed factory mode", 1, Rx, Tx, -1);
+
+#endif
 
 	return 0;
 }
@@ -1734,6 +1835,22 @@ int S3SetTxStartState(unsigned char state)
 {
 	S3Data->m_TxStartState = state;
 
+#ifdef S3_AGENT
+
+    CString Command, Args, Response, Taustr;
+    Command = L"TXSTARTSTATE";
+
+    if (state == S3_TXSTART_USER)
+        Args.Format(_T(" USER"));
+    else if (state == S3_TXSTART_SLEEP)
+        Args.Format(_T(" SLEEP"));
+    else if (state == S3_TXSTART_ON)
+        Args.Format(_T(" ON"));
+
+    Command.Append(Args);
+    Response = SendSentinel3Message(Command);
+
+#endif
 	return 0;
 }
 
@@ -1747,6 +1864,19 @@ bool S3GetTxSelfTest()
 int S3SetTxSelfTest(bool on)
 {
 	S3Data->m_TxSelfTest = on;
+
+#ifdef S3_AGENT
+    CString Command, Args, Response, Taustr;
+    Command = L"TXSELFTEST";
+
+    if(on)
+        Args.Format(_T(" ON"));
+    else
+        Args.Format(_T(" OFF"));
+
+    Command.Append(Args);
+    Response = SendSentinel3Message(Command);
+#endif
 
 	return 0;
 }

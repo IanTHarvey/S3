@@ -1,23 +1,21 @@
-#ifndef TRIZEPS
-#include "S3ControllerX86/targetver.h"
-#else
-#define WINVER _WIN32_WCE
-#include <ceconfig.h>
-#endif
-
-#include <afxpriv.h>
-
+#include "stdafx.h"
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include <ctype.h>
+#include <assert.h>
+#include <float.h>
+#include <math.h>
 
 #include "S3DataModel.h"
 #include "S3I2C.h"
 #include "S3GPIB.h"
 
+#ifdef S3_AGENT
+#include "S3Agent\S3Comms.h"
+#endif
+
 extern pS3DataModel S3Data;
-extern pS3DataModel S3Shadow;
+// extern pS3DataModel S3Shadow;
 
 // ----------------------------------------------------------------------------
 
@@ -30,10 +28,10 @@ int S3RxInit(pS3RxData node)
 	node->m_Detected = false;
 	node->m_SelectedTx = 0;	// Nothing selected
 	node->m_ActiveTx = 0;	// Will always have valid value - whatever's
+	// connected (or not)
 
 	node->m_Fmax = S3_1GHZ;
 
-	// connected (or not)
 	strcpy_s(node->m_SN, S3_MAX_SN_LEN, "Unknown");
 	strcpy_s(node->m_PN, S3_MAX_PN_LEN, "Unknown");
 	strcpy_s(node->m_HW, S3_MAX_SW_VER_LEN, "Unknown");
@@ -105,12 +103,13 @@ int S3RxSetType(pS3RxData Rx, S3RxType type)
 	}
 
 	Rx->m_Type = type;
-
 	Rx->m_Alarms = 0;
 
+#ifndef S3_AGENT
 	// DEBUG ONLY: Required for GUI setting of type, otherwise poll mechanism
 	// overwrites it
 	S3PollRxSetType(Rx);
+#endif
 
 	return 0;
 }
@@ -120,6 +119,7 @@ int S3RxSetType(pS3RxData Rx, S3RxType type)
 
 int S3RxInserted(char Rx, S3RxType type)
 {
+#ifndef S3_AGENT
 	pS3RxData pRx = &S3Data->m_Rx[Rx];
 	// pS3RxData pRxS = &S3Shadow->m_Rx[Rx];
 
@@ -148,6 +148,7 @@ int S3RxInserted(char Rx, S3RxType type)
 	// Force switch
 	if (pRx->m_ActiveTx < 100)
 		pRx->m_ActiveTx += 100;
+#endif
 
 	return 0;
 }
@@ -157,6 +158,7 @@ int S3RxInserted(char Rx, S3RxType type)
 
 int S3RxRemoved(char Rx)
 {
+#ifndef S3_AGENT
 	char SRx, STx, SIP;
 	
 	S3GetSelected(&SRx, &STx, &SIP);
@@ -173,7 +175,8 @@ int S3RxRemoved(char Rx)
 
 	for(char Tx = 0; Tx < S3_MAX_TXS; Tx++)
 		S3TxRemoved(Rx, Tx);
-	
+#endif
+
 	return 0;
 }
 
@@ -181,6 +184,18 @@ int S3RxRemoved(char Rx)
 
 int S3RxSetActiveTx(char Rx, char Tx)
 {
+#ifdef S3_AGENT
+    CString Command, Args, Response, Taustr;
+    Command = L"SELECTTX";
+
+
+    Args.Format(_T(" %d %d"), (Rx + 1), (Tx + 1));
+
+    Command.Append(Args);
+    Response = SendSentinel3Message(Command);
+
+	return 0;
+#else
 	pS3RxData	pRx;
 
 	if (Rx < 0 || Rx >= S3_MAX_RXS)
@@ -206,6 +221,7 @@ int S3RxSetActiveTx(char Rx, char Tx)
 		pRx->m_ActiveTx = 0;
 
 	return 0;
+#endif
 }
 
 // ---------------------------------------------------------------------------
@@ -429,6 +445,7 @@ int S3RxSetRLL(char Rx, char Tx, short RLL)
 
 // ---------------------------------------------------------------------------
 // Tx for Rx2 only
+// OBSOLETE
 
 unsigned char S3RxGetAGC(char Rx, char Tx)
 {
@@ -448,15 +465,39 @@ unsigned char S3RxGetAGC(char Rx, char Tx)
 }
 
 // ---------------------------------------------------------------------------
-// I2C routine tests this value against value read from Rx
+// OBSOLETE
+
 int S3RxSetAGC(char Rx, char Tx, unsigned char AGC)
 {
+#ifdef S3_AGENT
+	CString Command, Args, Response, Taustr;
+    Command = L"AGC";
+
+    switch(AGC)
+    {
+        case (S3_AGC_OFF + 100):
+            Args.Format(_T(" %d OFF"), (Rx + 1));
+            break;
+        case (S3_AGC_CONT + 100):
+            Args.Format(_T(" %d CONT"), (Rx + 1));
+            break;
+        case (S3_AGC_GAIN + 100):
+            Args.Format(_T(" %d GAIN"), (Rx + 1));
+            break;
+    }
+
+
+    Command.Append(Args);
+    Response = SendSentinel3Message(Command);
+	return 0;
+#else
 	if (Tx == -1)
 		Tx = 0;
 
 	S3Data->m_Rx[Rx].m_AGC[Tx] = AGC;
 
 	return 0;
+#endif
 }
 
 // ---------------------------------------------------------------------------

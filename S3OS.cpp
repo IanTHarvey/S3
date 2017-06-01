@@ -4,7 +4,7 @@
 // The S3OS.obj file should be delated in post-build to ensure the application
 // build date is updated with __DATE__ and __TIME__.
 
-#include "windows.h"
+#include "stdafx.h"
 #include "tchar.h"
 #include <string.h>
 #include <stdlib.h>
@@ -570,6 +570,7 @@ int S3LogFileToUSB()
 
 int S3SysReadSN()
 {
+#ifndef S3_AGENT
 	FILE *fid;
 	errno_t err = fopen_s(&fid, S3Data->m_SNFileName, "r");
 
@@ -616,6 +617,7 @@ int S3SysReadSN()
 		strcpy_s(S3Data->m_SN, S3_MAX_SN_LEN, "Unknown");
 		return 1;
 	}
+#endif
 
 	return 0;
 }
@@ -642,6 +644,7 @@ int S3SysWriteSN()
 
 int S3SysReadPN()
 {
+#ifndef S3_AGENT
 	FILE *fid;
 	errno_t err = fopen_s(&fid, S3Data->m_PNFileName, "r");
 
@@ -666,6 +669,7 @@ int S3SysReadPN()
 		strcpy_s(S3Data->m_PN, S3_MAX_PN_LEN, "Unknown");
 		return 1;
 	}
+#endif
 
 	return 0;
 }
@@ -691,7 +695,9 @@ int S3SysWritePN()
 // ----------------------------------------------------------------------------
 // set/cancel
 
-extern int S3PowerDownTimeout;
+// TODO: Make member
+
+int S3PowerDownTimeout = 0;
 
 int S3SetPowerDownPending(bool set)
 {
@@ -729,7 +735,7 @@ bool S3GetPowerDownFailed()
 // ----------------------------------------------------------------------------
 // set/cancel
 
-extern int S3CloseAppTimeout;
+int S3CloseAppTimeout = 0;
 
 int S3SetCloseAppPending(bool set)
 {
@@ -829,6 +835,10 @@ int S3BackupConfig()
 
 int S3GetScreenOffsets(short *x, short *y)
 {
+#ifdef S3_AGENT
+	*x = 0;
+	*y = 0;
+#else
 	if (S3Data->m_ScrnOSx == SHRT_MIN || S3Data->m_ScrnOSy == SHRT_MIN)
 	{
 		*x = 0;
@@ -841,6 +851,7 @@ int S3GetScreenOffsets(short *x, short *y)
 		*x = S3Data->m_ScrnOSx;
 		*y = S3Data->m_ScrnOSy;
 	}
+#endif
 
 	return 0;
 }

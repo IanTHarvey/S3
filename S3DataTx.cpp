@@ -1,21 +1,18 @@
-#ifndef TRIZEPS
-#include "S3ControllerX86/targetver.h"
-#else
-#define WINVER _WIN32_WCE
-#include <ceconfig.h>
-#endif
-
-#include <afxpriv.h>
-
+#include "stdafx.h"
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include <ctype.h>
+#include <assert.h>
+#include <float.h>
 #include <math.h>
 
 #include "S3DataModel.h"
 #include "S3GPIB.h"
 #include "S3I2C.h"
+
+#ifdef S3_AGENT
+#include "S3Agent\S3Comms.h"
+#endif
 
 extern pS3DataModel S3Data;
 extern pS3DataModel S3Shadow;
@@ -143,7 +140,9 @@ int S3TxSetType(char Rx, char Tx, S3TxType type)
 
 	// DEBUG ONLY: Required for GUI setting of type, otherwise poll mech
 	// overwrites it
+#ifndef S3_AGENT
 	S3PollTxSetType(pTx);
+#endif
 
 	return 0;
 }
@@ -180,7 +179,9 @@ int S3TxSetTypeP(pS3TxData pTx, S3TxType type)
 
 	// DEBUG ONLY: Required for GUI setting of type, otherwise poll mech
 	// overwrites it
+#ifndef S3_AGENT
 	S3PollTxSetType(pTx);
+#endif
 
 	return 0;
 }
@@ -406,6 +407,7 @@ int S3TxSetConnected(pS3TxData pTx)
 
 	return 0;
 }
+
 // ----------------------------------------------------------------------------
 
 int S3TxSetNodeName(const char *	Node, char *NodeName)
@@ -513,6 +515,41 @@ S3TxType S3TxGetType(char Rx, char Tx)
 
 int S3TxSetTestToneIP(char Rx, char Tx, char IP) // , unsigned char SigOn)
 {
+#ifdef S3_AGENT
+	CString Command, Args, Response;
+
+    Command = "RX";
+    Args.Format(_T(" %d"), (Rx + 1));
+    Command.Append(Args);
+    Response = SendSentinel3Message(Command);
+
+    Command = "Tx";
+    Args.Format(_T(" %d"), (Tx + 1));
+    Command.Append(Args);
+    Response = SendSentinel3Message(Command);
+
+    if(IP != -1)
+    {
+        Command = "IP";
+        Args.Format(_T(" %d"), (IP + 1));
+        Command.Append(Args);
+        Response = SendSentinel3Message(Command);
+
+        Command = L"IPTESTSIG";
+        Args.Format(_T(" ON"));
+        Command.Append(Args);
+        Response = SendSentinel3Message(Command);
+
+    }
+    else
+    {
+        Command = L"IPTESTSIG";
+        Args.Format(_T(" OFF"));
+        Command.Append(Args);
+        Response = SendSentinel3Message(Command);
+    }
+	return 0;
+#else
 	
 	if (S3Data->m_Rx[Rx].m_Tx[Tx].m_TestSigInput >= 99)
 	{
@@ -568,6 +605,7 @@ int S3TxSetTestToneIP(char Rx, char Tx, char IP) // , unsigned char SigOn)
 	*/
 
 	return 0;
+#endif
 }
 
 // ---------------------------------------------------------------------------
@@ -581,6 +619,17 @@ char S3TxGetTestToneIP(char Rx, char Tx)
 
 int S3TxSetActiveIP(char Rx, char Tx, char IP)
 {
+#ifdef S3_AGENT
+	CString Command, Args, Response, Taustr;
+    Command = L"SELECTIP";
+
+    Args.Format(_T(" %d %d %d"), (Rx + 1), (Tx + 1), (IP + 1));
+
+    Command.Append(Args);
+    Response = SendSentinel3Message(Command);
+
+	return 0;
+#else
 	pS3TxData	pTx = &S3Data->m_Rx[Rx].m_Tx[Tx];
 
 	char curIP = pTx->m_ActiveInput;
@@ -606,6 +655,7 @@ int S3TxSetActiveIP(char Rx, char Tx, char IP)
 		pTx->m_ActiveInput = 0;
 
 	return 0;
+#endif
 }
 
 // ---------------------------------------------------------------------------
@@ -631,6 +681,23 @@ char S3TxGetActiveIP(char Rx, char Tx)
 
 int S3TxSetPowerStat(char Rx, char Tx, S3TxPwrMode mode)
 {
+#ifdef S3_AGENT
+	CString Command, Args, Response;
+    Command = "TXPOWER";
+    switch(mode)
+    {
+    case S3_TX_ON:
+            Args.Format(_T(" %d %d ON"), (Rx + 1), (Tx + 1));
+        break;
+    case S3_TX_SLEEP:
+            Args.Format(_T(" %d %d SLEEP"), (Rx + 1), (Tx + 1));
+        break;
+    }
+    Command.Append(Args);
+    Response = SendSentinel3Message(Command);
+
+	return 0;
+#else
 	// Update data model
 	if (mode != S3_TX_ON && mode != S3_TX_SLEEP)
 		return 1;
@@ -716,6 +783,7 @@ int S3TxSetPowerStat(char Rx, char Tx, S3TxPwrMode mode)
 	}
 
 	return 0;
+#endif
 }
 
 // ----------------------------------------------------------------------------
@@ -1276,6 +1344,21 @@ int S3TxSetTempComp(char Rx, char Tx, char t)
 
 int S3TxDoComp(char Rx, char Tx)
 {
+#ifdef S3_AGENT
+	if (S3RxGetType(Rx) == S3_RxEmpty)
+		return 0;
+	
+    CString Command, Args, Response;
+    Command = L"TCOMP";
+
+    Args.Format(_T(" %d %d"), (Rx + 1), (Tx + 1));
+
+    Command.Append(Args);
+
+    Response = SendSentinel3Message(Command);
+
+	return 0;
+#else
 	if (S3RxGetType(Rx) == S3_RxEmpty)
 		return 0;
 
@@ -1292,6 +1375,7 @@ int S3TxDoComp(char Rx, char Tx)
 	S3Data->m_Rx[Rx].m_Tx[Tx].m_TempComp = SCHAR_MIN;
 
 	return 0;
+#endif
 }
 
 // ----------------------------------------------------------------------------

@@ -6,23 +6,21 @@
 //
 // ----------------------------------------------------------------------------
 
-#ifndef TRIZEPS
-#include "S3ControllerX86/targetver.h"
-#else
-#define WINVER _WIN32_WCE
-#include <ceconfig.h>
-#endif
+#include "stdafx.h"
 
 #include <stdio.h>
-#include <string.h>
 #include <math.h>
-
 #include "mathdefs.h"
-
 #include "S3DataModel.h"
+
+#ifdef S3_AGENT
+#include "S3Agent/S3AgentDlg.h"
+#else
 #include "S3ControllerDlg.h"
-#include "S3GDIInfoPopup.h"
+#endif
+
 #include "S3GDIClickText.h"
+#include "S3GDIInfoPopup.h"
 
 // ----------------------------------------------------------------------------
 
@@ -578,8 +576,10 @@ int CS3GDIScreenMain::S3FindTxScreen(POINT p)
 		}
 	}	
 
+#ifndef S3_AGENT
 	if (S3GetRemote())
 		return 0;
+#endif
 
 	char menu_item = m_ParaMenu->FindSelect(p);
 
@@ -1790,13 +1790,17 @@ int CS3GDIScreenMain::S3GDITextSupplied(CString txt)
 
 	if (Para == S3_DATE_EDIT)
 	{
+#ifndef S3_AGENT
 		m_Parent->SetSysDateStr(txt);
+#endif
 		return 0;
 	}
 
 	if (Para == S3_TIME_EDIT)
 	{
+#ifndef S3_AGENT
 		m_Parent->SetSysTimeStr(txt);
+#endif
 		return 0;
 	}
 
@@ -1810,7 +1814,9 @@ int CS3GDIScreenMain::S3GDITextSupplied(CString txt)
 
 	if (Para == S3_IP_PORT)
 	{
+#ifndef S3_AGENT
 		m_Parent->ResetSocket();
+#endif
 	}
 
 	return 0;

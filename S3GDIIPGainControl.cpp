@@ -1,26 +1,16 @@
 // ----------------------------------------------------------------------------
 // Tx gain control pop-up drawing
 
-#ifndef WIN32_LEAN_AND_MEAN
-#define WIN32_LEAN_AND_MEAN
-#endif
-
-#ifndef TRIZEPS
-#include "S3ControllerX86/targetver.h"
-#else
-#define WINVER _WIN32_WCE
-#include <ceconfig.h>
-#endif
-
-#include "afxpriv.h"
+#include "stdafx.h"
 
 #include <stdio.h>
-#include <string.h>
-#include <math.h>
-#include "mathdefs.h"
-
 #include "S3DataModel.h"
+
+#ifdef S3_AGENT
+#include "S3Agent/S3AgentDlg.h"
+#else
 #include "S3ControllerDlg.h"
+#endif
 
 CRect	m_IPGainRect, m_IPGainRectText, m_IPGainRectText2,
 		m_IPGainRectUp1, m_IPGainRectUp2, m_IPGainRectDown1, m_IPGainRectDown2,

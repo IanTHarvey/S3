@@ -11,12 +11,18 @@
 
 #pragma once
 
-class CS3ControllerDlg;
-
-// #define BYTE unsigned char
+#define REM_SHUTDOWNREQ (WM_USER + 0x200)
+#define isS3GUIWatermarked false
 
 #define ROUND(x)	(x<0?ceil((x) - 0.5):floor((x) + 0.5))
 #define ABS(A)		((A)<0?-(A):A)
+
+#ifdef S3_AGENT
+class CS3AgentDlg;
+#else
+class CS3ControllerDlg;
+#endif
+
 
 #ifdef TRIZEPS
 #define	S3_ROOT_DIR					"\\FlashDisk\\S3"
@@ -198,7 +204,6 @@ typedef enum SigmaT				{TauNone, TauLo, TauMd, TauHi, TauUnknown};
 #define S3_MAX_IP_ADDR_LEN		64
 #define S3_MAX_PORT_LEN			256
 #define MAC_LEN					6
-// #define S3_MAX_BUFLEN		32768
 #define S3_MAX_MESSAGE_LEN		512
 #define S3_DEFAULT_IP_ADDR		"10.0.0.102"
 #define S3_DEFAULT_IP_PORT		65000
@@ -423,9 +428,6 @@ typedef enum SigmaT				{TauNone, TauLo, TauMd, TauHi, TauUnknown};
 
 typedef char S3Addr; // Rx, Tx, IP addressing
 
-//#define S3_MAX_GPIB_CMD_LEN	256
-//#define S3_MAX_GPIB_RET_LEN	32768
-
 // TODO: Use for chargers and Txs
 typedef struct sS3Battery
 {
@@ -606,7 +608,7 @@ typedef struct sS3RxData
 	char			m_LinkGain[S3_MAX_TXS];
 
 	unsigned short	m_Vcc;			// mV
-	unsigned char	m_AGC[2];		// True: on
+	unsigned char	m_AGC[2];		// True: on // OBSOLETE
 	short			m_CalGain[2];	// 10mdB
 	S3TxData		m_Tx[S3_MAX_TXS];
 
@@ -685,11 +687,13 @@ typedef struct sS3DataModel
 	bool			m_WinTrackOption;	// Is window tracking offered?
 	bool			m_LowNoiseOption;
 	bool			m_SoftShutdownOption;
-	// Duplicates PeakHoldCap
-	// bool			m_OverdriveOption;
 
 	char			m_NodeName[S3_MAX_NODE_NAME_LEN];	// User defined name
 	char			m_AppDateTime[S3_DATETIME_LEN];
+
+	// TODO: Distribute to IPs
+	int				m_GainSent[S3_MAX_RXS][S3_MAX_TXS][S3_MAX_IPS];
+	char			m_PathSent[S3_MAX_RXS][S3_MAX_TXS][S3_MAX_IPS];
 
 	// Inheritables (System defaults)
 	S3Config		m_Config;
@@ -922,7 +926,11 @@ int				S3CopyConfig(S3Config *dest, const S3Config *src);
 // Return 0 if identical, 1 otherwise
 int				S3CompConfig(const S3Config *dest, const S3Config *src);
 
+#ifdef S3_AGENT
+int				S3Poll(CS3AgentDlg *parent);
+#else
 int				S3Poll(CS3ControllerDlg *parent);
+#endif
 
 int				S3DbgPollInit();
 // int				S3PollSys();
@@ -1458,9 +1466,6 @@ int				S3DoComp(char Rx, char Tx);
 // Global AGC setting
 unsigned char	S3GetAGC();
 int				S3SetAGC(unsigned char AGCOn);
-
-// Tx self-test
-// bool S3SelfTestEnabled();
 
 // ----------------------------------------------------------------------------
 // Disable factory set-up features for deliverable system.
