@@ -10,7 +10,7 @@
 // Minor	- add/changes to functionality, HB update required.
 // Revision - implementation changes, bug fixes committed, no user changes.
 
-#define S3_SYS_SW			"1.00r001"
+#define S3_SYS_SW			"1.00r002"
 
 #define S3_SYS_MODEL		"Sentinel 3"
 
