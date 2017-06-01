@@ -165,10 +165,10 @@ int CmdGetBatt(char *Inbuf)
     }
 
     sprintf_s(Inbuf, S3_MAX_GPIB_RET_LEN,
-                " %i\037 %i\037 %i\037 %f\037 %i\037 %i\037 %s\037 %s\037 %s\037 %s\037 %i\037 %s\037 %i\037 %i\036"
-                " %i\037 %i\037 %i\037 %f\037 %i\037 %i\037 %s\037 %s\037 %s\037 %s\037 %i\037 %s\037 %i\037 %i\036"
-                " %i\037 %i\037 %i\037 %f\037 %i\037 %i\037 %s\037 %s\037 %s\037 %s\037 %i\037 %s\037 %i\037 %i\036"
-                " %i\037 %i\037 %i\037 %f\037 %i\037 %i\037 %s\037 %s\037 %s\037 %s\037 %i\037 %s\037 %i\037 %i\036",
+                " %i\037 %i\037 %i\037 %f\037 %i\037 %i\037 %s\037 %s\037 %s\037 %s\037 %i\037 %s\037 %i\037 %i\037 %i\036"
+                " %i\037 %i\037 %i\037 %f\037 %i\037 %i\037 %s\037 %s\037 %s\037 %s\037 %i\037 %s\037 %i\037 %i\037 %i\036"
+                " %i\037 %i\037 %i\037 %f\037 %i\037 %i\037 %s\037 %s\037 %s\037 %s\037 %i\037 %s\037 %i\037 %i\037 %i\036"
+                " %i\037 %i\037 %i\037 %f\037 %i\037 %i\037 %s\037 %s\037 %s\037 %s\037 %i\037 %s\037 %i\037 %i\037 %i\036",
                 valid[0],SoC[0],TTC[0],volt[0],amp[0],type[0],S3Data->m_Chargers[0].m_BattSN,
                                         S3Data->m_Chargers[0].m_BattPN,
                                         S3Data->m_Chargers[0].m_HW,
@@ -176,6 +176,7 @@ int CmdGetBatt(char *Inbuf)
                                         S3Data->m_Chargers[0].m_MfrData,
                                         S3Data->m_Chargers[0].m_BattType,
                                         S3Data->m_Chargers[0].m_Alarms,
+										S3Data->m_Chargers[0].stat_h,
                 valid[1],SoC[1],TTC[1],volt[1],amp[1],type[1],S3Data->m_Chargers[1].m_BattSN,
                                         S3Data->m_Chargers[1].m_BattPN,
                                         S3Data->m_Chargers[1].m_HW,
@@ -183,6 +184,7 @@ int CmdGetBatt(char *Inbuf)
                                         S3Data->m_Chargers[1].m_MfrData,
                                         S3Data->m_Chargers[1].m_BattType,
                                         S3Data->m_Chargers[1].m_Alarms,
+										S3Data->m_Chargers[1].stat_h,
                 valid[2],SoC[2],TTC[2],volt[2],amp[2],type[2],S3Data->m_Chargers[2].m_BattSN,
                                         S3Data->m_Chargers[2].m_BattPN,
                                         S3Data->m_Chargers[2].m_HW,
@@ -190,13 +192,15 @@ int CmdGetBatt(char *Inbuf)
                                         S3Data->m_Chargers[2].m_MfrData,
                                         S3Data->m_Chargers[2].m_BattType,
                                         S3Data->m_Chargers[2].m_Alarms,
+										S3Data->m_Chargers[2].stat_h,
                 valid[3],SoC[3],TTC[3],volt[3],amp[3],type[3],S3Data->m_Chargers[3].m_BattSN,
                                         S3Data->m_Chargers[3].m_BattPN,
                                         S3Data->m_Chargers[3].m_HW,
                                         S3Data->m_Chargers[3].m_FW,temp[3],
                                         S3Data->m_Chargers[3].m_MfrData,
                                         S3Data->m_Chargers[3].m_BattType,
-                                        S3Data->m_Chargers[3].m_Alarms);
+                                        S3Data->m_Chargers[3].m_Alarms,
+										S3Data->m_Chargers[3].stat_h);
 
     return 0;
 }
@@ -377,8 +381,8 @@ int CmdGetTXMod(char *Inbuf, int Rx, int Tx)
             " %i\037 %i\037 %i\037 %i\037 %i\037"
             " %i\037 %i\037 %i\037 %i\037"
             " %i\037 %i\037 %i\037 %i\037"
-            " %i\037 %i\037 %i\037 %i\037 %i\037 %i\037 %i\037"
-            " %i\037 %f\037 %i\037 %i\037 %i\037 %i\037"
+            " %i\037 %i\037 %i\037 %i\037 %i\037 %i\037 %i\037 %i\037"	// Alarms
+            " %i\037 %f\037 %i\037 %i\037 %i\037 %i\037"				// Config
             " %i\037 %i\037 %i\037 %s\037 %i\037 %i\037 %i\037"
             " %i\037 %i\037 %i\037 %i\037 %i\037"
             " %f\037 %f\037 %f\037 %f",
@@ -423,6 +427,7 @@ int CmdGetTXMod(char *Inbuf, int Rx, int Tx)
             S3Data->m_Rx[Rx].m_Tx[Tx].m_CtrlAlarms[0],
             S3Data->m_Rx[Rx].m_Tx[Tx].m_CtrlAlarms[1],
             S3Data->m_Rx[Rx].m_Tx[Tx].m_BattAlarms,
+			S3Data->m_Rx[Rx].m_Tx[Tx].m_RLLStableCnt,
 
             S3Data->m_Rx[Rx].m_Tx[Tx].m_Config.m_Gain,
             S3Data->m_Rx[Rx].m_Tx[Tx].m_Config.m_MaxInput,
