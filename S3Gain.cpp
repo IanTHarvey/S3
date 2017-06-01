@@ -1,7 +1,7 @@
 // ----------------------------------------------------------------------------
 // Convert user gain to individual DSA parameters
 
-#include "windows.h"
+#include "stdafx.h"
 
 #include <string.h>
 #include <stdlib.h>
@@ -258,6 +258,7 @@ const char *S3GetGainParas_Pmax(char p_dBm)
 
 // TODO: Obsolete
 
+/*
 int S3I2CSetGain(char Rx)
 {
 	return 0;
@@ -272,6 +273,7 @@ int S3I2CSetGain(char Rx)
 
 	return 0;
 }
+*/
 
 // ----------------------------------------------------------------------------
 // Path is 1-indexed.

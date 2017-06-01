@@ -6,18 +6,8 @@
 //	
 // See: http://www.ftdichip.com/Support/SoftwareExamples/CodeExamples/VC++/VCPTest_vcpp.zip
 //
-#ifndef WIN32_LEAN_AND_MEAN
-#define WIN32_LEAN_AND_MEAN
-#endif
 
-#ifndef TRIZEPS
-#include "S3ControllerX86/targetver.h"
-#else
-#define WINVER _WIN32_WCE
-#include <ceconfig.h>
-#endif
-
-#include <afxpriv.h>
+#include "stdafx.h"
 
 #include "resource.h"
 

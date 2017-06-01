@@ -1,13 +1,6 @@
 // Utilities not attached to particular data
 
-#ifndef TRIZEPS
-#include "S3ControllerX86/targetver.h"
-#else
-#define WINVER _WIN32_WCE
-#include <ceconfig.h>
-#endif
-
-#include <afxpriv.h>
+#include "stdafx.h"
 
 #include <string.h>
 #include <stdlib.h>

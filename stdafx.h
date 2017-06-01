@@ -8,7 +8,11 @@
 #pragma comment(linker, "/nodefaultlib:libcd.lib")
 
 // NOTE - this is value is not strongly correlated to the Windows CE OS version being targeted
+#ifdef WINCE
 #define WINVER _WIN32_WCE
+#else
+#include "S3ControllerX86/targetver.h"
+#endif
 
 #ifndef VC_EXTRALEAN
 #define VC_EXTRALEAN		// Exclude rarely-used stuff from Windows headers
@@ -22,7 +26,10 @@
 // turns off MFC's hiding of some common and often safely ignored warning messages
 #define _AFX_ALL_WARNINGS
 
+#ifdef WINCE
 #include <ceconfig.h>
+#endif
+
 #if defined(WIN32_PLATFORM_PSPC) || defined(WIN32_PLATFORM_WFSP)
 #define SHELL_AYGSHELL
 #endif
@@ -65,6 +72,8 @@
 	#endif
 #endif
 
+#ifdef WINCE
 #include <altcecrt.h>
+#endif
 
 #define WM_UPDATE_CONTROL    (WM_USER + 0x100)
