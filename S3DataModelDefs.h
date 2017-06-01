@@ -5,6 +5,8 @@
 #define S3_MAX_TXS				6
 #define S3_MAX_IPS				8
 
+#define S3_TX_N_RF_PATH			7
+
 #define S3_N_CHARGERS			4
 
 #define S3_TREE_DEPTH			3
