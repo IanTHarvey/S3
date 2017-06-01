@@ -45,7 +45,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="C:\boost;C:\Program Files (x86)\National Instruments\Shared\ExternalCompilerSupport\C\include"
+				AdditionalIncludeDirectories="Y:\Software\boost;Y:\Software\National Instruments\Shared\ExternalCompilerSupport\C\include"
 				PreprocessorDefinitions="S3_SHOW_P1DB;S3_AGENT;WIN32;_DEBUG;_WINDOWS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="0"
@@ -68,7 +68,7 @@
 				Name="VCLinkerTool"
 				AdditionalDependencies="ni4882.obj"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="&quot;C:\boost\lib32-msvc-9.0&quot;;&quot;C:\Program Files (x86)\National Instruments\Shared\ExternalCompilerSupport\C\lib32\msvc&quot;"
+				AdditionalLibraryDirectories="&quot;Y:\Software\boost\lib32-msvc-9.0&quot;;&quot;Y:\Software\National Instruments\Shared\ExternalCompilerSupport\C\lib32\msvc&quot;"
 				IgnoreAllDefaultLibraries="false"
 				IgnoreDefaultLibraryNames="MSVCRT"
 				GenerateDebugInformation="true"
