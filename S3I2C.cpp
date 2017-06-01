@@ -26,9 +26,7 @@ extern pS3DataModel S3Data;
 
 extern int S3I2CSetGain(char Rx);
 
-// TODO: Include in model
-int			m_GainSent[S3_MAX_RXS][S3_MAX_TXS][S3_MAX_IPS];
-char		m_PathSent[S3_MAX_RXS][S3_MAX_TXS][S3_MAX_IPS];
+
 
 #define S3_N_POLL_CYCLES	6
 char S3PollCycle;
@@ -105,9 +103,9 @@ void S3I2CSwitchOffImmediate()
 }
 
 #define S3_POWER_DOWN_TIMEOUT	20 // x Main poll interval
-int S3PowerDownTimeout = 0;
+extern int S3PowerDownTimeout;
 
-int S3CloseAppTimeout = 0;
+extern int S3CloseAppTimeout;
 
 unsigned char S3Uptime = 0;
 

@@ -151,10 +151,6 @@ class CS3ControllerDlg;
 #define BQ_CSV		0x02
 #define BQ_RES0		0x01
 
-// Last gain sent (successfully?)
-extern int			m_GainSent[S3_MAX_RXS][S3_MAX_TXS][S3_MAX_IPS];
-extern char			m_PathSent[S3_MAX_RXS][S3_MAX_TXS][S3_MAX_IPS];
-
 extern const char	S3I2CTxRFFact[7];
 extern short		S3I2CRxOptFact[7];
 // extern short		S3I2CTxOptFact[7];
