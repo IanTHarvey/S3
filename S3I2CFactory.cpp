@@ -224,7 +224,7 @@ int S3I2CTxWriteRFCalValue(unsigned char Path, double dcal)
 		if (err)
 			return 3;
 
-		// Sleep(500);
+		// Sleep(500); // Required for pre 15Mar17 TxCtrl F/W
 	}
 
 	// Read back

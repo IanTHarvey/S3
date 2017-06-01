@@ -322,6 +322,7 @@ void CS3FactorySysSetUp::OnBnClickedSelfTestButton()
 	char Rx = 0, Tx = 0;
 	short v1, v2;
 
+	S3TxSetSelfTestPending(Rx, Tx, true);
 	int err = S3I2CTxSelfTest(&v1, &v2, Rx, Tx);
 
 	tmp.Format(_T("SelfTest: %d %d; Err: %d"), v1, v2, err);

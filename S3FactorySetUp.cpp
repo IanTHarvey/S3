@@ -20,6 +20,13 @@
 
 extern int S3I2CTxGetRFCalGain(char Rx, char Tx);
 
+
+extern unsigned char	Dbg_RF1_DSA;
+extern short			Dbg_TxOpt;	// Gain soft set 0xA8-9
+extern short			Dbg_RxOpt;	// Gain soft set 0xA4-5
+extern short			Dbg_RLL;
+extern char				Dbg_Path;
+
 // CS3FactorySetUp
 
 IMPLEMENT_DYNAMIC(CS3FactorySetUp, CDialog)
@@ -53,8 +60,9 @@ void CS3FactorySetUp::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_RX1_CAL_SET_BUTTON, m_Rx1CalSetButton);
 	DDX_Control(pDX, IDC_RX2_CAL_SET_BUTTON, m_Rx2CalSetButton);
 	DDX_Control(pDX, IDC_TX_OPT_CAL_SET_BUTTON, m_TxCalSetButton);
-	
-	
+
+
+	DDX_Control(pDX, IDC_DBG_DSAS_STATIC, m_DbgDSAsStatic);
 }
 
 BEGIN_MESSAGE_MAP(CS3FactorySetUp, CDialog)
@@ -66,6 +74,7 @@ BEGIN_MESSAGE_MAP(CS3FactorySetUp, CDialog)
 	ON_BN_CLICKED(IDC_RX1_CAL_SET_BUTTON, &CS3FactorySetUp::OnBnClickedRx1CalSetButton)
 	ON_BN_CLICKED(IDC_RX2_CAL_SET_BUTTON, &CS3FactorySetUp::OnBnClickedRx2CalSetButton)
 	ON_BN_CLICKED(IDC_TX_OPT_CAL_SET_BUTTON, &CS3FactorySetUp::OnBnClickedTxOptCalSetButton)
+	ON_BN_CLICKED(IDC_DUMP_DIAG_BUTTON, &CS3FactorySetUp::OnBnClickedDumpDiagButton)
 END_MESSAGE_MAP()
 
 BOOL CS3FactorySetUp::OnInitDialog()
@@ -189,6 +198,13 @@ void CS3FactorySetUp::Update()
 		m_RFCalSetButton.EnableWindow(TRUE);
 		m_TxCalSetButton.EnableWindow(TRUE);
 	}
+
+
+	CString tmp;
+	short LinkGain = -100 * Dbg_RF1_DSA + Dbg_TxOpt + Dbg_RxOpt;
+	tmp.Format(_T("Path: %d; RFDSA: %d; TxSoftGain: %d; RxSoftGain: %d; LinkGain: %d (100mdB)\nRLL: %d"),
+		Dbg_Path, Dbg_RF1_DSA, Dbg_TxOpt, Dbg_RxOpt, LinkGain, Dbg_RLL);
+	m_DbgDSAsStatic.SetWindowText(tmp);
 }
 
 // ----------------------------------------------------------------------------
@@ -538,4 +554,16 @@ void CS3FactorySetUp::OnTcnSelchangeFactoryTab(NMHDR *pNMHDR, LRESULT *pResult)
 
 // ----------------------------------------------------------------------------
 
+void CS3FactorySetUp::OnBnClickedDumpDiagButton()
+{
+	char Rx = 0, Tx = 0;
+	int err;
 
+	err = S3I2CTxDumpCtrlConfig(Rx, Tx);
+	err = S3I2CTxDumpOptConfig(Rx, Tx);
+
+	err = S3I2CRxDumpCtrlConfig(Rx);
+	err = S3I2CRxDumpOptConfig(Rx);
+}
+
+// ----------------------------------------------------------------------------

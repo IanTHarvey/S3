@@ -69,6 +69,8 @@ public:
 	
 	
 	
+	CStatic m_DbgDSAsStatic;
+	afx_msg void OnBnClickedDumpDiagButton();
 };
 
 

@@ -173,6 +173,8 @@
 #define IDC_PEAK_THR_STATIC             1665
 #define IDC_SEAL_BUTTON                 1667
 #define IDC_SELF_TEST_BUTTON            1668
+#define IDC_DBG_DSAS_STATIC             1669
+#define IDC_DUMP_DIAG_BUTTON            1670
 #define ID_ONE_TWO                      32775
 #define ID_ONE_THREE                    32776
 #define ID_TEST_MENU                    32777
@@ -183,7 +185,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        256
 #define _APS_NEXT_COMMAND_VALUE         32778
-#define _APS_NEXT_CONTROL_VALUE         1669
+#define _APS_NEXT_CONTROL_VALUE         1671
 #define _APS_NEXT_SYMED_VALUE           107
 #endif
 #endif
