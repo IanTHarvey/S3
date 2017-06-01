@@ -1,16 +1,7 @@
 
 // S3MonitorDlg.cpp : implementation file
 //
-#ifndef WIN32_LEAN_AND_MEAN
-#define WIN32_LEAN_AND_MEAN
-#endif
-
-#ifndef TRIZEPS
-#include "S3ControllerX86/targetver.h"
-#else
-#define WINVER _WIN32_WCE
-#include <ceconfig.h>
-#endif
+#include "stdafx.h"
 
 #include <afxsock.h>		// MFC socket extensions
 #include "afxpriv.h"
@@ -242,14 +233,14 @@ BOOL CS3ControllerDlg::OnInitDialog()
 	int		iResult;
 	WORD	VersionReqd;
 	WSADATA wsaData;
+	
+	m_ListenSocket = INVALID_SOCKET;
 
 	VersionReqd = MAKEWORD(2, 2);
 
 	unsigned char retries = 0;
-	while(1) // retries++) // < 10)
+	while(retries++ < 10)
 	{
-		retries++;
-
 		iResult = WSAStartup(VersionReqd, &wsaData);
 
 		if (!iResult)
@@ -491,7 +482,7 @@ void CS3ControllerDlg::OnGUIUpdateTimer(void)
 
 // ----------------------------------------------------------------------------
 
-#ifdef S3TXBATTLOG
+#ifdef S3_TX_BATT_LOG
 int battlogcnt = 0;
 #endif
 
@@ -541,7 +532,7 @@ void CS3ControllerDlg::OnI2CPollTimer(void)
 	{	
 	}
 
-#ifdef S3TXBATTLOG
+#ifdef S3_TX_BATT_LOG
 	battlogcnt++;
 
 	// TEST: 5 min interval
