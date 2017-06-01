@@ -25,18 +25,21 @@ extern int select_RF_input(unsigned char IP, bool TestTone);
 // Read back from Tx (local) and Rx (full fibre channel)
 int S3I2CTxSelfTest(short *v1, short *v2, char Rx, char Tx)
 {
-	int		err;
+	int		err = 0;
 
 	// May have been changed by user
-	if (0) // !S3GetTxSelfTest())
+	if (!S3GetTxSelfTest())
 		S3Data->m_Rx[Rx].m_Tx[Tx].m_SelfTestPending = false;
 		
-	if (0) // (!S3TxSelfTestPending(Rx, Tx))
+	if (!S3TxSelfTestPending(Rx, Tx))
 		return 0;
+
+	Sleep(100);
+
+	char	IP = 0;
 
 #ifdef TRIZEPS
 
-	char	IP = 0;
 	short	RFLevel1 = 0, RFLevel3_0 = 0,
 			RFLevel3_16 = 0, RFLevel3_32 = 0, RFLevel7 = 0;
 	short	RxRFLevel1 = 0, RxRFLevel3_0 = 0,
@@ -67,6 +70,8 @@ int S3I2CTxSelfTest(short *v1, short *v2, char Rx, char Tx)
 	if (S3I2CSwitchTestTone(false))
 		{ err = 15;  goto ENDTEST; }
 
+	Sleep(300); // New 15/05/17
+
 	if (set_RF_inp_board(1, 0, Rx, Tx))
 		{ err = 11;  goto ENDTEST; }
 
@@ -92,8 +97,9 @@ int S3I2CTxSelfTest(short *v1, short *v2, char Rx, char Tx)
 
 	Sleep(400);
 	
-	short Dummy;
-	S3I2CReadSerialShort(S3I2C_TX_CTRL_ADDR, 0xD2, &Dummy); // Dummy
+	// For old TxCtrl FW only
+	// short Dummy;
+	// S3I2CReadSerialShort(S3I2C_TX_CTRL_ADDR, 0xD2, &Dummy); // Dummy
 
 	if (!S3I2CReadSerialShort(S3I2C_TX_OPT_ADDR, S3I2C_TX_OPT_RF_MON, &RFLevel1))
 	{
@@ -196,7 +202,8 @@ int S3I2CTxSelfTest(short *v1, short *v2, char Rx, char Tx)
 
 	Sleep(400);
 
-	S3I2CReadSerialShort(S3I2C_TX_CTRL_ADDR, 0xD2, &Dummy); // Dummy
+	// For old TxCtrl FW only
+	// S3I2CReadSerialShort(S3I2C_TX_CTRL_ADDR, 0xD2, &Dummy); // Dummy
 
 
 	// TxCtrl CRASHES HERE
@@ -253,7 +260,8 @@ ENDTEST:
 
 	Sleep(400);
 
-	S3I2CReadSerialShort(S3I2C_TX_CTRL_ADDR, 0xD2, &Dummy); // Dummy
+	// For old TxCtrl FW only
+	// S3I2CReadSerialShort(S3I2C_TX_CTRL_ADDR, 0xD2, &Dummy); // Dummy
 
 #endif // TRIZEPS
 
@@ -299,14 +307,14 @@ ENDTEST:
 		}
 	}
 
-	return err; // All good
+	return err;
 }
 
 // ----------------------------------------------------------------------------
 
 int S3I2CTx8SelfTest(short *v1, short *v2, char Rx, char Tx)
 {
-	int		err;
+	int		err = 0;
 
 	// May have been changed by user
 	if (!S3GetTxSelfTest())
@@ -315,14 +323,14 @@ int S3I2CTx8SelfTest(short *v1, short *v2, char Rx, char Tx)
 	if (!S3TxSelfTestPending(Rx, Tx))
 		return 0;
 
+	char	IP = 0;
 #ifdef TRIZEPS
 
-	char	IP = 0;
 	short	RFLevel1 = 0;
 	short	RFLevelBG = 0;
 
 	// Max out Rx & Tx DSAs
-	if (0)
+	if (1)
 	{
 		short RxCal = S3RxGetCalGain(Rx, Tx);
 		short TxCal = S3TxGetCalOpt(Rx, Tx);
