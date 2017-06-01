@@ -14,7 +14,7 @@
 
 #define WSA_ERR_STR_LEN	256
 extern char	WSAErrString[];
-const char *GetWSAErrString();
+const char *S3GetWSAErrString();
 const char *GetErrString();
 
 
