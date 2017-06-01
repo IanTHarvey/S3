@@ -19,8 +19,9 @@ extern void S3PrintByte(FILE *fid, char x);
 
 // ----------------------------------------------------------------------------
 
-int S3I2CRxWriteOptConfig(char Rx)
+int S3I2CRxDumpOptConfig(char Rx)
 {
+#ifdef TRIZEPS
 	char Filename[S3_MAX_TIME_STR_LEN], t[S3_MAX_TIME_STR_LEN];
 	S3GetTimeStr(t);
 
@@ -47,7 +48,7 @@ int S3I2CRxWriteOptConfig(char Rx)
 
 	fprintf(fid, "\n%s\n", t);
 
-	fprintf("\nApp: %s\n\n", S3SysGetAppDateTime());
+	fprintf(fid, "\nApp: %s\n\n", S3SysGetAppDateTime());
 
 	fprintf(fid, "\n=========================================================\n");
 	fprintf(fid, "Identity\n");
@@ -317,14 +318,18 @@ int S3I2CRxWriteOptConfig(char Rx)
 
 	fclose(fid);
 
+#endif
+
 	return 0;
 }
 
 
 // ----------------------------------------------------------------------------
 
-int S3I2CRxWriteCtrlConfig(char Rx)
+int S3I2CRxDumpCtrlConfig(char Rx)
 {
+#ifdef TRIZEPS
+
 	char Filename[S3_MAX_TIME_STR_LEN], t[S3_MAX_TIME_STR_LEN];
 	S3GetTimeStr(t);
 
@@ -350,7 +355,7 @@ int S3I2CRxWriteCtrlConfig(char Rx)
 
 	fprintf(fid, "\n%s\n", t);
 
-	fprintf("\nApp: %s\n\n", S3SysGetAppDateTime());
+	fprintf(fid, "\nApp: %s\n\n", S3SysGetAppDateTime());
 
 	fprintf(fid, "\n=========================================================\n");
 	fprintf(fid, "Identity\n");
@@ -568,6 +573,8 @@ int S3I2CRxWriteCtrlConfig(char Rx)
 	fprintf(fid, "Le Fin\n============================================================\n");
 
 	fclose(fid);
+
+#endif
 
 	return 0;
 }

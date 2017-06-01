@@ -21,9 +21,6 @@ extern pS3DataModel S3Data;
 #include "S3I2C.h"
 #include "S3Gain.h"
 
-
-#define S3_TX_N_RF_PATH	7
-
 extern unsigned short	S3RevByteUShort(unsigned char *b);
 extern short			S3RevByteShort(	unsigned char *b);
 
@@ -35,9 +32,6 @@ extern unsigned char	S3I2CRxReadBuf[];
 extern int S3I2CTxSelfTest(		short *v1, short *v2, char Rx, char Tx);
 extern int S3I2CTx8SelfTest(	short *v1, short *v2, char Rx, char Tx);
 extern int S3I2CTxSelfTest2(	char Rx, char Tx);
-
-int S3I2CTxDumpOptConfig(		char Rx, char Tx);
-int S3I2CTxDumpCtrlConfig(		char Rx, char Tx);
 
 int S3I2CTxGetRFCalGain(		char Rx, char Tx);
 int S3I2CTxWriteFactoryCal(		char Rx, char Tx); // short *CalPath);
@@ -64,9 +58,8 @@ int S3I2CTx8Initialise();
 
 short TempCompTable[S3_TX_N_RF_PATH] =
 	{292,	213,	133,	133,	133,	133,	133};
-short PeakThTable[S3_TX_N_RF_PATH] =
-	{200,	200,	-700,	-700,	-700,	-700,	-700};
 
+extern short PeakThTable[S3_TX_N_RF_PATH];
 
 // Tx Eng
 // const char S3I2CTxRFFact[7] =		{	3,	0,	0,	0,	0,	0,	0	};
@@ -82,8 +75,10 @@ short PeakThTable[S3_TX_N_RF_PATH] =
 // const char S3I2CTxRFFact[7] =	{	0, 0, 0, 0, 0, 0, 0};
 const char S3I2CTxRFFact[7] =	{	0, 0, 0, 0, 0, 0, 0}; // ATiS
 
+
+// Where did these come from? 
+// TODO: Experiment with removal.
 short S3I2CRxOptFact[7] =		{	400, 0, 500, 0, 0, 0, 700}; // FIXED
-// short S3I2CRxOptFact[7] =		{	400, 0, 500, 0, 0, 0, 700}; // FIXED // ATiS
 
 #if !defined(S3_USE_FACT_CAL) || defined(S3_WRITE_FACT_CAL)
 // short S3I2CTxOptFact[7] =	{	200, 0, 330, -100, -300, -550, 670}; // CEA
@@ -120,10 +115,6 @@ int S3I2CGetTxStartUp(char Rx, char Tx)
 {
 #ifdef TRIZEPS
 	int err;
-
-#ifdef S3_WRITE_FACT_CAL
-	err = S3I2CTxWriteFactoryCal(S3I2CTxOptFact);
-#endif
 
 	// ---------------------------------------------------------------------------
 	// Control board
@@ -190,7 +181,6 @@ int S3I2CGetTxStartUp(char Rx, char Tx)
 	
 
 	// err = S3I2CTxGetRFCalGain(Rx, Tx);
-	// err = S3I2CTxWriteFactoryCal(0, 0);
 
 	// err = S3I2CTxDumpCtrlConfig(Rx, Tx);
 #endif
@@ -670,7 +660,7 @@ int S3I2CTxSetOptCtrlBits(char Rx, char Tx)
 
 		S3EventLogAdd(msg, 1, Rx, Tx, -1);
 
-		if (0)
+		if (1)
 		{
 			S3EventLogAdd("Correcting TEC control bits (clear b0 & b1)", 1, Rx, Tx, -1);
 			err = S3I2CWriteSerialByte(S3I2C_TX_OPT_ADDR, S3I2C_TX_OPT_CFG, cfg & ~0x03);
