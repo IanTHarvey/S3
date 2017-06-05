@@ -43,12 +43,10 @@ extern TRIVERTEX vertex_grey[2];
 extern TRIVERTEX vertex_dark_grey[2];
 extern GRADIENT_RECT gRect; // = {0, 1};
 
-#define S3_N_RXTX_PARAS	6
+#define S3_N_RXTX_PARAS	8
 
-int hRxTxRows[S3_N_RXTX_PARAS] = {0, 35, 30, 160, 40, 40}; // , 35, 35, 35, 35, 35};
+int hRxTxRows[S3_N_RXTX_PARAS] = {0, 35, 30, 160, 40, 40, 80, 40}; // , 35, 35, 35, 35, 35};
 int pRxTxRows[S3_N_RXTX_PARAS]; // , 35, 35, 35, 35, 35};
-
-// CRect	m_RectRxNodeName, m_RectRxType;
 
 CClickText	*RxAlarm;
 
@@ -215,10 +213,9 @@ void CS3GDIScreenMain::S3DrawGDIRxScreen(void)
 	xref = 0;
 	yref = m_RectHeader.bottom;
 
-	SelectObject(m_HDC, m_hPenNone);
-	SelectObject(m_HDC, m_hBrushBG1);
-
-	S3_RECT(m_HDC, m_RectRxRx);
+	//SelectObject(m_HDC, m_hPenNone);
+	//SelectObject(m_HDC, m_hBrushBG1);
+	//S3_RECT_N(m_HDC, m_RectRxRx);
 
 	S3DrawGDIRxRx(Rx);
 	S3DrawGDIRxTxTable(Rx);
@@ -232,6 +229,11 @@ void CS3GDIScreenMain::S3DrawGDIRxRx(char Rx)
 	RECT fntRc = m_RectRxRx;
 
 	fntRc.left += NV_LMARGIN;
+
+	SelectObject(m_HDC, m_hPenNone);
+	SelectObject(m_HDC, m_hBrushBG2);
+
+	S3_RECT_N(m_HDC, m_RectRxRx);
 
 	SelectObject(m_HDC, m_hFontL);
 	CString str;
@@ -305,7 +307,7 @@ void CS3GDIScreenMain::S3DrawGDIRxTx(char Rx, char Tx)
 	else
 		SelectObject(m_HDC, m_hBrushBG2);
 
-	S3_RECT(m_HDC, RectCol);
+	S3_RECT_N(m_HDC, RectCol);
 
 	CRect RectItem = RectCol;
 
@@ -483,8 +485,8 @@ void CS3GDIScreenMain::S3DrawGDIRxRLL(char Rx, char Tx, int xref, int yref)
 
 void CS3GDIScreenMain::S3DrawGDIRxTxTable(char Rx)
 {
-	SelectObject(m_HDC, m_hBrushBG4);
-	S3_RECT(m_HDC, m_RectRxParaList);
+	SelectObject(m_HDC, m_hBrushBG1);
+	S3_RECT_N(m_HDC, m_RectRxParaList);
 	
 	char Tx;
 	unsigned char	RxType = S3RxGetType(Rx);
@@ -505,6 +507,7 @@ void CS3GDIScreenMain::S3DrawGDIRxTxTable(char Rx)
 	S3DrawGDIRxTxRowName(2, _T("RLL (dBm)"));
 	S3DrawGDIRxTxRowName(3, _T("RF Gain\n(dB)"));
 	S3DrawGDIRxTxRowName(4, _T("RF Level\n(dBm)"));
+	S3DrawGDIRxTxRowName(5, _T(""));
 
 	// Columns
 	for (Tx = 0; Tx < S3RxGetNTx(Rx); Tx++)
@@ -525,12 +528,13 @@ void CS3GDIScreenMain::S3DrawGDIRxTxRowName(char Row, wchar_t *cstr)
 	int y = m_RectRxParaList.top + pRxTxRows[Row];
 
 	CRect RectItem(m_RectRxParaList.left, y,
-		m_RectRxParaList.right, y + hRxTxRows[Row + 1]);
+		m_RectScreen.right, y + hRxTxRows[Row + 1]);
 
-	S3_RECT(m_HDC, RectItem);
+	S3_RECT_N(m_HDC, RectItem);
 
 	SelectObject(m_HDC, m_hFontS);
-
+		
+	RectItem.right = m_RectRxParaList.right;
 	RectItem.right -= S3_RX_TABLE_R_MARG;
 
 	DrawText(m_HDC, cstr, -1, &RectItem, DT_RIGHT);

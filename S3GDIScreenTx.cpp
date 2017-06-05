@@ -201,9 +201,9 @@ void CS3GDIScreenMain::S3InitGDITxScreen(void)
 
 	m_RectTxTable = m_RectTxParaList;
 	m_RectTxTable.left = m_RectTxParaList.right;
-	m_RectTxTable.right = m_RectScreen.right;
-
-	wIPCol = m_RectTxTable.Width() / S3_MAX_IPS;
+	
+	wIPCol = (m_RectScreen.right - m_RectTxTable.left) / S3_MAX_IPS;
+	m_RectTxTable.right = m_RectScreen.right; // + S3_MAX_IPS * wIPCol;
 
 	m_IPGainIsUp = false;
 
@@ -457,11 +457,11 @@ void CS3GDIScreenMain::S3DrawGDITxScreen(void)
 
 	S3DrawGDIBackButton();
 
-	SelectObject(m_HDC, m_hPenNone);
-	SelectObject(m_HDC, m_hBrushBG1);
+	// SelectObject(m_HDC, m_hPenNone);
+	// SelectObject(m_HDC, m_hBrushBG1);
 	SetTextColor(m_HDC, m_crTextNorm);
 
-	S3_RECT(m_HDC, m_RectTxTx);
+	// S3_RECT_N(m_HDC, m_RectTxTx);
 
 	S3DrawGDITxTx(Rx, Tx);
 	S3DrawGDITxIPTable(Rx, Tx);
@@ -844,9 +844,7 @@ void CS3GDIScreenMain::S3DrawGDITxTx(char Rx, char Tx)
 	SelectObject(m_HDC, m_hPenNone);
 	SelectObject(m_HDC, m_hBrushBG2);
 
-	Rectangle(m_HDC,
-		m_RectTxTx.left, m_RectTxTx.top,
-		m_RectTxTx.right, m_RectTxTx.bottom);
+	S3_RECT_N(m_HDC, m_RectTxTx);
 
 	CString str;
 
@@ -1365,6 +1363,9 @@ void CS3GDIScreenMain::S3DrawGDITxIPTable(char Rx, char Tx)
 	int xref = m_RectTxParaList.left;
 	int yref = m_RectTxParaList.top;
 
+	SelectObject(m_HDC, m_hBrushRed);
+	S3_RECT(m_HDC, m_RectTxTable);
+
 	CString str;
 
 	char RowCnt = 0;
@@ -1399,7 +1400,7 @@ void CS3GDIScreenMain::S3DrawGDITxIPTable(char Rx, char Tx)
 	}
 #endif // S3_SHOW_P1DB
 
-	S3DrawGDITxIPRowName(xref, yref, RowCnt++, _T("Overdrive"));
+	S3DrawGDITxIPRowName(xref, yref, RowCnt++, _T("Peak detect"));
 
 	str.Format(_T("\u222b\u03a4 (\u03bcS)"));
 	S3DrawGDITxIPRowName(xref, yref, RowCnt++, str);
@@ -1415,6 +1416,8 @@ void CS3GDIScreenMain::S3DrawGDITxIPTable(char Rx, char Tx)
 	// Rect returned is the text box, so need to frig...
 	if (S3TxGetType(Rx, Tx) != S3_Tx1)
 	{
+		S3DrawGDITxIPRowName(xref, yref, RowCnt++, _T("Dummy"));
+
 		CRect rect = TxTestToneAll->Rect();
 		rect.right += S3_TX_TABLE_R_MARG;
 
@@ -1425,10 +1428,11 @@ void CS3GDIScreenMain::S3DrawGDITxIPTable(char Rx, char Tx)
 	else
 		S3DrawGDITxIPRowName(xref, yref, RowCnt++, _T("Test tone"));
 
-	RowCnt++;
-
 #ifdef S3_SHOW_RF_POWER
 	str.Format(_T("RF (dBm)"));
+	S3DrawGDITxIPRowName(xref, yref, RowCnt++, str);
+#else
+	str.Format(_T(""));
 	S3DrawGDITxIPRowName(xref, yref, RowCnt++, str);
 #endif
 
@@ -1448,6 +1452,7 @@ void CS3GDIScreenMain::S3DrawGDITxIPTable(char Rx, char Tx)
 		int yrefrow = yref;
 
 		SelectObject(m_HDC, m_hPenNone);
+		// SelectObject(m_HDC, m_hPenIPLive);
 
 		if (IP % 2)
 			SelectObject(m_HDC, m_hBrushBG3);
@@ -1455,7 +1460,7 @@ void CS3GDIScreenMain::S3DrawGDITxIPTable(char Rx, char Tx)
 			SelectObject(m_HDC, m_hBrushBG2);
 
 		Rectangle(m_HDC, xrefcol, yref,
-			xrefcol + wIPCol, m_RectScreen.bottom);
+			xrefcol + wIPCol + 1, m_RectScreen.bottom);
 
 		S3DrawGDITxIP(Rx, Tx, IP, xrefcol, yrefrow);
 	}
@@ -1467,6 +1472,8 @@ void CS3GDIScreenMain::S3DrawGDITxIPRowName(	int xref, int yref,
 												char Row, CString cstr,
 												int Justification)
 {
+	SelectObject(m_HDC, m_hPenNone);
+
 	if (Row % 2)
 		SelectObject(m_HDC, m_hBrushBG3);
 	else
@@ -1475,7 +1482,9 @@ void CS3GDIScreenMain::S3DrawGDITxIPRowName(	int xref, int yref,
 	yref += pTxIPRows[Row];
 
 	Rectangle(m_HDC, xref, yref,
-				m_RectScreen.right, yref + hTxIPRows[Row + 1]);
+				m_RectScreen.right, yref + hTxIPRows[Row + 1] + 1);
+	// Rectangle(m_HDC, xref, yref,
+	//			xref + m_RectTxParaList.Width(), yref + hTxIPRows[Row + 1]);
 
 	CRect fntRc(xref, yref,
 				xref + m_RectTxParaList.Width(), yref + hTxIPRows[Row + 1]);
@@ -1888,7 +1897,7 @@ void CS3GDIScreenMain::S3GDITxNewTx(void)
 void CS3GDIScreenMain::S3DrawGDITxBattSeg(char Rx, char Tx, int xref, int yref)
 {
 	SelectObject(m_HDC, m_hBrushBG3);
-	S3_RECT(m_HDC, m_RectTxBatt);
+	S3_RECT_N(m_HDC, m_RectTxBatt);
 
 	SelectObject(m_HDC, m_hPenNone);
 	

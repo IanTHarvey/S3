@@ -53,13 +53,25 @@ class CS3NameValue;
 class CS3Button;
 
 // Convenience macros
-#define S3BLT_BLK(BMP, X, Y, W, H) 	TransparentBlt(m_HDC, X, Y, W, H, BMP, 0, 0, W, H, RGB(0, 0, 0))
-#define S3BLT(BMP, X, Y, W, H) 	TransparentBlt(m_HDC, X, Y, W, H, BMP, 0, 0, W, H, m_crWhite)
-#define S3BLTR(BMP, R) 			TransparentBlt(m_HDC, R.left, R.top, R.Width(), R.Height(), BMP, 0, 0, R.Width(), R.Height(), m_crWhite)
-#define S3OPBLTR(BMP, R) 		BitBlt(m_HDC, R.left, R.top, R.Width(), R.Height(), BMP, 0, 0, SRCCOPY)
+#define S3BLT_BLK(BMP, X, Y, W, H) 	\
+	TransparentBlt(m_HDC, X, Y, W, H, BMP, 0, 0, W, H, RGB(0, 0, 0))
+#define S3BLT(BMP, X, Y, W, H) 	\
+	TransparentBlt(m_HDC, X, Y, W, H, BMP, 0, 0, W, H, m_crWhite)
+#define S3BLTR(BMP, R) 			\
+	TransparentBlt(m_HDC, R.left, R.top, R.Width(), R.Height(), \
+		BMP, 0, 0, R.Width(), R.Height(), m_crWhite)
+#define S3OPBLTR(BMP, R) 		\
+	BitBlt(m_HDC, R.left, R.top, R.Width(), R.Height(), BMP, 0, 0, SRCCOPY)
 
-#define S3_RECT(A, B)			Rectangle(A, B.left, B.top, B.right, B.bottom)
-#define S3_RECTR(A, B, C)		RoundRect(A, B.left, B.top, B.right, B.bottom, C, C)
+#define S3_RECT(A, B)			\
+	Rectangle(A, B.left, B.top, B.right, B.bottom)
+// For NULL pen annoyance...
+#define S3_RECT_N(A, B)			\
+	Rectangle(A, B.left, B.top, B.right + 1, B.bottom + 1)
+#define S3_RECTR(A, B, C)		\
+	RoundRect(A, B.left, B.top, B.right, B.bottom, C, C)
+
+// ----------------------------------------------------------------------------
 
 class CS3GDIScreenMain : public CStatic
 {

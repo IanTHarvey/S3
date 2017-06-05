@@ -159,13 +159,13 @@ void CS3GDIScreenMain::OnPaint()
 		else
 		{
             //No watermark
-			S3_RECT(m_HDC, m_RectPhysicalScreen);
+			SelectObject(m_HDC, m_hBrushWhite);
+			S3_RECT_N(m_HDC, m_RectPhysicalScreen);
 
 			SelectObject(m_HDC, m_hBrushBG1);
 			Rectangle(m_HDC, m_RectScreen.left, m_RectScreen.top,
-							m_RectHeader.right, m_RectHeader.bottom + 1);
+							m_RectHeader.right + 1, m_RectHeader.bottom + 1);
 		}
-
 	}
 
 	S3DrawGDIHeader();
@@ -579,7 +579,7 @@ void CS3GDIScreenMain::S3DrawGDIInfo(void)
 
 	CString tmp;
 #ifdef S3_AGENT
-    tmp.Format(_T("%s %s"), LastUpdateDateStr, LastUpdateTimeStr);
+    tmp.Format(_T("%s %s"), LastUpdateDateStr.GetString(), LastUpdateTimeStr.GetString());
 #else
 	m_Parent->GetDateTimeStr(tmp);
 #endif
