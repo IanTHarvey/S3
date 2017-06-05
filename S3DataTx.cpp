@@ -684,15 +684,32 @@ int S3TxSetPowerStat(char Rx, char Tx, S3TxPwrMode mode)
 #ifdef S3_AGENT
 	CString Command, Args, Response;
     Command = "TXPOWER";
-    switch(mode)
-    {
-    case S3_TX_ON:
-            Args.Format(_T(" %d %d ON"), (Rx + 1), (Tx + 1));
-        break;
-    case S3_TX_SLEEP:
-            Args.Format(_T(" %d %d SLEEP"), (Rx + 1), (Tx + 1));
-        break;
-    }
+    
+	if (Rx == -1 && Tx == -1)
+	{
+		switch(mode)
+		{
+			case S3_TX_ON:
+				Args.Format(_T(" ALL ON"));
+				break;
+			case S3_TX_SLEEP:
+				Args.Format(_T(" ALL SLEEP"));
+				break;
+		}
+	}
+	else
+	{
+		switch(mode)
+		{
+			case S3_TX_ON:
+				Args.Format(_T(" %d %d ON"), (Rx + 1), (Tx + 1));
+				break;
+			case S3_TX_SLEEP:
+				Args.Format(_T(" %d %d SLEEP"), (Rx + 1), (Tx + 1));
+				break;
+		}
+	}
+
     Command.Append(Args);
     Response = SendSentinel3Message(Command);
 
@@ -1682,7 +1699,7 @@ bool S3TxRLLStable(char Rx, char Tx)
 	if (S3TxGetPowerStat(Rx, Tx) == S3_TX_SLEEP)
 		return true;
 
-	return S3Data->m_Rx[Rx].m_Tx[Tx].m_RLLStableCnt == 0xFF;
+	return S3Data->m_Rx[Rx].m_Tx[Tx].m_RLLStableCnt >= 0xFE;
 }
 
 // ----------------------------------------------------------------------------

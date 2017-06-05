@@ -1472,6 +1472,23 @@ int	S3SetSleepAll(bool sleep)
 
 int	S3SetWakeAll(bool wake)
 {
+#ifdef S3_AGENT
+	if (S3Data->m_WakeAll == wake)
+		return 0;
+	
+	S3Data->m_WakeAll = wake;
+	
+	if (wake)
+	{
+		CString Response = SendSentinel3Message(L"WAKEALL");
+	}
+	else
+	{
+		CString Response = SendSentinel3Message(L"SLEEPALL");
+	}
+
+	return 0;
+#else
 	if (S3Data->m_WakeAll == wake)
 		return 0;
 	
@@ -1487,6 +1504,7 @@ int	S3SetWakeAll(bool wake)
 	}
 
 	return 0;
+#endif
 }
 
 // ---------------------------------------------------------------------------
