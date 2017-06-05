@@ -46,7 +46,8 @@ int S3I2CTxDumpOptConfig(char Rx, char Tx)
 	Filename[4] = Filename[7] = Filename[10] = Filename[13] = Filename[16] = '_';
 
 	char Path[S3_MAX_FILENAME_LEN];
-	sprintf_s(Path, S3_MAX_FILENAME_LEN, "\\Flashdisk\\S3\\TxOptConfig_%s.txt", Filename);
+	sprintf_s(Path, S3_MAX_FILENAME_LEN,
+		"\\Flashdisk\\S3\\TxOptConfig_%s.txt", Filename);
 
 	FILE	*fid;
 
@@ -59,11 +60,16 @@ int S3I2CTxDumpOptConfig(char Rx, char Tx)
 	const char *buf = (char *)S3I2CTxReadBuf;
 	unsigned char Start = 0;
 
-	fprintf(fid, "\nTX Optical I2C Map: Rx %d, Tx %d\n================================\n\n", Rx, Tx);
+	fprintf(fid,	"\nTX Optical I2C Map: Rx%d: %d, Tx%d: %d"
+					"\n=======================================\n\n", 
+					S3RxGetType(Rx), Rx, S3TxGetType(Rx, Tx), Tx);
 
-	fprintf(fid, "\n%s\n", t);
+	fprintf(fid, "%s\n", t);
 
-	fprintf(fid, "\nApp: %s\n\n", S3SysGetAppDateTime());
+	fprintf(fid, "App: %s\n\n", S3SysGetAppDateTime());
+
+	if (S3TxGetType(Rx, Tx) == S3_TxUnconnected)
+		goto END;
 
 	fprintf(fid, "\n=========================================================\n");
 	fprintf(fid, "Identity\n");
@@ -306,6 +312,8 @@ int S3I2CTxDumpOptConfig(char Rx, char Tx)
 	}
 
 	fprintf(fid, "\n\n============================================================\n");
+
+END:
 	fprintf(fid, "Le Fin\n============================================================\n");
 
 	fclose(fid);
@@ -337,11 +345,16 @@ int S3I2CTxDumpCtrlConfig(char Rx, char Tx)
 	const char *buf = (char *)S3I2CTxReadBuf;
 	unsigned char Start = 0;
 
-	fprintf(fid, "\nTX Control I2C Map: Rx %d, Tx %d\n================================\n", Rx, Tx);
+	fprintf(fid,	"\nTX Control I2C Map: Rx%d: %d, Tx%d: %d"
+					"\n=======================================\n\n", 
+					S3RxGetType(Rx), Rx, S3TxGetType(Rx, Tx), Tx);
 
-	fprintf(fid, "\n%s\n", t);
+	fprintf(fid, "%s\n", t);
 
-	fprintf(fid, "\nApp: %s\n\n", S3SysGetAppDateTime());
+	fprintf(fid, "App: %s\n\n", S3SysGetAppDateTime());
+
+	if (S3TxGetType(Rx, Tx) == S3_TxUnconnected)
+		goto END;
 
 	fprintf(fid, "\n=========================================================\n");
 	fprintf(fid, "Identity\n");
@@ -557,6 +570,8 @@ int S3I2CTxDumpCtrlConfig(char Rx, char Tx)
 	}
 
 	fprintf(fid, "\n\n============================================================\n");
+
+END:
 	fprintf(fid, "Le Fin\n============================================================\n");
 
 	fclose(fid);

@@ -44,11 +44,13 @@ int S3I2CRxDumpOptConfig(char Rx)
 	const char *buf = (char *)S3I2CRxReadBuf;
 	unsigned char Start = 0;
 
-	fprintf(fid, "\nRx Optical I2C Map: Rx %d: Address: 0x%x\n================================\n\n", Rx, S3I2CCurRxOptAddr);
+	fprintf(fid,	"\nRX Optical I2C Map: Rx%d: %d; Address: 0x%x"
+					"\n============================================\n\n", 
+					S3RxGetType(Rx), Rx, S3I2CCurRxOptAddr);
 
-	fprintf(fid, "\n%s\n", t);
+	fprintf(fid, "%s\n", t);
 
-	fprintf(fid, "\nApp: %s\n\n", S3SysGetAppDateTime());
+	fprintf(fid, "App: %s\n\n", S3SysGetAppDateTime());
 
 	fprintf(fid, "\n=========================================================\n");
 	fprintf(fid, "Identity\n");
@@ -351,11 +353,13 @@ int S3I2CRxDumpCtrlConfig(char Rx)
 	const char *buf = (char *)S3I2CRxReadBuf;
 	unsigned char Start = 0;
 
-	fprintf(fid, "\nRX Control I2C Map: Rx %d\n================================\n", Rx);
+	fprintf(fid,	"\nRx Control I2C Map: Rx%d: %d"
+					"\n================================\n\n", 
+					S3RxGetType(Rx), Rx);
 
-	fprintf(fid, "\n%s\n", t);
+	fprintf(fid, "%s\n", t);
 
-	fprintf(fid, "\nApp: %s\n\n", S3SysGetAppDateTime());
+	fprintf(fid, "App: %s\n\n", S3SysGetAppDateTime());
 
 	fprintf(fid, "\n=========================================================\n");
 	fprintf(fid, "Identity\n");
