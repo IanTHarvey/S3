@@ -65,7 +65,7 @@ void CS3FactorySetUp::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_CAL_SET_BUTTON, m_RFCalSetButton);
 	DDX_Control(pDX, IDC_RX1_CAL_SET_BUTTON, m_Rx1CalSetButton);
 	DDX_Control(pDX, IDC_RX2_CAL_SET_BUTTON, m_Rx2CalSetButton);
-	DDX_Control(pDX, IDC_TX_OPT_CAL_SET_BUTTON, m_TxCalSetButton);
+	DDX_Control(pDX, IDC_TX_OPT_CAL_SET_BUTTON, m_TxOptCalSetButton);
 
 	DDX_Control(pDX, IDC_DBG_DSAS_STATIC, m_DbgDSAsStatic);
 	DDX_Control(pDX, IDC_RX_COMBO, m_FactoryRxDroplist);
@@ -165,44 +165,6 @@ void CS3FactorySetUp::Init()
 
 void CS3FactorySetUp::Update()
 {
-	if (S3RxGetType(m_Rx) == S3_RxEmpty)
-	{
-		m_Rx1CalEdit.EnableWindow(FALSE);
-		m_Rx1CalSetButton.EnableWindow(FALSE);
-
-		m_Rx2CalEdit.EnableWindow(FALSE);
-		m_Rx2CalSetButton.EnableWindow(FALSE);
-	}
-	else
-	{
-		m_Rx1CalEdit.EnableWindow(TRUE);
-		m_Rx1CalSetButton.EnableWindow(TRUE);
-
-		if (S3RxGetType(m_Rx) == S3_Rx2)
-		{
-			m_Rx2CalEdit.EnableWindow(TRUE);
-			m_Rx2CalSetButton.EnableWindow(TRUE);
-		}
-	}
-
-	if (S3RxGetType(m_Rx) == S3_RxEmpty || S3TxGetType(m_Rx, m_Tx) == S3_TxUnconnected)
-	{
-		m_RFPathCombo.EnableWindow(FALSE);
-		m_TxOptCalEdit.EnableWindow(FALSE);
-		m_TxCalEdit.EnableWindow(FALSE);
-
-		m_RFCalSetButton.EnableWindow(FALSE);
-		m_TxCalSetButton.EnableWindow(FALSE);
-	}
-	else
-	{
-		m_RFPathCombo.EnableWindow(TRUE);
-		m_TxOptCalEdit.EnableWindow(TRUE);
-		m_TxCalEdit.EnableWindow(TRUE);
-
-		m_RFCalSetButton.EnableWindow(TRUE);
-		m_TxCalSetButton.EnableWindow(TRUE);
-	}
 
 	CString	tmp;
 
@@ -238,26 +200,77 @@ void CS3FactorySetUp::Update()
 
 void CS3FactorySetUp::Enable(BOOL enable)
 {
-	m_Rx1CalEdit.EnableWindow(enable);
-	m_Rx1CalSetButton.EnableWindow(enable);
+	// Disable everything
+	m_FactoryRxDroplist.EnableWindow(enable);
+	m_FactoryTxDroplist.EnableWindow(enable);
 
-	if (S3RxGetType(m_Rx) == S3_Rx2)
+	if (enable)
 	{
-		m_Rx2CalEdit.EnableWindow(enable);
-		m_Rx2CalSetButton.EnableWindow(enable);
+		// Conditionally enable
+		if (S3RxGetType(m_Rx) == S3_RxEmpty)
+		{
+			m_Rx1CalEdit.EnableWindow(FALSE);
+			m_Rx1CalSetButton.EnableWindow(FALSE);
+
+			m_Rx2CalEdit.EnableWindow(FALSE);
+			m_Rx2CalSetButton.EnableWindow(FALSE);
+		}
+		else
+		{
+			m_Rx1CalEdit.EnableWindow(TRUE);
+			m_Rx1CalSetButton.EnableWindow(TRUE);
+
+			if (S3RxGetType(m_Rx) == S3_Rx2)
+			{
+				m_Rx2CalEdit.EnableWindow(TRUE);
+				m_Rx2CalSetButton.EnableWindow(TRUE);
+			}
+		}
+
+		if (S3RxGetType(m_Rx) == S3_RxEmpty || S3TxGetType(m_Rx, m_Tx) == S3_TxUnconnected)
+		{
+			m_RFPathCombo.EnableWindow(FALSE);
+			m_TxCalEdit.EnableWindow(FALSE);
+			m_RFCalSetButton.EnableWindow(FALSE);
+
+			m_TxOptCalSetButton.EnableWindow(FALSE);
+			m_TxOptCalEdit.EnableWindow(FALSE);
+		}
+		else
+		{
+			m_RFPathCombo.EnableWindow(TRUE);
+			m_TxCalEdit.EnableWindow(TRUE);
+			m_RFCalSetButton.EnableWindow(TRUE);
+			
+			if (S3TxGetPowerStat(m_Rx, m_Tx) == S3_TX_ON)
+			{
+				m_TxOptCalSetButton.EnableWindow(TRUE);
+				m_TxOptCalEdit.EnableWindow(TRUE);
+			}
+			else
+			{
+				m_TxOptCalSetButton.EnableWindow(FALSE);
+				m_TxOptCalEdit.EnableWindow(FALSE);
+			}
+		}
 	}
 	else
 	{
-		m_Rx2CalEdit.EnableWindow(false);
-		m_Rx2CalSetButton.EnableWindow(false);
+		m_Rx1CalEdit.EnableWindow(enable);
+		m_Rx1CalSetButton.EnableWindow(enable);
+
+		m_Rx2CalEdit.EnableWindow(enable);
+		m_Rx2CalSetButton.EnableWindow(enable);
+
+		m_RFPathCombo.EnableWindow(enable);
+		m_TxCalEdit.EnableWindow(enable);
+		m_RFCalSetButton.EnableWindow(enable);
+
+		m_TxOptCalSetButton.EnableWindow(enable);
+		m_TxCalEdit.EnableWindow(enable);
+
+
 	}
-
-	m_RFPathCombo.EnableWindow(enable);
-	m_TxOptCalEdit.EnableWindow(enable);
-	m_TxCalEdit.EnableWindow(enable);
-
-	m_RFCalSetButton.EnableWindow(enable);
-	m_TxCalSetButton.EnableWindow(enable);
 
 	UpdateWindow();
 }

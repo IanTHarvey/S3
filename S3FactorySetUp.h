@@ -64,7 +64,7 @@ public:
 	CButton m_RFCalSetButton;
 	CButton m_Rx1CalSetButton;
 	CButton m_Rx2CalSetButton;
-	CButton m_TxCalSetButton;
+	CButton m_TxOptCalSetButton;
 	CTabCtrl m_Tabs;
 	afx_msg void OnTcnSelchangeFactoryTab(NMHDR *pNMHDR, LRESULT *pResult);
 	
