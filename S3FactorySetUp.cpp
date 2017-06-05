@@ -20,7 +20,6 @@
 
 extern int S3I2CTxGetRFCalGain(char Rx, char Tx);
 
-
 extern unsigned char	Dbg_RF1_DSA;
 extern short			Dbg_TxOpt;	// Gain soft set 0xA8-9
 extern short			Dbg_RxOpt;	// Gain soft set 0xA4-5
@@ -31,21 +30,28 @@ extern char				Dbg_Path;
 
 IMPLEMENT_DYNAMIC(CS3FactorySetUp, CDialog)
 
+// ----------------------------------------------------------------------------
+
 CS3FactorySetUp::CS3FactorySetUp(CWnd* pParent)
 	: CDialog(CS3FactorySetUp::IDD)
 {
 	m_Parent = (CS3ControllerDlg *)pParent;
 	m_RFPath = 0;
 	m_CurSel = 0;
-	m_Rx = -1;
+	m_Rx = 0;
+	m_Tx = 0;
 	
 	for(char i = 0; i < 7; i++)
 		m_RFCalVals[i] = -999.0;
 }
 
+// ----------------------------------------------------------------------------
+
 CS3FactorySetUp::~CS3FactorySetUp()
 {
 }
+
+// ----------------------------------------------------------------------------
 
 void CS3FactorySetUp::DoDataExchange(CDataExchange* pDX)
 {
@@ -61,8 +67,9 @@ void CS3FactorySetUp::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_RX2_CAL_SET_BUTTON, m_Rx2CalSetButton);
 	DDX_Control(pDX, IDC_TX_OPT_CAL_SET_BUTTON, m_TxCalSetButton);
 
-
 	DDX_Control(pDX, IDC_DBG_DSAS_STATIC, m_DbgDSAsStatic);
+	DDX_Control(pDX, IDC_RX_COMBO, m_FactoryRxDroplist);
+	DDX_Control(pDX, IDC_TX_COMBO, m_FactoryTxDroplist);
 }
 
 BEGIN_MESSAGE_MAP(CS3FactorySetUp, CDialog)
@@ -75,7 +82,12 @@ BEGIN_MESSAGE_MAP(CS3FactorySetUp, CDialog)
 	ON_BN_CLICKED(IDC_RX2_CAL_SET_BUTTON, &CS3FactorySetUp::OnBnClickedRx2CalSetButton)
 	ON_BN_CLICKED(IDC_TX_OPT_CAL_SET_BUTTON, &CS3FactorySetUp::OnBnClickedTxOptCalSetButton)
 	ON_BN_CLICKED(IDC_DUMP_DIAG_BUTTON, &CS3FactorySetUp::OnBnClickedDumpDiagButton)
+	ON_CBN_SELCHANGE(IDC_RX_COMBO, &CS3FactorySetUp::OnCbnSelchangeRxCombo)
+	ON_CBN_SELCHANGE(IDC_TX_COMBO, &CS3FactorySetUp::OnCbnSelchangeTxCombo)
+	ON_STN_CLICKED(IDC_RX1_CAL_STATIC, &CS3FactorySetUp::OnStnClickedRx1CalStatic)
 END_MESSAGE_MAP()
+
+// ----------------------------------------------------------------------------
 
 BOOL CS3FactorySetUp::OnInitDialog()
 {
@@ -88,6 +100,8 @@ BOOL CS3FactorySetUp::OnInitDialog()
 	m_RFPathCombo.AddString(_T("5"));
 	m_RFPathCombo.AddString(_T("6"));
 	m_RFPathCombo.AddString(_T("7"));
+
+	m_FactoryRxDroplist.SetCurSel(m_Rx);
 
 	return TRUE;  // return TRUE  unless you set the focus to a control
 }
@@ -134,27 +148,15 @@ void CS3FactorySetUp::Init()
 
 	SetSIPRegKey(0); // Enable SIP pop-up
 	
-	int err = S3I2CTxGetRFCalGain(0, 0);
-	err = S3I2CTxGetOptCalGain(0, 0);
-
-	for(char i = 0; i < 7; i++)
-		m_RFCalVals[i] = (double)S3TxGetCalRF(0, 0, i) / 100.0;
+	int err = S3I2CTxGetRFCalGain(m_Rx, m_Tx);
+	err = S3I2CTxGetOptCalGain(m_Rx, m_Tx);
 
 	m_RFPathCombo.SetCurSel(m_RFPath);
 
-	CString	tmp;
+	m_FactoryRxDroplist.SetCurSel(m_Rx);
+	m_FactoryTxDroplist.SetCurSel(m_Tx);
 
-	tmp.Format(_T("%.2f"), (double)S3TxGetCalRF(0, 0, m_RFPath) / 100.0);
-	m_TxCalEdit.SetWindowText(tmp);
-
-	tmp.Format(_T("%.2f"), (double)S3RxGetCalGain(0, 0) / 100.0);
-	m_Rx1CalEdit.SetWindowText(tmp);
-
-	tmp.Format(_T("%.2f"), (double)S3RxGetCalGain(0, 1) / 100.0);
-	m_Rx2CalEdit.SetWindowText(tmp);
-
-	tmp.Format(_T("%.2f"), (double)S3TxGetCalOpt(0, 0) / 100.0);
-	m_TxOptCalEdit.SetWindowText(tmp);
+	S3SetFactoryMode(m_Rx, m_Tx, true);
 
 	Update();
 }
@@ -163,7 +165,7 @@ void CS3FactorySetUp::Init()
 
 void CS3FactorySetUp::Update()
 {
-	if (S3RxGetType(0) ==  S3_RxEmpty)
+	if (S3RxGetType(m_Rx) == S3_RxEmpty)
 	{
 		m_Rx1CalEdit.EnableWindow(FALSE);
 		m_Rx1CalSetButton.EnableWindow(FALSE);
@@ -176,11 +178,14 @@ void CS3FactorySetUp::Update()
 		m_Rx1CalEdit.EnableWindow(TRUE);
 		m_Rx1CalSetButton.EnableWindow(TRUE);
 
-		m_Rx2CalEdit.EnableWindow(TRUE);
-		m_Rx2CalSetButton.EnableWindow(TRUE);
+		if (S3RxGetType(m_Rx) == S3_Rx2)
+		{
+			m_Rx2CalEdit.EnableWindow(TRUE);
+			m_Rx2CalSetButton.EnableWindow(TRUE);
+		}
 	}
 
-	if (S3RxGetType(0) == S3_RxEmpty || S3TxGetType(0, 0) ==  S3_TxUnconnected)
+	if (S3RxGetType(m_Rx) == S3_RxEmpty || S3TxGetType(m_Rx, m_Tx) == S3_TxUnconnected)
 	{
 		m_RFPathCombo.EnableWindow(FALSE);
 		m_TxOptCalEdit.EnableWindow(FALSE);
@@ -199,12 +204,34 @@ void CS3FactorySetUp::Update()
 		m_TxCalSetButton.EnableWindow(TRUE);
 	}
 
+	CString	tmp;
 
-	CString tmp;
+	for(char RFPath = 0; RFPath < 7; RFPath++)
+		m_RFCalVals[RFPath] = (double)S3TxGetCalRF(m_Rx, m_Tx, RFPath) / 100.0;
+
+	tmp.Format(_T("%.2f"), m_RFCalVals[m_RFPath]);
+	m_TxCalEdit.SetWindowText(tmp);
+
+	tmp.Format(_T("%.2f"), (double)S3RxGetCalGain(m_Rx, 0) / 100.0);
+	m_Rx1CalEdit.SetWindowText(tmp);
+
+	if (S3RxGetType(m_Rx) == S3_Rx2)
+	{
+		tmp.Format(_T("%.2f"), (double)S3RxGetCalGain(m_Rx, 1) / 100.0);
+		m_Rx2CalEdit.SetWindowText(tmp);
+	}
+	else
+		m_Rx2CalEdit.SetWindowText(_T("N/A"));
+
+	tmp.Format(_T("%.2f"), (double)S3TxGetCalOpt(m_Rx, m_Tx) / 100.0);
+	m_TxOptCalEdit.SetWindowText(tmp);
+
 	short LinkGain = -100 * Dbg_RF1_DSA + Dbg_TxOpt + Dbg_RxOpt;
 	tmp.Format(_T("Path: %d; RFDSA: %d; TxSoftGain: %d; RxSoftGain: %d; LinkGain: %d (100mdB)\nRLL: %d"),
 		Dbg_Path, Dbg_RF1_DSA, Dbg_TxOpt, Dbg_RxOpt, LinkGain, Dbg_RLL);
 	m_DbgDSAsStatic.SetWindowText(tmp);
+
+	Enable(TRUE);
 }
 
 // ----------------------------------------------------------------------------
@@ -214,8 +241,16 @@ void CS3FactorySetUp::Enable(BOOL enable)
 	m_Rx1CalEdit.EnableWindow(enable);
 	m_Rx1CalSetButton.EnableWindow(enable);
 
-	m_Rx2CalEdit.EnableWindow(enable);
-	m_Rx2CalSetButton.EnableWindow(enable);
+	if (S3RxGetType(m_Rx) == S3_Rx2)
+	{
+		m_Rx2CalEdit.EnableWindow(enable);
+		m_Rx2CalSetButton.EnableWindow(enable);
+	}
+	else
+	{
+		m_Rx2CalEdit.EnableWindow(false);
+		m_Rx2CalSetButton.EnableWindow(false);
+	}
 
 	m_RFPathCombo.EnableWindow(enable);
 	m_TxOptCalEdit.EnableWindow(enable);
@@ -351,7 +386,7 @@ void CS3FactorySetUp::OnBnClickedTxCalSetButton()
 
 	CString tmp;
 
-	tmp.Format(_T("%.2f"), (double)S3TxGetCalRF(0, 0, m_RFPath) / 100.0);
+	tmp.Format(_T("%.2f"), (double)S3TxGetCalRF(m_Rx, m_Tx, m_RFPath) / 100.0);
 	m_TxCalEdit.SetWindowText(tmp);
 }
 
@@ -422,7 +457,7 @@ void CS3FactorySetUp::OnBnClickedRx1CalSetButton()
 	}
 	else
 	{
-		int err = S3I2CRxSetCalibration(0, -1, CalVal);
+		int err = S3I2CRxSetCalibration(m_Rx, -1, CalVal);
 
 		if (err == -1)
 		{
@@ -469,7 +504,7 @@ void CS3FactorySetUp::OnBnClickedRx2CalSetButton()
 	}
 	else
 	{
-		int err = S3I2CRxSetCalibration(0, 1, CalVal);
+		int err = S3I2CRxSetCalibration(m_Rx, 1, CalVal);
 
 		if (err == -1)
 		{
@@ -492,7 +527,7 @@ void CS3FactorySetUp::OnBnClickedRx2CalSetButton()
 
 	CString tmp;
 	
-	tmp.Format(_T("%.2f"), (double)S3RxGetCalGain(0, 1) / 100.0);
+	tmp.Format(_T("%.2f"), (double)S3RxGetCalGain(m_Rx, 1) / 100.0);
 	m_Rx2CalEdit.SetWindowText(tmp);
 	
 }
@@ -540,7 +575,7 @@ void CS3FactorySetUp::OnBnClickedTxOptCalSetButton()
 
 	CString tmp;
 	
-	tmp.Format(_T("%.2f"), (double)S3TxGetCalOpt(0, 0) / 100.0);
+	tmp.Format(_T("%.2f"), (double)S3TxGetCalOpt(m_Rx, m_Tx) / 100.0);
 	m_TxOptCalEdit.SetWindowText(tmp);
 }
 
@@ -548,7 +583,6 @@ void CS3FactorySetUp::OnBnClickedTxOptCalSetButton()
 
 void CS3FactorySetUp::OnTcnSelchangeFactoryTab(NMHDR *pNMHDR, LRESULT *pResult)
 {
-	// TODO: Add your control notification handler code here
 	*pResult = 0;
 }
 
@@ -556,14 +590,35 @@ void CS3FactorySetUp::OnTcnSelchangeFactoryTab(NMHDR *pNMHDR, LRESULT *pResult)
 
 void CS3FactorySetUp::OnBnClickedDumpDiagButton()
 {
-	char Rx = 0, Tx = 0;
 	int err;
 
-	err = S3I2CTxDumpCtrlConfig(Rx, Tx);
-	err = S3I2CTxDumpOptConfig(Rx, Tx);
+	err = S3I2CTxDumpCtrlConfig(m_Rx, m_Tx);
+	err = S3I2CTxDumpOptConfig(m_Rx, m_Tx);
 
-	err = S3I2CRxDumpCtrlConfig(Rx);
-	err = S3I2CRxDumpOptConfig(Rx);
+	err = S3I2CRxDumpCtrlConfig(m_Rx);
+	err = S3I2CRxDumpOptConfig(m_Rx);
 }
 
 // ----------------------------------------------------------------------------
+
+void CS3FactorySetUp::OnCbnSelchangeRxCombo()
+{
+	m_Rx = m_FactoryRxDroplist.GetCurSel();
+	S3SetFactoryMode(m_Rx, m_Tx, true);
+	Update();
+}
+
+// ----------------------------------------------------------------------------
+
+void CS3FactorySetUp::OnCbnSelchangeTxCombo()
+{
+	m_Tx = m_FactoryTxDroplist.GetCurSel();
+	S3SetFactoryMode(m_Rx, m_Tx, true);
+	Update();
+}
+
+// ----------------------------------------------------------------------------
+void CS3FactorySetUp::OnStnClickedRx1CalStatic()
+{
+	// TODO: Add your control notification handler code here
+}

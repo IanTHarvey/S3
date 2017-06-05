@@ -18,6 +18,7 @@ class CS3FactorySetUp : public CDialog
 	double	m_RFCalVals[7]; // Display values
 	char	m_CurSel;		// Selected RF path on dropdown
 	char	m_Rx;			// Selected receiver slot
+	char	m_Tx;			// Selected transmitter
 
 public:
 	CS3FactorySetUp(CWnd* pParent = NULL);
@@ -67,10 +68,13 @@ public:
 	CTabCtrl m_Tabs;
 	afx_msg void OnTcnSelchangeFactoryTab(NMHDR *pNMHDR, LRESULT *pResult);
 	
-	
-	
 	CStatic m_DbgDSAsStatic;
 	afx_msg void OnBnClickedDumpDiagButton();
+	CComboBox m_FactoryRxDroplist;
+	CComboBox m_FactoryTxDroplist;
+	afx_msg void OnCbnSelchangeRxCombo();
+	afx_msg void OnCbnSelchangeTxCombo();
+	afx_msg void OnStnClickedRx1CalStatic();
 };
 
 
