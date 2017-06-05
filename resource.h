@@ -175,6 +175,10 @@
 #define IDC_SELF_TEST_BUTTON            1668
 #define IDC_DBG_DSAS_STATIC             1669
 #define IDC_DUMP_DIAG_BUTTON            1670
+#define IDC_RX_STATIC                   1671
+#define IDC_TX_STATIC                   1672
+#define IDC_RX_COMBO                    1673
+#define IDC_TX_COMBO                    1674
 #define ID_ONE_TWO                      32775
 #define ID_ONE_THREE                    32776
 #define ID_TEST_MENU                    32777
@@ -183,9 +187,9 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        256
+#define _APS_NEXT_RESOURCE_VALUE        257
 #define _APS_NEXT_COMMAND_VALUE         32778
-#define _APS_NEXT_CONTROL_VALUE         1671
+#define _APS_NEXT_CONTROL_VALUE         1675
 #define _APS_NEXT_SYMED_VALUE           107
 #endif
 #endif
