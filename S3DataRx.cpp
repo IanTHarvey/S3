@@ -17,6 +17,11 @@
 extern pS3DataModel S3Data;
 // extern pS3DataModel S3Shadow;
 
+// Special values for m_RLLStableCnt
+#define S3_RLL_STAB_UNKNOWN	0xFE	// Rx6 Tx awake but not Active
+#define S3_RLL_STAB_OK		0xFF	// RLL stable
+#define S3_RLL_STAB_RESET	0x00	// Reset counter
+
 // ----------------------------------------------------------------------------
 
 int S3RxInit(pS3RxData node)
@@ -213,7 +218,14 @@ int S3RxSetActiveTx(char Rx, char Tx)
 			return 0;
 
 		if (pRx->m_ActiveTx == Tx + 100)
+		{
 			pRx->m_ActiveTx -= 100;	// Ack
+
+			// Rx6 Tx is aleady connected, but RLL stability has not been
+			// established until it becomes active for the first time.
+			if (S3Data->m_Rx[Rx].m_Tx[Tx].m_RLLStableCnt == S3_RLL_STAB_UNKNOWN)
+				S3Data->m_Rx[Rx].m_Tx[Tx].m_RLLStableCnt = 0;
+		}
 		else
 			pRx->m_ActiveTx = Tx + 100; // Updated request
 	}
@@ -384,10 +396,14 @@ short S3RxGetRLLHi(char Rx)
 
 int S3RxSetRLL(char Rx, char Tx, short RLL)
 {
-	// If not the active Rx6 Tx, then hold onto old value
+	// If not the active Rx6 Tx, then hold onto old value and suppress alarm
 	if (!S3RxIsActiveTx(Rx, Tx))
+	{
+		if (S3Data->m_Rx[Rx].m_Tx[Tx].m_RLLStableCnt != S3_RLL_STAB_OK)
+			S3Data->m_Rx[Rx].m_Tx[Tx].m_RLLStableCnt = S3_RLL_STAB_UNKNOWN;
 		return 0;
-	
+	}
+
 	if (!S3TxExistQ(Rx, Tx))
 	{
 		S3Data->m_Rx[Rx].m_RLL[Tx] = SHRT_MIN;
@@ -404,7 +420,7 @@ int S3RxSetRLL(char Rx, char Tx, short RLL)
 	S3Data->m_Rx[Rx].m_RLL[Tx] = RLL;
 
 	// Wait for stable RLL on start-up (inc. wake-up)
-	if (S3Data->m_Rx[Rx].m_Tx[Tx].m_RLLStableCnt != 0xFF)
+	if (S3Data->m_Rx[Rx].m_Tx[Tx].m_RLLStableCnt != S3_RLL_STAB_OK)
 	{
 		if (RLL > S3_RLL_GOOD_LO_10MDBM && ABS(RLL - OldRLL) < S3_RLL_STABLE_THRESH)
 			S3Data->m_Rx[Rx].m_Tx[Tx].m_RLLStableCnt++;
@@ -413,8 +429,8 @@ int S3RxSetRLL(char Rx, char Tx, short RLL)
 
 		if (S3Data->m_Rx[Rx].m_Tx[Tx].m_RLLStableCnt > S3_RLL_STABLE_CNT)
 		{
-			// Mark Tx as 'stable' 
-			S3Data->m_Rx[Rx].m_Tx[Tx].m_RLLStableCnt = 0xFF;
+			// Mark Tx as 'stable'. Permanent until TxOpt reset (wake)
+			S3Data->m_Rx[Rx].m_Tx[Tx].m_RLLStableCnt = S3_RLL_STAB_OK;
 		}
 		else
 		{
@@ -738,7 +754,6 @@ int S3RxSetVcc(char Rx, unsigned short v)
 }
 
 // ---------------------------------------------------------------------------
-
 // int S3RxSetCalGain(char Rx, short cal)
 
 int S3RxSetCalGain(char Rx, char Tx, short cal)
@@ -751,9 +766,14 @@ int S3RxSetCalGain(char Rx, char Tx, short cal)
 	return 0;
 }
 
+// ---------------------------------------------------------------------------
+
 short S3RxGetCalGain(char Rx, char Tx)
 {
 	if (Tx == -1)
+		Tx = 0;
+
+	if (S3RxGetType(Rx) != S3_Rx2)
 		Tx = 0;
 
 	return S3Data->m_Rx[Rx].m_CalGain[Tx];
