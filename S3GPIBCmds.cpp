@@ -1692,7 +1692,7 @@ int CmdSLEEPALL()
 
 int CmdWAKEALL()
 {
-    S3SetSleepAll(false);
+    S3SetWakeAll(true);
     return 0;
 }
 
