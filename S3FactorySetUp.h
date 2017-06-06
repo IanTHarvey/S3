@@ -75,6 +75,12 @@ public:
 	afx_msg void OnCbnSelchangeRxCombo();
 	afx_msg void OnCbnSelchangeTxCombo();
 	afx_msg void OnStnClickedRx1CalStatic();
+
+	void UpdateRxTxCombos();
+	void UpdateInfoStatic();
+
+	CStatic m_RxTxInfoStatic;
+	afx_msg void OnBnClickedFactTestButton();
 };
 
 

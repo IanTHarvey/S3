@@ -38,10 +38,10 @@ CS3FactorySetUp::CS3FactorySetUp(CWnd* pParent)
 	m_Parent = (CS3ControllerDlg *)pParent;
 	m_RFPath = 0;
 	m_CurSel = 0;
-	m_Rx = 0;
-	m_Tx = 0;
+	m_Rx = -1;
+	m_Tx = -1;
 	
-	for(char i = 0; i < 7; i++)
+	for(char i = 0; i < S3_TX_N_RF_PATH; i++)
 		m_RFCalVals[i] = -999.0;
 }
 
@@ -70,6 +70,7 @@ void CS3FactorySetUp::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_DBG_DSAS_STATIC, m_DbgDSAsStatic);
 	DDX_Control(pDX, IDC_RX_COMBO, m_FactoryRxDroplist);
 	DDX_Control(pDX, IDC_TX_COMBO, m_FactoryTxDroplist);
+	DDX_Control(pDX, IDC_RXTX_INFO_STATIC, m_RxTxInfoStatic);
 }
 
 BEGIN_MESSAGE_MAP(CS3FactorySetUp, CDialog)
@@ -85,6 +86,7 @@ BEGIN_MESSAGE_MAP(CS3FactorySetUp, CDialog)
 	ON_CBN_SELCHANGE(IDC_RX_COMBO, &CS3FactorySetUp::OnCbnSelchangeRxCombo)
 	ON_CBN_SELCHANGE(IDC_TX_COMBO, &CS3FactorySetUp::OnCbnSelchangeTxCombo)
 	ON_STN_CLICKED(IDC_RX1_CAL_STATIC, &CS3FactorySetUp::OnStnClickedRx1CalStatic)
+	ON_BN_CLICKED(IDC_FACT_TEST_BUTTON, &CS3FactorySetUp::OnBnClickedFactTestButton)
 END_MESSAGE_MAP()
 
 // ----------------------------------------------------------------------------
@@ -168,30 +170,69 @@ void CS3FactorySetUp::Update()
 
 	CString	tmp;
 
-	for(char RFPath = 0; RFPath < 7; RFPath++)
-		m_RFCalVals[RFPath] = (double)S3TxGetCalRF(m_Rx, m_Tx, RFPath) / 100.0;
-
-	tmp.Format(_T("%.2f"), m_RFCalVals[m_RFPath]);
-	m_TxCalEdit.SetWindowText(tmp);
-
-	tmp.Format(_T("%.2f"), (double)S3RxGetCalGain(m_Rx, 0) / 100.0);
-	m_Rx1CalEdit.SetWindowText(tmp);
-
-	if (S3RxGetType(m_Rx) == S3_Rx2)
+	if (m_Tx >= 0)
 	{
-		tmp.Format(_T("%.2f"), (double)S3RxGetCalGain(m_Rx, 1) / 100.0);
-		m_Rx2CalEdit.SetWindowText(tmp);
+		for(char RFPath = 0; RFPath < S3_TX_N_RF_PATH; RFPath++)
+			m_RFCalVals[RFPath] = (double)S3TxGetCalRF(m_Rx, m_Tx, RFPath) / 100.0;
+
+		tmp.Format(_T("%.2f"), m_RFCalVals[m_RFPath]);
+		m_TxCalEdit.SetWindowText(tmp);
+
+		if (	S3TxGetType(m_Rx, m_Tx) != S3_TxUnconnected &&
+				S3TxGetPowerStat(m_Rx, m_Tx) == S3_TX_ON)
+		{
+			tmp.Format(_T("%.2f"), (double)S3TxGetCalOpt(m_Rx, m_Tx) / 100.0);
+			m_TxOptCalEdit.SetWindowText(tmp);
+
+			short LinkGain = -100 * Dbg_RF1_DSA + Dbg_TxOpt + Dbg_RxOpt;
+			tmp.Format(_T("Path: %d; RFDSA: %d; TxSoftGain: %d;")
+								_T("RxSoftGain: %d; LinkGain: %d (100mdB)\nRLL: %d"),
+			Dbg_Path, Dbg_RF1_DSA, Dbg_TxOpt, Dbg_RxOpt, LinkGain, Dbg_RLL);
+			m_DbgDSAsStatic.SetWindowText(tmp);
+		}
+		else
+		{
+			m_TxOptCalEdit.SetWindowText(_T("N/A"));
+			m_DbgDSAsStatic.SetWindowText(_T("N/A"));
+		}
 	}
 	else
+	{
+		for(char RFPath = 0; RFPath < S3_TX_N_RF_PATH; RFPath++)
+			m_RFCalVals[RFPath] = 0.0;
+
+		m_TxCalEdit.SetWindowText(_T("N/A"));
+		m_Rx1CalEdit.SetWindowText(_T("N/A"));
+		m_TxOptCalEdit.SetWindowText(_T("N/A"));
+		m_DbgDSAsStatic.SetWindowText(_T("N/A"));
+	}
+
+	if (m_Rx >= 0)
+	{
+		tmp.Format(_T("%.2f"), (double)S3RxGetCalGain(m_Rx, 0) / 100.0);
+		m_Rx1CalEdit.SetWindowText(tmp);
+
+		if (S3RxGetType(m_Rx) == S3_Rx2)
+		{
+			tmp.Format(_T("%.2f"), (double)S3RxGetCalGain(m_Rx, 1) / 100.0);
+			m_Rx2CalEdit.SetWindowText(tmp);
+		}
+		else
+		{
+			m_Rx2CalEdit.SetWindowText(_T("N/A"));
+		}
+	}
+	else
+	{
+		for(char Tx = m_FactoryTxDroplist.GetCount() - 1; Tx >= 0; Tx--)
+			m_FactoryTxDroplist.DeleteString(Tx);
+
+		m_Rx1CalEdit.SetWindowText(_T("N/A"));
 		m_Rx2CalEdit.SetWindowText(_T("N/A"));
+	}
 
-	tmp.Format(_T("%.2f"), (double)S3TxGetCalOpt(m_Rx, m_Tx) / 100.0);
-	m_TxOptCalEdit.SetWindowText(tmp);
-
-	short LinkGain = -100 * Dbg_RF1_DSA + Dbg_TxOpt + Dbg_RxOpt;
-	tmp.Format(_T("Path: %d; RFDSA: %d; TxSoftGain: %d; RxSoftGain: %d; LinkGain: %d (100mdB)\nRLL: %d"),
-		Dbg_Path, Dbg_RF1_DSA, Dbg_TxOpt, Dbg_RxOpt, LinkGain, Dbg_RLL);
-	m_DbgDSAsStatic.SetWindowText(tmp);
+	UpdateRxTxCombos();
+	UpdateInfoStatic();
 
 	Enable(TRUE);
 }
@@ -206,9 +247,13 @@ void CS3FactorySetUp::Enable(BOOL enable)
 
 	if (enable)
 	{
+		m_FactoryRxDroplist.EnableWindow(enable);
+
 		// Conditionally enable
 		if (S3RxGetType(m_Rx) == S3_RxEmpty)
 		{
+			m_FactoryTxDroplist.EnableWindow(FALSE);
+
 			m_Rx1CalEdit.EnableWindow(FALSE);
 			m_Rx1CalSetButton.EnableWindow(FALSE);
 
@@ -225,9 +270,15 @@ void CS3FactorySetUp::Enable(BOOL enable)
 				m_Rx2CalEdit.EnableWindow(TRUE);
 				m_Rx2CalSetButton.EnableWindow(TRUE);
 			}
+			else
+			{
+				m_Rx2CalEdit.EnableWindow(FALSE);
+				m_Rx2CalSetButton.EnableWindow(FALSE);
+			}
 		}
 
-		if (S3RxGetType(m_Rx) == S3_RxEmpty || S3TxGetType(m_Rx, m_Tx) == S3_TxUnconnected)
+		if (	S3RxGetType(m_Rx) == S3_RxEmpty ||
+				S3TxGetType(m_Rx, m_Tx) == S3_TxUnconnected)
 		{
 			m_RFPathCombo.EnableWindow(FALSE);
 			m_TxCalEdit.EnableWindow(FALSE);
@@ -256,6 +307,9 @@ void CS3FactorySetUp::Enable(BOOL enable)
 	}
 	else
 	{
+		m_FactoryRxDroplist.EnableWindow(enable);
+		m_FactoryTxDroplist.EnableWindow(enable);
+
 		m_Rx1CalEdit.EnableWindow(enable);
 		m_Rx1CalSetButton.EnableWindow(enable);
 
@@ -268,8 +322,6 @@ void CS3FactorySetUp::Enable(BOOL enable)
 
 		m_TxOptCalSetButton.EnableWindow(enable);
 		m_TxCalEdit.EnableWindow(enable);
-
-
 	}
 
 	UpdateWindow();
@@ -306,7 +358,7 @@ void CS3FactorySetUp::OnBnClickedOk()
 
 	m_RxCalEdit.GetWindowText(RxCal);
 
-	double RxCalVal = wcstod(RxCal, &e);
+	double RxCalVal = _tcstod(RxCal, &e);
 
 	if (*e != '\0')
 	{
@@ -364,7 +416,7 @@ void CS3FactorySetUp::OnBnClickedTxCalSetButton()
 
 	m_TxCalEdit.GetWindowText(TxCal);
 
-	double TxCalVal = wcstod(TxCal, &e);
+	double TxCalVal = _tcstod(TxCal, &e);
 
 	if (*e != '\0')
 	{
@@ -414,7 +466,7 @@ void CS3FactorySetUp::OnCbnSelchangeRfPathCombo()
 
 	m_TxCalEdit.GetWindowText(tmp);
 
-	double CalVal = wcstod(tmp, &e);
+	double CalVal = _tcstod(tmp, &e);
 
 	if (*e != '\0')
 	{
@@ -446,7 +498,7 @@ void CS3FactorySetUp::OnCbnDropdownRfPathCombo()
 
 	m_TxCalEdit.GetWindowText(TxCal);
 
-	m_RFCalVals[cs] = wcstod(TxCal, &e);
+	m_RFCalVals[cs] = _tcstod(TxCal, &e);
 	*/
 }
 
@@ -462,7 +514,7 @@ void CS3FactorySetUp::OnBnClickedRx1CalSetButton()
 
 	m_Rx1CalEdit.GetWindowText(RxCal);
 
-	double CalVal = wcstod(RxCal, &e);
+	double CalVal = _tcstod(RxCal, &e);
 
 	if (*e != '\0')
 	{
@@ -509,7 +561,7 @@ void CS3FactorySetUp::OnBnClickedRx2CalSetButton()
 
 	m_Rx2CalEdit.GetWindowText(RxCal);
 
-	double CalVal = wcstod(RxCal, &e);
+	double CalVal = _tcstod(RxCal, &e);
 
 	if (*e != '\0')
 	{
@@ -557,7 +609,7 @@ void CS3FactorySetUp::OnBnClickedTxOptCalSetButton()
 
 	m_TxOptCalEdit.GetWindowText(TxCal);
 
-	double CalVal = wcstod(TxCal, &e);
+	double CalVal = _tcstod(TxCal, &e);
 
 	if (*e != '\0')
 	{
@@ -617,7 +669,15 @@ void CS3FactorySetUp::OnBnClickedDumpDiagButton()
 void CS3FactorySetUp::OnCbnSelchangeRxCombo()
 {
 	m_Rx = m_FactoryRxDroplist.GetCurSel();
-	S3SetFactoryMode(m_Rx, m_Tx, true);
+	m_Tx = -1;
+
+	if (S3RxExistQ(m_Rx))
+	{
+		S3SetFactoryMode(m_Rx, m_Tx, true);
+	}
+	else
+		m_Rx = m_Tx = -1;
+
 	Update();
 }
 
@@ -626,12 +686,106 @@ void CS3FactorySetUp::OnCbnSelchangeRxCombo()
 void CS3FactorySetUp::OnCbnSelchangeTxCombo()
 {
 	m_Tx = m_FactoryTxDroplist.GetCurSel();
-	S3SetFactoryMode(m_Rx, m_Tx, true);
+	
+	if (S3TxExistQ(m_Rx, m_Tx))
+	{
+		S3SetFactoryMode(m_Rx, m_Tx, true);
+	}
+	else m_Tx = -1;
+		
 	Update();
 }
 
 // ----------------------------------------------------------------------------
+
 void CS3FactorySetUp::OnStnClickedRx1CalStatic()
 {
 	// TODO: Add your control notification handler code here
 }
+
+// ----------------------------------------------------------------------------
+
+void CS3FactorySetUp::UpdateRxTxCombos()
+{
+	CString tmp = m_Tx;
+
+	for(char Rx = m_FactoryRxDroplist.GetCount() - 1; Rx >= 0; Rx--)
+		m_FactoryRxDroplist.DeleteString(Rx);
+
+	for(char Rx = 0; Rx < S3_MAX_RXS; Rx++)
+	{
+		if (S3RxExistQ(Rx))
+			tmp.Format(_T("%d"), Rx + 1);
+		else
+			tmp.Format(_T("%d N/A"), Rx + 1);
+			
+		m_FactoryRxDroplist.AddString(tmp);
+	}
+
+	m_FactoryRxDroplist.SetCurSel(m_Rx);
+
+	for(char Tx = m_FactoryTxDroplist.GetCount() - 1; Tx >= 0; Tx--)
+		m_FactoryTxDroplist.DeleteString(Tx);
+
+	if (m_Rx >= 0)
+	{
+		for(char Tx= 0; Tx < S3RxGetNTx(m_Rx); Tx++)
+		{
+			if (S3TxExistQ(m_Rx, Tx))
+				tmp.Format(_T("%d"), Tx + 1);
+			else
+				tmp.Format(_T("%d N/A"), Tx + 1);
+
+			m_FactoryTxDroplist.AddString(tmp);
+		}
+	}
+
+	if (m_Tx >= 0)
+		m_FactoryTxDroplist.SetCurSel(m_Tx);
+}
+
+// ----------------------------------------------------------------------------
+
+void CS3FactorySetUp::UpdateInfoStatic()
+{
+	CString tmp;
+
+	if (m_Rx == -1)
+		tmp = _T("No Rx selected; ");
+	else
+		tmp.Format(_T("Rx%d; "), S3RxGetType(m_Rx));
+
+	if (m_Tx == -1)
+		tmp.Append(_T("No Tx selected; "));
+	else
+	{
+		tmp.AppendFormat(_T("Tx%d; "), S3TxGetType(m_Rx, m_Tx));
+
+		if (S3TxGetPowerStat(m_Rx, m_Tx) == S3_TX_ON)
+			tmp.Append(_T("Awake; "));
+		else
+			tmp.Append(_T("Asleep; "));
+	}
+
+	m_RxTxInfoStatic.SetWindowText(tmp);
+
+}
+
+// ----------------------------------------------------------------------------
+
+void CS3FactorySetUp::OnBnClickedFactTestButton()
+{
+	int err;
+	unsigned char rcfg, wcfg;
+
+	err = S3I2CReadSerialByte(S3I2C_TX_OPT_ADDR, S3I2C_TX_OPT_CFG + 1, &rcfg);
+
+	if (rcfg & 0x01)
+		wcfg = rcfg & ~0x01;
+	else
+		wcfg = rcfg | 0x01;
+	
+	err = S3I2CWriteSerialByte(S3I2C_TX_OPT_ADDR, S3I2C_TX_OPT_CFG + 1, wcfg);
+}
+
+// ----------------------------------------------------------------------------

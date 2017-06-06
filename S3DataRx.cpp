@@ -347,6 +347,9 @@ unsigned char S3RxGetType(char Rx)
 {
 	pS3RxData	pRx;
 
+	if (Rx == -1)
+		return S3_RxEmpty;
+
 	pRx = &S3Data->m_Rx[Rx];
 
 	/*if (S3Data->m_DemoMode && pRx->m_Type == S3_TxUnconnected)
