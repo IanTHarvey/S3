@@ -778,6 +778,7 @@ int S3TxSetPowerStat(char Rx, char Tx, S3TxPwrMode mode)
 			pTx->m_LaserPow = SHRT_MIN;
 			pTx->m_Uptime = 0;
 			pTx->m_Alarms = 0;
+			pTx->m_OptAlarms[0] = pTx->m_OptAlarms[1] = pTx->m_OptAlarms[2] = 0x00;
 			pTx->m_RLLStableCnt = 0;
 
 			// If was in protection mode, safe to cancel alarms and allow
