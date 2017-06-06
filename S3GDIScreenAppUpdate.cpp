@@ -76,11 +76,11 @@ void CS3GDIScreenMain::S3InitGDIAppUpdateScreen(void)
 	if (!S3GetSoftShutdownOption())
 	{
 		// Layout 2
-		wcscpy_s(AppUpdateDoUpdate, 256,
+		_tcscpy_s(AppUpdateDoUpdate, 256,
 			_T("After update Sentinel 3 must be shutdown, configuration data will be retained. Ensure that power is not interrupted when restarting."));
 
 		// Layout 3
-		wcscpy_s(AppUpdateUpdating, 256,
+		_tcscpy_s(AppUpdateUpdating, 256,
 			_T("Application update will be installed on restart.\nDo not switch off mains power until prompted.\n"));
 	}
 }

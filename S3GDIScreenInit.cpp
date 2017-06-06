@@ -58,7 +58,7 @@ void CS3GDIScreenMain::S3GDIInit()
 	m_lf.lfQuality = FW_DONTCARE;
 	m_lf.lfPitchAndFamily = DEFAULT_PITCH | FF_DONTCARE;
 
-	wcscpy_s(m_lf.lfFaceName, 32, _T("Segoe UI"));
+	_tcscpy_s(m_lf.lfFaceName, 32, _T("Segoe UI"));
 
 	// Font variants
 	m_lf.lfHeight = 36;

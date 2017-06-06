@@ -1137,16 +1137,16 @@ void CS3GDIScreenMain::S3DrawGDITxIP(char Rx, char Tx, char IP,
 		double p1db = S3IPGetP1dB(Rx, Tx, IP);
 
 		wchar_t units[10];
-		wcscpy_s(units, 10, S3GetUnitString());
+		_tcscpy_s(units, 10, S3GetUnitString());
 
 		if (S3GetUnits() == S3_UNITS_MV || S3IPGetGain(Rx, Tx, IP) <= -16)
 		{
 			if (ABS(p1db) < 1.0)
 			{
 				p1db *= 1000.0;
-				wcscpy_s(units, 10, _T("mV"));
+				_tcscpy_s(units, 10, _T("mV"));
 			}
-			else wcscpy_s(units, 10, _T("V"));
+			else _tcscpy_s(units, 10, _T("V"));
 
 			str.Format(_T("%d%s"), (int)ROUND(p1db), units);
 		}

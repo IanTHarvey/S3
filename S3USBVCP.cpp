@@ -535,9 +535,9 @@ int CS3USBVCP::EnumCOMPorts(bool test)
 		if (iRet == ERROR_SUCCESS)
 		{
 			// Check the "Key" value for an FTDI device "VCP"
-			if (wcslen(szName) >= wcslen(_T(REG_NAME_FTDI_KEY)))
+			if (_tcslen(szName) >= _tcslen(_T(REG_NAME_FTDI_KEY)))
 			{
-				if (wcsncmp(szName, _T(REG_NAME_FTDI_KEY), wcslen(_T(REG_NAME_FTDI_KEY))) == 0)
+				if (_tcsncmp(szName, _T(REG_NAME_FTDI_KEY), _tcslen(_T(REG_NAME_FTDI_KEY))) == 0)
 				{
 					// Key name good, get the value
 					iRet = RegQueryValueEx(hKey, szName, 0, &dwType, (PBYTE)szName, &dwSize);
@@ -554,9 +554,9 @@ int CS3USBVCP::EnumCOMPorts(bool test)
 			}
 
 			// ...and for a Prolific device
-			if (wcslen(szName) >= wcslen(_T(REG_NAME_PROL_KEY)))
+			if (_tcslen(szName) >= _tcslen(_T(REG_NAME_PROL_KEY)))
 			{
-				if (wcsncmp(szName, _T(REG_NAME_PROL_KEY), wcslen(_T(REG_NAME_PROL_KEY))) == 0)
+				if (_tcsncmp(szName, _T(REG_NAME_PROL_KEY), _tcslen(_T(REG_NAME_PROL_KEY))) == 0)
 				{
 					// Get the "COMX:" name
 					iRet = RegQueryValueEx(hKey, szName, 0, &dwType, (PBYTE)szName, &dwSize);
@@ -654,9 +654,9 @@ int CS3USBVCP::EnumCOMPorts(bool test)
 		if(iRet ==  ERROR_SUCCESS)
 		{
 			// Check the "Key" value for an FTDI device
-			if (wcslen(szName) >= wcslen(_T(REG_NAME_FTDI_KEY)))
+			if (_tcslen(szName) >= _tcslen(_T(REG_NAME_FTDI_KEY)))
 			{
-				if (wcsncmp(szName, _T(REG_NAME_FTDI_KEY), wcslen(_T(REG_NAME_FTDI_KEY))) == 0)
+				if (_tcsncmp(szName, _T(REG_NAME_FTDI_KEY), _tcslen(_T(REG_NAME_FTDI_KEY))) == 0)
 				{
 					// Get the "COMX:" name
 					iRet = RegQueryValueEx(hSubKey, _T(REG_NAME_NAME), 0, &dwType, (PBYTE)szName, &dwSize);
@@ -674,9 +674,9 @@ int CS3USBVCP::EnumCOMPorts(bool test)
 			}
 
 			// ...and same for a Prolific device
-			if (wcslen(szName) >= wcslen(_T(REG_NAME_PROL_KEY)))
+			if (_tcslen(szName) >= _tcslen(_T(REG_NAME_PROL_KEY)))
 			{
-				if (wcsncmp(szName, _T(REG_NAME_PROL_KEY), wcslen(_T(REG_NAME_PROL_KEY))) == 0)
+				if (_tcsncmp(szName, _T(REG_NAME_PROL_KEY), _tcslen(_T(REG_NAME_PROL_KEY))) == 0)
 				{
 					iRet = RegQueryValueEx(hSubKey, _T(REG_NAME_NAME), 0, &dwType, (PBYTE)szName, &dwSize);
 
@@ -732,8 +732,8 @@ int CS3USBVCP::CheckNameIndex(TCHAR * szName, TCHAR * szPrefix)
 	int iNum;
 	int iRet;
 		
-	wcsncpy_s(cBuf, 6, szName, 6);
-	if(wcsncmp(cBuf, szPrefix, 3) != 0)
+	_tcsncpy_s(cBuf, 6, szName, 6);
+	if(_tcsncmp(cBuf, szPrefix, 3) != 0)
 		return -1;
 
 	// Get the index from the device name
@@ -766,9 +766,9 @@ BOOL CS3USBVCP::CheckDeviceType(HKEY hSubKey)
 	}
 
 	// Check the "Key" value against what we would expect for and FTDI device
-	if (wcslen(szName) >= wcslen(_T(REG_NAME_FTDI_KEY)))
+	if (_tcslen(szName) >= _tcslen(_T(REG_NAME_FTDI_KEY)))
 	{
-		if(wcsncmp(szName, _T(REG_NAME_FTDI_KEY), wcslen(_T(REG_NAME_FTDI_KEY))) == 0)
+		if(_tcsncmp(szName, _T(REG_NAME_FTDI_KEY), _tcslen(_T(REG_NAME_FTDI_KEY))) == 0)
 		{
 			return TRUE;
 		}

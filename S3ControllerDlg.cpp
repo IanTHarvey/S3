@@ -794,17 +794,17 @@ int CS3ControllerDlg::SetSysDate(short y, short m, short d)
 int CS3ControllerDlg::SetSysTimeStr(CString &str)
 {
 	wchar_t	*eptr;
-	char h = (char)wcstol(str, &eptr, 10);
+	char h = (char)_tcstol(str, &eptr, 10);
 
 	if (*eptr != ':')
 		return 1;
 
-	char m = (char)wcstol(eptr + 1, &eptr, 10);
+	char m = (char)_tcstol(eptr + 1, &eptr, 10);
 
 	if (*eptr != ':')
 		return 1;
 
-	char s = (char)wcstol(eptr + 1, &eptr, 10);
+	char s = (char)_tcstol(eptr + 1, &eptr, 10);
 
 	if (*eptr != '\0')
 		return 1;
@@ -817,17 +817,17 @@ int CS3ControllerDlg::SetSysTimeStr(CString &str)
 int CS3ControllerDlg::SetSysDateStr(CString &str)
 {
 	wchar_t	*eptr;
-	short y = (short)wcstol(str, &eptr, 10);
+	short y = (short)_tcstol(str, &eptr, 10);
 
 	if (*eptr != '-')
 		return 1;
 
-	short m = (short)wcstol(eptr + 1, &eptr, 10);
+	short m = (short)_tcstol(eptr + 1, &eptr, 10);
 
 	if (*eptr != '-')
 		return 1;
 
-	short d = (short)wcstol(eptr + 1, &eptr, 10);
+	short d = (short)_tcstol(eptr + 1, &eptr, 10);
 
 	if (*eptr != '\0')
 		return 1;

@@ -98,10 +98,10 @@ int S3TxInit(pS3TxData node)
 	node->m_Tau_ns[2] = 1000.0;		// 1.0us
 	node->m_Tau_ns[3] = 10000.0;	// 10.0us
 
-	wcscpy_s(node->m_TauUnits[0], S3_MAX_TAU_UNITS_LEN, _T("None"));
-	wcscpy_s(node->m_TauUnits[1], S3_MAX_TAU_UNITS_LEN, _T("0.1\u03BCs"));
-	wcscpy_s(node->m_TauUnits[2], S3_MAX_TAU_UNITS_LEN, _T("1.0\u03BCs"));
-	wcscpy_s(node->m_TauUnits[3], S3_MAX_TAU_UNITS_LEN, _T("10.0\u03BCs"));
+	_tcscpy_s(node->m_TauUnits[0], S3_MAX_TAU_UNITS_LEN, _T("None"));
+	_tcscpy_s(node->m_TauUnits[1], S3_MAX_TAU_UNITS_LEN, _T("0.1\u03BCs"));
+	_tcscpy_s(node->m_TauUnits[2], S3_MAX_TAU_UNITS_LEN, _T("1.0\u03BCs"));
+	_tcscpy_s(node->m_TauUnits[3], S3_MAX_TAU_UNITS_LEN, _T("10.0\u03BCs"));
 
 	return 0;
 }
@@ -501,6 +501,9 @@ int S3TxPowerAll(unsigned char On)
 
 S3TxType S3TxGetType(char Rx, char Tx)
 {
+	if (Rx == -1 || Tx == -1)
+		return S3_TxUnconnected;
+
 	pS3TxData	pTx;
 
 	pTx = &S3Data->m_Rx[Rx].m_Tx[Tx];
@@ -1489,7 +1492,7 @@ int S3TxGetTauUnitsA(char *S3TxGetTauUnitsStr, char Rx, char Tx, char IP)
 	wchar_t *str;
 	str = S3Data->m_Rx[Rx].m_Tx[Tx].m_TauUnits[T];
 	
-	for(unsigned char i = 0; i <= wcslen(str) && i < S3_MAX_TAU_UNITS_LEN; i++)
+	for(unsigned char i = 0; i <= _tcslen(str) && i < S3_MAX_TAU_UNITS_LEN; i++)
 	{
 		if (str[i] == 0x3bc)
 			S3TxGetTauUnitsStr[i] = 'u';
