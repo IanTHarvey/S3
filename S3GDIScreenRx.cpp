@@ -544,7 +544,8 @@ void CS3GDIScreenMain::S3DrawGDIRxTxRowName(char Row, wchar_t *cstr)
 void CS3GDIScreenMain::S3DrawGDIRxMessage(char Rx)
 {
 	SelectObject(m_HDC, m_hPenNone);
-	SelectObject(m_HDC, m_hBrushBG2);
+	SelectObject(m_HDC, m_hBrushBG4);
+	COLORREF cr = SetTextColor(m_HDC, m_crTextNorm);
 
 	S3_RECT(m_HDC, m_RectRxMsg);
 
@@ -556,12 +557,17 @@ void CS3GDIScreenMain::S3DrawGDIRxMessage(char Rx)
 	{
 		if (S3AlarmString[0] == 'E')
 		{
-			S3BLT(m_hbmpSysError, m_RectRxMsg.left + 10, m_RectRxMsg.top + 10,
+			S3BLT(m_hbmpSysError, m_RectRxMsg.left + 10, m_RectRxMsg.top + 5,
 					32, 32);
 		}
 		else if (S3AlarmString[0] == 'W')
 		{
-			S3BLT(m_hbmpSysWarn, m_RectRxMsg.left + 10, m_RectRxMsg.top + 10,
+			S3BLT(m_hbmpSysWarn, m_RectRxMsg.left + 10, m_RectRxMsg.top + 5,
+					32, 32);
+		}
+		else if (S3AlarmString[0] == 'I')
+		{
+			S3BLT(m_hbmpSysInfo, m_RectRxMsg.left + 10, m_RectRxMsg.top + 5,
 					32, 32);
 		}
 		else return;
@@ -569,7 +575,7 @@ void CS3GDIScreenMain::S3DrawGDIRxMessage(char Rx)
 		CString str(S3AlarmString + 2);
 
 		RECT fntRc = m_RectRxMsg;
-		fntRc.left += 50;
+		// fntRc.left += 50;
 		fntRc.top += 5;
 
 		RxAlarm->Enable(true);
