@@ -300,7 +300,8 @@ int CmdGetRXMod(char *Inbuf, int Rx)
             " %i\037 %i\037 %i\037 %i\037 %i\037 %i\037"
             " %i\037 %i\037 %i\037 %i\037 %i\037 %i\037 %i\037 %i\037 %i\037"
             " %i\037 %f\037 %i\037 %i\037 %i\037 %i\037"
-            " %i\037 %i\037 %i\037 %i\037 %i\037 %i\037"
+			" %i\037 %i\037 %i\037"								// RxCtrl alarms
+            " %i\037 %i\037 %i\037 %i\037 %i\037 %i\037"		// Tx alarms
             " %i\037 %i\037 %i\037 %i\037 %i\037 %s\037"
             " %i\037 %i\037 %i\037 %i\037 %i\037 %i",
             S3Data->m_Rx[Rx].m_Type,
@@ -339,6 +340,10 @@ int CmdGetRXMod(char *Inbuf, int Rx)
             S3Data->m_Rx[Rx].m_Config.m_InputZ,
             S3Data->m_Rx[Rx].m_Config.m_LowNoiseMode,
             S3Data->m_Rx[Rx].m_Config.m_WindowTracking,
+
+			S3Data->m_Rx[Rx].m_RxAlarms[0],
+            S3Data->m_Rx[Rx].m_RxAlarms[1],
+            S3Data->m_Rx[Rx].m_RxAlarms[2],
             
             S3Data->m_Rx[Rx].m_TxAlarms[0],
             S3Data->m_Rx[Rx].m_TxAlarms[1],
@@ -368,11 +373,14 @@ int CmdGetRXMod(char *Inbuf, int Rx)
 
     return 0;
 }
+
+// ----------------------------------------------------------------------------
+
 int CmdGetTXMod(char *Inbuf, int Rx, int Tx)
 {
     //If it is a valid address
-    if ((Rx != -1 && S3RxValidQ(Rx) && S3Data->m_Rx[Rx].m_Type != S3_RxEmpty) 
-        && (Tx != -1 && S3TxValidQ(Rx, Tx) && S3Data->m_Rx[Rx].m_Tx[Tx].m_Type != S3_TxUnconnected))
+    if ((Rx != -1 && S3RxValidQ(Rx) && S3Data->m_Rx[Rx].m_Type != S3_RxEmpty) &&
+		(Tx != -1 && S3TxValidQ(Rx, Tx) && S3Data->m_Rx[Rx].m_Tx[Tx].m_Type != S3_TxUnconnected))
     {
         sprintf_s(Inbuf, S3_MAX_GPIB_RET_LEN,
             " %i\037 %i\037 %s\037 %i\037 %i\037 %i\037"
@@ -391,34 +399,34 @@ int CmdGetTXMod(char *Inbuf, int Rx, int Tx)
             S3Data->m_Rx[Rx].m_Tx[Tx].m_NodeName,
             S3Data->m_Rx[Rx].m_Tx[Tx].m_Id,
             S3Data->m_Rx[Rx].m_Tx[Tx].m_ParentId,
-            S3Data->m_Rx[Rx].m_Tx[Tx].m_Wavelength,
+            S3Data->m_Rx[Rx].m_Tx[Tx].m_Wavelength,					// 6
 
             S3Data->m_Rx[Rx].m_Tx[Tx].m_SN,
             S3Data->m_Rx[Rx].m_Tx[Tx].m_PN,
             S3Data->m_Rx[Rx].m_Tx[Tx].m_FW,
             S3Data->m_Rx[Rx].m_Tx[Tx].m_HW,
-            S3Data->m_Rx[Rx].m_Tx[Tx].m_ModelName,
+            S3Data->m_Rx[Rx].m_Tx[Tx].m_ModelName,					// 11
 
             S3Data->m_Rx[Rx].m_Tx[Tx].m_BattSN,
             S3Data->m_Rx[Rx].m_Tx[Tx].m_BattPN,
             S3Data->m_Rx[Rx].m_Tx[Tx].m_BattHW,
-            S3Data->m_Rx[Rx].m_Tx[Tx].m_BattFW,
+            S3Data->m_Rx[Rx].m_Tx[Tx].m_BattFW,						// 15
 
             S3Data->m_Rx[Rx].m_Tx[Tx].m_BattTemp,
             S3Data->m_Rx[Rx].m_Tx[Tx].m_BattValidated,
             S3Data->m_Rx[Rx].m_Tx[Tx].m_SoC,
             S3Data->m_Rx[Rx].m_Tx[Tx].m_ATTE,
-            S3Data->m_Rx[Rx].m_Tx[Tx].m_PowerStat,
+            S3Data->m_Rx[Rx].m_Tx[Tx].m_PowerStat,					// 20
 
             S3Data->m_Rx[Rx].m_Tx[Tx].m_ActiveInput,
             S3Data->m_Rx[Rx].m_Tx[Tx].m_TestSigInput,
             S3Data->m_Rx[Rx].m_Tx[Tx].m_TempTx,
-            S3Data->m_Rx[Rx].m_Tx[Tx].m_TempComp,
+            S3Data->m_Rx[Rx].m_Tx[Tx].m_TempComp,					// 24
 
             S3Data->m_Rx[Rx].m_Tx[Tx].m_LaserPow,
             S3Data->m_Rx[Rx].m_Tx[Tx].m_LaserLo,
             S3Data->m_Rx[Rx].m_Tx[Tx].m_LaserHi,
-            S3Data->m_Rx[Rx].m_Tx[Tx].m_CompMode,
+            S3Data->m_Rx[Rx].m_Tx[Tx].m_CompMode,					// 28
             
             S3Data->m_Rx[Rx].m_Tx[Tx].m_Alarms,
             S3Data->m_Rx[Rx].m_Tx[Tx].m_OptAlarms[0],
@@ -427,14 +435,14 @@ int CmdGetTXMod(char *Inbuf, int Rx, int Tx)
             S3Data->m_Rx[Rx].m_Tx[Tx].m_CtrlAlarms[0],
             S3Data->m_Rx[Rx].m_Tx[Tx].m_CtrlAlarms[1],
             S3Data->m_Rx[Rx].m_Tx[Tx].m_BattAlarms,
-			S3Data->m_Rx[Rx].m_Tx[Tx].m_RLLStableCnt,
+			S3Data->m_Rx[Rx].m_Tx[Tx].m_RLLStableCnt,				// 36
 
             S3Data->m_Rx[Rx].m_Tx[Tx].m_Config.m_Gain,
             S3Data->m_Rx[Rx].m_Tx[Tx].m_Config.m_MaxInput,
             S3Data->m_Rx[Rx].m_Tx[Tx].m_Config.m_Tau,
             S3Data->m_Rx[Rx].m_Tx[Tx].m_Config.m_InputZ,
             S3Data->m_Rx[Rx].m_Tx[Tx].m_Config.m_LowNoiseMode,
-            S3Data->m_Rx[Rx].m_Tx[Tx].m_Config.m_WindowTracking,
+            S3Data->m_Rx[Rx].m_Tx[Tx].m_Config.m_WindowTracking,	// 42
             
             S3Data->m_Rx[Rx].m_Tx[Tx].m_Fmax,
             S3Data->m_Rx[Rx].m_Tx[Tx].m_Uptime,
@@ -442,18 +450,18 @@ int CmdGetTXMod(char *Inbuf, int Rx, int Tx)
             S3Data->m_Rx[Rx].m_Tx[Tx].m_FWDate,
             S3Data->m_Rx[Rx].m_Tx[Tx].m_I,
             S3Data->m_Rx[Rx].m_Tx[Tx].m_UserSleep,
-            S3Data->m_Rx[Rx].m_Tx[Tx].m_EmergencySleep,
+            S3Data->m_Rx[Rx].m_Tx[Tx].m_EmergencySleep,				// 49
             
             S3Data->m_Rx[Rx].m_Tx[Tx].m_CurAlarmSrc,
             S3Data->m_Rx[Rx].m_Tx[Tx].m_CurAlarm,
             S3Data->m_Rx[Rx].m_Tx[Tx].m_TempTEC,
             S3Data->m_Rx[Rx].m_Tx[Tx].m_PeakThresh,
-            S3Data->m_Rx[Rx].m_Tx[Tx].m_PeakHold,
+            S3Data->m_Rx[Rx].m_Tx[Tx].m_PeakHold,					//54
             
             S3Data->m_Rx[Rx].m_Tx[Tx].m_Tau_ns[0],
             S3Data->m_Rx[Rx].m_Tx[Tx].m_Tau_ns[1],
             S3Data->m_Rx[Rx].m_Tx[Tx].m_Tau_ns[2],
-            S3Data->m_Rx[Rx].m_Tx[Tx].m_Tau_ns[3]);  
+            S3Data->m_Rx[Rx].m_Tx[Tx].m_Tau_ns[3]);					// 58
     }
     else
     {

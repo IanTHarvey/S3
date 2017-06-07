@@ -132,14 +132,15 @@ UINT AutoUpdateSentinelDataBundleThread(LPVOID pParam);
 #define RXIMPEDANCE 24
 #define RXLOWNOISE 25
 #define RXWINDOWTRACK 26
-#define RXTXALARMS 27
-#define RXCURALMSRC 28
-#define RXCURALARM 29
-#define RXRLLHI 30
-#define RXRLLLO 31
-#define RXFMAX 32
-#define RXFWDATE 33
-#define RXRFLEVEL 34
+#define RXCTRLALARMS 27
+#define RXTXALARMS 28
+#define RXCURALMSRC 29
+#define RXCURALARM 30
+#define RXRLLHI 31
+#define RXRLLLO 32
+#define RXFMAX 33
+#define RXFWDATE 34
+#define RXRFLEVEL 35
 
 //Parameter order for the S3GETTXMOD reply
 #define TXTYPE 0

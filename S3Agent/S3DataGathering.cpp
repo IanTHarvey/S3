@@ -1025,7 +1025,19 @@ void DecodeRxModuleDetails(CString Response, int Rx)
                 S3Data->m_Rx[Rx].m_Config.m_WindowTracking = (temp != 0);
             }
             break;
-            
+		case RXCTRLALARMS:
+            {
+                char n = 0;
+                unsigned char tx = _ttoi(Line);
+                S3Data->m_Rx[Rx].m_RxAlarms[n] = tx;
+                for(n = 1; n <S3_RX_CTRL_ALARM_BYTES; n++)
+                {
+                    Line = Response.Tokenize(_T(DATA_ITEM_SEPARATOR), MessageTokenPos);
+                    tx = _ttoi(Line);
+                    S3Data->m_Rx[Rx].m_RxAlarms[n] = tx; 
+                }
+            }
+            break;
         case RXTXALARMS:
             {
                 char n = 0;
