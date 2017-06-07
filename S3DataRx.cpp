@@ -50,6 +50,8 @@ int S3RxInit(pS3RxData node)
 		node->m_RFGain[i] = SHRT_MIN;
 		node->m_RFLevel[i] = SHRT_MIN;
 		node->m_LinkGain[i] = SCHAR_MIN;
+
+		node->m_TxAlarms[i] = 0;
 	}
 
 	node->m_AGC[0] = S3_AGC_CONT;
@@ -71,6 +73,9 @@ int S3RxInit(pS3RxData node)
 	
 	node->m_Alarms = 0x00;
 	node->m_Temp = -128; // Unknown
+
+	for(unsigned char i = 0; i < S3_RX_CTRL_ALARM_BYTES;  i++)
+		node->m_RxAlarms[i] = 0;
 
 	return 0;
 }

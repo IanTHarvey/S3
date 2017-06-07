@@ -554,7 +554,6 @@ int S3I2CRxDumpCtrlConfig(char Rx)
 	fprintf(fid, "Alarms\n");
 	fprintf(fid, "=========================================================\n");
 
-	// if (!S3I2CReadSerialData(S3I2C_RX_CTRL_ADDR, S3I2C_RX_CTRL_ALARMS, 3))
 	wbuf[0] = S3I2C_RX_CTRL_ALARMS;
 	ok = I2C_WriteRead(S3I2C_RX_CTRL_ADDR, wbuf, 1, S3I2CRxReadBuf, 3);
 

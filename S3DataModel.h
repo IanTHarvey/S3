@@ -217,6 +217,8 @@ typedef enum SigmaT				{TauNone, TauLo, TauMd, TauHi, TauUnknown};
 #define S3_TX_OPT_ALARM_BYTES	3
 #define S3_TX_CTRL_ALARM_BYTES	2
 
+#define S3_RX_CTRL_ALARM_BYTES	3
+
 // Tx alarm bits TODO: Move battery alarms to below
 #define S3_TX_BATT_WARN			0x0001
 #define S3_TX_BATT_ALARM		0x0002
@@ -298,6 +300,15 @@ typedef enum SigmaT				{TauNone, TauLo, TauMd, TauHi, TauUnknown};
 #define S3_RX_TX_05				0x20
 #define S3_RX_TX_06				0x40
 #define S3_RX_TX_07				0x80
+
+#define S3_RX_CTRL_FAN_FAIL		0x01
+#define S3_RX_CTRL_01			0x02
+#define S3_RX_CTRL_02			0x04
+#define S3_RX_CTRL_03			0x08
+#define S3_RX_CTRL_04			0x10
+#define S3_RX_CTRL_05			0x20
+#define S3_RX_CTRL_06			0x40
+#define S3_RX_CTRL_07			0x80
 
 // Parameter to be edited (see S3GDIScreenTx.cpp)
 #define	S3_GAIN					0	// dB. Upper: ?; Lower: ?
@@ -615,7 +626,8 @@ typedef struct sS3RxData
 	// bool			m_TestSig; // If true will turn all Tx test sigs
 
 	unsigned char	m_Alarms;
-	unsigned char	m_TxAlarms[S3_MAX_TXS];
+	unsigned char	m_RxAlarms[S3_RX_CTRL_ALARM_BYTES];
+	unsigned char	m_TxAlarms[S3_MAX_TXS]; // Alarms generated on a per-Tx level
 
 	char			m_CurAlarmSrc;	// -1:		No alarm
 									// 0:		S3
@@ -1192,18 +1204,21 @@ unsigned char S3TxBattGetAlarms(char Rx, char Tx);
 
 int S3TxOptSetAlarm(			char Rx, char Tx, const unsigned char *alarms);
 int S3TxCtrlSetAlarm(			char Rx, char Tx, const unsigned char *alarms);
+char S3TxGetAnyAlarm(			char Rx, char Tx); // Non-specific alarm state
 
 // Set Tx = -1 if not input-specific
 int S3RxSetAlarm(				char Rx, char Tx, unsigned char alarms);
 int S3RxCancelAlarm(			char Rx, char Tx, unsigned char alarms);
-unsigned char S3RxGetAlarms(	char Rx);
 int S3RxAlarmGetString(			char Rx, char *S3AlarmString, int len);
 int S3RxCancelCurAlarm(			char Rx);
+int S3RxCtrlSetAlarm(			char Rx, const unsigned char *alarms);
+unsigned char S3RxGetAlarms(char Rx);
+const unsigned char *S3RxCtrlGetAlarms(char Rx);
 
 int S3IPSetAlarm(				char Rx, char Tx, char IP, unsigned char alarms);
 int S3IPCancelAlarm(			char Rx, char Tx, char IP, unsigned char alarms);
 unsigned char S3IPGetAlarms(	char Rx, char Tx, char IP);
-char S3TxGetAnyAlarm(			char Rx, char Tx); // Non-specific Tx alarm state
+
 
 int S3ChSetAlarm(				char Ch, unsigned char alarms);
 int S3ChCancelAlarm(			char Ch, unsigned char alarms);

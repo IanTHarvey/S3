@@ -81,6 +81,8 @@ int S3I2CRxGetStatus(char Rx)
 
 	if (ok)
 	{
+		S3RxCtrlSetAlarm(Rx, S3I2CRxReadBuf);
+
 		update = S3RxSetDetected(Rx, true);
 
 		if (update)
@@ -139,6 +141,9 @@ int S3I2CRxGetStatus(char Rx)
 		S3RxSetAlarm(Rx, -1, S3_RX_INT_FAIL);
 	}
 		
+
+
+
 	if (RxType == S3_Rx1)
 	{
 		S3I2CSetUpOptAddr(Rx, 0);

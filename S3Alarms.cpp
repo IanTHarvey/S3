@@ -1022,6 +1022,13 @@ unsigned char S3RxGetAlarms(char Rx)
 
 // ---------------------------------------------------------------------------
 
+const unsigned char *S3RxCtrlGetAlarms(char Rx)
+{
+	return S3Data->m_Rx[Rx].m_RxAlarms;
+}
+
+// ---------------------------------------------------------------------------
+
 int S3RxSetAlarm(char Rx, char Tx, unsigned char alarms)
 {
 	int StateChange = 0;
@@ -1198,6 +1205,14 @@ int S3RxAlarmGetString(char Rx, char *S3AlarmString, int len)
 		return 1;
 	}
 
+	if (pRx->m_RxAlarms[1] & S3_RX_CTRL_FAN_FAIL)
+	{
+			strcpy_s(S3AlarmString, len, "W:Fan failed");
+			pRx->m_CurAlarmSrc = 1;
+			pRx->m_CurAlarm = S3_RX_RLL_LOW;
+			return 1;
+	}
+
 	for(char Tx = 0; Tx < S3RxGetTxN(Rx); Tx++)
 	{
 		if (pRx->m_TxAlarms[Tx] & S3_RX_RLL_LOW)
@@ -1364,6 +1379,52 @@ int S3RxCancelCurAlarm(char Rx)
 #endif
 
 	return 0;
+}
+
+// ---------------------------------------------------------------------------
+// Alarms from Rx control board
+
+int S3RxCtrlSetAlarm(char Rx, const unsigned char *alarms)
+{
+	int StateChange = 0;
+
+	pS3RxData pRx = &S3Data->m_Rx[Rx];
+
+	if (alarms[0] & S3_TX_OPT_MAJOR)
+	{
+		// Alarm already raised?
+		if (!(pRx->m_RxAlarms[0] & S3_TX_OPT_MAJOR))
+		{
+			S3EventLogAdd("RxCtrl: Major alarm raised", 3, Rx, -1, -1);
+			StateChange = 1;
+		}
+	}
+	else
+	{
+		if (pRx->m_RxAlarms[0] & S3_TX_OPT_MAJOR)
+		{
+			S3EventLogAdd("RxCtrl: Major alarm cleared", 1, Rx, -1, -1);
+			StateChange = 1;
+		}
+	}
+
+	for(unsigned char i = 0; i < S3_RX_CTRL_ALARM_BYTES; i++)
+	{
+		if (alarms[i] != pRx->m_RxAlarms[i])
+		{
+			char Msg[S3_EVENTS_LINE_LEN];
+
+			sprintf_s(Msg, S3_EVENTS_LINE_LEN,
+				"RxCtrl[%d]: Alarm status change: 0x%02x to 0x%02x",
+					i, pRx->m_RxAlarms[i], alarms[i]);
+
+			S3EventLogAdd(Msg, 3, Rx, -1, -1);
+
+			pRx->m_RxAlarms[i] = alarms[i];
+		}
+	}
+
+	return StateChange;
 }
 
 // ---------------------------------------------------------------------------
