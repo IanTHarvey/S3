@@ -412,7 +412,7 @@ void CS3GDIScreenMain::S3DrawGDISettingsRemote(void)
 	fntRc = m_RectUSB;
 	fntRc.bottom = fntRc.top + SUBHEAD_ROW;
 
-	Rectangle(m_HDC, fntRc.left - LHMARGIN, fntRc.top,
+	Rectangle(m_HDC, fntRc.left, fntRc.top,
 		fntRc.right, fntRc.bottom);
 	
 	fntRc.left += LHMARGIN;
