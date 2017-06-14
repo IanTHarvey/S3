@@ -56,6 +56,9 @@ wchar_t OSAppUpdateFilePath[MAX_PATH];
 wchar_t OSImageNB0FilePath[MAX_PATH];
 // #endif
 
+int S3SetTelnetDEnableRegKey(bool enable);
+int S3SetTelnetDAuthRegKey(bool locked);
+
 // ----------------------------------------------------------------------------
 
 
@@ -163,6 +166,8 @@ bool S3OSUpdateFail()
 	return S3Data->m_OSUpdateFail;
 }
 
+// ----------------------------------------------------------------------------
+
 void S3OSSetUpdateFail(bool fail)
 {
 	S3Data->m_OSUpdateFail = fail;
@@ -174,6 +179,8 @@ bool S3OSGetAppUpdateFail()
 {
 	return S3Data->m_OSAppUpdateFail;
 }
+
+// ----------------------------------------------------------------------------
 
 void S3OSSetAppUpdateFail(bool fail)
 {
@@ -597,7 +604,7 @@ int S3SysReadSN()
 			{
 				S3Data->m_SoftShutdownOption = false;
 			}
-			else if (!strcmp(S3Data->m_SN, "DEMO000")) // Demo1
+			else if (!strncmp(S3Data->m_SN, "DEMO000", strlen("DEMO000"))) // Demo1
 			{
 				S3Data->m_SoftShutdownOption = false;
 			}
@@ -945,7 +952,7 @@ int S3GetLockFile()
 	}
 	else
 	{	
-		errno_t err = fopen_s(&fid, S3Data->m_LockFileName, "r");
+		err = fopen_s(&fid, S3Data->m_LockFileName, "r");
 
 		if (!err)
 		{
@@ -958,6 +965,8 @@ int S3GetLockFile()
 		}
 	}
 
+	S3SetLocked(S3Data->m_Locked);
+
 	return 0;
 }
 
@@ -965,18 +974,30 @@ int S3GetLockFile()
 
 int S3SetLockFile()
 {
-	FILE *fid;
-	errno_t err = fopen_s(&fid, S3Data->m_LockFileName, "w");
-
-	if (!err)
+	if (S3Data->m_Locked)
 	{
-		fclose(fid);
-		S3EventLogAdd("System lock file created", 3, -1, -1, -1);
+		FILE *fid;
+		errno_t err = fopen_s(&fid, S3Data->m_LockFileName, "w");
+
+		if (!err)
+		{
+			fclose(fid);
+			S3EventLogAdd("System lock file created", 3, -1, -1, -1);
+		}
+		else
+		{
+			S3EventLogAdd("System lock file creation failed", 3, -1, -1, -1);
+			return 1;
+		}
 	}
 	else
 	{
-		S3EventLogAdd("System lock file creation failed", 3, -1, -1, -1);
-		return 1;
+		wchar_t FileName[S3_MAX_FILENAME_LEN];
+
+		swprintf_s(FileName, S3_MAX_FILENAME_LEN, L"%S",
+				S3Data->m_LockFileName);
+
+		DeleteFile(FileName);
 	}
 
 	return 0;
@@ -989,18 +1010,19 @@ bool S3GetLocked()
 	return S3Data->m_Locked;
 }
 
-int S3SetTelnetAuthRegKey(DWORD data);
-
 // ---------------------------------------------------------------------------
 
-int S3SetLocked()
+int S3SetLocked(bool locked)
 {
 	int err = 0;
 	
-	S3Data->m_Locked = true;
+	S3Data->m_Locked = locked;
 
 	// Require authentication
-	if (S3SetTelnetAuthRegKey(1))
+	if (S3SetTelnetDAuthRegKey(S3Data->m_Locked))
+		err = 1;
+
+	if (S3SetTelnetDEnableRegKey(!S3Data->m_Locked))
 		err = 1;
 
 #ifdef TRIZEPS
@@ -1013,20 +1035,23 @@ int S3SetLocked()
 	}
 #endif
 
-	if (S3SetLockFile())
-		err = 3;
+	// if (S3SetLockFile())
+	//	err = 3;
 
 	return err;
 }
 
 // ---------------------------------------------------------------------------
 
-int S3SetTelnetAuthRegKey(DWORD data)
+int S3SetTelnetDAuthRegKey(bool enable)
 {
 #ifdef TRIZEPS
 
 	HKEY	hKey;
 	int		err;
+	DWORD	data;
+
+	data = enable ? 1 : 0;
 
 	err = RegOpenKeyEx(HKEY_LOCAL_MACHINE, _T("Comm\\TELNETD"), 0, 
 											KEY_SET_VALUE, &hKey);
@@ -1055,4 +1080,73 @@ int S3SetTelnetAuthRegKey(DWORD data)
 
 // ---------------------------------------------------------------------------
 
+int S3SetTelnetDEnableRegKey(bool enable)
+{
+#ifdef TRIZEPS
 
+	HKEY	hKey;
+	int		err;
+	DWORD	data;
+
+	data = enable ? 1 : 0;
+
+	err = RegOpenKeyEx(HKEY_LOCAL_MACHINE, _T("Comm\\TELNETD"), 0, 
+											KEY_SET_VALUE, &hKey);
+
+	if (err == ERROR_SUCCESS)
+	{
+		err = RegSetValueEx(hKey, _T("IsEnabled"), 0,
+			REG_DWORD, (BYTE *)(&data), sizeof(DWORD));
+
+		if (err != ERROR_SUCCESS)
+		{
+			S3EventLogAdd("Failed enable/disable telnetd", 1, -1, -1, -1);
+			return 1;
+		}
+	}
+	else
+	{
+		S3EventLogAdd("Failed to open telnetd enable registry key", 1, -1, -1, -1);
+		return 1;
+	}
+
+#endif
+
+	return 0;
+}
+
+// ----------------------------------------------------------------------------
+
+int S3SetSIPRegKey(DWORD data)
+{
+#ifdef TRIZEPS
+
+	HKEY	hKey;
+	int		err;
+
+	err = RegOpenKeyEx(HKEY_CURRENT_USER, _T("ControlPanel\\Sip"), 0, 
+											KEY_SET_VALUE, &hKey);
+
+	if (err == ERROR_SUCCESS)
+	{
+		err = RegSetValueEx(hKey, _T("TurnOffAutoDeploy"), 0,
+			REG_DWORD, (BYTE *)(&data), sizeof(DWORD));
+
+		if (err != ERROR_SUCCESS)
+		{
+			S3EventLogAdd("Failed to set SIP registry key", 1, -1, -1, -1);
+			return 1;
+		}
+	}
+	else
+	{
+		S3EventLogAdd("Failed to open SIP registry key", 1, -1, -1, -1);
+		return 1;
+	}
+
+#endif
+
+	return 0;
+}
+
+// ----------------------------------------------------------------------------

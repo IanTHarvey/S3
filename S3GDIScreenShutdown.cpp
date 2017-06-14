@@ -1,4 +1,4 @@
-
+// Only navigable when system locked
 #include "stdafx.h"
 
 #include <stdio.h>
@@ -91,6 +91,15 @@ void CS3GDIScreenMain::S3InitGDIShutdownScreen(void)
 	Rect.left = 3 * m_RectScreen.Width() / NButtons + (m_RectScreen.Width() / NButtons - 150) / 2;
 	Rect.right = Rect.left + 150;
 	m_ButtonSysRestart = new CS3Button(this, m_hbmpRedButton, _T("Restart"), Rect);
+
+	CRect rect(m_RectScreen.left, m_RectScreen.bottom - 30 - 20,
+		m_RectScreen.left + 60, m_RectScreen.bottom - 20);
+	
+	m_GDIMaintKeyEdit = new CS3Edit(this);
+	m_GDIMaintKeyEdit->Create(WS_CHILD | ES_LEFT, rect, this, S3GDI_MAINT_KEY_EDIT);
+	m_GDIMaintKeyEdit->SetFont(&m_cFontS);
+	m_GDIMaintKeyEdit->ShowWindow(false);
+	m_GDIMaintKeyEdit->SetWindowText(_T(""));
 }
 
 // ----------------------------------------------------------------------------
@@ -101,6 +110,7 @@ void CS3GDIScreenMain::S3CloseGDIShutdownScreen(void)
 	delete m_ButtonTxWakeAll;
 	delete m_ButtonSysShutdown;
 	delete m_ButtonSysRestart;
+	delete m_GDIMaintKeyEdit;
 }
 
 // ----------------------------------------------------------------------------
@@ -190,6 +200,8 @@ void CS3GDIScreenMain::S3DrawGDIShutdownScreen(void)
 					-1, &RectTxt, DT_CENTER);
 		}
 	}
+
+	m_GDIMaintKeyEdit->ShowWindow(true);
 }
 
 // ----------------------------------------------------------------------------
@@ -227,8 +239,7 @@ int CS3GDIScreenMain::S3FindShutdownScreen(POINT p)
 		if (m_ButtonSysShutdown->Find(p))
 		{
 			S3EventLogAdd("System shutdown requested by user", 1, -1, -1, -1);
-			// S3SetSleepAll(true);
-			// m_Parent->SysShutdown();
+
 			S3SetPowerDownPending(true);
 			S3SetSleepAll(true);
 
@@ -249,6 +260,49 @@ int CS3GDIScreenMain::S3FindShutdownScreen(POINT p)
 		}
 	}
 	
+	return 0;
+}
+
+// ----------------------------------------------------------------------------
+
+int CS3GDIScreenMain::S3LeaveShutdownScreen()
+{
+	m_GDIMaintKeyEdit->ShowWindow(false);
+
+	CString str;
+	int len;
+
+	len = m_GDIMaintKeyEdit->GetWindowTextLength();
+
+	if (len != 6)
+		return 0;
+
+	m_GDIMaintKeyEdit->GetWindowText(str);
+
+	const char *DateTime = S3SysGetAppDateTime();
+
+	unsigned char DTCnt = 0;
+	bool lock = false;
+
+	for(unsigned char c = 0; c < 6; c++)
+	{
+		if (DateTime[DTCnt] >= '0' && DateTime[DTCnt] <= '9')
+		{
+			if (str[c] != DateTime[DTCnt++])
+			{
+				lock = true;
+				break;
+			}
+		}
+	}
+
+	S3SetLocked(lock);
+	S3SetLockFile();
+
+	m_GDIMaintKeyEdit->SetWindowText(_T(""));
+
+	S3SetSIPRegKey(1); // Disable SIP pop-up
+
 	return 0;
 }
 

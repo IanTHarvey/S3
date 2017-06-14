@@ -181,6 +181,7 @@
 #define IDC_TX_COMBO                    1674
 #define IDC_RXTX_INFO_STATIC            1675
 #define IDC_FACT_TEST_BUTTON            1676
+#define S3GDI_MAINT_KEY_EDIT            1677
 #define ID_ONE_TWO                      32775
 #define ID_ONE_THREE                    32776
 #define ID_TEST_MENU                    32777

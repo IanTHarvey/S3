@@ -159,12 +159,17 @@ void CS3GDIScreenMain::OnPaint()
 		else
 		{
             //No watermark
-			SelectObject(m_HDC, m_hBrushWhite);
+			if (!S3GetLocked())
+				SelectObject(m_HDC, m_hBrushRed);
+			else
+				SelectObject(m_HDC, m_hBrushWhite);
+
 			S3_RECT_N(m_HDC, m_RectPhysicalScreen);
 
 			SelectObject(m_HDC, m_hBrushBG1);
-			Rectangle(m_HDC, m_RectScreen.left, m_RectScreen.top,
-							m_RectHeader.right + 1, m_RectHeader.bottom + 1);
+			S3_RECT_N(m_HDC, m_RectScreen);
+			/*Rectangle(m_HDC, m_RectScreen.left, m_RectScreen.top,
+							m_RectHeader.right + 1, m_RectHeader.bottom + 1);*/
 		}
 	}
 
@@ -274,6 +279,9 @@ int CS3GDIScreenMain::S3GDIChangeScreen(char screen)
 #ifndef S3_AGENT
 	if (m_Screen == S3_FACTORY_SCREEN)
 		S3LeaveFactoryScreen();
+
+	if (m_Screen == S3_SHUTDOWN_SCREEN)
+		S3LeaveShutdownScreen();
 #endif
 	
 	if (m_Screen == screen)
@@ -291,6 +299,9 @@ int CS3GDIScreenMain::S3GDIChangeScreen(char screen)
 	m_GDIDefaultGainEdit->ShowWindow(false);
 	m_GDIDateEdit->ShowWindow(false);
 	m_GDITimeEdit->ShowWindow(false);
+
+	// Shutdown screen orphan
+	m_GDIMaintKeyEdit->ShowWindow(false);
 
 	m_NumericPad->PopDown();
 	m_ParaMenu->Clear();

@@ -1488,7 +1488,7 @@ int				S3SetAGC(unsigned char AGCOn);
 int		S3GetLockFile();
 int		S3SetLockFile();
 bool	S3GetLocked();
-int		S3SetLocked();
+int		S3SetLocked(bool lock);
 
 int		S3SetFactoryMode(char Rx, char Tx, bool mode);
 bool	S3GetFactoryMode();
@@ -1532,6 +1532,8 @@ int		S3SysWritePN();
 
 int			S3SysSetBuildNum(const char *bn);
 const char	*S3SysGetBuildNum();
+
+int S3SetSIPRegKey(DWORD data);
 
 // ----------------------------------------------------------------------------
 // From I2C interfaces

@@ -196,7 +196,7 @@ int CS3GDIScreenMain::S3FindFactoryScreen(POINT p)
 	}
 	else if (m_RectFactoryLock.PtInRect(p))
 	{
-		if (!S3SetLocked())
+		if (!S3SetLocked(true) && !S3SetLockFile())
 			m_StrFactoryMsg = _T("System locked");
 		else
 			m_StrFactoryMsg = _T("System lock failed");

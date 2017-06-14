@@ -513,6 +513,7 @@ public:
 	void	S3CloseGDIShutdownScreen(void);
 
 	int		S3FindShutdownScreen(	POINT p);
+	int		S3LeaveShutdownScreen(void);
 
 	// ------------------------------------------------------------------------
 	// Factory screen
@@ -715,6 +716,8 @@ protected:
 	CS3Edit			*m_GDINodeNameEdit;
 	CS3Edit			*m_GDIDateEdit;
 	CS3Edit			*m_GDITimeEdit;
+
+	CS3Edit			*m_GDIMaintKeyEdit;
 
 //	CS3CheckBox		*m_GDIUSBEnableCB;
 
