@@ -41,8 +41,7 @@ void CS3FactorySysSetUp::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_STATUS_MSG_SYS_STATIC, m_StatusMsgStatic);
 	DDX_Control(pDX, IDC_FACT_SN_EDIT, m_FactSNEdit);
 	DDX_Control(pDX, IDC_FACT_PN_EDIT, m_FactPNEdit);
-	DDX_Control(pDX, IDC_PEAK_THR_STATIC, m_PeakThrStatic);
-	DDX_Control(pDX, IDC_PEAK_THR_EDIT, m_PeakThrEdit);
+	DDX_Control(pDX, IDC_SEAL_BUTTON, m_SealBatteryButton);
 }
 
 BEGIN_MESSAGE_MAP(CS3FactorySysSetUp, CDialog)
@@ -51,10 +50,8 @@ BEGIN_MESSAGE_MAP(CS3FactorySysSetUp, CDialog)
 	ON_BN_CLICKED(IDC_SCRN_OFFSET_SET_BUTTON, &CS3FactorySysSetUp::OnBnClickedScrnOffsetSetButton)
 	ON_BN_CLICKED(IDC_FACT_SN_SET_BUTTON, &CS3FactorySysSetUp::OnBnClickedFactSnSetButton)
 	ON_BN_CLICKED(IDC_FACT_PN_SET_BUTTON, &CS3FactorySysSetUp::OnBnClickedFactPnSetButton)
-	ON_BN_CLICKED(IDC_PEAK_THR_BUTTON, &CS3FactorySysSetUp::OnBnClickedPeakThrButton)
 	ON_BN_CLICKED(IDC_TEST_BUTTON, &CS3FactorySysSetUp::OnBnClickedTestButton)
 	ON_BN_CLICKED(IDC_SEAL_BUTTON, &CS3FactorySysSetUp::OnBnClickedSealButton)
-	ON_BN_CLICKED(IDC_SELF_TEST_BUTTON, &CS3FactorySysSetUp::OnBnClickedSelfTestButton)
 END_MESSAGE_MAP()
 
 BOOL CS3FactorySysSetUp::OnInitDialog()
@@ -66,16 +63,11 @@ BOOL CS3FactorySysSetUp::OnInitDialog()
 
 // ----------------------------------------------------------------------------
 
-extern int SetSIPRegKey(DWORD data);
-extern short PeakThTable[];
-
-// ----------------------------------------------------------------------------
-
 void CS3FactorySysSetUp::Init()
 {
 	S3EventLogAdd("Entering factory system set-up screen", 3, -1, -1, -1);
 
-	SetSIPRegKey(0); // Enable SIP pop-up
+	S3SetSIPRegKey(0); // Enable SIP pop-up
 
 	CString	tmp;
 
@@ -94,14 +86,19 @@ void CS3FactorySysSetUp::Init()
 	tmp.Format(_T("%S"), S3SysGetPN());
 	m_FactPNEdit.SetWindowText(tmp);
 
-	// Peak thresh
-	tmp.Format(_T("Peak thresh [%d] (mVp-p):"), S3IPGetPathSent(0, 0, 0));
-	m_PeakThrStatic.SetWindowText(tmp);
-
-	tmp.Format(_T("%d"), PeakThTable[S3IPGetPathSent(0, 0, 0) - 1]);
-	m_PeakThrEdit.SetWindowText(tmp);
-
 	m_StatusMsgStatic.SetWindowText(_T(""));
+
+	Update();
+}
+
+// ----------------------------------------------------------------------------
+
+void CS3FactorySysSetUp::Update()
+{
+	char Ch = 0;
+
+	m_SealBatteryButton.EnableWindow(S3ChOccupied(Ch) == TRUE);
+
 }
 
 // ----------------------------------------------------------------------------
@@ -135,7 +132,7 @@ void CS3FactorySysSetUp::OnBnClickedOk()
 
 void CS3FactorySysSetUp::OnBnClickedCancel()
 {
-	SetSIPRegKey(1); // Disable SIP pop-up
+	S3SetSIPRegKey(1); // Disable SIP pop-up
 
 	m_Parent->HideFactory();
 	OnCancel();
@@ -228,29 +225,6 @@ void CS3FactorySysSetUp::OnBnClickedFactSnSetButton()
 
 // ----------------------------------------------------------------------------
 
-void CS3FactorySysSetUp::OnBnClickedPeakThrButton()
-{
-	CString tmp;
-
-	m_PeakThrEdit.GetWindowText(tmp);
-	short thr = (short)_wtoi(tmp);
-
-	char path = S3IPGetPathSent(0, 0, 0);
-
-	PeakThTable[path - 1] = thr;
-
-	char Rx = 0, Tx = 0;
-
-	if (S3I2CTxSetPeakThresh(Rx, Tx, path))
-	{
-		m_StatusMsgStatic.SetWindowText(_T("Failed to set threshold"));
-	}
-	else
-		m_StatusMsgStatic.SetWindowText(_T("Threshold set OK"));
-}
-
-// ----------------------------------------------------------------------------
-
 void CS3FactorySysSetUp::OnBnClickedTestButton()
 {
 		CString tmp;
@@ -304,29 +278,6 @@ void CS3FactorySysSetUp::OnBnClickedSealButton()
 		else
 			m_StatusMsgStatic.SetWindowText(_T("Battery sealed OK"));
 	}
-}
-
-// ----------------------------------------------------------------------------
-
-extern int S3I2CTxSelfTest(short *v1, short *v2, char Rx, char Tx);
-
-void CS3FactorySysSetUp::OnBnClickedSelfTestButton()
-{
-	CString tmp;
-
-	tmp.Format(_T("SelfTest:"));
-	m_StatusMsgStatic.SetWindowText(tmp);
-	m_StatusMsgStatic.Invalidate();
-	m_StatusMsgStatic.UpdateWindow();
-
-	char Rx = 0, Tx = 0;
-	short v1, v2;
-
-	S3TxSetSelfTestPending(Rx, Tx, true);
-	int err = S3I2CTxSelfTest(&v1, &v2, Rx, Tx);
-
-	tmp.Format(_T("SelfTest: %d %d; Err: %d"), v1, v2, err);
-	m_StatusMsgStatic.SetWindowText(tmp);
 }
 
 // ----------------------------------------------------------------------------

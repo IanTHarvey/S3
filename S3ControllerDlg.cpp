@@ -936,14 +936,9 @@ bool GetBuildNum(void)
 
 void CS3ControllerDlg::ShowFactory(char screen)
 {
-	// m_FactoryDlg.Create(IDD_FACTORY_DIALOG, this);
-	// m_FactoryDlg.Create(NULL, NULL, WS_CHILD,
-	//	CRect(0, 0, 0, 0), this, NULL, NULL);
-
-
 	if (screen == S3_FACTORY_SCREEN)
 	{
-		if (S3SetFactoryMode(0, 0, true))
+		if (S3SetFactoryMode(-1, -1, true))
 			return;
 
 		m_FactoryDlg->Init();
@@ -952,7 +947,7 @@ void CS3ControllerDlg::ShowFactory(char screen)
 	}
 	else if (screen == S3_FACTORY_SYS_SCREEN)
 	{
-		if (S3SetFactoryMode(0, 0, true))
+		if (S3SetFactoryMode(-1, -1, true))
 			return;
 
 		m_FactorySysDlg->Init();

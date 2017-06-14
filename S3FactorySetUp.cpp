@@ -25,6 +25,8 @@ extern short			Dbg_TxOpt;	// Gain soft set 0xA8-9
 extern short			Dbg_RxOpt;	// Gain soft set 0xA4-5
 extern short			Dbg_RLL;
 extern char				Dbg_Path;
+extern short PeakThTable[];
+
 
 // CS3FactorySetUp
 
@@ -40,6 +42,7 @@ CS3FactorySetUp::CS3FactorySetUp(CWnd* pParent)
 	m_CurSel = 0;
 	m_Rx = -1;
 	m_Tx = -1;
+	m_IP = 0; // TODO: Get selected?
 	
 	for(char i = 0; i < S3_TX_N_RF_PATH; i++)
 		m_RFCalVals[i] = -999.0;
@@ -66,11 +69,15 @@ void CS3FactorySetUp::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_RX1_CAL_SET_BUTTON, m_Rx1CalSetButton);
 	DDX_Control(pDX, IDC_RX2_CAL_SET_BUTTON, m_Rx2CalSetButton);
 	DDX_Control(pDX, IDC_TX_OPT_CAL_SET_BUTTON, m_TxOptCalSetButton);
-
 	DDX_Control(pDX, IDC_DBG_DSAS_STATIC, m_DbgDSAsStatic);
 	DDX_Control(pDX, IDC_RX_COMBO, m_FactoryRxDroplist);
 	DDX_Control(pDX, IDC_TX_COMBO, m_FactoryTxDroplist);
 	DDX_Control(pDX, IDC_RXTX_INFO_STATIC, m_RxTxInfoStatic);
+	DDX_Control(pDX, IDC_PEAK_THR_STATIC, m_PeakThrStatic);
+	DDX_Control(pDX, IDC_PEAK_THR_EDIT, m_PeakThrEdit);
+	DDX_Control(pDX, IDC_PEAK_THR_BUTTON, m_PeakThrSetButton);
+	DDX_Control(pDX, IDC_SELF_TEST_BUTTON, m_TxSelfTestButton);
+	DDX_Control(pDX, IDC_DUMP_DIAG_BUTTON, m_DumpDiagsButton);
 }
 
 BEGIN_MESSAGE_MAP(CS3FactorySetUp, CDialog)
@@ -87,6 +94,9 @@ BEGIN_MESSAGE_MAP(CS3FactorySetUp, CDialog)
 	ON_CBN_SELCHANGE(IDC_TX_COMBO, &CS3FactorySetUp::OnCbnSelchangeTxCombo)
 	ON_STN_CLICKED(IDC_RX1_CAL_STATIC, &CS3FactorySetUp::OnStnClickedRx1CalStatic)
 	ON_BN_CLICKED(IDC_FACT_TEST_BUTTON, &CS3FactorySetUp::OnBnClickedFactTestButton)
+	ON_BN_CLICKED(IDC_SELF_TEST_BUTTON, &CS3FactorySetUp::OnBnClickedSelfTestButton)
+	ON_BN_CLICKED(IDC_PEAK_THR_BUTTON, &CS3FactorySetUp::OnBnClickedPeakThrButton)
+	ON_CBN_DROPDOWN(IDC_RX_COMBO, &CS3FactorySetUp::OnCbnDropdownRxCombo)
 END_MESSAGE_MAP()
 
 // ----------------------------------------------------------------------------
@@ -108,39 +118,6 @@ BOOL CS3FactorySetUp::OnInitDialog()
 	return TRUE;  // return TRUE  unless you set the focus to a control
 }
 
-// ----------------------------------------------------------------------------
-
-int SetSIPRegKey(DWORD data)
-{
-#ifdef TRIZEPS
-
-	HKEY	hKey;
-	int		err;
-
-	err = RegOpenKeyEx(HKEY_CURRENT_USER, _T("ControlPanel\\Sip"), 0, 
-											KEY_SET_VALUE, &hKey);
-
-	if (err == ERROR_SUCCESS)
-	{
-		err = RegSetValueEx(hKey, _T("TurnOffAutoDeploy"), 0,
-			REG_DWORD, (BYTE *)(&data), sizeof(DWORD));
-
-		if (err != ERROR_SUCCESS)
-		{
-			S3EventLogAdd("Failed to set SIP registry key", 1, -1, -1, -1);
-			return 1;
-		}
-	}
-	else
-	{
-		S3EventLogAdd("Failed to open SIP registry key", 1, -1, -1, -1);
-		return 1;
-	}
-
-#endif
-
-	return 0;
-}
 
 // ----------------------------------------------------------------------------
 
@@ -148,7 +125,7 @@ void CS3FactorySetUp::Init()
 {
 	S3EventLogAdd("Entering factory set-up screen", 3, -1, -1, -1);
 
-	SetSIPRegKey(0); // Enable SIP pop-up
+	S3SetSIPRegKey(0); // Enable SIP pop-up
 	
 	int err = S3I2CTxGetRFCalGain(m_Rx, m_Tx);
 	err = S3I2CTxGetOptCalGain(m_Rx, m_Tx);
@@ -167,10 +144,9 @@ void CS3FactorySetUp::Init()
 
 void CS3FactorySetUp::Update()
 {
-
 	CString	tmp;
 
-	if (m_Tx >= 0)
+	if (m_Tx >= 0) // m_Rx must be valid
 	{
 		for(char RFPath = 0; RFPath < S3_TX_N_RF_PATH; RFPath++)
 			m_RFCalVals[RFPath] = (double)S3TxGetCalRF(m_Rx, m_Tx, RFPath) / 100.0;
@@ -189,11 +165,21 @@ void CS3FactorySetUp::Update()
 								_T("RxSoftGain: %d; LinkGain: %d (100mdB)\nRLL: %d"),
 			Dbg_Path, Dbg_RF1_DSA, Dbg_TxOpt, Dbg_RxOpt, LinkGain, Dbg_RLL);
 			m_DbgDSAsStatic.SetWindowText(tmp);
+
+
+			tmp.Format(_T("Peak thresh [%d] (mVp-p):"), S3IPGetPathSent(m_Rx, m_Tx, m_IP));
+			m_PeakThrStatic.SetWindowText(tmp);
+	
+			tmp.Format(_T("%d"), PeakThTable[S3IPGetPathSent(m_Rx, m_Tx, m_IP) - 1]);
+			m_PeakThrEdit.SetWindowText(tmp);
 		}
 		else
 		{
 			m_TxOptCalEdit.SetWindowText(_T("N/A"));
 			m_DbgDSAsStatic.SetWindowText(_T("N/A"));
+
+			m_PeakThrStatic.SetWindowText(_T("Peak thresh [N/A] (mVp-p):"));
+			m_PeakThrEdit.SetWindowText(_T("N/A"));
 		}
 	}
 	else
@@ -203,8 +189,12 @@ void CS3FactorySetUp::Update()
 
 		m_TxCalEdit.SetWindowText(_T("N/A"));
 		m_Rx1CalEdit.SetWindowText(_T("N/A"));
+
 		m_TxOptCalEdit.SetWindowText(_T("N/A"));
 		m_DbgDSAsStatic.SetWindowText(_T("N/A"));
+
+		m_PeakThrStatic.SetWindowText(_T("Peak thresh [N/A] (mVp-p):"));
+		m_PeakThrEdit.SetWindowText(_T("N/A"));
 	}
 
 	if (m_Rx >= 0)
@@ -259,11 +249,15 @@ void CS3FactorySetUp::Enable(BOOL enable)
 
 			m_Rx2CalEdit.EnableWindow(FALSE);
 			m_Rx2CalSetButton.EnableWindow(FALSE);
+
+			m_DumpDiagsButton.EnableWindow(FALSE);
 		}
 		else
 		{
 			m_Rx1CalEdit.EnableWindow(TRUE);
 			m_Rx1CalSetButton.EnableWindow(TRUE);
+
+			m_DumpDiagsButton.EnableWindow(TRUE);
 
 			if (S3RxGetType(m_Rx) == S3_Rx2)
 			{
@@ -286,20 +280,29 @@ void CS3FactorySetUp::Enable(BOOL enable)
 
 			m_TxOptCalSetButton.EnableWindow(FALSE);
 			m_TxOptCalEdit.EnableWindow(FALSE);
+
+			m_TxSelfTestButton.EnableWindow(FALSE);
+			m_PeakThrEdit.EnableWindow(FALSE);
+			m_PeakThrSetButton.EnableWindow(FALSE);
 		}
 		else
 		{
 			m_RFPathCombo.EnableWindow(TRUE);
 			m_TxCalEdit.EnableWindow(TRUE);
 			m_RFCalSetButton.EnableWindow(TRUE);
+
+			m_PeakThrEdit.EnableWindow(TRUE);
+			m_PeakThrSetButton.EnableWindow(TRUE);
 			
 			if (S3TxGetPowerStat(m_Rx, m_Tx) == S3_TX_ON)
 			{
+				m_TxSelfTestButton.EnableWindow(TRUE);
 				m_TxOptCalSetButton.EnableWindow(TRUE);
 				m_TxOptCalEdit.EnableWindow(TRUE);
 			}
 			else
 			{
+				m_TxSelfTestButton.EnableWindow(FALSE);
 				m_TxOptCalSetButton.EnableWindow(FALSE);
 				m_TxOptCalEdit.EnableWindow(FALSE);
 			}
@@ -322,6 +325,12 @@ void CS3FactorySetUp::Enable(BOOL enable)
 
 		m_TxOptCalSetButton.EnableWindow(enable);
 		m_TxCalEdit.EnableWindow(enable);
+
+		m_RFPathCombo.EnableWindow(enable);
+		m_TxCalEdit.EnableWindow(enable);
+		m_RFCalSetButton.EnableWindow(enable);
+
+		m_DumpDiagsButton.EnableWindow(enable);
 	}
 
 	UpdateWindow();
@@ -387,7 +396,7 @@ void CS3FactorySetUp::OnBnClickedOk()
 
 void CS3FactorySetUp::OnBnClickedCancel()
 {
-	SetSIPRegKey(1); // Disable SIP pop-up
+	S3SetSIPRegKey(1); // Disable SIP pop-up
 
 	m_Parent->HideFactory();
 	OnCancel();
@@ -786,6 +795,60 @@ void CS3FactorySetUp::OnBnClickedFactTestButton()
 		wcfg = rcfg | 0x01;
 	
 	err = S3I2CWriteSerialByte(S3I2C_TX_OPT_ADDR, S3I2C_TX_OPT_CFG + 1, wcfg);
+}
+
+// ----------------------------------------------------------------------------
+
+extern int S3I2CTxSelfTest(short *v1, short *v2, char Rx, char Tx);
+
+void CS3FactorySetUp::OnBnClickedSelfTestButton()
+{
+	CString tmp;
+
+	tmp.Format(_T("SelfTest:"));
+	m_StatusMsgStatic.SetWindowText(tmp);
+	m_StatusMsgStatic.Invalidate();
+	m_StatusMsgStatic.UpdateWindow();
+
+	char Rx = 0, Tx = 0;
+	short v1, v2;
+
+	S3TxSetSelfTestPending(Rx, Tx, true);
+	int err = S3I2CTxSelfTest(&v1, &v2, Rx, Tx);
+
+	tmp.Format(_T("SelfTest: %d %d; Err: %d"), v1, v2, err);
+	m_StatusMsgStatic.SetWindowText(tmp);
+}
+
+// ----------------------------------------------------------------------------
+
+void CS3FactorySetUp::OnBnClickedPeakThrButton()
+{
+	CString tmp;
+
+	m_PeakThrEdit.GetWindowText(tmp);
+	short thr = (short)_wtoi(tmp);
+
+	char path = S3IPGetPathSent(0, 0, 0);
+
+	PeakThTable[path - 1] = thr;
+
+	char Rx = 0, Tx = 0;
+
+	if (S3I2CTxSetPeakThresh(Rx, Tx, path))
+	{
+		m_StatusMsgStatic.SetWindowText(_T("Failed to set threshold"));
+	}
+	else
+		m_StatusMsgStatic.SetWindowText(_T("Threshold set OK"));
+}
+
+// ----------------------------------------------------------------------------
+
+void CS3FactorySetUp::OnCbnDropdownRxCombo()
+{
+	// In factory mode, so won't pick up any changes (Rx insert/remove)
+	// UpdateRxTxCombos();
 }
 
 // ----------------------------------------------------------------------------

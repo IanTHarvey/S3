@@ -37,25 +37,24 @@ protected:
 	DECLARE_MESSAGE_MAP()
 public:
 	CEdit m_RxCalEdit;
+	CEdit m_ScrnOffsetX;
+	CEdit m_ScrnOffsetY;
+	CStatic m_StatusMsgStatic;
+	CEdit m_FactSNEdit;
+	CEdit m_FactPNEdit;
+	CButton m_SealBatteryButton;
+
 	afx_msg void OnBnClickedOk();
 	afx_msg void OnBnClickedCancel();
 	afx_msg void PostNcDestroy();
-	CEdit m_ScrnOffsetX;
-	CEdit m_ScrnOffsetY;
 	afx_msg void OnBnClickedScrnOffsetSetButton();
-	CStatic m_StatusMsgStatic;
-	CEdit m_FactSNEdit;
 	afx_msg void OnBnClickedFactSnSetButton();
-
-	void Init();
-	CEdit m_FactPNEdit;
 	afx_msg void OnBnClickedFactPnSetButton();
-	afx_msg void OnBnClickedPeakThrButton();
-	CStatic m_PeakThrStatic;
-	CEdit m_PeakThrEdit;
 	afx_msg void OnBnClickedTestButton();
 	afx_msg void OnBnClickedSealButton();
-	afx_msg void OnBnClickedSelfTestButton();
+
+	void Init();
+	void Update();
 };
 
 
