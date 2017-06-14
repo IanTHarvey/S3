@@ -47,6 +47,8 @@ extern int S3I2CTxOptSetPassword(const char *rPW);
 
 int S3I2CTxFixTau(char Rx, char Tx);
 
+int S3I2CTxSwitchLaser();
+
 // int S3I2CReadSerialStatus();
 
 // Temporary...
@@ -667,7 +669,7 @@ int S3I2CTxSetOptCtrlBits(char Rx, char Tx)
 		}
 	}
 
-	if (*(S3I2CTxReadBuf + 1) != 0x08) // SGC
+	if (0) // ITH: 06-06-17 *(S3I2CTxReadBuf + 1) != 0x08) // SGC
 	{
 		char msg[S3_EVENTS_LINE_LEN];
 
@@ -1747,5 +1749,25 @@ int S3I2CTxInit()
 }
 
 // ----------------------------------------------------------------------------
+
+int S3I2CTxSwitchLaser(bool on)
+{
+	int err;
+	unsigned char rcfg, wcfg;
+
+	err = S3I2CReadSerialByte(S3I2C_TX_OPT_ADDR, S3I2C_TX_OPT_CFG + 1, &rcfg);
+
+	if (on)
+		wcfg = rcfg & ~0x01;
+	else
+		wcfg = rcfg | 0x01;
+	
+	err = S3I2CWriteSerialByte(S3I2C_TX_OPT_ADDR, S3I2C_TX_OPT_CFG + 1, wcfg);
+
+	return err;
+}
+
+// ----------------------------------------------------------------------------
+
 
 #endif // NOT S3_TX_CTRL_COMMS
