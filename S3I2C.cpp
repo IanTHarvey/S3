@@ -1,11 +1,7 @@
 // ----------------------------------------------------------------------------
-// 
-#ifndef TRIZEPS
-#include "S3ControllerX86/targetver.h"
-#else
-#define WINVER _WIN32_WCE
-#include <ceconfig.h>
-#endif
+//
+
+#include "stdafx.h"
 
 #include <string.h>
 #include <stdlib.h>
@@ -119,6 +115,7 @@ int S3I2CPoll(CS3ControllerDlg *parent)
 	if (S3Uptime == 1)
 		S3GetLockFile();
 
+	// Check for pending actions
 	if (S3GetPowerDownFailed())
 	{
 		if (S3PowerDownTimeout > S3_POWER_DOWN_TIMEOUT)
@@ -185,6 +182,7 @@ int S3I2CPoll(CS3ControllerDlg *parent)
 		S3PowerDownTimeout = 0;
 	}
 
+	// Do the polling
 	if (!(S3PollCycle % 2))
 	{
 		// Priority 1 poll slot
