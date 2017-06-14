@@ -50,7 +50,7 @@
 				ExecutionBucket="7"
 				Optimization="0"
 				AdditionalIncludeDirectories="&quot;C:\Program Files (x86)\Microsoft Visual Studio 9.0\VC\ce7\atlmfc\include\&quot;;&quot;C:\Program Files (x86)\Microsoft Visual Studio 9.0\VC\ce7\include&quot;;&quot;C:\Program Files (x86)\Windows CE Tools\SDKs\SDK_TrizepsVII_armv4i_2016Q3\Include\Armv4i&quot;"
-				PreprocessorDefinitions="NO_S3_OVERDRIVE_DETECT;NO_S3_TEMP_LOG;S3_DIAG_TIMING;S3_SHOW_P1DB;NO_S3_RX_DIAGS;NO_S3_TX_DIAGS;NO_S3_CEA_BUILD;NO_S3_ATIS_BUILD;NO_S3_WRITE_FACT_CAL;S3_USE_FACT_CAL;NO_S3_READ_BACK;NO_S3VIRGIN;S3TXBATTLOG;NO_S3_TX_VALIDBATTDISABLED;NO_S3_CH_VALIDBATTDISABLED;TRIZEPS;S3_USB_SLAVE;_DEBUG;_WIN32_WCE=$(CEVER);UNDER_CE;WINCE;DEBUG;$(ARCHFAM);$(_ARCHFAM_);STANDARDSHELL_UI_MODEL"
+				PreprocessorDefinitions="NO_S3_OVERDRIVE_DETECT;NO_S3_TEMP_LOG;NO_S3_DIAG_TIMING;S3_SHOW_P1DB;NO_S3_RX_DIAGS;NO_S3_TX_DIAGS;NO_S3_CEA_BUILD;NO_S3_ATIS_BUILD;S3_USE_FACT_CAL;NO_S3_READ_BACK;NO_S3VIRGIN;NO_S3_TX_BATT_LOG;NO_S3_TX_VALIDBATTDISABLED;NO_S3_CH_VALIDBATTDISABLED;TRIZEPS;S3_USB_SLAVE;_DEBUG;_WIN32_WCE=$(CEVER);UNDER_CE;WINCE;DEBUG;$(ARCHFAM);$(_ARCHFAM_);STANDARDSHELL_UI_MODEL"
 				MinimalRebuild="true"
 				RuntimeLibrary="1"
 				FloatingPointModel="0"
@@ -205,7 +205,7 @@
 				FavorSizeOrSpeed="1"
 				WholeProgramOptimization="true"
 				AdditionalIncludeDirectories="&quot;C:\Program Files (x86)\Microsoft Visual Studio 9.0\VC\ce7\atlmfc\include\&quot;;&quot;C:\Program Files (x86)\Microsoft Visual Studio 9.0\VC\ce7\include&quot;;&quot;C:\Program Files (x86)\Windows CE Tools\SDKs\SDK_TrizepsVII_armv4i_2016Q3\Include\Armv4i&quot;"
-				PreprocessorDefinitions="NO_S3_OVERDRIVE_DETECT;NO_S3_TEMP_LOG;NO_S3_DIAG_TIMING;S3_SHOW_P1DB;NO_S3_RX_DIAGS;NO_S3_TX_DIAGS;NO_S3_CEA_BUILD;NO_S3_ATIS_BUILD;NO_S3_WRITE_FACT_CAL;S3_USE_FACT_CAL;NO_S3_READ_BACK;NO_S3VIRGIN;NO_S3TXBATTLOG;VALIDBATTDISABLED;NO_TXCALIBRATE;NO_S3_DEMOMODE;TRIZEPS;S3_USB_SLAVE;NDEBUG;_WIN32_WCE=$(CEVER);UNDER_CE;WINCE;$(ARCHFAM);$(_ARCHFAM_);STANDARDSHELL_UI_MODEL"
+				PreprocessorDefinitions="NO_S3_OVERDRIVE_DETECT;NO_S3_TEMP_LOG;NO_S3_DIAG_TIMING;S3_SHOW_P1DB;NO_S3_RX_DIAGS;NO_S3_TX_DIAGS;NO_S3_CEA_BUILD;NO_S3_ATIS_BUILD;S3_USE_FACT_CAL;NO_S3_READ_BACK;NO_S3VIRGIN;NO_S3TXBATTLOG;VALIDBATTDISABLED;NO_TXCALIBRATE;NO_S3_DEMOMODE;TRIZEPS;S3_USB_SLAVE;NDEBUG;_WIN32_WCE=$(CEVER);UNDER_CE;WINCE;$(ARCHFAM);$(_ARCHFAM_);STANDARDSHELL_UI_MODEL"
 				MinimalRebuild="false"
 				RuntimeLibrary="0"
 				UsePrecompiledHeader="0"
@@ -903,6 +903,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\S3GDINameValue.h"
+				>
+			</File>
+			<File
 				RelativePath=".\S3GDIParameterMenu.h"
 				>
 			</File>
@@ -920,10 +924,6 @@
 			</File>
 			<File
 				RelativePath=".\S3I2C.h"
-				>
-			</File>
-			<File
-				RelativePath=".\S3NameValue.h"
 				>
 			</File>
 			<File
