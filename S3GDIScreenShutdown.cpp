@@ -95,11 +95,13 @@ void CS3GDIScreenMain::S3InitGDIShutdownScreen(void)
 	CRect rect(m_RectScreen.left, m_RectScreen.bottom - 30 - 20,
 		m_RectScreen.left + 60, m_RectScreen.bottom - 20);
 	
+#ifndef S3_AGENT
 	m_GDIMaintKeyEdit = new CS3Edit(this);
 	m_GDIMaintKeyEdit->Create(WS_CHILD | ES_LEFT, rect, this, S3GDI_MAINT_KEY_EDIT);
 	m_GDIMaintKeyEdit->SetFont(&m_cFontS);
 	m_GDIMaintKeyEdit->ShowWindow(false);
 	m_GDIMaintKeyEdit->SetWindowText(_T(""));
+#endif
 }
 
 // ----------------------------------------------------------------------------
@@ -110,7 +112,10 @@ void CS3GDIScreenMain::S3CloseGDIShutdownScreen(void)
 	delete m_ButtonTxWakeAll;
 	delete m_ButtonSysShutdown;
 	delete m_ButtonSysRestart;
+
+#ifndef S3_AGENT
 	delete m_GDIMaintKeyEdit;
+#endif
 }
 
 // ----------------------------------------------------------------------------
@@ -201,7 +206,9 @@ void CS3GDIScreenMain::S3DrawGDIShutdownScreen(void)
 		}
 	}
 
+#ifndef S3_AGENT
 	m_GDIMaintKeyEdit->ShowWindow(true);
+#endif
 }
 
 // ----------------------------------------------------------------------------
@@ -267,6 +274,7 @@ int CS3GDIScreenMain::S3FindShutdownScreen(POINT p)
 
 int CS3GDIScreenMain::S3LeaveShutdownScreen()
 {
+#ifndef S3_AGENT
 	m_GDIMaintKeyEdit->ShowWindow(false);
 
 	CString str;
@@ -300,6 +308,7 @@ int CS3GDIScreenMain::S3LeaveShutdownScreen()
 	S3SetLockFile();
 
 	m_GDIMaintKeyEdit->SetWindowText(_T(""));
+#endif
 
 	S3SetSIPRegKey(1); // Disable SIP pop-up
 

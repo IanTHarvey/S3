@@ -717,8 +717,9 @@ protected:
 	CS3Edit			*m_GDIDateEdit;
 	CS3Edit			*m_GDITimeEdit;
 
+#ifndef S3_AGENT
 	CS3Edit			*m_GDIMaintKeyEdit;
-
+#endif
 //	CS3CheckBox		*m_GDIUSBEnableCB;
 
 public:

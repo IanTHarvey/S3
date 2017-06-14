@@ -301,7 +301,9 @@ int CS3GDIScreenMain::S3GDIChangeScreen(char screen)
 	m_GDITimeEdit->ShowWindow(false);
 
 	// Shutdown screen orphan
+#ifndef S3_AGENT
 	m_GDIMaintKeyEdit->ShowWindow(false);
+#endif
 
 	m_NumericPad->PopDown();
 	m_ParaMenu->Clear();

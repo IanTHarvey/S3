@@ -578,6 +578,12 @@ void DecodeSystemDetails(CString Response)
                 S3Data->m_SleepAll = (temp != 0);
             }
             break;
+		case SYSTEM_LOCKED:
+            {
+                unsigned char temp = _ttoi(Line);
+                S3Data->m_Locked = (temp != 0);
+            }
+            break;
             
         }
         Line = Response.Tokenize(_T(DATA_ITEM_SEPARATOR), MessageTokenPos);
