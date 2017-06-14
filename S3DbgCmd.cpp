@@ -23,47 +23,51 @@ extern char		GPIBCurrentRx;
 extern char		GPIBCurrentTx; // For settings etc
 extern char		GPIBCurrentIP;
 
-int DbgRxInsert(int os);
-int DbgRxRemove(int os);
+extern char		*GPIBCmdArgs[];
 
-int DbgTxInsert(int os);
-int DbgTxRemove(int os);
-int DbgTxSelect(int os);
-int DbgTxBrownOut(int os);
+int DbgRxInsert();
+int DbgRxRemove();
 
-int DbgTxFW(int os);
-int DbgTxHW(int os);
-int DbgRxFW(int os);
-int DbgRxHW(int os);
+int DbgTxInsert();
+int DbgTxRemove();
+int DbgTxSelect();
+int DbgTxBrownOut();
 
-int DbgRxRLL(int os);
+int DbgTxFW();
+int DbgTxHW();
+int DbgRxFW();
+int DbgRxHW();
 
-int DbgIPOverdrive(int os);
-int DbgCancelAlarms(int os);
+int DbgLock();
 
-int	DbgRxLinkGain(int os);
+int DbgRxRLL();
+
+int DbgIPOverdrive();
+int DbgCancelAlarms();
+
+int	DbgRxLinkGain();
 
 // Charger battery
-int DbgChBattInsert(int os);
-int DbgChBattRemove(int os);
+int DbgChBattInsert();
+int DbgChBattRemove();
 
-int DbgChBattHWV(int os);
-int DbgChBattFWV(int os);
-int DbgChBattSN(int os);
-int DbgChBattPN(int os);
+int DbgChBattHWV();
+int DbgChBattFWV();
+int DbgChBattSN();
+int DbgChBattPN();
 
-int DbgChSoC(int os);
-int DbgChBattTemp(int os);
+int DbgChSoC();
+int DbgChBattTemp();
 
 // Tx battery
-int DbgTxBattAll(int os);
-int DbgTxBattHWV(int os);
-int DbgTxBattFWV(int os);
-int DbgTxBattSN(int os);
-int DbgTxBattPN(int os);
+int DbgTxBattAll();
+int DbgTxBattHWV();
+int DbgTxBattFWV();
+int DbgTxBattSN();
+int DbgTxBattPN();
 
-int DbgTxSoC(int os);
-int DbgTxBattTemp(int os);
+int DbgTxSoC();
+int DbgTxBattTemp();
 
 // ----------------------------------------------------------------------------
 // Event simulators
@@ -71,146 +75,151 @@ int DbgTxBattTemp(int os);
 int DbgProcessCmd()
 {
 	int err;
+	char *Cmd = GPIBCmdArgs[0];
 
-	if (!STRNCMP(GPIBCmdBuf, "DBGRXINSERT ", 12))
+	if (!STRCMP(Cmd, "DBGRXINSERT"))
 	{
-		err = DbgRxInsert(12);
+		err = DbgRxInsert();
 	}
-	else if (!STRNCMP(GPIBCmdBuf, "DBGRXREMOVE ", 12))
+	else if (!STRCMP(Cmd, "DBGRXREMOVE"))
 	{
-		err = DbgRxRemove(12);
+		err = DbgRxRemove();
 	}
-	else if (!STRNCMP(GPIBCmdBuf, "DBGTXINSERT ", 12))
+	else if (!STRCMP(Cmd, "DBGTXINSERT"))
 	{
-		err = DbgTxInsert(12);
+		err = DbgTxInsert();
 	}
-	else if (!STRNCMP(GPIBCmdBuf, "DBGTXREMOVE ", 12))
+	else if (!STRCMP(Cmd, "DBGTXREMOVE"))
 	{
-		err = DbgTxRemove(12);
+		err = DbgTxRemove();
 	}
-	else if (!STRNCMP(GPIBCmdBuf, "DBGTXSELECT ", 12))
+	else if (!STRCMP(Cmd, "DBGTXSELECT"))
 	{
-		err = DbgTxSelect(12);
+		err = DbgTxSelect();
 	}
-	else if (!STRNCMP(GPIBCmdBuf, "DBGTXBROWNOUT ", 14))
+	else if (!STRCMP(Cmd, "DBGTXBROWNOUT"))
 	{
-		err = DbgTxBrownOut(14);
+		err = DbgTxBrownOut();
 	}
-	else if (!STRNCMP(GPIBCmdBuf, "DBGIPOVERDRIVE ", 15))
+	else if (!STRCMP(Cmd, "DBGIPOVERDRIVE"))
 	{
-		err = DbgIPOverdrive(15);
+		err = DbgIPOverdrive();
 	}
-	else if (!STRNCMP(GPIBCmdBuf, "DBGRXRLL ", 9))
+	else if (!STRCMP(Cmd, "DBGRXRLL"))
 	{
-		err = DbgRxRLL(9);
+		err = DbgRxRLL();
 	}
-	else if (!STRNCMP(GPIBCmdBuf, "DBGSYSPARTNO ", 13))
+	else if (!STRCMP(Cmd, "DBGSYSPARTNO"))
 	{
-		err = DbgSysPN(13);
+		err = DbgSysPN();
 	}
-	else if (!STRNCMP(GPIBCmdBuf, "DBGSYSSERIALNO ", 14))
+	else if (!STRCMP(Cmd, "DBGSYSSERIALNO"))
 	{
-		err = DbgSysSN(14);
+		err = DbgSysSN();
 	}
-	else if (!STRNCMP(GPIBCmdBuf, "DBGRXPARTNO ", 12))
+	else if (!STRCMP(Cmd, "DBGRXPARTNO"))
 	{
-		err = DbgRxPN(12);
+		err = DbgRxPN();
 	}
-	else if (!STRNCMP(GPIBCmdBuf, "DBGRXSERIALNO ", 14))
+	else if (!STRCMP(Cmd, "DBGRXSERIALNO"))
 	{
-		err = DbgRxSN(14);
+		err = DbgRxSN();
 	}
-	else if (!STRNCMP(GPIBCmdBuf, "DBGRXLINKGAIN ", 14))
+	else if (!STRCMP(Cmd, "DBGRXLINKGAIN"))
 	{
-		err = DbgRxLinkGain(14);
+		err = DbgRxLinkGain();
 	}
-	else if (!STRNCMP(GPIBCmdBuf, "DBGTXPARTNO ", 12))
+	else if (!STRCMP(Cmd, "DBGTXPARTNO"))
 	{
-		err = DbgTxPN(12);
+		err = DbgTxPN();
 	}
-	else if (!STRNCMP(GPIBCmdBuf, "DBGTXSERIALNO ", 14))
+	else if (!STRCMP(Cmd, "DBGTXSERIALNO"))
 	{
-		err = DbgTxSN(14);
+		err = DbgTxSN();
 	}
-	else if (!STRNCMP(GPIBCmdBuf, "DBGTXBATTLEVEL ", 15))
+	else if (!STRCMP(Cmd, "DBGTXBATTLEVEL"))
 	{
-		err = DbgTxSoC(15);
+		err = DbgTxSoC();
 	}
-	else if (!STRNCMP(GPIBCmdBuf, "DBGTXBATTHW ", 12))
+	else if (!STRCMP(Cmd, "DBGTXBATTHW"))
 	{
-		err = DbgTxBattHWV(12);
+		err = DbgTxBattHWV();
 	}
-	else if (!STRNCMP(GPIBCmdBuf, "DBGTXBATTFW ", 12))
+	else if (!STRCMP(Cmd, "DBGTXBATTFW"))
 	{
-		err = DbgTxBattFWV(12);
+		err = DbgTxBattFWV();
 	}
-	else if (!STRNCMP(GPIBCmdBuf, "DBGTXBATTSN ", 12))
+	else if (!STRCMP(Cmd, "DBGTXBATTSN"))
 	{
-		err = DbgTxBattSN(12);
+		err = DbgTxBattSN();
 	}
-	else if (!STRNCMP(GPIBCmdBuf, "DBGTXBATTPN ", 12))
+	else if (!STRCMP(Cmd, "DBGTXBATTPN"))
 	{
-		err = DbgTxBattPN(12);
+		err = DbgTxBattPN();
 	}
-	else if (!STRNCMP(GPIBCmdBuf, "DBGTXBATTTEMP ", 14))
+	else if (!STRCMP(Cmd, "DBGTXBATTTEMP"))
 	{
-		err = DbgTxBattTemp(14);
+		err = DbgTxBattTemp();
 	}
-	else if (!STRNCMP(GPIBCmdBuf, "DBGTXBATTALL ", 13))
+	else if (!STRCMP(Cmd, "DBGTXBATTALL"))
 	{
-		err = DbgTxBattAll(13);
+		err = DbgTxBattAll();
 	}
-	else if (!STRNCMP(GPIBCmdBuf, "DBGCANCELALL", 12))
+	else if (!STRCMP(Cmd, "DBGCANCELALL"))
 	{
-		err = DbgCancelAlarms(12);
+		err = DbgCancelAlarms();
 	}
-	else if (!STRNCMP(GPIBCmdBuf, "DBGCHBATTLEVEL ", 15))
+	else if (!STRCMP(Cmd, "DBGCHBATTLEVEL"))
 	{
-		err = DbgChSoC(15);
+		err = DbgChSoC();
 	}
-	else if (!STRNCMP(GPIBCmdBuf, "DBGCHBATTINSERT ", 16))
+	else if (!STRCMP(Cmd, "DBGCHBATTINSERT"))
 	{
-		err = DbgChBattInsert(16);
+		err = DbgChBattInsert();
 	}
-	else if (!STRNCMP(GPIBCmdBuf, "DBGCHBATTREMOVE ", 16))
+	else if (!STRCMP(Cmd, "DBGCHBATTREMOVE"))
 	{
-		err = DbgChBattRemove(16);
+		err = DbgChBattRemove();
 	}
-	else if (!STRNCMP(GPIBCmdBuf, "DBGCHBATTHW ", 12))
+	else if (!STRCMP(Cmd, "DBGCHBATTHW"))
 	{
-		err = DbgChBattHWV(12);
+		err = DbgChBattHWV();
 	}
-	else if (!STRNCMP(GPIBCmdBuf, "DBGCHBATTFW ", 12))
+	else if (!STRCMP(Cmd, "DBGCHBATTFW"))
 	{
-		err = DbgChBattFWV(12);
+		err = DbgChBattFWV();
 	}
-	else if (!STRNCMP(GPIBCmdBuf, "DBGCHBATTPN ", 12))
+	else if (!STRCMP(Cmd, "DBGCHBATTPN"))
 	{
-		err = DbgChBattPN(12);
+		err = DbgChBattPN();
 	}
-	else if (!STRNCMP(GPIBCmdBuf, "DBGCHBATTSN ", 12))
+	else if (!STRCMP(Cmd, "DBGCHBATTSN"))
 	{
-		err = DbgChBattSN(12);
+		err = DbgChBattSN();
 	}
-	else if (!STRNCMP(GPIBCmdBuf, "DBGCHBATTTEMP ", 14))
+	else if (!STRCMP(Cmd, "DBGCHBATTTEMP"))
 	{
-		err = DbgChBattTemp(14);
+		err = DbgChBattTemp();
 	}
-	else if (!STRNCMP(GPIBCmdBuf, "DBGTXHW ", 8))
+	else if (!STRCMP(Cmd, "DBGTXHW"))
 	{
-		err = DbgTxHW(8);
+		err = DbgTxHW();
 	}
-	else if (!STRNCMP(GPIBCmdBuf, "DBGTXFW ", 8))
+	else if (!STRCMP(Cmd, "DBGTXFW"))
 	{
-		err = DbgTxFW(8);
+		err = DbgTxFW();
 	}
-	else if (!STRNCMP(GPIBCmdBuf, "DBGRXHW ", 8))
+	else if (!STRCMP(Cmd, "DBGRXHW"))
 	{
-		err = DbgRxHW(8);
+		err = DbgRxHW();
 	}
-	else if (!STRNCMP(GPIBCmdBuf, "DBGRXFW ", 8))
+	else if (!STRCMP(Cmd, "DBGRXFW"))
 	{
-		err = DbgRxFW(8);
+		err = DbgRxFW();
+	}
+	else if (!STRCMP(Cmd, "DBGLOCK"))
+	{
+		err = DbgLock();
 	}
 	else	err = S3_GPIB_CMD_UNRECOGNISED;
 
@@ -220,15 +229,15 @@ int DbgProcessCmd()
 // ----------------------------------------------------------------------------
 // Rxs not hot-swappable but may happen anyway.
 
-int DbgRxInsert(int os)
+int DbgRxInsert()
 {
 	char	*eptr;
-	char	Rx = (char)strtol(GPIBCmdBuf + os, &eptr, 10) - 1;
+	char	Rx = (char)strtol(GPIBCmdArgs[1], &eptr, 10) - 1;
 
 	if (!S3RxValidQ(Rx))
 		return S3_GPIB_INVALID_ADDRESS;
 
-	char type = (char)strtol(eptr, &eptr, 10);
+	char type = (char)strtol(GPIBCmdArgs[2], &eptr, 10);
 
 	if (type != S3_Rx1	&& type != S3_Rx2 && type != S3_Rx6)
 		return 2;
@@ -242,10 +251,10 @@ int DbgRxInsert(int os)
 // ----------------------------------------------------------------------------
 // Ditto.
 
-int DbgRxRemove(int os)
+int DbgRxRemove()
 {
 	char	*eptr;
-	char	Rx = (char)strtol(GPIBCmdBuf + os, &eptr, 10) - 1;
+	char	Rx = (char)strtol(GPIBCmdArgs[1], &eptr, 10) - 1;
 
 	if (!S3RxValidQ(Rx))
 		return S3_GPIB_INVALID_ADDRESS;
@@ -261,11 +270,11 @@ int DbgRxRemove(int os)
 // ----------------------------------------------------------------------------
 // FOL connection
 
-int DbgTxInsert(int os)
+int DbgTxInsert()
 {
 	char	*eptr;
-	char	Rx = (char)strtol(GPIBCmdBuf + os, &eptr, 10) - 1;
-	char	Tx = (char)strtol(eptr, &eptr, 10) - 1;
+	char	Rx = (char)strtol(GPIBCmdArgs[1], &eptr, 10) - 1;
+	char	Tx = (char)strtol(GPIBCmdArgs[2], &eptr, 10) - 1;
 
 	if (!S3TxValidQ(Rx, Tx))
 		return S3_GPIB_INVALID_ADDRESS;
@@ -273,7 +282,7 @@ int DbgTxInsert(int os)
 	if (S3TxExistQ(Rx, Tx))
 		return S3_GPIB_INVALID_TX;
 
-	char type = (char)strtol(eptr, &eptr, 10);
+	char type = (char)strtol(GPIBCmdArgs[2], &eptr, 10);
 
 	if (type != S3_Tx1	&& type != S3_Tx8)
 		return 2;
@@ -287,11 +296,11 @@ int DbgTxInsert(int os)
 // ----------------------------------------------------------------------------
 // FOL disconnection
 
-int DbgTxRemove(int os)
+int DbgTxRemove()
 {
 	char	*eptr;
-	char	Rx = (char)strtol(GPIBCmdBuf + os, &eptr, 10) - 1;
-	char	Tx = (char)strtol(eptr, &eptr, 10) - 1;
+	char	Rx = (char)strtol(GPIBCmdArgs[1], &eptr, 10) - 1;
+	char	Tx = (char)strtol(GPIBCmdArgs[2], &eptr, 10) - 1;
 
 	if (!S3TxValidQ(Rx, Tx))
 		return S3_GPIB_INVALID_ADDRESS;
@@ -307,11 +316,11 @@ int DbgTxRemove(int os)
 
 // ----------------------------------------------------------------------------
 
-int DbgTxSelect(int os)
+int DbgTxSelect()
 {
 	char	*eptr;
-	char	Rx = (char)strtol(GPIBCmdBuf + os, &eptr, 10) - 1;
-	char	Tx = (char)strtol(eptr, &eptr, 10) - 1;
+	char	Rx = (char)strtol(GPIBCmdArgs[1], &eptr, 10) - 1;
+	char	Tx = (char)strtol(GPIBCmdArgs[2], &eptr, 10) - 1;
 
 	if (!S3TxValidQ(Rx, Tx))
 		return S3_GPIB_INVALID_ADDRESS;
@@ -326,11 +335,11 @@ int DbgTxSelect(int os)
 
 // ----------------------------------------------------------------------------
 
-int DbgTxBrownOut(int os)
+int DbgTxBrownOut()
 {
 	char	*eptr;
-	char	Rx = (char)strtol(GPIBCmdBuf + os, &eptr, 10) - 1;
-	char	Tx = (char)strtol(eptr, &eptr, 10) - 1;
+	char	Rx = (char)strtol(GPIBCmdArgs[1], &eptr, 10) - 1;
+	char	Tx = (char)strtol(GPIBCmdArgs[2], &eptr, 10) - 1;
 
 	if (!S3TxValidQ(Rx, Tx))
 		return S3_GPIB_INVALID_ADDRESS;
@@ -338,7 +347,7 @@ int DbgTxBrownOut(int os)
 	if (!S3TxExistQ(Rx, Tx))
 		return S3_GPIB_INVALID_TX;
 
-	char val = (char)strtol(eptr, &eptr, 10);
+	char val = (char)strtol(GPIBCmdArgs[3], &eptr, 10);
 
 	DbgPollSysData.Rx[Rx].Txs[Tx].BrownOut = val;
 
@@ -347,11 +356,11 @@ int DbgTxBrownOut(int os)
 
 // ----------------------------------------------------------------------------
 
-int DbgRxRLL(int os)
+int DbgRxRLL()
 {
 	char	*eptr;
-	char	Rx = (char)strtol(GPIBCmdBuf + os, &eptr, 10) - 1;
-	char	Tx = (char)strtol(eptr, &eptr, 10) - 1;
+	char	Rx = (char)strtol(GPIBCmdArgs[1], &eptr, 10) - 1;
+	char	Tx = (char)strtol(GPIBCmdArgs[2], &eptr, 10) - 1;
 
 	if (!S3TxValidQ(Rx, Tx))
 		return S3_GPIB_INVALID_ADDRESS;
@@ -359,7 +368,7 @@ int DbgRxRLL(int os)
 	if (!S3TxExistQ(Rx, Tx))
 		return S3_GPIB_INVALID_TX;
 
-	short val = (short)strtol(eptr, &eptr, 10);
+	short val = (short)strtol(GPIBCmdArgs[3], &eptr, 10);
 
 	DbgPollSysData.Rx[Rx].RLL[Tx] = val;
 
@@ -368,11 +377,11 @@ int DbgRxRLL(int os)
 
 // ----------------------------------------------------------------------------
 
-int DbgRxLinkGain(int os)
+int DbgRxLinkGain()
 {
 	char	*eptr;
-	char	Rx = (char)strtol(GPIBCmdBuf + os, &eptr, 10) - 1;
-	char	Tx = (char)strtol(eptr, &eptr, 10) - 1;
+	char	Rx = (char)strtol(GPIBCmdArgs[1], &eptr, 10) - 1;
+	char	Tx = (char)strtol(GPIBCmdArgs[2], &eptr, 10) - 1;
 
 	if (!S3TxValidQ(Rx, Tx))
 		return S3_GPIB_INVALID_ADDRESS;
@@ -380,7 +389,7 @@ int DbgRxLinkGain(int os)
 	if (!S3TxExistQ(Rx, Tx))
 		return S3_GPIB_INVALID_TX;
 
-	char val = (char)strtol(eptr, &eptr, 10);
+	char val = (char)strtol(GPIBCmdArgs[3], &eptr, 10);
 
 	DbgPollSysData.Rx[Rx].LinkGain[Tx] = val;
 
@@ -389,18 +398,16 @@ int DbgRxLinkGain(int os)
 
 // ----------------------------------------------------------------------------
 
-int DbgIPOverdrive(int os)
+int DbgIPOverdrive()
 {
 
 	char		all, Rx, Tx, IP;
-	const char	*lastarg;
-	int res = GetAddress(&all, &Rx, &Tx, &IP, &lastarg, GPIBCmdBuf + os);
-	// int res = GetAddress2(&all, &Rx, &Tx, &IP);
+	int res = GetAddress2(&all, &Rx, &Tx, &IP);
 
 	if (res != 3)
 		return S3_GPIB_INVALID_ADDRESS;
 
-	char val = (char)strtol(lastarg, NULL, 10);
+	char val = (char)strtol(GPIBCmdArgs[4], NULL, 10);
 
 	if (val)
 		S3IPSetAlarm(Rx, Tx, IP, S3_IP_OVERDRIVE);
@@ -412,76 +419,71 @@ int DbgIPOverdrive(int os)
 
 // ----------------------------------------------------------------------------
 
-int DbgSysPN(int os)
+int DbgSysPN()
 {
-	return S3SysSetPN(GPIBCmdBuf + os);
+	return S3SysSetPN(GPIBCmdArgs[1]);
 }
 
 // ----------------------------------------------------------------------------
 
-int DbgSysSN(int os)
+int DbgSysSN()
 {
-	return S3SysSetSN(GPIBCmdBuf + os);
+	return S3SysSetSN(GPIBCmdArgs[1]);
 }
 
 // ----------------------------------------------------------------------------
 
-int DbgRxPN(int os)
+int DbgRxPN()
 {
 	char		all, Rx, Tx, IP;
-	const char	*lastarg;
 
-	int res = GetAddress(&all, &Rx, &Tx, &IP, &lastarg, GPIBCmdBuf + os);
+	int res = GetAddress2(&all, &Rx, &Tx, &IP);
 
 	if (res != 1)
 		return S3_GPIB_INVALID_ADDRESS;
 
-	return S3RxSetPN(Rx, lastarg);
+	return S3RxSetPN(Rx, GPIBCmdArgs[2]);
 }
 
 // ----------------------------------------------------------------------------
 
-int DbgRxSN(int os)
+int DbgRxSN()
 {
 	char		all, Rx, Tx, IP;
-	const char	*lastarg;
 
-	int res = GetAddress(&all, &Rx, &Tx, &IP, &lastarg, GPIBCmdBuf + os);
+	int res = GetAddress2(&all, &Rx, &Tx, &IP);
 
 	if (res != 1)
 		return S3_GPIB_INVALID_ADDRESS;
 
-	return S3RxSetSN(Rx, lastarg);
+	return S3RxSetSN(Rx, GPIBCmdArgs[2]);
 }
 
 // ----------------------------------------------------------------------------
 
-int DbgTxPN(int os)
+int DbgTxPN()
 {
 	char		all, Rx, Tx, IP;
-	const char	*lastarg;
 
-	int res = GetAddress(&all, &Rx, &Tx, &IP, &lastarg, GPIBCmdBuf + os);
+	int res = GetAddress2(&all, &Rx, &Tx, &IP);
 
 	if (res != 2)
 		return S3_GPIB_INVALID_ADDRESS;
 
-	return S3TxSetPN(Rx, Tx, lastarg);
+	return S3TxSetPN(Rx, Tx, GPIBCmdArgs[3]);
 }
 
 // ----------------------------------------------------------------------------
 
-int DbgTxSN(int os)
+int DbgTxSN()
 {
 	char		all, Rx, Tx, IP;
-	const char	*lastarg;
 
-	int res = GetAddress(&all, &Rx, &Tx, &IP, &lastarg, GPIBCmdBuf + os);
-
+	int res = GetAddress2(&all, &Rx, &Tx, &IP);
 	if (res != 2)
 		return S3_GPIB_INVALID_ADDRESS;
 
-	return S3TxSetSN(Rx, Tx, lastarg);
+	return S3TxSetSN(Rx, Tx, GPIBCmdArgs[3]);
 }
 
 // -------------------------------------------------------------------------
@@ -490,18 +492,17 @@ int DbgTxSN(int os)
 // ----------------------------------------------------------------------------
 // Read by S3PollRx
 
-int DbgTxSoC(int os)
+int DbgTxSoC()
 {
 	char			all, Rx, Tx, IP;
-	const char		*lastarg;
 	char			*eptr;
 
-	int res = GetAddress(&all, &Rx, &Tx, &IP, &lastarg, GPIBCmdBuf + os);
+	int res = GetAddress2(&all, &Rx, &Tx, &IP);
 
 	if (res != 2)
 		return S3_GPIB_INVALID_ADDRESS;
 
-	unsigned char BattSoC = (unsigned char)strtol(lastarg, &eptr, 10);
+	unsigned char BattSoC = (unsigned char)strtol(GPIBCmdArgs[3], &eptr, 10);
 
 	DbgPollSysData.Rx[Rx].Txs[Tx].SoC = BattSoC;
 
@@ -511,17 +512,16 @@ int DbgTxSoC(int os)
 // -------------------------------------------------------------------------
 // Read by S3PollRx
 
-int DbgTxBattTemp(int os)
+int DbgTxBattTemp()
 {
 	char			all, Rx, Tx, IP;
-	const char		*lastarg;
 	char			*eptr;
-	int res = GetAddress(&all, &Rx, &Tx, &IP, &lastarg, GPIBCmdBuf + os);
+	int res = GetAddress2(&all, &Rx, &Tx, &IP);
 
 	if (res != 2)
 		return S3_GPIB_INVALID_ADDRESS;
 
-	long l = strtol(lastarg, &eptr, 10);
+	long l = strtol(GPIBCmdArgs[3], &eptr, 10);
 	l = (l > SCHAR_MAX) ? SCHAR_MAX : l;
 	l = (l < SCHAR_MIN) ? SCHAR_MIN : l;
 
@@ -535,10 +535,10 @@ int DbgTxBattTemp(int os)
 // ----------------------------------------------------------------------------
 // Test data only
 
-int DbgTxBattAll(int os)
+int DbgTxBattAll()
 {
 	char			*eptr;
-	unsigned char	BattCh = (unsigned char)strtol(GPIBCmdBuf + os, &eptr, 10);
+	unsigned char	BattCh = (unsigned char)strtol(GPIBCmdArgs[1], &eptr, 10);
 
 	for (char Rx = 0; Rx < S3_MAX_RXS; Rx++)
 		for (char Tx = 0; Tx < S3_MAX_TXS; Tx++)
@@ -549,17 +549,16 @@ int DbgTxBattAll(int os)
 
 // ----------------------------------------------------------------------------
 
-int DbgTxBattFWV(int os)
+int DbgTxBattFWV()
 {
 	char			all, Rx, Tx, IP;
-	const char		*lastarg;
-	int res = GetAddress(&all, &Rx, &Tx, &IP, &lastarg, GPIBCmdBuf + os);
+	int res = GetAddress2(&all, &Rx, &Tx, &IP);
 
 	if (res != 2)
 		return S3_GPIB_INVALID_ADDRESS;
 
-	if (lastarg)
-		strcpy_s(DbgPollSysData.Rx[Rx].Txs[Tx].BattFW, S3_MAX_SW_VER_LEN, lastarg);
+	if (GPIBCmdArgs[3])
+		strcpy_s(DbgPollSysData.Rx[Rx].Txs[Tx].BattFW, S3_MAX_SW_VER_LEN, GPIBCmdArgs[3]);
 	else
 		return 1;
 
@@ -568,17 +567,16 @@ int DbgTxBattFWV(int os)
 
 // ----------------------------------------------------------------------------
 
-int DbgTxBattHWV(int os)
+int DbgTxBattHWV()
 {
 	char			all, Rx, Tx, IP;
-	const char		*lastarg;
-	int res = GetAddress(&all, &Rx, &Tx, &IP, &lastarg, GPIBCmdBuf + os);
+	int res = GetAddress2(&all, &Rx, &Tx, &IP);
 
 	if (res != 2)
 		return S3_GPIB_INVALID_ADDRESS;
 
-	if (lastarg)
-		strcpy_s(DbgPollSysData.Rx[Rx].Txs[Tx].BattHW, S3_MAX_SW_VER_LEN, lastarg);
+	if (GPIBCmdArgs[3])
+		strcpy_s(DbgPollSysData.Rx[Rx].Txs[Tx].BattHW, S3_MAX_SW_VER_LEN, GPIBCmdArgs[3]);
 	else
 		return 1;
 
@@ -587,17 +585,16 @@ int DbgTxBattHWV(int os)
 
 // ----------------------------------------------------------------------------
 
-int DbgTxBattSN(int os)
+int DbgTxBattSN()
 {
 	char			all, Rx, Tx, IP;
-	const char		*lastarg;
-	int res = GetAddress(&all, &Rx, &Tx, &IP, &lastarg, GPIBCmdBuf + os);
+	int res = GetAddress2(&all, &Rx, &Tx, &IP);
 
 	if (res != 2)
 		return S3_GPIB_INVALID_ADDRESS;
 
-	if (lastarg)
-		strcpy_s(DbgPollSysData.Rx[Rx].Txs[Tx].BattSN, S3_MAX_SN_LEN, lastarg);
+	if (GPIBCmdArgs[3])
+		strcpy_s(DbgPollSysData.Rx[Rx].Txs[Tx].BattSN, S3_MAX_SN_LEN, GPIBCmdArgs[3]);
 	else
 		return 1;
 
@@ -606,17 +603,16 @@ int DbgTxBattSN(int os)
 
 // ----------------------------------------------------------------------------
 
-int DbgTxBattPN(int os)
+int DbgTxBattPN()
 {
 	char			all, Rx, Tx, IP;
-	const char		*lastarg;
-	int res = GetAddress(&all, &Rx, &Tx, &IP, &lastarg, GPIBCmdBuf + os);
+	int res = GetAddress2(&all, &Rx, &Tx, &IP);
 
 	if (res != 2)
 		return S3_GPIB_INVALID_ADDRESS;
 
-	if (lastarg)
-		strcpy_s(DbgPollSysData.Rx[Rx].Txs[Tx].BattPN, S3_MAX_PN_LEN, lastarg);
+	if (GPIBCmdArgs[3])
+		strcpy_s(DbgPollSysData.Rx[Rx].Txs[Tx].BattPN, S3_MAX_PN_LEN, GPIBCmdArgs[3]);
 	else
 		return 1;
 
@@ -624,19 +620,19 @@ int DbgTxBattPN(int os)
 }
 // ----------------------------------------------------------------------------
 
-int DbgCancelAlarms(int os)
+int DbgCancelAlarms()
 {
 	return S3CancelAlarms();
 }
 
 // ----------------------------------------------------------------------------
 
-int DbgChSoC(int os)
+int DbgChSoC()
 {
 	char	*eptr;
 
-	char Ch = (char)strtol(GPIBCmdBuf + os, &eptr, 10) - 1;
-	char SoC = (char)strtol(eptr, &eptr, 10);
+	char Ch = (char)strtol(GPIBCmdArgs[1], &eptr, 10) - 1;
+	char SoC = (char)strtol(GPIBCmdArgs[2], &eptr, 10);
 
 	DbgPollSysData.Ch[Ch].SoC = SoC;
 
@@ -645,14 +641,14 @@ int DbgChSoC(int os)
 
 // ----------------------------------------------------------------------------
 
-int DbgChBattInsert(int os)
+int DbgChBattInsert()
 {
 	char	*eptr;
 
-	char Ch = (char)strtol(GPIBCmdBuf + os, &eptr, 10) - 1;
+	char Ch = (char)strtol(GPIBCmdArgs[1], &eptr, 10) - 1;
 
 	if (eptr)
-		strcpy_s(DbgPollSysData.Ch[Ch].SN, S3_MAX_ID_LEN, eptr);
+		strcpy_s(DbgPollSysData.Ch[Ch].SN, S3_MAX_ID_LEN, GPIBCmdArgs[2]);
 	else // Serial number is mandatory
 		return 1;
 
@@ -663,11 +659,11 @@ int DbgChBattInsert(int os)
 
 // ----------------------------------------------------------------------------
 
-int DbgChBattRemove(int os)
+int DbgChBattRemove()
 {
 	char	*eptr;
 
-	char Ch = (char)strtol(GPIBCmdBuf + os, &eptr, 10) - 1;
+	char Ch = (char)strtol(GPIBCmdArgs[1], &eptr, 10) - 1;
 
 	DbgPollSysData.Ch[Ch].Occupied = 0;
 
@@ -676,14 +672,14 @@ int DbgChBattRemove(int os)
 
 // ----------------------------------------------------------------------------
 
-int DbgChBattHWV(int os)
+int DbgChBattHWV()
 {
 	char	*eptr;
 
-	char Ch = (char)strtol(GPIBCmdBuf + os, &eptr, 10) - 1;
+	char Ch = (char)strtol(GPIBCmdArgs[1], &eptr, 10) - 1;
 
 	if (eptr)
-		strcpy_s(DbgPollSysData.Ch[Ch].HW, S3_MAX_SW_VER_LEN, eptr);
+		strcpy_s(DbgPollSysData.Ch[Ch].HW, S3_MAX_SW_VER_LEN, GPIBCmdArgs[2]);
 	else
 		return 1;
 
@@ -692,13 +688,13 @@ int DbgChBattHWV(int os)
 
 // ----------------------------------------------------------------------------
 
-int DbgChBattFWV(int os)
+int DbgChBattFWV()
 {
 	char	*eptr;
-	char	Ch = (char)strtol(GPIBCmdBuf + os, &eptr, 10) - 1;
+	char	Ch = (char)strtol(GPIBCmdArgs[1], &eptr, 10) - 1;
 
 	if (eptr)
-		strcpy_s(DbgPollSysData.Ch[Ch].FW, S3_MAX_SW_VER_LEN, eptr);
+		strcpy_s(DbgPollSysData.Ch[Ch].FW, S3_MAX_SW_VER_LEN, GPIBCmdArgs[2]);
 	else
 		return 1;
 
@@ -707,13 +703,13 @@ int DbgChBattFWV(int os)
 
 // ----------------------------------------------------------------------------
 
-int DbgChBattPN(int os)
+int DbgChBattPN()
 {
 	char	*eptr;
-	char	Ch = (char)strtol(GPIBCmdBuf + os, &eptr, 10) - 1;
+	char	Ch = (char)strtol(GPIBCmdArgs[1], &eptr, 10) - 1;
 
 	if (eptr)
-		strcpy_s(DbgPollSysData.Ch[Ch].PN, S3_MAX_SW_VER_LEN, eptr);
+		strcpy_s(DbgPollSysData.Ch[Ch].PN, S3_MAX_SW_VER_LEN, GPIBCmdArgs[2]);
 	else
 		return 1;
 
@@ -722,13 +718,13 @@ int DbgChBattPN(int os)
 
 // ----------------------------------------------------------------------------
 
-int DbgChBattSN(int os)
+int DbgChBattSN()
 {
 	char	*eptr;
-	char	Ch = (char)strtol(GPIBCmdBuf + os, &eptr, 10) - 1;
+	char	Ch = (char)strtol(GPIBCmdArgs[1], &eptr, 10) - 1;
 
 	if (eptr)
-		strcpy_s(DbgPollSysData.Ch[Ch].SN, S3_MAX_SW_VER_LEN, eptr);
+		strcpy_s(DbgPollSysData.Ch[Ch].SN, S3_MAX_SW_VER_LEN, GPIBCmdArgs[2]);
 	else
 		return 1;
 
@@ -737,16 +733,16 @@ int DbgChBattSN(int os)
 // -------------------------------------------------------------------------
 // Read by S3Poll()
 
-int DbgChBattTemp(int os)
+int DbgChBattTemp()
 {
 	// To be got from I2C eventually
 
 	char	*eptr;
-	char	Ch = (char)strtol(GPIBCmdBuf + os, &eptr, 10) - 1;
+	char	Ch = (char)strtol(GPIBCmdArgs[1], &eptr, 10) - 1;
 
 	if (eptr)
 	{
-		long	l = strtol(eptr, &eptr, 10);
+		long	l = strtol(GPIBCmdArgs[2], &eptr, 10);
 
 		l = (l > SCHAR_MAX) ? SCHAR_MAX : l;
 		l = (l < SCHAR_MIN) ? SCHAR_MIN : l;
@@ -765,73 +761,91 @@ int DbgChBattTemp(int os)
 // Not bothering with polling (or checking) - this is just to populate for
 // testing
 
-int DbgTxHW(int os)
+int DbgTxHW()
 {
 	char			all, Rx, Tx, IP;
-	const char		*lastarg;
-	int res = GetAddress(&all, &Rx, &Tx, &IP, &lastarg, GPIBCmdBuf + os);
+	int res = GetAddress2(&all, &Rx, &Tx, &IP);
 
 	if (res != 2)
 		return S3_GPIB_INVALID_ADDRESS;
 
-	if (lastarg)
-		S3TxSetHW(Rx, Tx, lastarg);
+	if (GPIBCmdArgs[3])
+		S3TxSetHW(Rx, Tx, GPIBCmdArgs[3]);
 	else
 		return 1;
 
 	return 0;
 }
 
-int DbgTxFW(int os)
+// ----------------------------------------------------------------------------
+
+int DbgTxFW()
 {
 	char			all, Rx, Tx, IP;
-	const char		*lastarg;
-	int res = GetAddress(&all, &Rx, &Tx, &IP, &lastarg, GPIBCmdBuf + os);
+	int res = GetAddress2(&all, &Rx, &Tx, &IP);
 
 	if (res != 2)
 		return S3_GPIB_INVALID_ADDRESS;
 
-	if (lastarg)
-		S3TxSetFW(Rx, Tx, lastarg);
+	if (GPIBCmdArgs[3])
+		S3TxSetFW(Rx, Tx, GPIBCmdArgs[3]);
 	else
 		return 1;
 
 	return 0;
 }
 
-int DbgRxHW(int os)
+// ----------------------------------------------------------------------------
+
+int DbgRxHW()
 {
 	char			all, Rx, Tx, IP;
-	const char		*lastarg;
-	int res = GetAddress(&all, &Rx, &Tx, &IP, &lastarg, GPIBCmdBuf + os);
+	int res = GetAddress2(&all, &Rx, &Tx, &IP);
 
 	if (res != 1)
 		return S3_GPIB_INVALID_ADDRESS;
 
-	if (lastarg)
-		S3RxSetHW(Rx, lastarg);
+	if (GPIBCmdArgs[2])
+		S3RxSetHW(Rx, GPIBCmdArgs[2]);
 	else
 		return 1;
 
 	return 0;
 }
 
-int DbgRxFW(int os)
+// -------------------------------------------------------------------------
+
+int DbgRxFW()
 {
 	char			all, Rx, Tx, IP;
-	const char		*lastarg;
-	int res = GetAddress(&all, &Rx, &Tx, &IP, &lastarg, GPIBCmdBuf + os);
+	int res = GetAddress2(&all, &Rx, &Tx, &IP);
 
 	if (res != 1)
 		return S3_GPIB_INVALID_ADDRESS;
 
-	if (lastarg)
-		S3RxSetFW(Rx, lastarg);
+	if (GPIBCmdArgs[2])
+		S3RxSetFW(Rx, GPIBCmdArgs[2]);
 	else
 		return 1;
 
 	return 0;
 }
 
+// -------------------------------------------------------------------------
+
+int DbgLock()
+{
+	char	*eptr;
+	long l = strtol(GPIBCmdArgs[1], &eptr, 10);
+
+	if (l != 0 && l != 1)
+		return S3_GPIB_INVALID_PARAMETER;
+
+	bool locked = (l == 1);
+
+	S3SetLocked(locked);
+
+	return 0;
+}
 
 // -------------------------------------------------------------------------

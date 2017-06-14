@@ -33,13 +33,14 @@ int CmdCopyLog(char *Inbuf);
 int S3AgentProcessCmd()
 {
     int err;
+	char *Cmd = GPIBCmdArgs[0];
 
-    if (!STRNCMP(GPIBCmdBuf, "S3GETBATT", 9))      err = CmdGetBatt(GPIBRetBuf);
-    else if(!STRNCMP(GPIBCmdBuf, "S3GETINIT", 9))  err = CmdGetInit(GPIBRetBuf);
-    else if(!STRNCMP(GPIBCmdBuf, "S3GETCONN", 9))  err = CmdGetConn(GPIBRetBuf);
-    else if(!STRNCMP(GPIBCmdBuf, "S3GETSYSI", 9))  err = CmdGetSysI(GPIBRetBuf);
-    else if(!STRNCMP(GPIBCmdBuf, "S3COPYLOG", 9))  err = CmdCopyLog(GPIBRetBuf);
-    else if(!STRNCMP(GPIBCmdBuf, "S3GETRXMOD", 10))
+    if (!STRCMP(Cmd, "S3GETBATT"))      err = CmdGetBatt(GPIBRetBuf);
+    else if(!STRCMP(Cmd, "S3GETINIT"))  err = CmdGetInit(GPIBRetBuf);
+    else if(!STRCMP(Cmd, "S3GETCONN"))  err = CmdGetConn(GPIBRetBuf);
+    else if(!STRCMP(Cmd, "S3GETSYSI"))  err = CmdGetSysI(GPIBRetBuf);
+    else if(!STRCMP(Cmd, "S3COPYLOG"))  err = CmdCopyLog(GPIBRetBuf);
+    else if(!STRCMP(Cmd, "S3GETRXMOD"))
     {
         if (GPIBNArgs != 2)
         {
@@ -47,12 +48,12 @@ int S3AgentProcessCmd()
 		    return S3_GPIB_ERR_NUMBER_PARAS;
         }
 
-        char *cmd;
-        cmd = GPIBCmdArgs[1];
-        int Rx = (strtol(cmd, &cmd, 10)) - 1;
+        char *cmdRx;
+        cmdRx = GPIBCmdArgs[1];
+        int Rx = (strtol(cmdRx, &cmdRx, 10)) - 1;
         err = CmdGetRXMod(GPIBRetBuf, Rx);
     }
-    else if(!STRNCMP(GPIBCmdBuf, "S3GETTXMOD", 10))
+    else if(!STRCMP(Cmd, "S3GETTXMOD"))
     {
         if (GPIBNArgs != 3)
         {
@@ -66,7 +67,7 @@ int S3AgentProcessCmd()
         int Tx = (strtol(cmdTx, &cmdTx, 10)) - 1;
         err = CmdGetTXMod(GPIBRetBuf, Rx, Tx);
     }
-    else if(!STRNCMP(GPIBCmdBuf, "S3GETINPUT", 10))
+    else if(!STRCMP(Cmd, "S3GETINPUT"))
     {
         if (GPIBNArgs != 4)
         {
@@ -82,8 +83,8 @@ int S3AgentProcessCmd()
         int IP = (strtol(cmdIP, &cmdIP, 10)) - 1;
         err = CmdGetInput(GPIBRetBuf, Rx, Tx, IP);
     }
-    else if(!STRNCMP(GPIBCmdBuf, "S3GETALL", 8))  err = CmdGetAll();
-    else if(!STRNCMP(GPIBCmdBuf, "S3CLEARCURALARM", 15))
+    else if(!STRCMP(Cmd, "S3GETALL"))  err = CmdGetAll();
+    else if(!STRCMP(Cmd, "S3CLEARCURALARM"))
     {
         if((GPIBNArgs < 2) || (GPIBNArgs > 3))
         {
@@ -105,7 +106,7 @@ int S3AgentProcessCmd()
             S3TxCancelCurAlarm(Rx, Tx);
         }
     }
-    else if(!STRNCMP(GPIBCmdBuf, "S3CLROVERDRIVE", 14))
+    else if(!STRCMP(Cmd, "S3CLROVERDRIVE"))
     {
         if (GPIBNArgs != 4)
         {
@@ -123,7 +124,6 @@ int S3AgentProcessCmd()
         S3TxClearPeakHold(Rx, Tx, 0);
     }
     else	strcpy_s(GPIBRetBuf, S3_MAX_GPIB_RET_LEN, "E: Unrecognised command");
-
 
     if(!err)
     {

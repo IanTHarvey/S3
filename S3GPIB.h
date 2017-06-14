@@ -20,6 +20,7 @@ const char *GetErrString();
 
 // Copy cmd to GPIBCmdBuf and process
 int S3ProcessGPIBCommand(const char *cmd);
+int S3LookUpError(char *buf, int err);
 
 /*
 The follwoing functions reference these defined in S3GPIB.cpp:
@@ -130,17 +131,17 @@ int DbgTxInsert();
 int DbgTxRemove();
 
 int DbgTxBrownOut();
-int DbgRxRLL(int os);
+int DbgRxRLL();
 int DbgIPOverDrive();
 
-int DbgSysPN(int os);
-int DbgSysSN(int os);
-int DbgRxPN(int os);
-int DbgRxSN(int os);
-int DbgTxPN(int os);
-int DbgTxSN(int os);
-int DbgTxBattery(int os);
-int DbgCancelAlarms(int os);
+int DbgSysPN();
+int DbgSysSN();
+int DbgRxPN();
+int DbgRxSN();
+int DbgTxPN();
+int DbgTxSN();
+int DbgTxBattery();
+int DbgCancelAlarms();
 
 // ----------------------------------------------------------------------------
 // Draft S3Agent Specific commands

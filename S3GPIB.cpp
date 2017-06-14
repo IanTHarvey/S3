@@ -18,6 +18,7 @@
 #include <stdio.h>
 #include <ctype.h>
 #include <float.h>
+
 #include "S3DataModel.h"
 #include "S3GPIB.h"
 #include "S3I2C.h"
@@ -199,21 +200,7 @@ int S3ProcessGPIBCommand(const char *cmd)
 	if (!STRNCMP(GPIBCmdBuf, "DBG", 3))
 	{
 		err = DbgProcessCmd();
-
-		if (err == S3_GPIB_INVALID_ADDRESS)
-			strcpy_s(GPIBRetBuf, S3_MAX_GPIB_RET_LEN,
-							"S3ProcessGPIBCommand: Invalid address");
-		else if (err == S3_GPIB_INVALID_TX)
-			strcpy_s(GPIBRetBuf, S3_MAX_GPIB_RET_LEN,
-							"S3ProcessGPIBCommand: Invalid transmitter");
-		else if (err == S3_GPIB_CMD_UNRECOGNISED)
-			strcpy_s(GPIBRetBuf, S3_MAX_GPIB_RET_LEN,
-							"S3ProcessGPIBCommand: Unrecognized command");
-		else if (err)
-			strcpy_s(GPIBRetBuf, S3_MAX_GPIB_RET_LEN,
-							"TODO: S3ProcessGPIBCommand: Fix error message");
-		else
-			strcpy_s(GPIBRetBuf, S3_MAX_GPIB_RET_LEN, "OK:");
+		S3LookUpError(GPIBRetBuf, err);
 
 		return err;
 	}
@@ -369,82 +356,11 @@ int S3ProcessGPIBCommand(const char *cmd)
 		err = S3_GPIB_CMD_UNRECOGNISED;
 	}
 
-	// If nothing specific added to return buffer by individual ommand, add generic error
+	// If nothing specific added to return buffer by individual command,
+	// add generic error
 	if (strlen(GPIBRetBuf) == 0)
 	{
-		// TODO: switch(err)...
-		if (err == S3_GPIB_CMD_UNRECOGNISED)
-			strcpy_s(GPIBRetBuf, S3_MAX_GPIB_RET_LEN, "E: Unrecognised command");
-		else if (err == S3_GPIB_INVALID_PARAMETER)
-			strcpy_s(GPIBRetBuf, S3_MAX_GPIB_RET_LEN, "E: Invalid parameter");
-		else if (err == S3_GPIB_FILE_SAVE_FAIL)
-			strcpy_s(GPIBRetBuf, S3_MAX_GPIB_RET_LEN, "E: Failed to save configuration file");
-		else if (err == S3_GPIB_IP_SELECT_FAIL)
-			strcpy_s(GPIBRetBuf, S3_MAX_GPIB_RET_LEN, "E: Failed to select requested input");
-		else if (err == S3_GPIB_TOO_FEW_PARAS)
-			strcpy_s(GPIBRetBuf, S3_MAX_GPIB_RET_LEN, "E: Too few parameters");
-		else if (err == S3_GPIB_TOO_MANY_PARAS)
-			strcpy_s(GPIBRetBuf, S3_MAX_GPIB_RET_LEN, "E: Too many parameters");
-		else if (err == S3_GPIB_INVALID_RF_IP)
-			strcpy_s(GPIBRetBuf, S3_MAX_GPIB_RET_LEN, "E: Invalid RF input number");
-		else if (err == S3_GPIB_NO_RX_SEL)
-			strcpy_s(GPIBRetBuf, S3_MAX_GPIB_RET_LEN, "E: No receiver selected");
-		else if (err == S3_GPIB_NO_TX_SEL)
-			strcpy_s(GPIBRetBuf, S3_MAX_GPIB_RET_LEN, "E: No transmitter selected");
-		else if (err == S3_GPIB_MALFORMED_ADDRESS)
-			strcpy_s(GPIBRetBuf, S3_MAX_GPIB_RET_LEN, "E: Malformed address");
-		else if (err == S3_GPIB_INVALID_ADDRESS)
-			strcpy_s(GPIBRetBuf, S3_MAX_GPIB_RET_LEN, "E: Invalid address");
-		else if (err == S3_GPIB_OUT_RANGE_ADDRESS)
-			strcpy_s(GPIBRetBuf, S3_MAX_GPIB_RET_LEN, "E: Address out of range");
-		else if (err == S3_GPIB_INVALID_IP)
-			strcpy_s(GPIBRetBuf, S3_MAX_GPIB_RET_LEN, "E: RF input address not set");
-		else if (err == S3_GPIB_ERR_NUMBER_PARAS)
-			strcpy_s(GPIBRetBuf, S3_MAX_GPIB_RET_LEN, "E: Incorrect number of parameters");
-		else if (err == S3_GPIB_MISSING_PARAMETER)
-			strcpy_s(GPIBRetBuf, S3_MAX_GPIB_RET_LEN, "E: No parameters supplied");
-		else if (err == S3_GPIB_LOG_INIT_FAILED)
-			strcpy_s(GPIBRetBuf, S3_MAX_GPIB_RET_LEN, "E: Log file initialisation failed");
-		else if (err == S3_GPIB_INVALID_NUMBER)
-			strcpy_s(GPIBRetBuf, S3_MAX_GPIB_RET_LEN, "E: Invalid numeric parameter");
-		else if (err == S3_GPIB_INVALID_MODE)
-			strcpy_s(GPIBRetBuf, S3_MAX_GPIB_RET_LEN, "E: Invalid transmitter power mode");
-		else if (err == S3_GPIB_INVALID_TX)
-			strcpy_s(GPIBRetBuf, S3_MAX_GPIB_RET_LEN, "E: No current transmitter set");
-		else if (err == S3_GPIB_TX_NOT_EXIST)
-			strcpy_s(GPIBRetBuf, S3_MAX_GPIB_RET_LEN, "E: Specified transmitter not available");
-		else if (err == S3_GPIB_RX_NOT_EXIST)
-			strcpy_s(GPIBRetBuf, S3_MAX_GPIB_RET_LEN, "E: Specified receiver not available");
-		else if (err == S3_GPIB_IP_NOT_EXIST)
-			strcpy_s(GPIBRetBuf, S3_MAX_GPIB_RET_LEN, "E: Specified input not available");
-		else if (err == S3_GPIB_GAIN_LIMITED)
-			strcpy_s(GPIBRetBuf, S3_MAX_GPIB_RET_LEN, "W: Requested gain constrained by settings");
-		else if (err == S3_GPIB_TX_PROT_MODE)
-			strcpy_s(GPIBRetBuf, S3_MAX_GPIB_RET_LEN, "W: Tx in protection mode. Gain not changed");
-		else if (err == S3_GPIB_GAIN_CHANGED)
-			strcpy_s(GPIBRetBuf, S3_MAX_GPIB_RET_LEN, "W: Command required gain setting to be adjusted");
-		else if (err == S3_GPIB_TIME_CHANGE_FAILED)
-			strcpy_s(GPIBRetBuf, S3_MAX_GPIB_RET_LEN, "E: System time was not set");
-		else if (err == S3_GPIB_CALIBRATION_FAILED)
-			strcpy_s(GPIBRetBuf, S3_MAX_GPIB_RET_LEN, "E: Calibration failed");
-		else if (err == S3_GPIB_CH_NOT_EXIST)
-			strcpy_s(GPIBRetBuf, S3_MAX_GPIB_RET_LEN, "E: No battery on charger port");
-		else if (err == S3_GPIB_CH_VALIDATED)
-			strcpy_s(GPIBRetBuf, S3_MAX_GPIB_RET_LEN, "W: Battery already validated");
-		else if (err == S3_GPIB_CH_AUTH_FAILED)
-			strcpy_s(GPIBRetBuf, S3_MAX_GPIB_RET_LEN, "E: Battery validation failed");
-		else if (err == S3_GPIB_ID_WRITE_FAILED)
-			strcpy_s(GPIBRetBuf, S3_MAX_GPIB_RET_LEN, "E: Tx ID write failed");
-		else if (err == S3_GPIB_INVALID_SNPN)
-			strcpy_s(GPIBRetBuf, S3_MAX_GPIB_RET_LEN, "E: Invalid SN/PN");
-		else if (err == S3_GPIB_INVALID_TYPE)
-			strcpy_s(GPIBRetBuf, S3_MAX_GPIB_RET_LEN, "E: Invalid type");
-		else if (err == S3_GPIB_COMMAND_LOCKED)
-			strcpy_s(GPIBRetBuf, S3_MAX_GPIB_RET_LEN, "E: Factory-only command");
-		else if (err == S3_GPIB_BATTERY_SEALED)
-			strcpy_s(GPIBRetBuf, S3_MAX_GPIB_RET_LEN, "E: Battery sealed");	
-		else
-			strcpy_s(GPIBRetBuf, S3_MAX_GPIB_RET_LEN, "OK:");
+		S3LookUpError(GPIBRetBuf, err);
 	}
 	else if (err == 2)
 	{
@@ -457,6 +373,95 @@ int S3ProcessGPIBCommand(const char *cmd)
 	return err;
 }
 
+// ----------------------------------------------------------------------------
+
+int S3LookUpError(char *buf, int err)
+{
+	// TODO: switch(err)...
+	if (err == 0)
+	{
+		strcpy_s(buf, S3_MAX_GPIB_RET_LEN, "OK:");
+		return 0;
+	}
+
+	if (err == S3_GPIB_CMD_UNRECOGNISED)
+		strcpy_s(buf, S3_MAX_GPIB_RET_LEN, "E: Unrecognised command");
+	else if (err == S3_GPIB_INVALID_PARAMETER)
+		strcpy_s(buf, S3_MAX_GPIB_RET_LEN, "E: Invalid parameter");
+	else if (err == S3_GPIB_FILE_SAVE_FAIL)
+		strcpy_s(buf, S3_MAX_GPIB_RET_LEN, "E: Failed to save configuration file");
+	else if (err == S3_GPIB_IP_SELECT_FAIL)
+		strcpy_s(buf, S3_MAX_GPIB_RET_LEN, "E: Failed to select requested input");
+	else if (err == S3_GPIB_TOO_FEW_PARAS)
+		strcpy_s(buf, S3_MAX_GPIB_RET_LEN, "E: Too few parameters");
+	else if (err == S3_GPIB_TOO_MANY_PARAS)
+		strcpy_s(buf, S3_MAX_GPIB_RET_LEN, "E: Too many parameters");
+	else if (err == S3_GPIB_INVALID_RF_IP)
+		strcpy_s(buf, S3_MAX_GPIB_RET_LEN, "E: Invalid RF input number");
+	else if (err == S3_GPIB_NO_RX_SEL)
+		strcpy_s(buf, S3_MAX_GPIB_RET_LEN, "E: No receiver selected");
+	else if (err == S3_GPIB_NO_TX_SEL)
+		strcpy_s(buf, S3_MAX_GPIB_RET_LEN, "E: No transmitter selected");
+	else if (err == S3_GPIB_MALFORMED_ADDRESS)
+		strcpy_s(buf, S3_MAX_GPIB_RET_LEN, "E: Malformed address");
+	else if (err == S3_GPIB_INVALID_ADDRESS)
+		strcpy_s(buf, S3_MAX_GPIB_RET_LEN, "E: Invalid address");
+	else if (err == S3_GPIB_OUT_RANGE_ADDRESS)
+		strcpy_s(buf, S3_MAX_GPIB_RET_LEN, "E: Address out of range");
+	else if (err == S3_GPIB_INVALID_IP)
+		strcpy_s(buf, S3_MAX_GPIB_RET_LEN, "E: RF input address not set");
+	else if (err == S3_GPIB_ERR_NUMBER_PARAS)
+		strcpy_s(buf, S3_MAX_GPIB_RET_LEN, "E: Incorrect number of parameters");
+	else if (err == S3_GPIB_MISSING_PARAMETER)
+		strcpy_s(buf, S3_MAX_GPIB_RET_LEN, "E: No parameters supplied");
+	else if (err == S3_GPIB_LOG_INIT_FAILED)
+		strcpy_s(buf, S3_MAX_GPIB_RET_LEN, "E: Log file initialisation failed");
+	else if (err == S3_GPIB_INVALID_NUMBER)
+		strcpy_s(buf, S3_MAX_GPIB_RET_LEN, "E: Invalid numeric parameter");
+	else if (err == S3_GPIB_INVALID_MODE)
+		strcpy_s(buf, S3_MAX_GPIB_RET_LEN, "E: Invalid transmitter power mode");
+	else if (err == S3_GPIB_INVALID_TX)
+		strcpy_s(buf, S3_MAX_GPIB_RET_LEN, "E: No current transmitter set");
+	else if (err == S3_GPIB_TX_NOT_EXIST)
+		strcpy_s(buf, S3_MAX_GPIB_RET_LEN, "E: Specified transmitter not available");
+	else if (err == S3_GPIB_RX_NOT_EXIST)
+		strcpy_s(buf, S3_MAX_GPIB_RET_LEN, "E: Specified receiver not available");
+	else if (err == S3_GPIB_IP_NOT_EXIST)
+		strcpy_s(buf, S3_MAX_GPIB_RET_LEN, "E: Specified input not available");
+	else if (err == S3_GPIB_GAIN_LIMITED)
+		strcpy_s(buf, S3_MAX_GPIB_RET_LEN, "W: Requested gain constrained by settings");
+	else if (err == S3_GPIB_TX_PROT_MODE)
+		strcpy_s(buf, S3_MAX_GPIB_RET_LEN, "W: Tx in protection mode. Gain not changed");
+	else if (err == S3_GPIB_GAIN_CHANGED)
+		strcpy_s(buf, S3_MAX_GPIB_RET_LEN, "W: Command required gain setting to be adjusted");
+	else if (err == S3_GPIB_TIME_CHANGE_FAILED)
+		strcpy_s(buf, S3_MAX_GPIB_RET_LEN, "E: System time was not set");
+	else if (err == S3_GPIB_CALIBRATION_FAILED)
+		strcpy_s(buf, S3_MAX_GPIB_RET_LEN, "E: Calibration failed");
+	else if (err == S3_GPIB_CH_NOT_EXIST)
+		strcpy_s(buf, S3_MAX_GPIB_RET_LEN, "E: No battery on charger port");
+	else if (err == S3_GPIB_CH_VALIDATED)
+		strcpy_s(buf, S3_MAX_GPIB_RET_LEN, "W: Battery already validated");
+	else if (err == S3_GPIB_CH_AUTH_FAILED)
+		strcpy_s(buf, S3_MAX_GPIB_RET_LEN, "E: Battery validation failed");
+	else if (err == S3_GPIB_ID_WRITE_FAILED)
+		strcpy_s(buf, S3_MAX_GPIB_RET_LEN, "E: Tx ID write failed");
+	else if (err == S3_GPIB_INVALID_SNPN)
+		strcpy_s(buf, S3_MAX_GPIB_RET_LEN, "E: Invalid SN/PN");
+	else if (err == S3_GPIB_INVALID_TYPE)
+		strcpy_s(buf, S3_MAX_GPIB_RET_LEN, "E: Invalid type");
+	else if (err == S3_GPIB_COMMAND_LOCKED)
+		strcpy_s(buf, S3_MAX_GPIB_RET_LEN, "E: Factory-only command");
+	else if (err == S3_GPIB_BATTERY_SEALED)
+		strcpy_s(buf, S3_MAX_GPIB_RET_LEN, "E: Battery sealed");	
+	else
+	{
+		strcpy_s(buf, S3_MAX_GPIB_RET_LEN, "E: Unknown error");
+		return 1; // May want to handle
+	}
+
+	return 0;
+}
 
 // ----------------------------------------------------------------------------
 
