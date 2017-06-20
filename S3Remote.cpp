@@ -193,10 +193,11 @@ int CS3ControllerDlg::InitSocket(void)
 		return 1;
 	}
 
-	freeaddrinfo(result);
-
 	// Set up the TCP listening socket
 	iResult = bind(m_ListenSocket, result->ai_addr, (int)result->ai_addrlen);
+
+	freeaddrinfo(result);
+
 	if (iResult == SOCKET_ERROR)
 	{
 		debug_print("InitSocket: bind failed: %S\n", S3GetWSAErrString());
@@ -280,7 +281,7 @@ UINT ListenThreadProc(LPVOID pParam)
 
 	debug_print("0x%x: Started listening on socket...\n", (int)pObject->m_IPThread);
 
-	while (pObject->m_IPThreadRun)
+	while (pObject->m_IPThreadRun && S3Data)
 	{	
 		// Wait for a client socket request
 		SOCKET ClientSocket = accept(pObject->m_ListenSocket, &sockaddr_ipv4, &sockaddr_ipv4_len);
@@ -309,6 +310,11 @@ UINT ListenThreadProc(LPVOID pParam)
 			{
 				// Wait for data...
 				iResult = recv(ClientSocket, RxBuf, S3_MAX_GPIB_CMD_LEN, 0);
+				
+				// We may have closed in the meantime...
+				if (!S3Data)
+					return 0;
+				
 				if (iResult > 0)
 				{
 					S3Data->m_FactoryMode = true;
@@ -346,7 +352,7 @@ UINT ListenThreadProc(LPVOID pParam)
 					err = 3;
 					break;
 				}
-			} while (iResult > 0);
+			} while (iResult > 0 && S3Data);
 
 			if (err)
 				break;
