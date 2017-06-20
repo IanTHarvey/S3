@@ -845,8 +845,6 @@ int S3SetImpedance(char Rx, char Tx, char IP, InputZ z)
 #else
 	int GainChanged = 0;
 
-	if (S3IPGetAlarms(Rx, Tx, IP) & S3_IP_OVERDRIVE)
-	 	return 2;
 
 	if (Rx == -1)
 	{		
@@ -865,6 +863,9 @@ int S3SetImpedance(char Rx, char Tx, char IP, InputZ z)
 	}
 	else
 	{
+		if (S3IPGetAlarms(Rx, Tx, IP) & S3_IP_OVERDRIVE)
+		 	return 2;
+
 		GainChanged = S3IPSetImpedance(Rx, Tx, IP, z);
 	}
 
