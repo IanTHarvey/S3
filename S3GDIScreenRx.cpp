@@ -637,23 +637,16 @@ int CS3GDIScreenMain::S3FindRxScreen(POINT p)
 
 		if (p.x < m_RectRxTable.left)
 		{
+			S3SetSelected(Rx, -1, -1);
+
 			if (m_RectRxNodeName.PtInRect(p))
 			{
-				S3SetSelectedPara(Rx, Tx, IP, S3_RXRX_NODENAME);
+				
+				S3SetSelectedPara(Rx, -1, -1, S3_RXRX_NODENAME);
 				S3DrawGDIParaPopUp(p.x, p.y);
 
 				return 1;
 			}
-
-			// Moved to global setting
-			//if (m_RxAGC->FindSelect(p))
-			//{
-			//	S3SetSelected(Rx, -1, -1);
-			//	S3SetSelectedPara(Rx, -1, -1, S3_RXRX_AGC);
-			//	S3DrawGDIParaPopUp(p.x, p.y);
-			//
-			//	return 1;
-			//}
 
 			return 0;
 		}
@@ -693,6 +686,8 @@ int CS3GDIScreenMain::S3FindRxScreen(POINT p)
 			}
 		}
 	}
+
+	S3SetSelected(Rx, -1, -1);
 
 	return 0;
 }
