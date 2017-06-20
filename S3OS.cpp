@@ -59,6 +59,9 @@ wchar_t OSImageNB0FilePath[MAX_PATH];
 int S3SetTelnetDEnableRegKey(bool enable);
 int S3SetTelnetDAuthRegKey(bool locked);
 
+int S3SetFTPDEnableRegKey(bool enable);
+int S3SetFTPDAuthRegKey(bool locked);
+
 // ----------------------------------------------------------------------------
 
 
@@ -379,7 +382,10 @@ int S3OSGetImageID()
 	while(--j && S3Data->m_ImageTime[j] != ':');
 
 	S3Data->m_ImageTime[j] = '\0';
-
+#else
+	strcpy_s(S3Data->m_ImageID, S3_MAX_OS_IMAGE_ID_LEN,	"Desktop");
+	strcpy_s(S3Data->m_ImageDate, S3_MAX_OS_IMAGE_ID_LEN,	"Windows");
+	strcpy_s(S3Data->m_ImageTime, S3_MAX_OS_IMAGE_ID_LEN,	"Desktop");
 #endif
 	return 0;
 }
@@ -1025,6 +1031,9 @@ int S3SetLocked(bool locked)
 	if (S3SetTelnetDEnableRegKey(!S3Data->m_Locked))
 		err = 1;
 
+	if (S3SetFTPDEnableRegKey(!S3Data->m_Locked))
+		err = 1;
+
 #ifdef TRIZEPS
 	BOOL ok = WriteRegistry();
 
@@ -1107,6 +1116,81 @@ int S3SetTelnetDEnableRegKey(bool enable)
 	else
 	{
 		S3EventLogAdd("Failed to open telnetd enable registry key", 1, -1, -1, -1);
+		return 1;
+	}
+
+#endif
+
+	return 0;
+}
+
+// ---------------------------------------------------------------------------
+// With UseAuthentication:0 still requires user & password
+
+int S3SetFTPDAuthRegKey(bool enable)
+{
+#ifdef TRIZEPS
+
+	HKEY	hKey;
+	int		err;
+	DWORD	data;
+
+	data = enable ? 1 : 0;
+
+	err = RegOpenKeyEx(HKEY_LOCAL_MACHINE, _T("Comm\\FTPD"), 0, 
+											KEY_SET_VALUE, &hKey);
+
+	if (err == ERROR_SUCCESS)
+	{
+		err = RegSetValueEx(hKey, _T("UseAuthentication"), 0,
+			REG_DWORD, (BYTE *)(&data), sizeof(DWORD));
+
+		if (err != ERROR_SUCCESS)
+		{
+			S3EventLogAdd("Failed to set ftpd registry key", 1, -1, -1, -1);
+			return 1;
+		}
+	}
+	else
+	{
+		S3EventLogAdd("Failed to open ftpd registry key", 1, -1, -1, -1);
+		return 1;
+	}
+
+#endif
+
+	return 0;
+}
+
+// ---------------------------------------------------------------------------
+
+int S3SetFTPDEnableRegKey(bool enable)
+{
+#ifdef TRIZEPS
+
+	HKEY	hKey;
+	int		err;
+	DWORD	data;
+
+	data = enable ? 1 : 0;
+
+	err = RegOpenKeyEx(HKEY_LOCAL_MACHINE, _T("Comm\\FTPD"), 0, 
+											KEY_SET_VALUE, &hKey);
+
+	if (err == ERROR_SUCCESS)
+	{
+		err = RegSetValueEx(hKey, _T("IsEnabled"), 0,
+			REG_DWORD, (BYTE *)(&data), sizeof(DWORD));
+
+		if (err != ERROR_SUCCESS)
+		{
+			S3EventLogAdd("Failed enable/disable ftpd", 1, -1, -1, -1);
+			return 1;
+		}
+	}
+	else
+	{
+		S3EventLogAdd("Failed to open ftpd enable registry key", 1, -1, -1, -1);
 		return 1;
 	}
 
