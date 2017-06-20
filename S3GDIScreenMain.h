@@ -335,8 +335,8 @@ private:
 	void		ResetCoords(); // TODO: Not used
 	void		S3CloseGDIMainScreen();
 
-
-// ----------------------------------------------------------------------------
+	char		FindSelectable(POINT p);
+	int			AddSelectable(CS3NameValue *item);
 
 public:
 	CS3GDIScreenMain();
@@ -671,7 +671,12 @@ protected:
 
 	CS3NameValue	*m_SettingsContTComp;
 	CS3NameValue	*m_SettingsRxAGC;
+
 	CS3NameValue	*m_SettingsUnits;
+	CS3NameValue	*m_SettingsScale;
+	CS3NameValue	*m_SettingsSize;	// Signal type
+	CS3NameValue	*m_Settings3PCLinearity;
+
 	CS3NameValue	*m_SettingsTxStart;
 	CS3NameValue	*m_SettingsTxSelfTest;
 

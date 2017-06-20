@@ -321,6 +321,9 @@ int S3ProcessGPIBCommand(const char *cmd)
         else if (!STRCMP(Cmd,   "SHUTDOWN"))    err = CmdSHUTDOWN();
         else if (!STRCMP(Cmd,   "SLEEPALL"))    err = CmdSLEEPALL();
         else if (!STRCMP(Cmd,   "SWUPDATE"))    err = CmdSWUPDATE();
+		else if (!STRCMP(Cmd,   "SCALE"))	    err = CmdSCALE();
+		else if (!STRCMP(Cmd,   "SIGTYPE"))	    err = CmdSIGTYPE();
+		else if (!STRCMP(Cmd,   "SHOW3PC"))	    err = CmdSHOW3PC();
 		else
 			err = S3_GPIB_CMD_UNRECOGNISED;
 	}

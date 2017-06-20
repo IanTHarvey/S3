@@ -337,6 +337,24 @@ void DecodeDefaultsDetails(CString Response)
                 S3Data->m_DisplayUnits = units;
             }
             break;
+		case SCALE:
+            {
+                unsigned char scale = _ttoi(Line);
+                S3Data->m_DisplayScale = scale;
+            }
+            break;
+		case SIZE:
+            {
+                unsigned char size = _ttoi(Line);
+                S3Data->m_SigSize = size;
+            }
+            break;
+		case THREE_PC_LINEAR:
+            {
+                unsigned char on = _ttoi(Line);
+                S3Data->m_3PCLinearity = (on == 1);
+            }
+            break;
         case MAXIP:
             {
                 double maxIP = _ttoi(Line);

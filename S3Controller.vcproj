@@ -939,6 +939,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\S3TableModeA.h"
+				>
+			</File>
+			<File
+				RelativePath=".\S3TableModeB.h"
+				>
+			</File>
+			<File
 				RelativePath=".\S3USBVCP.h"
 				>
 			</File>

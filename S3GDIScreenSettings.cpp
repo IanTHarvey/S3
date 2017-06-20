@@ -16,7 +16,7 @@
 
 #include "S3GDIInfoPopup.h"
 
-#define S3_MAX_SELECTABLES	18
+#define S3_MAX_SELECTABLES	24
 
 CRect	Selectable[S3_MAX_SELECTABLES];
 char	NSelect;
@@ -26,19 +26,33 @@ CRect	m_RectSettingsScreen,
 			m_RectSettingsRemote,
 				m_RectRemoteHeader, m_RectEthernet, m_RectUSB,
 			m_RectSysParas,
-				m_RectParasHeader, m_RectSettingsSysWide, m_RectSettingsDefaults,
+				m_RectParasHeader, m_RectSettingsSysWide, m_RectSettingsLinkPara, m_RectSettingsDefaults,
 			m_RectSettingsSystem,
 				m_RectSystemHeader, m_RectSystemDateTime, m_RectIdent, m_RectSettingsInfo;
 
 // ----------------------------------------------------------------------------
 
-char FindSelectable(POINT p)
+char CS3GDIScreenMain::FindSelectable(POINT p)
 {
 	for(char i = 0; i < NSelect; i++)
 		if (Selectable[i].PtInRect(p))
 			return i;
 
 	return -1;
+}
+
+// ----------------------------------------------------------------------------
+
+int CS3GDIScreenMain::AddSelectable(CS3NameValue *item)
+{
+	ASSERT(NSelect <= S3_MAX_SELECTABLES);
+
+	if (NSelect >= S3_MAX_SELECTABLES)
+		return 1;
+
+	Selectable[NSelect++] = item->RectEdit(m_HDC, m_hFontSB);;
+
+	return 0;
 }
 
 // ----------------------------------------------------------------------------
@@ -133,7 +147,8 @@ void CS3GDIScreenMain::S3InitSettingsScreen(void)
 	m_RectSysParas.left = m_RectSettingsRemote.right;
 	m_RectSysParas.right = m_RectSysParas.left + WCol;
 
-	m_RectParasHeader = m_RectSettingsSysWide = m_RectSettingsDefaults = m_RectSysParas;
+	m_RectParasHeader = m_RectSettingsSysWide = m_RectSettingsLinkPara =
+		m_RectSettingsDefaults = m_RectSysParas;
 	m_RectParasHeader.bottom = m_RectParasHeader.top + HEAD_ROW;
 
 	m_RectSettingsSysWide.top = m_RectParasHeader.bottom;
@@ -142,59 +157,80 @@ void CS3GDIScreenMain::S3InitSettingsScreen(void)
 	unsigned char RowCnt = 0;
 
 	m_SettingsContTComp = new CS3NameValue(	m_RectSettingsSysWide.left, 
-								m_RectSettingsSysWide.top + SUBHEAD_ROW + RowCnt++ * PARA_ROW, WCol,
-								_T("\u03F4 Compensation"), _T("Gain Change"), true);
+					m_RectSettingsSysWide.top + SUBHEAD_ROW + RowCnt++ * PARA_ROW, WCol,
+					_T("\u03F4 Compensation"), _T("Gain Change"), true);
 
 	m_SettingsRxAGC = new CS3NameValue(	m_RectSettingsSysWide.left, 
-								m_RectSettingsSysWide.top + SUBHEAD_ROW + RowCnt++ * PARA_ROW, WCol,
-								_T("Receiver AGC"), _T("Gain Change"), true);
+					m_RectSettingsSysWide.top + SUBHEAD_ROW + RowCnt++ * PARA_ROW, WCol,
+					_T("Receiver AGC"), _T("Gain Change"), true);
 
-	m_SettingsUnits = new CS3NameValue(	m_RectSettingsDefaults.left, 
-								m_RectSettingsSysWide.top + SUBHEAD_ROW + RowCnt++ * PARA_ROW, WCol,
-								_T("Power units"), _T("ddddBuV"), true);
+	m_SettingsSize = new CS3NameValue(	m_RectSettingsDefaults.left, 
+					m_RectSettingsSysWide.top + SUBHEAD_ROW + RowCnt++ * PARA_ROW, WCol,
+					_T("Signal magnitude"), _T("Small"), true);
 
 	m_SettingsTxStart = new CS3NameValue(	m_RectSettingsDefaults.left, 
-								m_RectSettingsSysWide.top + SUBHEAD_ROW + RowCnt++ * PARA_ROW, WCol,
-								_T("Tx start state"), _T("Sleep"), true);
+					m_RectSettingsSysWide.top + SUBHEAD_ROW + RowCnt++ * PARA_ROW, WCol,
+					_T("Tx start state"), _T("Sleep"), true);
 
 	m_SettingsTxSelfTest = new CS3NameValue(	m_RectSettingsDefaults.left, 
-								m_RectSettingsSysWide.top + SUBHEAD_ROW + RowCnt++ * PARA_ROW, WCol,
-								_T("Tx self test"), _T("Off"), true);
+					m_RectSettingsSysWide.top + SUBHEAD_ROW + RowCnt++ * PARA_ROW, WCol,
+					_T("Tx self test"), _T("Off"), true);
 
 	m_RectSettingsSysWide.bottom = m_RectSettingsSysWide.top +
 		SUBHEAD_ROW + RowCnt * PARA_ROW + BMARGIN;
 	
+	// --------- Link display parameters ---------
+
+	m_RectSettingsLinkPara.top = m_RectSettingsSysWide.bottom;
+
+	RowCnt = 0;
+
+	m_SettingsScale = new CS3NameValue(	m_RectSettingsDefaults.left, 
+						m_RectSettingsLinkPara.top + SUBHEAD_ROW + RowCnt++ * PARA_ROW, WCol,
+						_T("Scale"), _T("Log"), true);
+
+	m_SettingsUnits = new CS3NameValue(	m_RectSettingsDefaults.left, 
+						m_RectSettingsLinkPara.top + SUBHEAD_ROW + RowCnt++ * PARA_ROW, WCol,
+						_T("Units"), _T("Watts"), true);
+
+	m_Settings3PCLinearity = new CS3NameValue(	m_RectSettingsDefaults.left, 
+						m_RectSettingsLinkPara.top + SUBHEAD_ROW + RowCnt++ * PARA_ROW, WCol,
+						_T("3% Linearity"), _T("Off"), true);
+
+	m_RectSettingsLinkPara.bottom = m_RectSettingsLinkPara.top +
+		SUBHEAD_ROW + RowCnt * PARA_ROW + BMARGIN;
+
 	// --------- Defaults ---------
 	
 	m_RectSettingsDefaults = m_RectSettingsScreen;
-	m_RectSettingsDefaults.top = m_RectSettingsSysWide.bottom;
+	m_RectSettingsDefaults.top = m_RectSettingsLinkPara.bottom;
 	m_RectSettingsDefaults.left = m_RectSettingsRemote.right;
 	m_RectSettingsDefaults.right = m_RectSettingsDefaults.left + WCol;
 
 	RowCnt = 0;
 
 	m_SettingsGain = new CS3NameValue(	m_RectSettingsDefaults.left, 
-								m_RectSettingsDefaults.top + SUBHEAD_ROW + RowCnt++ * PARA_ROW, WCol,
-								_T("Gain (dB)"), _T("-55.55"), true);
+						m_RectSettingsDefaults.top + SUBHEAD_ROW + RowCnt++ * PARA_ROW, WCol,
+						_T("Gain (dB)"), _T("-55.55"), true);
 
 	// Leave stub for now to maintain indexing
 	m_SettingsSigTau = new CS3NameValue(0, 0, 0,
 								_T(""), _T(""), false);
 	/*
 	m_SettingsSigTau = new CS3NameValue(m_RectSettingsDefaults.left, 
-								m_RectSettingsDefaults.top + SUBHEAD_ROW + RowCnt++ * PARA_ROW, WCol,
-								_T("\u222B\u03a4 (\u03bcS)"), _T("0.000"), true);
+						m_RectSettingsDefaults.top + SUBHEAD_ROW + RowCnt++ * PARA_ROW, WCol,
+						_T("\u222B\u03a4 (\u03bcS)"), _T("0.000"), true);
 
 	*/
 
 	m_SettingsImp = new CS3NameValue(	m_RectSettingsDefaults.left, 
-								m_RectSettingsDefaults.top + SUBHEAD_ROW + RowCnt++ * PARA_ROW, WCol,
-								_T("Input Z (\u03a9)"), _T("1MMMMM"), true);
+						m_RectSettingsDefaults.top + SUBHEAD_ROW + RowCnt++ * PARA_ROW, WCol,
+						_T("Input Z (\u03a9)"), _T("1MMMMM"), true);
 
-// TODO: Make optional
+	// TODO: Make optional
 	m_SettingsLowNoise = new CS3NameValue(	m_RectSettingsDefaults.left, 
-								m_RectSettingsDefaults.top + SUBHEAD_ROW + RowCnt++ * PARA_ROW, WCol,
-								_T("Low noise mode"), _T("OFFFFF"), true);
+						m_RectSettingsDefaults.top + SUBHEAD_ROW + RowCnt++ * PARA_ROW, WCol,
+						_T("Low noise mode"), _T("OFFFFF"), true);
 
 
 	// ------- System -------
@@ -279,26 +315,24 @@ void CS3GDIScreenMain::S3InitSettingsScreen(void)
 	
 	// Set-up selectable regions for pop-ups and text edits
 	// NSelect number is returned by FindSelectable called in S3FindSettingsScreen
-	// Check < S3_MAX_SELECTABLES
-	Selectable[NSelect++] = m_SettingsPort->RectEdit(m_HDC, m_hFontSB);
-	Selectable[NSelect++] = m_SettingsUSBPort->RectEdit(m_HDC, m_hFontSB);
-	Selectable[NSelect++] = m_SettingsUnits->RectEdit(m_HDC, m_hFontSB);
-	Selectable[NSelect++] = m_SettingsGain->RectEdit(m_HDC, m_hFontSB);
-	// TODO: Need to keep in place to maintain indexing
-	Selectable[NSelect++] = m_SettingsSigTau->RectEdit(m_HDC, m_hFontSB);
-	Selectable[NSelect++] = m_SettingsImp->RectEdit(m_HDC, m_hFontSB);
-	// TODO: Need to keep in place to maintain indexing
-	Selectable[NSelect++] = m_SettingsLowNoise->RectEdit(m_HDC, m_hFontSB);
-	Selectable[NSelect++] = m_SettingsSW->RectEdit(m_HDC, m_hFontSB);
-	Selectable[NSelect++] = m_SettingsContTComp->RectEdit(m_HDC, m_hFontSB);
-	Selectable[NSelect++] = m_SettingsLog->RectEdit(m_HDC, m_hFontSB);
-	Selectable[NSelect++] = m_SettingsDate->RectEdit(m_HDC, m_hFontSB);
-	Selectable[NSelect++] = m_SettingsTime->RectEdit(m_HDC, m_hFontSB);
-	Selectable[NSelect++] = m_SettingsAccess->RectEdit(m_HDC, m_hFontSB);
-	Selectable[NSelect++] = m_SettingsTxStart->RectEdit(m_HDC, m_hFontSB);
-	Selectable[NSelect++] = m_SettingsRxAGC->RectEdit(m_HDC, m_hFontSB);
-	Selectable[NSelect++] = m_SettingsImageDate->RectEdit(m_HDC, m_hFontSB);
-	Selectable[NSelect++] = m_SettingsTxSelfTest->RectEdit(m_HDC, m_hFontSB);
+	AddSelectable(m_SettingsPort);
+	AddSelectable(m_SettingsUSBPort);
+	AddSelectable(m_SettingsUnits);
+	AddSelectable(m_SettingsGain);
+	AddSelectable(m_Settings3PCLinearity);
+	AddSelectable(m_SettingsImp);
+	AddSelectable(m_SettingsSize);
+	AddSelectable(m_SettingsSW);
+	AddSelectable(m_SettingsContTComp);
+	AddSelectable(m_SettingsLog);
+	AddSelectable(m_SettingsDate);
+	AddSelectable(m_SettingsTime);
+	AddSelectable(m_SettingsAccess);
+	AddSelectable(m_SettingsTxStart);
+	AddSelectable(m_SettingsRxAGC);
+	AddSelectable(m_SettingsImageDate);
+	AddSelectable(m_SettingsTxSelfTest);
+	AddSelectable(m_SettingsScale);
 
 	// Attach an S3NumEdit editors to the settings
 	m_SettingsPort->AttachEditor(m_HDC, m_GDIIPPortEdit);
@@ -329,7 +363,12 @@ void CS3GDIScreenMain::S3CloseSettingsScreen(void)
 
 	delete m_SettingsContTComp;
 	delete m_SettingsRxAGC;
+
 	delete m_SettingsUnits;
+	delete m_SettingsScale;
+	delete m_SettingsSize;
+	delete m_Settings3PCLinearity;
+
 	delete m_SettingsGain;
 	delete m_SettingsSigTau;
 	delete m_SettingsImp;
@@ -403,8 +442,7 @@ void CS3GDIScreenMain::S3DrawGDISettingsRemote(void)
 	SelectObject(m_HDC, m_hFontM);
 	SelectObject(m_HDC, m_hBrushBG4);
 	
-	Rectangle(m_HDC, fntRc.left, fntRc.top,
-		fntRc.right, fntRc.bottom);
+	S3_RECT(m_HDC, fntRc);
 
 	fntRc.left += LHMARGIN;
 	DrawText(m_HDC, _T("Ethernet"), -1, &fntRc, DT_LEFT);
@@ -412,8 +450,7 @@ void CS3GDIScreenMain::S3DrawGDISettingsRemote(void)
 	fntRc = m_RectUSB;
 	fntRc.bottom = fntRc.top + SUBHEAD_ROW;
 
-	Rectangle(m_HDC, fntRc.left, fntRc.top,
-		fntRc.right, fntRc.bottom);
+	S3_RECT(m_HDC, fntRc);
 	
 	fntRc.left += LHMARGIN;
 	DrawText(m_HDC, _T("USB Serial"), -1, &fntRc, DT_LEFT);
@@ -493,21 +530,12 @@ void CS3GDIScreenMain::S3DrawGDISettingsDefaults(void)
 	SelectObject(m_HDC, m_hFontM);
 	SelectObject(m_HDC, m_hBrushBG4);
 	
-	Rectangle(m_HDC, fntRc.left, fntRc.top,
-		fntRc.right, fntRc.bottom);
+	S3_RECT(m_HDC, fntRc);
 
 	fntRc.left += LHMARGIN;
 	DrawText(m_HDC, _T("System"), -1, &fntRc, DT_LEFT);
 
-	fntRc = m_RectSettingsDefaults;
-	fntRc.bottom = fntRc.top + SUBHEAD_ROW;
-
-	Rectangle(m_HDC, fntRc.left, fntRc.top,
-		fntRc.right, fntRc.bottom);
-
 	unsigned mode = S3GetTCompMode();
-
-	// mode = (mode < 100) ? mode : mode - 100;
 
 	if (S3GetTCompGainOption())
 	{
@@ -543,9 +571,6 @@ void CS3GDIScreenMain::S3DrawGDISettingsDefaults(void)
 	m_SettingsRxAGC->SetEditable(!S3GetRemote());
 	m_SettingsRxAGC->Draw(m_HDC, m_hFontS, m_hFontSB);
 
-	m_SettingsUnits->SetValue(S3GetUnitString());
-	m_SettingsUnits->Draw(m_HDC, m_hFontS, m_hFontSB);
-
 	switch (S3GetTxStartState())
 	{
 		case S3_TXSTART_USER:	m_SettingsTxStart->SetValue(_T("User")); break;
@@ -562,6 +587,34 @@ void CS3GDIScreenMain::S3DrawGDISettingsDefaults(void)
 		m_SettingsTxSelfTest->SetValue(_T("Off"));
 
 	m_SettingsTxSelfTest->Draw(m_HDC, m_hFontS, m_hFontSB);
+
+	fntRc = m_RectSettingsLinkPara;
+	fntRc.bottom = fntRc.top + SUBHEAD_ROW;
+
+	S3_RECT(m_HDC, fntRc);
+
+	fntRc.left += LHMARGIN;
+	DrawText(m_HDC, _T("Link Display Parameters"), -1, &fntRc, DT_LEFT);
+
+	m_SettingsUnits->SetValue(S3GetUnitString());
+	m_SettingsUnits->Draw(m_HDC, m_hFontS, m_hFontSB);
+
+	m_SettingsScale->SetValue(S3GetScaleString());
+	m_SettingsScale->Draw(m_HDC, m_hFontS, m_hFontSB);
+
+	m_SettingsSize->SetValue(S3GetSigSizeString());
+	m_SettingsSize->Draw(m_HDC, m_hFontS, m_hFontSB);
+
+	if (S3Get3PCLinearity())
+		m_Settings3PCLinearity->SetValue(_T("On"));
+	else
+		m_Settings3PCLinearity->SetValue(_T("Off"));
+	m_Settings3PCLinearity->Draw(m_HDC, m_hFontS, m_hFontSB);
+	
+	fntRc = m_RectSettingsDefaults;
+	fntRc.bottom = fntRc.top + SUBHEAD_ROW;
+
+	S3_RECT(m_HDC, fntRc);
 
 	fntRc.left += LHMARGIN;
 	DrawText(m_HDC, _T("Defaults"), -1, &fntRc, DT_LEFT);
@@ -610,8 +663,7 @@ void CS3GDIScreenMain::S3DrawGDISettingsSystem(void)
 	SelectObject(m_HDC, m_hFontM);
 	SelectObject(m_HDC, m_hBrushBG4);
 	
-	Rectangle(m_HDC, fntRc.left, fntRc.top,
-		fntRc.right, fntRc.bottom);
+	S3_RECT(m_HDC, fntRc);
 
 	fntRc.left += LHMARGIN;
 	DrawText(m_HDC, _T("Identification"), -1, &fntRc, DT_LEFT);
@@ -619,8 +671,7 @@ void CS3GDIScreenMain::S3DrawGDISettingsSystem(void)
 	fntRc = m_RectSettingsInfo;
 	fntRc.bottom = fntRc.top + SUBHEAD_ROW;
 
-	Rectangle(m_HDC, fntRc.left, fntRc.top,
-		fntRc.right, fntRc.bottom);
+	S3_RECT(m_HDC, fntRc);
 
 #ifndef S3_AGENT
 	m_Parent->GetDateStr(str);
@@ -922,6 +973,21 @@ int CS3GDIScreenMain::S3FindSettingsScreen(POINT p)
 			else if (menu_item == 1)
 				S3SetTxSelfTest(false);
 		}
+		else if  (Para == S3_IP_POWER_SCALE)
+		{
+			// TODO: Assumes the ordering of units
+			S3SetScale(menu_item + 1);
+		}
+		else if  (Para == S3_IP_SIG_SIZE)
+		{
+			// TODO: Assumes the ordering of units
+			S3SetSigSize(menu_item + 1);
+		}
+		else if (Para == S3_3PC_LINEARITY)
+		{
+			// TODO: Assumes the ordering of units
+			S3Set3PCLinearity(menu_item == 1);
+		}
 
 		return 0;
 	}
@@ -980,7 +1046,7 @@ int CS3GDIScreenMain::S3FindSettingsScreen(POINT p)
 		
 			m_ParaMenu->AddItem(S3GetUnitStrings(S3_UNITS_DBM));
 			m_ParaMenu->AddItem(S3GetUnitStrings(S3_UNITS_DBUV));
-			m_ParaMenu->AddItem(S3GetUnitStrings(S3_UNITS_MV));
+			// m_ParaMenu->AddItem(S3GetUnitStrings(S3_UNITS_MV));
 
 			// TODO: Assumes the ordering of units
 			m_ParaMenu->SelectItem(S3GetUnits() - 1);
@@ -1006,34 +1072,6 @@ int CS3GDIScreenMain::S3FindSettingsScreen(POINT p)
 			// Indicate that a system parameter is being edited
 			return S3SetSelectedPara(-1, -1, -1, S3_GAIN);
 		}
-		else if (s == 4) // Integrator time constant
-		{
-			/*
-			// This is defined for each transmitter, so we can't offer
-			// a default setting
-			m_ParaMenu->Init(m_HDC, p.x, p.y);
-		
-			m_ParaMenu->AddItem(_T("Off"));
-			m_ParaMenu->AddItem(_T("0.1"));
-			m_ParaMenu->AddItem(_T("1.0"));
-			m_ParaMenu->AddItem(_T("10.0"));
-
-			switch(S3GetSigmaTau(-1, -1, -1))
-			{
-				case TNone: m_ParaMenu->SelectItem(0); break;
-				case TauLo: m_ParaMenu->SelectItem(1); break;
-				case TauMd: m_ParaMenu->SelectItem(2); break;
-				case TauHi: m_ParaMenu->SelectItem(3); break;
-				default: m_ParaMenu->SelectItem(-1);
-			};
-				
-			m_ParaMenu->Activate();
-
-			return S3SetSelectedPara(-1, -1, -1, S3_SIGMA_TAU);
-			*/
-
-			return 0; // TODO: Sensible?
-		}
 		else if (s == 5) // Input z
 		{
 			m_ParaMenu->Init(m_HDC, p.x, p.y);
@@ -1051,25 +1089,6 @@ int CS3GDIScreenMain::S3FindSettingsScreen(POINT p)
 			m_ParaMenu->Activate();
 
 			return S3SetSelectedPara(-1, -1, -1, S3_INPUT_IMP);
-		}
-		else if (s == 6) // Low noise mode
-		{
-#ifdef S3LOWNOISE
-			m_ParaMenu->Init(m_HDC, p.x, p.y);
-		
-			m_ParaMenu->AddItem(_T("On"));
-			m_ParaMenu->AddItem(_T("Off"));
-
-			switch(S3GetLowNoiseMode(-1, -1, -1))
-			{
-				case true: m_ParaMenu->SelectItem(0); break;
-				case false: m_ParaMenu->SelectItem(1); break;
-			};
-				
-			m_ParaMenu->Activate();
-
-			return S3SetSelectedPara(-1, -1, -1, S3_LOW_NOISE);
-#endif
 		}
 		else if (s == 7) // OS version
 		{
@@ -1245,7 +1264,51 @@ int CS3GDIScreenMain::S3FindSettingsScreen(POINT p)
 
 			return S3SetSelectedPara(-1, -1, -1, S3_TX_SELF_TEST);
 		}
-	
+		else if (s == 17) // Units scale
+		{
+			m_ParaMenu->Init(m_HDC, p.x, p.y);
+		
+			m_ParaMenu->AddItem(ScaleStrings[0]);
+			m_ParaMenu->AddItem(ScaleStrings[1]);
+
+			// TODO: Assumes the ordering of units
+			m_ParaMenu->SelectItem(S3GetScale() - 1);
+				
+			m_ParaMenu->Activate();
+
+			return S3SetSelectedPara(-1, -1, -1, S3_IP_POWER_SCALE);
+		}
+		else if (s == 6) // Signal size
+		{
+			m_ParaMenu->Init(m_HDC, p.x, p.y);
+		
+			m_ParaMenu->AddItem(SigSizeStrings[0]);
+			m_ParaMenu->AddItem(SigSizeStrings[1]);
+
+			// TODO: Assumes the ordering of units
+			m_ParaMenu->SelectItem(S3GetSigSize() - 1);
+				
+			m_ParaMenu->Activate();
+
+			return S3SetSelectedPara(-1, -1, -1, S3_IP_SIG_SIZE);
+		}
+		else if (s == 4) // Show 3PC linearity valuse
+		{
+			m_ParaMenu->Init(m_HDC, p.x, p.y);
+		
+			m_ParaMenu->AddItem(_T("Off"));
+			m_ParaMenu->AddItem(_T("On"));
+
+			// TODO: Assumes the ordering of units
+			if (S3Get3PCLinearity())
+				m_ParaMenu->SelectItem(1);
+			else
+				m_ParaMenu->SelectItem(0);
+				
+			m_ParaMenu->Activate();
+
+			return S3SetSelectedPara(-1, -1, -1, S3_3PC_LINEARITY);
+		}
 
 		return 0;
 	}

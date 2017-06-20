@@ -102,8 +102,11 @@ UINT AutoUpdateSentinelDataBundleThread(LPVOID pParam);
 #define INPUTIMPEDANCE 3
 #define LOWNOISEMODE 4
 #define UNITS 5
-#define MAXIP 6
-#define WINDOWTRACKING 7
+#define SCALE 6
+#define SIZE 7
+#define THREE_PC_LINEAR 8
+#define MAXIP 9
+#define WINDOWTRACKING 10
 
 //Parameter order for the S3GETRXMOD reply
 #define RXTYPE 0

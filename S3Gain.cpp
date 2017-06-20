@@ -23,6 +23,9 @@ extern int		S3I2CSetRxOptDSA(	char Rx, char dsa);
 
 int S3I2CSetIPGain(char Rx, char Tx, char IP);
 
+#include "S3TableModeA.h"
+#include "S3TableModeB.h"
+
 // User gain, user power, DSA1, DSA2, DSA3
 
 // Tables from Y:\Project files\Sentinel3\System\s3_lineup.xlsm
@@ -299,6 +302,87 @@ char S3TxGetRFPath(char Rx, char Tx, char IP)
 	}
 		
 	return RFPath;
+}
+
+// ----------------------------------------------------------------------------
+
+extern pS3DataModel S3Data;
+
+int S3GetLinkParas(char Rx, char Tx, char IP,
+				   double *P1dBIn, double *P1dBOut, double *Sens)
+{
+	int		Gain = S3IPGetGain(Rx, Tx, IP);
+
+	char Idx = (char)(Gain + 78);
+
+	if (S3Data->m_SigSize == S3_UNITS_SMALL)
+	{
+		if (!S3Get3PCLinearity())
+		{
+			if (S3Data->m_DisplayScale == S3_SCALE_LOG)
+			{
+				*P1dBIn =	S3TableModeA[Idx][4];
+				*P1dBOut =	S3TableModeA[Idx][8];
+				*Sens =		S3TableModeA[Idx][2];
+			}
+			else
+			{
+				*P1dBIn =	S3TableModeA[Idx][5];
+				*P1dBOut =	S3TableModeA[Idx][9];
+				*Sens =		S3TableModeA[Idx][3];
+			}
+		}
+		else
+		{
+			if (S3Data->m_DisplayScale == S3_SCALE_LOG)
+			{
+				*P1dBIn =	S3TableModeA[Idx][6];
+				*P1dBOut =	S3TableModeA[Idx][10];
+				*Sens =		S3TableModeA[Idx][2];
+			}
+			else
+			{
+				*P1dBIn =	S3TableModeA[Idx][7];
+				*P1dBOut =	S3TableModeA[Idx][11];
+				*Sens =		S3TableModeA[Idx][3];
+			}
+		}
+	}
+	else
+	{
+		if (!S3Get3PCLinearity())
+		{
+			if (S3Data->m_DisplayScale == S3_SCALE_LOG)
+			{
+				*P1dBIn =	S3TableModeB[Idx][4];
+				*P1dBOut =	S3TableModeB[Idx][8];
+				*Sens =		S3TableModeB[Idx][2];
+			}
+			else
+			{
+				*P1dBIn =	S3TableModeB[Idx][5];
+				*P1dBOut =	S3TableModeB[Idx][9];
+				*Sens =		S3TableModeB[Idx][3];
+			}
+		}
+		else
+		{
+			if (S3Data->m_DisplayScale == S3_SCALE_LOG)
+			{
+				*P1dBIn =	S3TableModeB[Idx][6];
+				*P1dBOut =	S3TableModeB[Idx][10];
+				*Sens =		S3TableModeB[Idx][2];
+			}
+			else
+			{
+				*P1dBIn =	S3TableModeB[Idx][7];
+				*P1dBOut =	S3TableModeB[Idx][11];
+				*Sens =		S3TableModeB[Idx][3];
+			}
+		}
+	}
+
+	return 0;
 }
 
 // ----------------------------------------------------------------------------

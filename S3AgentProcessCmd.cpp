@@ -284,15 +284,18 @@ int CmdGetSysI(char *Inbuf)
 int CmdGetInit(char *Inbuf)
 {
     sprintf_s(Inbuf, S3_MAX_GPIB_RET_LEN,
-         " %i\037 %i\037 %i\037 %i\037 %i\037 %i\037 %f\037 %i",
+         " %i\037 %i\037 %i\037 %i\037 %i\037 %i\037 %i\037 %i\037 %i\037 %f\037 %i",
         S3Data->m_Config.m_Gain,
         S3Data->m_ContTComp,
         (int)S3Data->m_Config.m_Tau,
         (int)S3Data->m_Config.m_InputZ,
         (int)S3Data->m_Config.m_LowNoiseMode,
         S3Data->m_DisplayUnits,
+		S3Data->m_DisplayScale,
+		S3Data->m_SigSize,
+		S3Data->m_3PCLinearity,
         S3Data->m_Config.m_MaxInput,
-        (int)S3Data->m_Config.m_WindowTracking);  
+        (int)S3Data->m_Config.m_WindowTracking);
     return 0;
 }
 

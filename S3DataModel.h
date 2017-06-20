@@ -57,6 +57,10 @@ extern FILE *S3DbgLog;
 
 extern unsigned char S3Tx8IPMap[];
 
+// TODO: Don't access directly
+extern wchar_t *ScaleStrings[];
+extern wchar_t *SigSizeStrings[];
+
 // ----------------------------------------------------------------------------
 
 #define S3_DEF_DEMO_CONFIG_FILENAME	"S3Demo"
@@ -81,7 +85,10 @@ extern unsigned char S3Tx8IPMap[];
 // #define	S3_FILE_VERSION		1.6 // Save default Tx start state 17-01-17
 // #define	S3_FILE_VERSION		1.7 // Save global AGC setting 17-01-17
 // #define	S3_FILE_VERSION		1.8 // Save Rx active Tx 03-03-17
-#define	S3_FILE_VERSION			1.9 // Save Tx self test 18-04-17
+// #define	S3_FILE_VERSION		1.9 // Save Tx self test 18-04-17
+// #define	S3_FILE_VERSION		2.0 // Save units scale and signal type 16-06-17
+#define	S3_FILE_VERSION			2.1 // Save 3% linearity setting 16-06-17
+
 
 // TODO: Move all 'common' configurables to this section
 // ----------------------------------------------------------------------------
@@ -173,6 +180,17 @@ typedef unsigned char			S3TxPwrMode;
 #define S3_UNITS_DBM			1
 #define S3_UNITS_DBUV			2
 #define S3_UNITS_MV				3	// Stored in Volts...
+
+#define S3_UNITS_WATTS			1
+#define S3_UNITS_VOLTS			2
+
+//Sys m_SigSize
+#define S3_UNITS_SMALL			1
+#define S3_UNITS_LARGE			2
+
+// Sys m_DisplayScale
+#define S3_SCALE_LOG			1
+#define S3_SCALE_LIN			2
 
 #define S3_TCOMP_OFF			0
 #define S3_TCOMP_CONT			1
@@ -357,6 +375,10 @@ typedef enum SigmaT				{TauNone, TauLo, TauMd, TauHi, TauUnknown};
 
 #define S3_DATE_EDIT			60
 #define S3_TIME_EDIT			61
+
+#define S3_IP_POWER_SCALE		70
+#define S3_IP_SIG_SIZE			71
+#define S3_3PC_LINEARITY		72
 
 #define S3GDI_MAX_IP_PARAS		16
 #define S3GDI_MAX_TX_PARAS		8
@@ -790,6 +812,9 @@ typedef struct sS3DataModel
 	bool			m_CloseAppFailed;
 
 	unsigned char	m_DisplayUnits;	// System-wide-only setting
+	unsigned char	m_DisplayScale;
+	unsigned char	m_SigSize;
+	bool			m_3PCLinearity;
 
 	S3RxData		m_Rx[S3_MAX_RXS];
 
@@ -813,7 +838,6 @@ typedef struct sS3DataModel
 	unsigned short	wYear;
 	unsigned short	wMonth;
 	unsigned short	wDay;
-
 
 } *pS3DataModel, S3DataModel;
 
@@ -1120,6 +1144,18 @@ int				S3SetUnits(unsigned char Units);
 unsigned char	S3GetUnits();
 wchar_t			*S3GetUnitString();
 wchar_t			*S3GetUnitStrings(unsigned char i);
+
+wchar_t			*S3GetScaleString();
+wchar_t			*S3GetSigSizeString();
+
+int				S3SetScale(unsigned char Scale);
+int				S3SetSigSize(unsigned char Size);
+
+unsigned char	S3GetScale();
+unsigned char	S3GetSigSize();
+
+bool			S3Get3PCLinearity();
+int				S3Set3PCLinearity(bool show3PC);
 
 int S3TxSetActiveIP(	char Rx, char Tx, char IP);
 char S3TxGetActiveIP(	char Rx, char Tx);
@@ -1574,6 +1610,9 @@ void S3SetPrevRxedMsg(const char *Msg);
 const char* S3GetPrevRxedMsg(void);
 char S3GetPrevRemoteSrc();
 void S3SetPrevRemoteSrc(char MsgSrc);
+
+int S3GetLinkParas(char Rx, char Tx, char IP,
+				   double *P1dBIn, double *P1dBOut, double *Sens);
 
 }; // extern "C"
 

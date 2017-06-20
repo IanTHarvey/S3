@@ -494,12 +494,63 @@ int CmdUNITS()
 	if (GPIBNArgs != 2)
 		return S3_GPIB_ERR_NUMBER_PARAS;
 
-	if (!STRCMP(GPIBCmdArgs[1], "DBM"))
-		S3SetUnits(S3_UNITS_DBM);
-	else if (!STRCMP(GPIBCmdArgs[1], "DBUV"))
-		S3SetUnits(S3_UNITS_DBUV);
-	else if (!STRCMP(GPIBCmdArgs[1], "MV"))
-		S3SetUnits(S3_UNITS_MV);
+	if (!STRCMP(GPIBCmdArgs[1], "WATTS"))
+		S3SetUnits(S3_UNITS_WATTS);
+	else if (!STRCMP(GPIBCmdArgs[1], "VOLTS"))
+		S3SetUnits(S3_UNITS_VOLTS);
+	else
+		return S3_GPIB_INVALID_PARAMETER;
+
+	return 0;
+}
+
+// ----------------------------------------------------------------------------
+// SET
+
+int CmdSCALE()
+{
+	if (GPIBNArgs != 2)
+		return S3_GPIB_ERR_NUMBER_PARAS;
+
+	if (!STRCMP(GPIBCmdArgs[1], "LOG"))
+		S3SetScale(S3_SCALE_LOG);
+	else if (!STRCMP(GPIBCmdArgs[1], "LIN"))
+		S3SetScale(S3_SCALE_LIN);
+	else
+		return S3_GPIB_INVALID_PARAMETER;
+
+	return 0;
+}
+
+// ----------------------------------------------------------------------------
+// SET
+
+int CmdSIGTYPE()
+{
+	if (GPIBNArgs != 2)
+		return S3_GPIB_ERR_NUMBER_PARAS;
+
+	if (!STRCMP(GPIBCmdArgs[1], "SMALL"))
+		S3SetSigSize(S3_UNITS_SMALL);
+	else if (!STRCMP(GPIBCmdArgs[1], "LARGE"))
+		S3SetSigSize(S3_UNITS_LARGE);
+	else
+		return S3_GPIB_INVALID_PARAMETER;
+
+	return 0;
+}
+
+// ----------------------------------------------------------------------------
+
+int CmdSHOW3PC()
+{
+	if (GPIBNArgs != 2)
+		return S3_GPIB_ERR_NUMBER_PARAS;
+
+	if (!STRCMP(GPIBCmdArgs[1], "ON"))
+		S3Set3PCLinearity(true);
+	else if (!STRCMP(GPIBCmdArgs[1], "OFF"))
+		S3Set3PCLinearity(false);
 	else
 		return S3_GPIB_INVALID_PARAMETER;
 

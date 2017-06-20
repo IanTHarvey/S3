@@ -16,7 +16,7 @@ extern	pS3DataModel S3Shadow;
 
 // Shouldn't have used double....
 #define MATCH_VERSION(A, B) (fabs((A) - (B)) < 0.000001 ? 1 : 0)
-#define LATER_VERSION(A, B) (((fabs((A) - (B)) < 0.000001) || ((A) > (B))) ? 1 : 0)
+#define LATER_VERSION(A, B) (((A) - (B) > 0.000001) ? 1 : 0)
 
 // ----------------------------------------------------------------------------
 
@@ -363,6 +363,18 @@ int S3Read2(const char *Filename)
 int S3SysSave(FILE *fid, pS3DataModel Sys)
 {
 	fwrite(&Sys->m_DisplayUnits, sizeof(unsigned char), 1, fid);
+
+	if (LATER_VERSION(S3_FILE_VERSION, 1.9))
+	{
+		fwrite(&(Sys->m_DisplayScale), sizeof(unsigned char), 1, fid);
+		fwrite(&(Sys->m_SigSize), sizeof(unsigned char), 1, fid);
+	}
+
+	if (LATER_VERSION(S3_FILE_VERSION, 2.0))
+	{
+		fwrite(&(Sys->m_3PCLinearity), sizeof(bool), 1, fid);
+	}
+
 	fwrite(&Sys->m_ContTComp, sizeof(unsigned char), 1, fid);
 
 	if (LATER_VERSION(S3_FILE_VERSION, 1.6))
@@ -384,6 +396,18 @@ int S3SysSave(FILE *fid, pS3DataModel Sys)
 int S3SysRead(FILE *fid, pS3DataModel pSys)
 {
 	fread(&pSys->m_DisplayUnits, sizeof(unsigned char), 1, fid);
+	
+	if (LATER_VERSION(readModel.m_FileVersion, 1.9))
+	{
+		fread(&pSys->m_DisplayScale, sizeof(unsigned char), 1, fid);
+		fread(&pSys->m_SigSize, sizeof(unsigned char), 1, fid);
+	}
+
+	if (LATER_VERSION(readModel.m_FileVersion, 2.0))
+	{
+		fread(&pSys->m_3PCLinearity, sizeof(unsigned char), 1, fid);
+	}
+
 	fread(&pSys->m_ContTComp, sizeof(unsigned char), 1, fid);
 
 	if (LATER_VERSION(readModel.m_FileVersion, 1.6))

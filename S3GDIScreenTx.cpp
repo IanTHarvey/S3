@@ -22,6 +22,11 @@
 #include "S3GDIClickText.h"
 #include "S3GDIInfoPopup.h"
 
+#define S3dBm2mw(A)			(pow(10.0, (A) / 10.0))
+#define	S3mVrms2dBVrms(A)	(20.0 * log10((A)))
+#define	S3Vpk2dBVpk(A)		(20.0 * log10((A)) - 10.0 * log10(2.0))
+#define	S3mVpk2dBmVpk(A)	(20.0 * log10((A)))
+
 // ----------------------------------------------------------------------------
 
 CClickText	*TxSigTau[S3_MAX_IPS], *TxHiZ[S3_MAX_IPS], *TxTestTone[S3_MAX_IPS];
@@ -38,7 +43,7 @@ extern char S3GDI_RxParaRowMap(char para);
 CClickText *TxLowNoise[S3_MAX_IPS];
 #endif
 
-#define S3_MAX_TXIP_PARAS	10
+#define S3_MAX_TXIP_PARAS	11
 
 #define S3_TX_TABLE_R_MARG	8
 
@@ -76,7 +81,7 @@ extern char S3GDI_RowParaMap[];
 extern int hRxTxRows[];
 extern int pRxTxRows[];
 
-int hTxIPRows[S3_MAX_TXIP_PARAS] = {0, 35, 30, 91, 45, 40, 35, 30, 30, 30};
+int hTxIPRows[S3_MAX_TXIP_PARAS] = {0, 35, 30, 91, 45, 30, 40, 35, 30, 30, 30};
 int pTxIPRows[S3_MAX_TXIP_PARAS];
 
 // ITH: Add to initialisation
@@ -342,7 +347,7 @@ void CS3GDIScreenMain::S3InitGDITxScreen(void)
 		int yrefrow = yref;
 		CRect fntRc;
 
-		RowCnt = 5;
+		RowCnt = 6;
 
 		fntRc.left = xrefcol;
 		fntRc.right = fntRc.left + wIPCol - S3_TX_TABLE_R_MARG;
@@ -379,7 +384,7 @@ void CS3GDIScreenMain::S3InitGDITxScreen(void)
 	}
 
 	m_RectTxMsg = m_RectScreen;
-	m_RectTxMsg.top = yref + pTxIPRows[RowCnt++];
+	m_RectTxMsg.top = yref + pTxIPRows[RowCnt - 1];
 	m_RectTxMsg.left += 50;
 
 	TxAlarm = new CClickText(this, m_RectTxMsg, m_HDC, DT_LEFT, 1);
@@ -387,7 +392,7 @@ void CS3GDIScreenMain::S3InitGDITxScreen(void)
 	m_RectTxMsg.left -= 50;
 
 	rect = S3RectGDITxIPRowName(m_RectTxParaList.left,
-		m_RectTxParaList.top, 7, DT_RIGHT);
+		m_RectTxParaList.top, 8, DT_RIGHT);
 
 	TxTestToneAll = new CClickText(this, rect, m_HDC, DT_RIGHT, 0);
 	TxTestToneAll->SetString(_T("Test tone"));
@@ -1134,6 +1139,72 @@ void CS3GDIScreenMain::S3DrawGDITxIP(char Rx, char Tx, char IP,
 		fobj = SelectObject(m_HDC, m_hFontS);
 
 		// Returns in V if g <= -16
+		double P1dBIn;
+		double P1dBOut;
+		double Sens;
+
+		S3GetLinkParas(Rx, Tx, IP,
+				   &P1dBIn, &P1dBOut, &Sens);
+
+		wchar_t units[10];
+		_tcscpy_s(units, 10, S3GetUnitString());
+
+		if (S3GetUnits() == S3_UNITS_WATTS)
+		{
+			if (S3GetScale() == S3_SCALE_LOG)
+			{
+				str.Format(_T("%.0fdBm\n%.0fdBm"), P1dBIn, P1dBOut);
+			}
+			else
+			{
+				str.Format(_T("%.1fmW\n%.1fmW"),
+					S3dBm2mw(P1dBIn), S3dBm2mw(P1dBOut));
+			}
+		}
+		else
+		{
+			if (S3GetScale() == S3_SCALE_LOG)
+			{
+				str.Format(_T("%.0fdbV\n%.0fdBmV"),
+					S3Vpk2dBVpk(P1dBIn), S3mVpk2dBmVpk(P1dBOut));
+			}
+			else
+			{
+				str.Format(_T("%.1fV\n%.1fmV"), P1dBIn, P1dBOut);
+			}
+		}
+		
+		DrawText(m_HDC, str, -1, &fntRc, DT_RIGHT);
+
+		RowCnt++;
+
+		fntRc.top = yref + pTxIPRows[RowCnt];
+		fntRc.bottom = yref + pTxIPRows[RowCnt + 1];
+
+		if (S3GetUnits() == S3_UNITS_WATTS)
+		{
+			if (S3GetScale() == S3_SCALE_LOG)
+				str.Format(_T("%.0fdBm"), Sens);
+			else
+				str.Format(_T("%.1fmW"), S3dBm2mw(Sens));
+		}
+		else
+		{
+			if (S3GetScale() == S3_SCALE_LOG)
+				str.Format(_T("%.0fdBV"), S3mVrms2dBVrms(Sens));
+			else
+				str.Format(_T("%.1fmV"), Sens);
+		}
+
+		DrawText(m_HDC, str, -1, &fntRc, DT_RIGHT);
+
+		SelectObject(m_HDC, fobj);
+#endif
+
+#ifdef S3_SHOW_P1DB_OLD
+		fobj = SelectObject(m_HDC, m_hFontS);
+
+		// Returns in V if g <= -16
 		double p1db = S3IPGetP1dB(Rx, Tx, IP);
 
 		wchar_t units[10];
@@ -1181,7 +1252,9 @@ void CS3GDIScreenMain::S3DrawGDITxIP(char Rx, char Tx, char IP,
 		str.Format(_T("%.2f"), p1db);
 		DrawText(m_HDC, str, -1, &fntRc, DT_RIGHT);
 		*/
-#else
+#endif
+
+#ifdef NO_S3_SHOW_P1DB
 		str.Format(_T("%.2f"), maxip);
 		DrawText(m_HDC, str, -1, &fntRc, DT_RIGHT | DT_VCENTER);
 #endif // S3_SHOW_P1DB
@@ -1381,12 +1454,20 @@ void CS3GDIScreenMain::S3DrawGDITxIPTable(char Rx, char Tx)
 	
 #ifdef S3_SHOW_P1DB
 
-	if (S3TxGetType(Rx, Tx) == S3_Tx1 && S3IPGetGain(Rx, Tx, 0) <= -16)
+	if (0) // S3TxGetType(Rx, Tx) == S3_Tx1 && S3IPGetGain(Rx, Tx, 0) <= -16)
 		str.Format(_T("iP1dB\n(%s)"), _T("Vpk"));
 	else
-		str.Format(_T("iP1dB\n(%s)"), S3GetUnitString());
-	
-	S3DrawGDITxIPRowName(xref, yref, RowCnt++, str, DT_LEFT);
+	{
+		if (!S3Get3PCLinearity())
+			str.Format(_T("P1dB    (in)\n(out)"));
+		else
+			str.Format(_T("3%c Lin    (in)\n(out)"), '%');
+	}
+
+	S3DrawGDITxIPRowName(xref, yref, RowCnt++, str, DT_RIGHT);
+
+	str.Format(_T("Sensitivity"));
+	S3DrawGDITxIPRowName(xref, yref, RowCnt++, str, DT_RIGHT);
 #else
 	if (S3GetUnits() == S3_UNITS_MV)
 	{
@@ -1483,8 +1564,6 @@ void CS3GDIScreenMain::S3DrawGDITxIPRowName(	int xref, int yref,
 
 	Rectangle(m_HDC, xref, yref,
 				m_RectScreen.right, yref + hTxIPRows[Row + 1] + 1);
-	// Rectangle(m_HDC, xref, yref,
-	//			xref + m_RectTxParaList.Width(), yref + hTxIPRows[Row + 1]);
 
 	CRect fntRc(xref, yref,
 				xref + m_RectTxParaList.Width(), yref + hTxIPRows[Row + 1]);
@@ -1854,25 +1933,6 @@ void CS3GDIScreenMain::S3GDITxNewTx(void)
 
 	str.Format(_T("%S"), FWV);
 	m_TxInfoPopup->AddItem(_T("F/W:"), str);
-
-	
-	
-	/*
-	short t = S3TxGetBattTemp(Rx, Tx);
-
-	// This is live data but pop-ups not updated, so would be misleading
-	CString str1;
-	
-	str1.Format(_T("\u03F4 (%d - %d%cC)"),
-		S3_BATT_DISCHG_MIN_T / 10, S3_BATT_DISCHG_MAX_T / 10, 0x00b0);
-	
-	str.Format(_T("%+d"), t);
-
-	m_TxBattInfoPopup->AddItem(str1, str);
-
-	str.Format(_T("%d"), -S3TxGetBattI(Rx, Tx));
-	m_TxBattInfoPopup->AddItem(_T("I(mA):"), str);
-	*/
 
 	S3TxGetBattInfo(Rx, Tx, &SN, &PN, &HWV, &FWV);
 

@@ -71,7 +71,12 @@ int CmdLOAD();
 int CmdSAVE();
 int CmdREPORTF();
 int CmdTESTNAME();
+
 int CmdUNITS();
+int CmdSCALE();
+int CmdSIGTYPE();
+int CmdSHOW3PC();
+
 int CmdREPORT();
 int CmdSYS();
 int CmdIMP();

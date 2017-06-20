@@ -26,10 +26,25 @@
 
 extern struct DbgPollSysStruct	DbgPollSysData;
 
+	//wchar_t *UnitStrings[] = {
+	//	{L"dBm"},
+	//	{L"dB\u03bcV"},
+	//	{L"Vpk"}
+	//};
+
 wchar_t *UnitStrings[] = {
-	{L"dBm"},
-	{L"dB\u03bcV"},
-	{L"Vpk"}
+	{L"Watts"},
+	{L"Volts"}
+};
+
+wchar_t *ScaleStrings[] = {
+	{L"Log"},
+	{L"Lin"}
+};
+
+wchar_t *SigSizeStrings[] = {
+	{L"Small"},
+	{L"Large"}
 };
 
 // Use type defines to index. TODO: Worth implementing as functions?
@@ -524,6 +539,10 @@ int S3SysInit(pS3DataModel node)
 
 	node->m_DisplayUnits = S3_UNITS_DBM;
 
+	node->m_DisplayScale = 1;	// Log
+	node->m_SigSize = 1;		// Small
+	node->m_3PCLinearity = false;
+
 	node->m_IPPort = S3_DEFAULT_IP_PORT;
 
 	node->m_SleepAll = false;
@@ -831,9 +850,6 @@ int S3SetGain(char Rx, char Tx, char IP, char gain)
 	// if (S3Data->m_Rx[Rx].m_Tx[Tx].m_Input[IP].m_Config.m_Gain == gain)
 	//	return 0;
 
-	if (S3IPGetAlarms(Rx, Tx, IP) & S3_IP_OVERDRIVE)
-	 	return 2;
-
 	char	low, high;
 	int		GainLimited = 0;
 
@@ -880,6 +896,9 @@ int S3SetGain(char Rx, char Tx, char IP, char gain)
 	}
 	else
 	{
+		if (S3IPGetAlarms(Rx, Tx, IP) & S3_IP_OVERDRIVE)
+	 		return 2;
+
 		double maxip = S3CalcMaxIP(gain);
 		double P1dB = S3CalcP1dB(gain);
 
@@ -1072,13 +1091,10 @@ int S3SetUnits(unsigned char Units)
     switch(Units)
     {
     case S3_UNITS_DBM:
-        Args = L" DBM";
+        Args = L" WATTS";
         break;
     case S3_UNITS_DBUV:
-        Args = L" DBUV";
-        break;
-    case S3_UNITS_MV:
-        Args = L" MV";
+        Args = L" VOLTS";
         break;
     }
 
@@ -1134,6 +1150,121 @@ wchar_t *S3GetUnitString()
 		S3Data->m_DisplayUnits = 1;
 
 	return UnitStrings[S3Data->m_DisplayUnits - 1];
+}
+
+// ----------------------------------------------------------------------------
+
+int S3SetScale(unsigned char Scale)
+{
+#ifdef S3_AGENT
+    CString Command, Args, Response, InZ;
+    Command = L"SCALE";
+
+    switch(Scale)
+    {
+    case S3_SCALE_LOG:
+        Args = L" LOG";
+        break;
+    case S3_SCALE_LIN:
+        Args = L" LIN";
+        break;
+    }
+
+    Command.Append(Args);
+
+    Response = SendSentinel3Message(Command);
+#endif
+
+	S3Data->m_DisplayScale = Scale;
+
+	return 0;
+}
+
+// ----------------------------------------------------------------------------
+
+bool S3Get3PCLinearity()
+{
+	return S3Data->m_3PCLinearity;
+}
+
+// ----------------------------------------------------------------------------
+
+int S3Set3PCLinearity(bool show3PC)
+{
+#ifdef S3_AGENT
+    CString Command, Args, Response, InZ;
+    Command = L"SHOW3PC";
+
+    if (show3PC)
+        Args = L" ON";
+	else
+        Args = L" OFF";
+
+    Command.Append(Args);
+
+    Response = SendSentinel3Message(Command);
+#endif
+
+	S3Data->m_3PCLinearity = show3PC;
+
+	return 0;
+}
+
+// ----------------------------------------------------------------------------
+
+
+unsigned char S3GetScale()
+{
+	return S3Data->m_DisplayScale;
+}
+
+// ----------------------------------------------------------------------------
+
+wchar_t *S3GetScaleString()
+{
+	return ScaleStrings[S3Data->m_DisplayScale - 1];
+}
+
+// ----------------------------------------------------------------------------
+
+int S3SetSigSize(unsigned char Size)
+{
+#ifdef S3_AGENT
+    CString Command, Args, Response, InZ;
+    Command = L"SIGTYPE";
+
+    switch(Size)
+    {
+    case S3_UNITS_SMALL:
+        Args = L" SMALL";
+        break;
+    case S3_UNITS_LARGE:
+        Args = L" LARGE";
+        break;
+    }
+
+    Command.Append(Args);
+
+    Response = SendSentinel3Message(Command);
+#endif
+
+	S3Data->m_SigSize = Size;
+
+	return 0;
+}
+
+// ----------------------------------------------------------------------------
+
+unsigned char S3GetSigSize()
+{
+	return S3Data->m_SigSize;
+}
+
+// ----------------------------------------------------------------------------
+
+wchar_t *S3GetSigSizeString()
+{
+	return SigSizeStrings[S3Data->m_SigSize - 1];
 }
 
 // ----------------------------------------------------------------------------
