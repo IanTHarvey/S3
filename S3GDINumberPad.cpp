@@ -315,6 +315,8 @@ void CS3NumberPad::PopUp(HDC hdc, int xref, int yref, CS3NumEdit *editor,
 		else
 		{
 			// TODO: Consider the other possibilties...
+			if (m_yref + m_RectPad.Height() > m_Parent->S3GDIRectScreen().bottom)
+				m_yref = m_Parent->S3GDIRectScreen().bottom - m_RectPad.Height();
 		}
 	}
 
