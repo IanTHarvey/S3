@@ -24,8 +24,7 @@ void CS3GDIScreenMain::S3DrawGDIClosedScreen(void)
 	SelectObject(m_HDC, m_hFontL);
 	COLORREF cr = SetTextColor(m_HDC, m_crWhite);
 
-	Rectangle(m_HDC,	m_RectScreen.left,	m_RectScreen.top,
-						m_RectScreen.right,	m_RectScreen.bottom);
+	S3_RECT(m_HDC,	m_RectScreen);
 
 	str.Format(_T("Sentinel3 has now closed.\nGood-bye."));
 	fntRc = m_RectScreen;

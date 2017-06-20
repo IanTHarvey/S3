@@ -24,11 +24,12 @@ char S3GDI_RowParaMap[S3GDI_MAX_IP_PARAS] = {
 								S3_TXIP_NODENAME,
 								S3_GAIN,
 								-1, // S3_MAX_INPUT,
+								-1, // Sensitivity
 								S3_ALARM_LED,
 								S3_SIGMA_TAU,
 								S3_INPUT_IMP,
 								S3_TEST_TONE,
-								-1, -1, -1, -1, -1, -1, -1, -1};
+								-1, -1, -1, -1, -1, -1, -1};
 
 char S3GDI_RxRowParaMap[S3GDI_MAX_TX_PARAS] = {
 								S3_ACTIVE_TX,
@@ -145,8 +146,7 @@ void CS3GDIScreenMain::OnPaint()
 
 		SelectObject(m_HDC, m_hBrushBG4);
 		Rectangle(m_HDC, m_RectScreen.left, m_RectTx.top, m_RectTx.right, m_RectTx.bottom);
-		Rectangle(m_HDC, m_RectCharger.left, m_RectCharger.top,
-			m_RectCharger.right, m_RectCharger.bottom);
+		S3_RECT(m_HDC, m_RectCharger);
 	}
 	else
 	{
