@@ -235,11 +235,11 @@ int S3I2CChEn(unsigned char Ch, bool enable)
 
 	I2C_WriteRandom(S3I2C_EXPANDER_ADDR, 0x04, pins);
 
-	if (CountPins(pins) > 1)
-		return 0;
+	/*if (CountPins(pins) > 1)
+		return 0;*/
 
-	int pins0 = I2C_ReadRandom(S3I2C_EXPANDER_ADDR, 0x00);
-	int pins1 = I2C_ReadRandom(S3I2C_EXPANDER_ADDR, 0x01);
+	//int pins0 = I2C_ReadRandom(S3I2C_EXPANDER_ADDR, 0x00);
+	//int pins1 = I2C_ReadRandom(S3I2C_EXPANDER_ADDR, 0x01);
 
 #endif // TRIZEPS
 	return 0;
@@ -299,6 +299,8 @@ int S3I2CChGetStatus(unsigned char Ch)
 	S3TimerStart(1);
 
 	S3I2CChMS(Ch);
+
+	S3I2CChEn(Ch, true);
 	
 	unsigned char i2cStartAddr = 0x00;
 	unsigned char i2cStdBufRead[32];
@@ -370,8 +372,14 @@ int S3I2CChGetStatus(unsigned char Ch)
 		// Enable 12V supply if good
 		if (!(S3ChGetAlarms(Ch) & S3_CH_BATT_HOT) && S3ChBattValidated(Ch))
 			S3I2CChEn(Ch, true);
-		else
-			S3I2CChEn(Ch, false);
+		// else
+			// S3I2CChEn(Ch, false);
+
+		// If we disable the charge current, we also lose comms (why?)
+		// so invalidated battery comes and goes as supply is enabled
+		// disabled - which is not ideal.
+		// if (!S3ChBattValidated(Ch) && tmin < 60)
+		//	S3I2CChEn(Ch, false);
 
  		S3I2CChMS(0xFF);
 		return 0;
@@ -435,7 +443,7 @@ int S3I2CChGetStatus(unsigned char Ch)
 	if (S3ChBattValidated(Ch))
 		S3I2CChEn(Ch, true);
 	else
-		S3I2CChEn(Ch, false);
+	//	S3I2CChEn(Ch, false);
 
 	S3I2CChMS(0xFF);
 
