@@ -70,6 +70,16 @@ int S3TxOptSetAlarm(char Rx, char Tx, const unsigned char *alarms)
 
 	pS3TxData pTx = &S3Data->m_Rx[Rx].m_Tx[Tx];
 
+	// TxOpt generates laser bias and power alarms on start-up
+	// (TxOpt[1] == 0x06, plus major) so mask while RLL stabilises.
+	
+	// TODO: Not implemented as an alarm, any good reason
+	// if (pTx->m_Alarms & S3_TX_RLL_UNSTABLE)
+	//	return 0;
+
+	if (!S3TxRLLStable(Rx, Tx))
+		return 0;
+
 	// iff peak alarm then ignore completely
 	if (!S3TxGetPeakHoldCap(Rx, Tx))
 	{
