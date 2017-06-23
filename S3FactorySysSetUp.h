@@ -55,6 +55,7 @@ public:
 
 	void Init();
 	void Update();
+	afx_msg void OnBnClickedUnsealButton();
 };
 
 

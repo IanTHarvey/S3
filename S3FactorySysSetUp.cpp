@@ -7,6 +7,10 @@
 #include <ceconfig.h>
 #endif
 
+#ifdef TRIZEPS
+#include "drvLib_app.h"
+#endif
+
 #include <afxwin.h>         // MFC core and standard components
 #include <afxext.h>         // MFC extensions
 #include <stdio.h>
@@ -52,6 +56,7 @@ BEGIN_MESSAGE_MAP(CS3FactorySysSetUp, CDialog)
 	ON_BN_CLICKED(IDC_FACT_PN_SET_BUTTON, &CS3FactorySysSetUp::OnBnClickedFactPnSetButton)
 	ON_BN_CLICKED(IDC_TEST_BUTTON, &CS3FactorySysSetUp::OnBnClickedTestButton)
 	ON_BN_CLICKED(IDC_SEAL_BUTTON, &CS3FactorySysSetUp::OnBnClickedSealButton)
+	ON_BN_CLICKED(IDC_UNSEAL_BUTTON, &CS3FactorySysSetUp::OnBnClickedUnsealButton)
 END_MESSAGE_MAP()
 
 BOOL CS3FactorySysSetUp::OnInitDialog()
@@ -278,6 +283,75 @@ void CS3FactorySysSetUp::OnBnClickedSealButton()
 		else
 			m_StatusMsgStatic.SetWindowText(_T("Battery sealed OK"));
 	}
+}
+
+// ----------------------------------------------------------------------------
+
+
+void CS3FactorySysSetUp::OnBnClickedUnsealButton()
+{
+	char Ch = 0;
+
+	if (S3I2CChSetBattUnseal())
+	{
+		m_StatusMsgStatic.SetWindowText(_T("Unseal failed"));
+		return;
+	}
+	
+	Sleep(100);
+	
+	if (S3I2CChSetBattFullAccess())
+		m_StatusMsgStatic.SetWindowText(_T("Allow full access failed"));
+	else
+	{
+		// Attempt to verify operation. Attempting this actually
+		// causes a failure to unseal.
+		if (0)
+		{
+			Sleep(1000);
+
+#ifdef TRIZEPS
+			// Do reset
+			unsigned char cmd[3];
+		
+			cmd[0] = 0x00;
+			cmd[1] = 0x41;
+			cmd[2] = 0x00;
+			int ok = I2C_WriteRead(S3I2C_CH_BATT_ADDR, cmd, 3, NULL, 0);
+
+			if (!ok)
+			{
+				m_StatusMsgStatic.SetWindowText(_T("Failed to reset battery"));
+				return;
+			}
+
+			Sleep(1000);
+#endif
+
+			if (S3I2CChGetStatus(Ch))
+			{
+				m_StatusMsgStatic.SetWindowText(_T("Failed to read back battery status"));
+				return;
+			}
+
+			if (S3ChGetBattStatus(Ch) & BQ_SS)
+			{
+				m_StatusMsgStatic.SetWindowText(_T("Battery seal flag not cleared"));
+				return;
+			}
+
+			if (S3ChGetBattStatus(Ch) & BQ_FAS)
+			{
+				m_StatusMsgStatic.SetWindowText(_T("Full access flag not cleared"));
+				return;
+			}
+		}
+
+		m_StatusMsgStatic.SetWindowText(_T("Full access enabled"));
+	}
+
+	
+	return;
 }
 
 // ----------------------------------------------------------------------------
