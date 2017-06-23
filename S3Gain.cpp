@@ -319,7 +319,7 @@ int S3GetLinkParas(char Rx, char Tx, char IP,
 	{
 		if (!S3Get3PCLinearity())
 		{
-			if (S3Data->m_DisplayScale == S3_SCALE_LOG)
+			if (S3Data->m_DisplayUnits == S3_UNITS_WATTS)
 			{
 				*P1dBIn =	S3TableModeA[Idx][4];
 				*P1dBOut =	S3TableModeA[Idx][8];
@@ -334,7 +334,7 @@ int S3GetLinkParas(char Rx, char Tx, char IP,
 		}
 		else
 		{
-			if (S3Data->m_DisplayScale == S3_SCALE_LOG)
+			if (S3Data->m_DisplayUnits == S3_UNITS_WATTS)
 			{
 				*P1dBIn =	S3TableModeA[Idx][6];
 				*P1dBOut =	S3TableModeA[Idx][10];
@@ -352,7 +352,7 @@ int S3GetLinkParas(char Rx, char Tx, char IP,
 	{
 		if (!S3Get3PCLinearity())
 		{
-			if (S3Data->m_DisplayScale == S3_SCALE_LOG)
+			if (S3Data->m_DisplayUnits == S3_UNITS_WATTS)
 			{
 				*P1dBIn =	S3TableModeB[Idx][4];
 				*P1dBOut =	S3TableModeB[Idx][8];
@@ -367,7 +367,7 @@ int S3GetLinkParas(char Rx, char Tx, char IP,
 		}
 		else
 		{
-			if (S3Data->m_DisplayScale == S3_SCALE_LOG)
+			if (S3Data->m_DisplayUnits == S3_UNITS_WATTS)
 			{
 				*P1dBIn =	S3TableModeB[Idx][6];
 				*P1dBOut =	S3TableModeB[Idx][10];

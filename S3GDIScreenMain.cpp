@@ -19,6 +19,20 @@ extern pS3DataModel S3Data;
 // Map S3GDI table row to parameter type, which is set in S3Data
 // structures and then used to pop-up appropriate editor, menu etc
 
+// TODO: These need better mapping...
+
+#ifndef S3_SHOW_P1DB_MODES
+char S3GDI_RowParaMap[S3GDI_MAX_IP_PARAS] = {
+								S3_ACTIVE_INPUT,
+								S3_TXIP_NODENAME,
+								S3_GAIN,
+								-1, // S3_MAX_INPUT,
+								S3_ALARM_LED,
+								S3_SIGMA_TAU,
+								S3_INPUT_IMP,
+								S3_TEST_TONE,
+								-1, -1, -1, -1, -1, -1, -1, -1};
+#else
 char S3GDI_RowParaMap[S3GDI_MAX_IP_PARAS] = {
 								S3_ACTIVE_INPUT,
 								S3_TXIP_NODENAME,
@@ -30,6 +44,7 @@ char S3GDI_RowParaMap[S3GDI_MAX_IP_PARAS] = {
 								S3_INPUT_IMP,
 								S3_TEST_TONE,
 								-1, -1, -1, -1, -1, -1, -1};
+#endif
 
 char S3GDI_RxRowParaMap[S3GDI_MAX_TX_PARAS] = {
 								S3_ACTIVE_TX,

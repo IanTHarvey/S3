@@ -494,12 +494,23 @@ int CmdUNITS()
 	if (GPIBNArgs != 2)
 		return S3_GPIB_ERR_NUMBER_PARAS;
 
+#ifdef S3_UNITS_SCALE
 	if (!STRCMP(GPIBCmdArgs[1], "WATTS"))
 		S3SetUnits(S3_UNITS_WATTS);
 	else if (!STRCMP(GPIBCmdArgs[1], "VOLTS"))
 		S3SetUnits(S3_UNITS_VOLTS);
 	else
 		return S3_GPIB_INVALID_PARAMETER;
+#else
+	if (!STRCMP(GPIBCmdArgs[1], "DBM"))
+		S3SetUnits(S3_UNITS_DBM);
+	else if (!STRCMP(GPIBCmdArgs[1], "DBUV"))
+		S3SetUnits(S3_UNITS_DBUV);
+	else if (!STRCMP(GPIBCmdArgs[1], "MV"))
+		S3SetUnits(S3_UNITS_MV);
+	else
+		return S3_GPIB_INVALID_PARAMETER;
+#endif
 
 	return 0;
 }
@@ -1459,7 +1470,7 @@ int CmdPPMCALTXRF()
 
 	if (1)
 	{
-		if (S3I2CTxSetRFCalibration(path, val))
+		if (S3I2CTxSetRFCalibration(Rx, Tx, path, val))
 			return S3_GPIB_CALIBRATION_FAILED;
 	}
 	else

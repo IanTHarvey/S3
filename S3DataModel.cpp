@@ -26,16 +26,18 @@
 
 extern struct DbgPollSysStruct	DbgPollSysData;
 
-	//wchar_t *UnitStrings[] = {
-	//	{L"dBm"},
-	//	{L"dB\u03bcV"},
-	//	{L"Vpk"}
-	//};
-
+#ifndef S3_SHOW_P1DB_MODES
+wchar_t *UnitStrings[] = {
+	{L"dBm"},
+	{L"dB\u03bcV"},
+	{L"Vpk"}
+};
+#else
 wchar_t *UnitStrings[] = {
 	{L"Watts"},
 	{L"Volts"}
 };
+#endif
 
 wchar_t *ScaleStrings[] = {
 	{L"Log"},
@@ -1088,16 +1090,30 @@ int S3SetUnits(unsigned char Units)
     CString Command, Args, Response, InZ;
     Command = L"UNITS";
 
-    switch(Units)
+#ifdef S3_UNITS_SCALE
+	switch(Units)
     {
-    case S3_UNITS_DBM:
+    case S3_UNITS_WATTS:
         Args = L" WATTS";
         break;
-    case S3_UNITS_DBUV:
+    case S3_UNITS_VOLTS:
         Args = L" VOLTS";
         break;
     }
-
+#else
+	switch(Units)
+    {
+    case S3_UNITS_DBM:
+        Args = L" DBM";
+        break;
+    case S3_UNITS_DBUV:
+        Args = L" DBUV";
+        break;
+	case S3_UNITS_MV:
+        Args = L" MV";
+        break;
+    }
+#endif
     Command.Append(Args);
 
     Response = SendSentinel3Message(Command);
@@ -1736,6 +1752,28 @@ unsigned char S3GetAGC()
 
 int S3SetAGC(unsigned char AGC)
 {
+#ifdef S3_AGENT
+    CString Command, Args, Response;
+    Command = L"AGC";
+    if (AGC >= 100) AGC -= 100;
+	
+	switch(AGC)
+    {
+    default:
+    case 0: 
+        Args = L" OFF";
+        break;
+    case 1: 
+        Args = L" CONT";
+        break;
+    case 2: 
+        Args = L" GAIN";
+        break;
+    }
+    Command.Append(Args);
+
+    Response = SendSentinel3Message(Command);	
+#else
 	if (AGC >= 100)
 		S3Data->m_AGC = AGC - 100;
 	else
@@ -1748,7 +1786,7 @@ int S3SetAGC(unsigned char AGC)
 		S3RxSetAGC(Rx, 0, AGC);
 		S3RxSetAGC(Rx, 1, AGC);
 	}
-
+#endif
 	return 0;
 }
 
