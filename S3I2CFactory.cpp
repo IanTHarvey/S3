@@ -183,7 +183,7 @@ int S3I2CTxWriteLaserBias()
 // ----------------------------------------------------------------------------
 // Write individual calibration values for factory set-up
 
-int S3I2CTxWriteRFCalValue(unsigned char Path, double dcal)
+int S3I2CTxWriteRFCalValue(char Rx, char Tx, unsigned char Path, double dcal)
 {
 	// TODO: Test dcal in range
 	
@@ -246,7 +246,7 @@ int S3I2CTxWriteRFCalValue(unsigned char Path, double dcal)
 	}
 
 	// Force re-read and re-set of gain for immediate feedback
-	char Rx = 0, Tx = 0, IP;
+	char IP = 0;
 	
 	IP = S3TxGetActiveIP(Rx, Tx);
 

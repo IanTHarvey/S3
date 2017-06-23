@@ -421,18 +421,18 @@ int S3I2CRxSetCalibration(char Rx, char Tx, double val)
 
 // ----------------------------------------------------------------------------
 // Write individual calibration value (per RF path) for RF DSA
-int S3I2CTxSetRFCalibration(char RFPath, double val)
+int S3I2CTxSetRFCalibration(char Rx, char Tx, char RFPath, double val)
 {
-	if (S3RxGetType(0) == S3_RxEmpty)
+	if (S3RxGetType(Rx) == S3_RxEmpty)
 		return -1;
 
-	if (S3TxGetType(0, 0) == S3_TxUnconnected)
+	if (S3TxGetType(Rx, Tx) == S3_TxUnconnected)
 		return -2;
 
-	int err = S3I2CTxWriteRFCalValue(RFPath, val);
+	int err = S3I2CTxWriteRFCalValue(Rx, Tx, RFPath, val);
 
 	if (!err)
-		S3TxSetCalRF(0, 0, RFPath, (short)(val * 100.0));
+		S3TxSetCalRF(Rx, Tx, RFPath, (short)(val * 100.0));
 
 	return err;
 }

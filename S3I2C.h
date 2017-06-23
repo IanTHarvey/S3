@@ -279,12 +279,12 @@ int	S3I2CSetTxOptDSA(	char Rx, char Tx, char IP, char dsa);
 int	S3I2CSetRxOptDSA(	char p);
 
 int S3I2CRxSetCalibration(		char Rx, char Tx, double	val);
-int S3I2CTxSetRFCalibration(	char RFPath,	double	val);
+int S3I2CTxSetRFCalibration(	char Rx, char Tx, char RFPath,	double	val);
 int S3I2CTxSetOptCalibration(					double	val);
 
-int S3I2CTxWriteRFCalValue(unsigned char Path,	double cal);
-int S3I2CTxWriteOptCalValue(					double cal);
-int S3I2CRxWriteCalValue(char Rx, char Tx,		double cal);
+int S3I2CTxWriteRFCalValue(	char Rx, char Tx, unsigned char Path,	double cal);
+int S3I2CTxWriteOptCalValue(										double cal);
+int S3I2CRxWriteCalValue(	char Rx, char Tx,						double cal);
 
 int S3I2CGetRxWavelength(char Rx);
 int S3I2CGetTxWavelength(char Rx, char Tx);

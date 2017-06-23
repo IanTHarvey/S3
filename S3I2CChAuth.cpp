@@ -241,16 +241,14 @@ int S3I2CChAuthenticate(char Ch)
 #include "sha.h"
 #include "sha-private.h"
 
-int SHA1Reset (SHA1Context * context);
-int SHA1Input (SHA1Context * context,
-	   const uint8_t * message_array, unsigned length);
+int SHA1Reset(SHA1Context *context);
+int SHA1Input(SHA1Context *context,
+	   const uint8_t *message_array, unsigned length);
 
-/* Local Function Prototypes */
+// Local Function Prototypes
 static void SHA1Finalize (SHA1Context * context, uint8_t Pad_Byte);
 static void SHA1PadMessage (SHA1Context *, uint8_t Pad_Byte);
 static void SHA1ProcessMessageBlock (SHA1Context *);
-
-// #define BYTE unsigned char
 
 int HMAC3(unsigned char *Digest, unsigned char *Message, unsigned char *Key)
 {
@@ -1268,7 +1266,7 @@ int S3I2CChWriteSecKeys()
 	ok = I2C_WriteRead(S3I2C_CH_BATT_ADDR, cmd, 2, NULL, 0);
 
 	if (!ok)
-		return 1;
+		return 1; 
 
 	cmd[0] = 0x3f;	// DataFlashBlock
 	cmd[1] = 0x00;	// Offset bank: 0: '0-31', 1: 32-63

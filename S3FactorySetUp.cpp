@@ -433,7 +433,7 @@ void CS3FactorySetUp::OnBnClickedTxCalSetButton()
 	}
 	else
 	{
-		int err = S3I2CTxSetRFCalibration(m_RFPath, TxCalVal);
+		int err = S3I2CTxSetRFCalibration(m_Rx, m_Tx, m_RFPath, TxCalVal);
 
 		if (err == -1)
 		{
