@@ -35,6 +35,7 @@ int S3TxInit(pS3TxData node)
 
 	node->m_SelfTestPending = false;
 	node->m_SelfTestRetries = 0;
+	node->m_SelfTestErr = 0;
 
 	node->m_OldTauOrder = false;
 	node->m_PeakHoldCap = false;
@@ -979,6 +980,7 @@ int S3TxSetSN(char Rx, char Tx, const char *s)
 	strcpy_s(pTx->m_SN, S3_MAX_SN_LEN, s);
 
 	// Wichita Tx8 - SN1248718 - this is truly shite
+	// Subsequent Txs have modified passive integrator RF paths
 	int iSN;
 	
 	S3ExtractSN(&iSN, s);
@@ -1046,6 +1048,8 @@ const char *S3TxGetFWDate(char Rx, char Tx)
 
 // ---------------------------------------------------------------------------
 // Don't store, just deduce Tx capabilities
+// Module PN (0x1D) 19327C RMS; 19327D (and on?) absolute peak detection
+// TODO: Check F/W and board revision?
 
 int S3TxOptSetFW(char Rx, char Tx, const unsigned char *s)
 {
@@ -1517,7 +1521,10 @@ int S3TxSetCalOpt(char Rx, char Tx, short cal)
 
 short S3TxGetCalRF(char Rx, char Tx, unsigned char Path)
 {
-	return S3Data->m_Rx[Rx].m_Tx[Tx].m_CalRF[Path];
+	if (Path > 2 && Path < 6)
+		return S3Data->m_Rx[Rx].m_Tx[Tx].m_CalRF[Path]; // - 100 * S3TxGetAttenGainOffset(Rx, Tx);
+	else
+		return S3Data->m_Rx[Rx].m_Tx[Tx].m_CalRF[Path];
 }
 
 // ---------------------------------------------------------------------------
@@ -1832,7 +1839,8 @@ short S3TxGetPeakPulse()
 }
 
 // ----------------------------------------------------------------------------
-
+// TODO: This change backed out as actual gain setting not implemented
+// correctly.
 char S3TxGetAttenGainOffset(char Rx, char Tx)
 {
 	return 0; // S3Data->m_Rx[Rx].m_Tx[Tx].m_AttenGainOffset;

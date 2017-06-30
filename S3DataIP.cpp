@@ -799,7 +799,7 @@ int S3GetGainLimits(char Rx, char Tx, char IP, char *low, char *high)
 	else
 	{
 		// Paths 4, 5, 6
-		*high = 0 + S3Data->m_Rx[Rx].m_Tx[Tx].m_AttenGainOffset;
+		*high = 0 + S3TxGetAttenGainOffset(Rx, Tx);
 	}
 
 	return 0;
