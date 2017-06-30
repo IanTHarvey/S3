@@ -355,7 +355,7 @@ int S3TxAlarmGetString(char Rx, char Tx, char *S3AlarmString, int len)
 	
 	if (pTx->m_Alarms & S3_TX_INIT_FAIL)
 	{
-		strcpy_s(S3AlarmString, len, "E:Tx initialisation failed. Please retry.");
+		strcpy_s(S3AlarmString, len, "E:Transmitter initialisation failed. Please retry.");
 		pTx->m_CurAlarmSrc = 0;
 		pTx->m_CurAlarm = pTx->m_Alarms;
 		return 1;
@@ -363,7 +363,7 @@ int S3TxAlarmGetString(char Rx, char Tx, char *S3AlarmString, int len)
 
 	if (pTx->m_Alarms & S3_TX_OVER_TEMP)
 	{
-		strcpy_s(S3AlarmString, len, "E:Tx over-temperature. Entering sleep mode");
+		strcpy_s(S3AlarmString, len, "E:Transmitter over-temperature. Entering sleep mode");
 		pTx->m_CurAlarmSrc = 0;
 		pTx->m_CurAlarm = pTx->m_Alarms;
 		return 1;
@@ -393,7 +393,13 @@ int S3TxAlarmGetString(char Rx, char Tx, char *S3AlarmString, int len)
 
 	if (pTx->m_Alarms & S3_TX_SELF_TEST_FAIL)
 	{
-		strcpy_s(S3AlarmString, len, "E:Tx self-test failed");
+		if (pTx->m_SelfTestErr < 1000)
+			sprintf_s(S3AlarmString, len, "E:Transmitter self-test failed: %d",
+				pTx->m_SelfTestErr);
+		else
+			sprintf_s(S3AlarmString, len, "E:Tx8 input switch test failed: %d",
+				pTx->m_SelfTestErr);
+		
 		pTx->m_CurAlarmSrc = 0;
 		pTx->m_CurAlarm = S3_TX_SELF_TEST_FAIL;
 		return 1;
@@ -401,7 +407,13 @@ int S3TxAlarmGetString(char Rx, char Tx, char *S3AlarmString, int len)
 
 	if (pTx->m_Alarms & S3_TX_SELF_TEST_NOT_RUN)
 	{
-		strcpy_s(S3AlarmString, len, "I:Tx self-test failed to run");
+		if (pTx->m_SelfTestErr < 1000)
+			sprintf_s(S3AlarmString, len, "I:Transmitter self-test failed to run: %d",
+				pTx->m_SelfTestErr);
+		else
+			sprintf_s(S3AlarmString, len, "I:Tx8 input switch test failed to run: %d",
+				pTx->m_SelfTestErr);
+		
 		pTx->m_CurAlarmSrc = 0;
 		pTx->m_CurAlarm = S3_TX_SELF_TEST_NOT_RUN;
 		return 1;
@@ -409,7 +421,7 @@ int S3TxAlarmGetString(char Rx, char Tx, char *S3AlarmString, int len)
 
 	if (pTx->m_Alarms & S3_TX_SELF_TEST_RETRY)
 	{
-		strcpy_s(S3AlarmString, len, "I:Tx self-test abandoned after retries");
+		strcpy_s(S3AlarmString, len, "I:Transmitter self-test abandoned after retries");
 		pTx->m_CurAlarmSrc = 0;
 		pTx->m_CurAlarm = S3_TX_SELF_TEST_RETRY;
 		return 1;
