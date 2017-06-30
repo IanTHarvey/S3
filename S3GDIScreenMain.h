@@ -381,6 +381,7 @@ public:
 
 	void	S3GDIInit(void);
 	void	S3GDIRedraw(void);
+	void	S3GDIForceRedraw(void);
 	void	S3GDIRemoteCmd(void);
 
 	CRect	&S3GDIRectScreen(void) { return m_RectScreen; };

@@ -16,6 +16,10 @@
 #include "S3I2C.h"
 #include "S3Gain.h"
 
+#ifndef S3_AGENT
+#include "S3ControllerDlg.h"
+#endif
+
 #ifdef S3_AGENT
 #include "S3Agent\S3Comms.h"
 #endif
@@ -288,6 +292,10 @@ int S3DataModelInit(pS3DataModel dm, bool DemoMode)
 			}
 		}
 	}
+
+#ifndef S3_AGENT
+	S3Data->m_GUI = NULL;
+#endif
 
 	return 0;
 }
@@ -2092,6 +2100,16 @@ int	S3SetDateTime(	unsigned short Hour,
 	S3Data->wMonth = Month;
 	S3Data->wDay = Day;
 
+	return 0;
+}
+
+// ---------------------------------------------------------------------------
+
+int S3Redraw()
+{
+#ifndef S3_AGENT
+	S3Data->m_GUI->ForceRedraw();
+#endif
 	return 0;
 }
 

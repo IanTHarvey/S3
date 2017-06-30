@@ -189,6 +189,8 @@ BOOL CS3ControllerDlg::OnInitDialog()
 
 	m_S3Data = S3Init(false);
 
+	m_S3Data->m_GUI = this;
+
 	unsigned char CompMode = S3GetTCompMode();
 
 	if (S3GetTCompGainOption() && CompMode == S3_TCOMP_GAIN)
@@ -476,6 +478,19 @@ void CS3ControllerDlg::OnGUIUpdateTimer(void)
 
 	// TODO: Redraw animated items only
 	m_GDIStatic.S3GDIRedraw();
+
+	return;
+}
+
+// ----------------------------------------------------------------------------
+
+void CS3ControllerDlg::ForceRedraw(void)
+{    
+	UpdateDateTime();
+
+	m_AnimateState = !m_AnimateState;
+
+	m_GDIStatic.S3GDIForceRedraw();
 
 	return;
 }

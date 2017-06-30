@@ -734,6 +734,13 @@ void CS3GDIScreenMain::S3GDIRedraw()
 
 // ----------------------------------------------------------------------------
 
+void CS3GDIScreenMain::S3GDIForceRedraw()
+{
+	RedrawWindow(m_RectPhysicalScreen, NULL, RDW_INVALIDATE | RDW_UPDATENOW);
+}
+
+// ----------------------------------------------------------------------------
+
 void CS3GDIScreenMain::S3DrawGDIRack()
 {
 	for(char i = S3_MAX_RXS - 1; i >= 0; i--)

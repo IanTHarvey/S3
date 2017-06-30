@@ -19,8 +19,10 @@
 
 #ifdef S3_AGENT
 class CS3AgentDlg;
+// #include "S3AgentDlg.h"
 #else
 class CS3ControllerDlg;
+// #include "S3ControllerDlg.h"
 #endif
 
 
@@ -566,6 +568,7 @@ typedef struct sS3TxData
 
 	bool			m_SelfTestPending;
 	unsigned char	m_SelfTestRetries;
+	int				m_SelfTestErr;
 
 	S3IPData		m_Input[S3_MAX_IPS];
 	char			m_ActiveInput;		// Selected RF input
@@ -838,6 +841,10 @@ typedef struct sS3DataModel
 	unsigned short	wYear;
 	unsigned short	wMonth;
 	unsigned short	wDay;
+
+#ifndef S3_AGENT
+	CS3ControllerDlg	*m_GUI;
+#endif
 
 } *pS3DataModel, S3DataModel;
 
@@ -1613,6 +1620,8 @@ void S3SetPrevRemoteSrc(char MsgSrc);
 
 int S3GetLinkParas(char Rx, char Tx, char IP,
 				   double *P1dBIn, double *P1dBOut, double *Sens);
+
+int S3Redraw();
 
 }; // extern "C"
 
