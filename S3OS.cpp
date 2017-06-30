@@ -919,7 +919,7 @@ int S3ReadScreenOffsets()
 	{
 		// CEA values
 		S3Data->m_ScrnOSx = 0;
-		S3Data->m_ScrnOSy = 16;
+		S3Data->m_ScrnOSy = 0;
 	}
 
 	return 1;
