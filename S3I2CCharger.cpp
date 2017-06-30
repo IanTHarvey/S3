@@ -322,7 +322,7 @@ int S3I2CChGetStatus(unsigned char Ch)
 		S3Data->m_Chargers[Ch].m_Detected = false;
 		S3ChInit(Ch);
 			
-		return 1;
+		return 1; // Indicate change
 	}
 
 	bool new_insert = (S3Data->m_Chargers[Ch].m_Detected == false);

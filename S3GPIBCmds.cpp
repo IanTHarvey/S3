@@ -1653,7 +1653,7 @@ int CmdPPMRXID()
 	if (GPIBNArgs != 4)
 		return S3_GPIB_ERR_NUMBER_PARAS;
 
-	// TODO: Get Rx from command?
+	// TODO: Get Rx from command? YES!
 	char Rx = 0;
 	if (S3RxGetType(Rx) == S3_RxEmpty)
 		return S3_GPIB_RX_NOT_EXIST;

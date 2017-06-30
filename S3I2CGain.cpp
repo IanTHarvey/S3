@@ -245,11 +245,6 @@ int	S3I2CSetRxOptDSA(char Rx, char Tx, char dsa)
 
 	short cal = S3RxGetCalGain(Rx, Tx);
 
-	//if (S3I2CCurPath > 3 && gain > 0)
-	//{
-	//	dsa = 0;
-	//}
-
 	val = cal - ((short)dsa * 100 + 450);
 	val -= S3I2CRxOptFact[S3I2CCurPath - 1];
 
