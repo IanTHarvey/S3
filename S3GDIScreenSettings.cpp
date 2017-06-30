@@ -187,6 +187,7 @@ void CS3GDIScreenMain::S3InitSettingsScreen(void)
 	m_SettingsTxSelfTest = new CS3NameValue(	m_RectSettingsDefaults.left, 
 					yref + SUBHEAD_ROW + RowCnt++ * PARA_ROW, WCol,
 					_T("Tx self test"), _T("Off"), true);
+	m_SettingsTxSelfTest->SetEditable(false);
 
 	m_RectSettingsSysWide.bottom = m_RectSettingsSysWide.top +
 		SUBHEAD_ROW + RowCnt * PARA_ROW + BMARGIN;

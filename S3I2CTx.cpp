@@ -280,19 +280,22 @@ int S3I2CGetTxWakeUp(char Rx, char Tx)
 
 	S3TxSetTCompMode(Rx, Tx, S3TxGetTCompMode(Rx, Tx) + 100);
 
-	short v1, v2;
-	err = S3I2CTxSelfTest(&v1, &v2, Rx, Tx);
-	if (err)
+	if (0)
 	{
-		if (err < 100)
-			S3TxSetAlarm(Rx, Tx, S3_TX_SELF_TEST_NOT_RUN);
+		short v1, v2;
+		err = S3I2CTxSelfTest(&v1, &v2, Rx, Tx);
+		if (err)
+		{
+			if (err < 100)
+				S3TxSetAlarm(Rx, Tx, S3_TX_SELF_TEST_NOT_RUN);
+			else
+				S3TxSetAlarm(Rx, Tx, S3_TX_SELF_TEST_FAIL);
+		}
 		else
-			S3TxSetAlarm(Rx, Tx, S3_TX_SELF_TEST_FAIL);
-	}
-	else
-	{
-		S3TxCancelAlarm(Rx, Tx,
+		{
+			S3TxCancelAlarm(Rx, Tx,
 			S3_TX_SELF_TEST_NOT_RUN | S3_TX_SELF_TEST_FAIL);
+		}
 	}
 
 #ifdef S3_TX_DIAGS
@@ -781,6 +784,29 @@ int S3I2CTxSetStatus(char Rx, char Tx)
 	S3I2CTxUpdateTemp(Rx, Tx);
 	S3I2CTxDoComp(Rx, Tx);
 
+	if (1)
+	{
+		short v1, v2;
+		err = S3I2CTxSelfTest(&v1, &v2, Rx, Tx);
+
+		// Alarms handled internally
+		if (0)
+		{
+			if (err)
+			{
+				if (err < 100)
+					S3TxSetAlarm(Rx, Tx, S3_TX_SELF_TEST_NOT_RUN);
+				else
+					S3TxSetAlarm(Rx, Tx, S3_TX_SELF_TEST_FAIL);
+			}
+			else
+			{
+				S3TxCancelAlarm(Rx, Tx,
+				S3_TX_SELF_TEST_NOT_RUN | S3_TX_SELF_TEST_FAIL);
+			}
+		}
+	}
+
 	S3I2CTxSetTestTone(Rx, Tx, IP);
 
 	if (S3Data->m_Rx[Rx].m_Tx[Tx].m_Uptime > 0)
@@ -910,6 +936,7 @@ int S3I2CTxGetStatus(char Rx, char Tx)
 
 	// Catch-all for Kludge above
 	S3TxCancelAlarm(Rx, Tx, S3_TX_INIT_FAIL);
+
 
 #ifdef S3_TEMP_LOG
 	//DIAG:
@@ -1255,6 +1282,9 @@ char S3I2CTxCtrlGetTemp()
 
 int S3I2CTxSetTestTone(char Rx, char Tx, char IP)
 {
+	if (!S3TxRLLStable(Rx, Tx))
+		return 0;
+
 	int err = 0;
 #ifdef TRIZEPS
 	char ToneEnabled = S3IPGetTestToneEnable(Rx, Tx, IP);
@@ -1272,7 +1302,7 @@ int S3I2CTxSetTestTone(char Rx, char Tx, char IP)
 	}
 	else
 	{
-		err = select_RF_input(IP + 1, ToneEnabled == 1);
+		err = select_RF_input(IP, ToneEnabled == 1);
 	}
 
 	err = S3I2CSwitchTestTone(ToneEnabled == 1);
@@ -1303,7 +1333,7 @@ int S3I2CTxSwitchInput(char Rx, char Tx, char NewIP)
 	}
 	else
 	{
-		err = select_RF_input((unsigned char)S3Tx8IPMap[NewIP] + 1,
+		err = select_RF_input((unsigned char)S3Tx8IPMap[NewIP],
 			ToneEnabled == 1);
 
 		if (err)
@@ -1390,7 +1420,8 @@ int S3I2CSwitchTestTone(bool on)
 // ----------------------------------------------------------------------------
 // From JB F/W
 
-// Select RF input on Tx8 switch board
+// Select RF input on Tx8 switch board. Test tone is routed if required, but
+// tone is not turned on here.
 
 int select_RF_input(unsigned char input, bool test_tone_on)
 {
@@ -1398,42 +1429,42 @@ int select_RF_input(unsigned char input, bool test_tone_on)
 
 	switch (input)
 	{
-		case 1:
+		case 0:
 			buf[0] = 0x20;
 			buf[1] = 0x90;
 			buf[2] = 0x0D;
 			break;
-		case 2:
+		case 1:
 			buf[0] = 0x88;
 			buf[1] = 0x08;
 			buf[2] = 0x05;
 			break;
-		case 3:
+		case 2:
 			buf[0] = 0x21;
 			buf[1] = 0x10;
 			buf[2] = 0x07;
 			break;
-		case 4:
+		case 3:
 			buf[0] = 0x04;
 			buf[1] = 0x14;
 			buf[2] = 0x09;
 			break;
-		case 5:
+		case 4:
 			buf[0] = 0x88;
 			buf[1] = 0x40;
 			buf[2] = 0x03;
 			break;
-		case 6:
+		case 5:
 			buf[0] = 0x92;
 			buf[1] = 0x00;
 			buf[2] = 0x0F;
 			break;
-		case 7:
+		case 6:
 			buf[0] = 0x04;
 			buf[1] = 0x30;
 			buf[2] = 0x0B;
 			break;
-		case 8:
+		case 7:
 			buf[0] = 0xD0;
 			buf[1] = 0x00;
 			buf[2] = 0x01;
@@ -1525,7 +1556,7 @@ void RF_path_set(	unsigned char	path,
 {
 	switch (path)
 	{
-		case 0:	;
+		case 0:
 			break;
 		case 1:	
 			buf[0] = 0x2A;
@@ -1588,7 +1619,7 @@ void RF_path_set(	unsigned char	path,
 			if (attenuation == 32) buf[2] = 0x59;
 			if (attenuation == 48) buf[2] = 0x99;
 			break;
-		case 6:	;
+		case 6:
 			buf[0] = 0x08;
 			buf[1] = 0x22;
 			buf[2] = 0x71;
@@ -1597,7 +1628,7 @@ void RF_path_set(	unsigned char	path,
 			if (attenuation == 32) buf[2] = 0x59;
 			if (attenuation == 48) buf[2] = 0x99;
 			break;
-		case 7:	;
+		case 7:
 			buf[0] = 0x08;
 			buf[1] = 0xA0;
 			buf[2] = 0x10;

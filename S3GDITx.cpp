@@ -39,56 +39,56 @@ void CS3GDIScreenMain::S3DrawGDITxSel(char Rx, char Tx,
 	{
 		if (TxType == S3_Tx8)
 		{
-			for (int i = 0; i < S3_MAX_IPS; i++)
+			for (char IP = 0; IP < S3_MAX_IPS; IP++)
 			{
 				double xrad, yrad;
 
-				if (i == ActiveIP)
+				if (IP == ActiveIP)
 				{
-					xrad = m_posActiveIP * cos(m_th_l[i]);
-					yrad = m_posActiveIP * sin(m_th_l[i]);
+					xrad = m_posActiveIP * cos(m_th_l[IP]);
+					yrad = m_posActiveIP * sin(m_th_l[IP]);
 
 					SelectObject(m_HDC, m_hPenIPLive);
 					SelectObject(m_HDC, m_hLiveIPBrush);
 
-					if (S3IPGetAlarms(Rx, Tx, i) & S3_IP_OVERDRIVE)
+					if (S3IPGetAlarms(Rx, Tx, IP) & S3_IP_OVERDRIVE)
 					{
 						if (m_Parent->m_AnimateState)
 							SelectObject(m_HDC, m_hPenAlarm);
 					}
 
-					if (i != TestIP)
+					if (S3IPGetTestToneEnable(Rx, Tx, IP) != 1)
 					{	
-						S3DrawGDIIP(m_hbmpTxSelIPAct, m_hbmpTxSelIPActAlrm, Rx, Tx, i,
+						S3DrawGDIIP(m_hbmpTxSelIPAct, m_hbmpTxSelIPActAlrm, Rx, Tx, IP,
 							xref - (int)xrad, yref + (int)yrad, m_radTxSelIPAct);
 					}
 					else
 					{
-						S3DrawGDITxTestIP(xref, yref, m_radTxSel, -m_th_l[i], 1.6);
+						S3DrawGDITxTestIP(xref, yref, m_radTxSel, -m_th_l[IP], 1.6);
 					}
 				}
 				else
 				{
-					xrad = m_posIP * cos(m_th_l[i]);
-					yrad = m_posIP * sin(m_th_l[i]);
+					xrad = m_posIP * cos(m_th_l[IP]);
+					yrad = m_posIP * sin(m_th_l[IP]);
 
 					SelectObject(m_HDC, m_hPenIPOff);
 					SelectObject(m_HDC, m_hBrushIP);
 
-					if (S3IPGetAlarms(Rx, Tx, i) & S3_IP_OVERDRIVE)
+					if (S3IPGetAlarms(Rx, Tx, IP) & S3_IP_OVERDRIVE)
 					{
 						if (m_Parent->m_AnimateState)
 							SelectObject(m_HDC, m_hPenAlarm);
 					}
 
-					if (i != TestIP)
+					if (S3IPGetTestToneEnable(Rx, Tx, IP) != 1)
 					{
-						S3DrawGDIIP(m_hbmpTxSelIPInact, m_hbmpTxSelIPInactAlrm, Rx, Tx, i,
+						S3DrawGDIIP(m_hbmpTxSelIPInact, m_hbmpTxSelIPInactAlrm, Rx, Tx, IP,
 							xref - (int)xrad, yref + (int)yrad, m_radTxSelIP);
 					}
 					else
 					{
-						S3DrawGDITxTestIP(xref, yref, m_radTxSel, -m_th_l[i], 1.6);
+						S3DrawGDITxTestIP(xref, yref, m_radTxSel, -m_th_l[IP], 1.6);
 					}
 				}
 			}
