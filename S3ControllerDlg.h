@@ -133,6 +133,8 @@ public:
 	void OnI2CPollTimer(void);
 	void OnCommPollTimer(void);
 
+	void ForceRedraw(void);
+
 	int TxLogBatt(char Rx, char Tx);
 
 	void	GetDateTimeStr(	CString &str);
