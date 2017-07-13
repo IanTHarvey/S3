@@ -95,6 +95,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
+				CommandLine="copy &quot;$(ProjectDir)$(OutDir)\$(ProjectName).exe&quot; &quot;Y:\Project files\Sentinel3\Software\LatestExecutables\$(ConfigurationName)&quot;"
 			/>
 		</Configuration>
 		<Configuration
@@ -152,6 +153,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
+				CommandLine="copy &quot;$(ProjectDir)$(OutDir)\$(ProjectName).exe&quot; &quot;Y:\Project files\Sentinel3\Software\LatestExecutables\$(ConfigurationName)&quot;"
 			/>
 		</Configuration>
 		<Configuration

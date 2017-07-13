@@ -315,6 +315,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
+				CommandLine="copy &quot;$(OutDir)\$(ProjectName).exe&quot; &quot;Y:\Project files\Sentinel3\Software\LatestExecutables\$(ConfigurationName)&quot;"
 			/>
 			<DeploymentTool
 				ForceDirty="-1"
