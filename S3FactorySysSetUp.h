@@ -56,6 +56,10 @@ public:
 	void Init();
 	void Update();
 	afx_msg void OnBnClickedUnsealButton();
+	CEdit m_BatterySNEdit;
+	afx_msg void OnBnClickedBattSnSetButton();
+	CComboBox m_BatteryTypeCombo;
+	CButton m_UnsealBatteryButton;
 };
 
 

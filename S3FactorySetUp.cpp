@@ -472,9 +472,6 @@ void CS3FactorySetUp::OnCbnSelchangeRfPathCombo()
 	m_TxCalEdit.GetWindowText(tmp);
 
 	wchar_t	*e;
-
-	m_TxCalEdit.GetWindowText(tmp);
-
 	double CalVal = _tcstod(tmp, &e);
 
 	if (*e != '\0')

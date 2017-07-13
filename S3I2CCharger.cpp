@@ -431,14 +431,6 @@ int S3I2CChGetStatus(unsigned char Ch)
 	S3ChSetBattSN(Ch, SN);
 	S3ChSetBattPN(Ch, PN);
 
-	// Get from part number S3-BAT->1<P-00
-	if (PN[7] == '1')
-		S3ChSetBattType(Ch, S3_Batt2S1P);
-	else if (PN[7] == '2')
-		S3ChSetBattType(Ch, S3_Batt2S2P);
-	else
-		S3ChSetBattType(Ch, S3_BattUnknown);
-
 	// Enable 12V supply if good
 	if (S3ChBattValidated(Ch))
 		S3I2CChEn(Ch, true);
@@ -830,6 +822,9 @@ int S3I2CChWriteSNPN(char Ch, const char *SN, const char *PN)
 	else return 1;
 
 #endif // TRIZEPS
+
+	S3ChSetBattSN(Ch, SN);
+	S3ChSetBattPN(Ch, PN);
 
 	return 0;	
 }

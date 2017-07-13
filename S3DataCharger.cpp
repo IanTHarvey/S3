@@ -114,6 +114,11 @@ const wchar_t *S3ChGetBattTypeStr(char Ch)
 	return BattTypeStrings[S3Data->m_Chargers[Ch].m_Type];
 }
 
+unsigned char S3ChGetBattType(char Ch)
+{
+	return S3Data->m_Chargers[Ch].m_Type;
+}
+
 // ---------------------------------------------------------------------------
 
 int S3ChSetBattType(char Ch, unsigned char Type)
@@ -160,6 +165,14 @@ int S3ChSetBattPN(char Ch, const char *PN)
 		return 1;
 
 	strcpy_s(S3Data->m_Chargers[Ch].m_BattPN, S3_MAX_PN_LEN, PN);
+	
+	// Get from part number S3-BAT->1<P-00
+	if (PN[7] == '1')
+		S3ChSetBattType(Ch, S3_Batt2S1P);
+	else if (PN[7] == '2')
+		S3ChSetBattType(Ch, S3_Batt2S2P);
+	else
+		S3ChSetBattType(Ch, S3_BattUnknown);
 
 	return 0;
 }

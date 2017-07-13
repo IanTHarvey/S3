@@ -46,6 +46,9 @@ void CS3FactorySysSetUp::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_FACT_SN_EDIT, m_FactSNEdit);
 	DDX_Control(pDX, IDC_FACT_PN_EDIT, m_FactPNEdit);
 	DDX_Control(pDX, IDC_SEAL_BUTTON, m_SealBatteryButton);
+	DDX_Control(pDX, IDC_BATTERY_SN_EDIT, m_BatterySNEdit);
+	DDX_Control(pDX, IDC_BATTERY_TYPE_COMBO, m_BatteryTypeCombo);
+	DDX_Control(pDX, IDC_UNSEAL_BUTTON, m_UnsealBatteryButton);
 }
 
 BEGIN_MESSAGE_MAP(CS3FactorySysSetUp, CDialog)
@@ -57,6 +60,7 @@ BEGIN_MESSAGE_MAP(CS3FactorySysSetUp, CDialog)
 	ON_BN_CLICKED(IDC_TEST_BUTTON, &CS3FactorySysSetUp::OnBnClickedTestButton)
 	ON_BN_CLICKED(IDC_SEAL_BUTTON, &CS3FactorySysSetUp::OnBnClickedSealButton)
 	ON_BN_CLICKED(IDC_UNSEAL_BUTTON, &CS3FactorySysSetUp::OnBnClickedUnsealButton)
+	ON_BN_CLICKED(IDC_BATT_SN_SET_BUTTON, &CS3FactorySysSetUp::OnBnClickedBattSnSetButton)
 END_MESSAGE_MAP()
 
 BOOL CS3FactorySysSetUp::OnInitDialog()
@@ -101,8 +105,34 @@ void CS3FactorySysSetUp::Init()
 void CS3FactorySysSetUp::Update()
 {
 	char Ch = 0;
+	bool occupied = S3ChOccupied(Ch);
 
-	m_SealBatteryButton.EnableWindow(S3ChOccupied(Ch) == TRUE);
+	m_SealBatteryButton.EnableWindow(occupied);
+	m_UnsealBatteryButton.EnableWindow(occupied);
+	m_SealBatteryButton.EnableWindow(occupied);
+	m_BatterySNEdit.EnableWindow(occupied);
+	m_BatteryTypeCombo.EnableWindow(occupied);
+
+	if (occupied)
+	{
+		CString tmp;
+
+		tmp.Format(_T("%S"), S3ChGetBattSN(Ch));
+
+		m_BatterySNEdit.SetWindowText(tmp);
+
+		if (S3ChGetBattType(Ch) == S3_BattUnknown)
+			m_BatteryTypeCombo.SetCurSel(0);
+		else if (S3ChGetBattType(Ch) == S3_Batt2S1P)
+			m_BatteryTypeCombo.SetCurSel(1);
+		else if (S3ChGetBattType(Ch) == S3_Batt2S2P)
+			m_BatteryTypeCombo.SetCurSel(2);
+	}
+	else
+	{
+		m_BatterySNEdit.SetWindowText(_T(""));
+		m_BatteryTypeCombo.SetCurSel(0);
+	}
 
 }
 
@@ -281,7 +311,10 @@ void CS3FactorySysSetUp::OnBnClickedSealButton()
 		else if (S3I2CChSetBattSealed(Ch))
 			m_StatusMsgStatic.SetWindowText(_T("Seal command failed"));
 		else
+		{
 			m_StatusMsgStatic.SetWindowText(_T("Battery sealed OK"));
+			S3ChRemove(Ch);
+		}
 	}
 }
 
@@ -348,10 +381,68 @@ void CS3FactorySysSetUp::OnBnClickedUnsealButton()
 		}
 
 		m_StatusMsgStatic.SetWindowText(_T("Full access enabled"));
+		S3ChRemove(Ch);
 	}
 
-	
 	return;
+}
+
+// ----------------------------------------------------------------------------
+
+void CS3FactorySysSetUp::OnBnClickedBattSnSetButton()
+{
+	char Ch = 0;
+	if (!S3ChOccupied(Ch))
+	{
+		m_StatusMsgStatic.SetWindowText(_T("No battery on charge port 1"));
+		return;
+	}
+
+	char SN[S3_MAX_SN_LEN], PN[S3_MAX_PN_LEN];
+
+	CString tmp;
+
+	m_BatterySNEdit.GetWindowText(tmp);
+
+	if (tmp.GetLength() < 7)
+	{
+		m_StatusMsgStatic.SetWindowText(_T("Invalid serial number"));
+		return;
+	}
+
+	sprintf_s(SN, S3_MAX_SN_LEN, "%S", (LPCTSTR)tmp);
+	
+	if (m_BatteryTypeCombo.GetCurSel() == 1)
+		strcpy_s(PN, S3_MAX_PN_LEN, "S3-BAT-1P-00");
+	else if (m_BatteryTypeCombo.GetCurSel() == 2)
+		strcpy_s(PN, S3_MAX_PN_LEN, "S3-BAT-2P-00");
+	else
+	{
+		m_StatusMsgStatic.SetWindowText(_T("Type not selected"));
+		return;
+	}
+
+	S3I2CChMS(Ch);
+
+	int err = S3I2CChWriteSNPN(Ch, SN, PN);
+
+	if (err == 0)
+	{
+		m_StatusMsgStatic.SetWindowText(_T("Write succeeded"));
+		S3ChRemove(Ch);
+	}
+	else if (err == 1 || err == 4)
+	{
+		m_StatusMsgStatic.SetWindowText(_T("Write failed"));
+	}
+	else if (err == 2)
+	{
+		m_StatusMsgStatic.SetWindowText(_T("Invalid serial or part number number"));
+	}
+	else if (err == 3)
+	{
+		m_StatusMsgStatic.SetWindowText(_T("Battery is sealed"));
+	}
 }
 
 // ----------------------------------------------------------------------------

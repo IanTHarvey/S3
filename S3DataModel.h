@@ -1417,6 +1417,7 @@ bool			S3ChFullyCharged(	char Ch);
 char			S3ChGetSoC(			char Ch);
 char			S3ChSetSoC(			char Ch, char ChLevel);
 const wchar_t	*S3ChGetBattTypeStr(char Ch);
+unsigned char	S3ChGetBattType(	char Ch);
 int				S3ChSetBattType(	char Ch, unsigned char Type);
 const char		*S3ChGetBattSN(		char Ch);
 const char		*S3ChGetBattPN(		char Ch);
