@@ -1,15 +1,9 @@
 // S3FactorySetUp.cpp : implementation file
 //
-#ifndef TRIZEPS
-#include "S3ControllerX86/targetver.h"
-#else
-#define WINVER _WIN32_WCE
-#include <ceconfig.h>
-#endif
+#include "stdafx.h"
 
-#include <afxwin.h>         // MFC core and standard components
-#include <afxext.h>         // MFC extensions
 #include <stdio.h>
+
 #include "S3DataModel.h"
 #include "S3GPIB.h"
 #include "S3USBVCP.h"
@@ -713,7 +707,7 @@ void CS3FactorySetUp::OnStnClickedRx1CalStatic()
 
 void CS3FactorySetUp::UpdateRxTxCombos()
 {
-	CString tmp = m_Tx;
+	CString tmp;
 
 	for(char Rx = m_FactoryRxDroplist.GetCount() - 1; Rx >= 0; Rx--)
 		m_FactoryRxDroplist.DeleteString(Rx);

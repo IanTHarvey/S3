@@ -1,19 +1,15 @@
 // S3FactorySysSetUp.cpp : implementation file
 //
-#ifndef TRIZEPS
-#include "S3ControllerX86/targetver.h"
-#else
-#define WINVER _WIN32_WCE
-#include <ceconfig.h>
-#endif
+
+#include "stdafx.h"
+
+#include <stdio.h>
+#include "S3DataModel.h"
 
 #ifdef TRIZEPS
 #include "drvLib_app.h"
 #endif
 
-#include <afxwin.h>         // MFC core and standard components
-#include <afxext.h>         // MFC extensions
-#include <stdio.h>
 #include "S3DataModel.h"
 #include "S3GPIB.h"
 #include "S3USBVCP.h"
@@ -262,7 +258,7 @@ void CS3FactorySysSetUp::OnBnClickedFactSnSetButton()
 
 void CS3FactorySysSetUp::OnBnClickedTestButton()
 {
-		CString tmp;
+	CString tmp;
 
 	tmp.Format(_T("Authenticate:"));
 	m_StatusMsgStatic.SetWindowText(tmp);
@@ -319,7 +315,6 @@ void CS3FactorySysSetUp::OnBnClickedSealButton()
 }
 
 // ----------------------------------------------------------------------------
-
 
 void CS3FactorySysSetUp::OnBnClickedUnsealButton()
 {
