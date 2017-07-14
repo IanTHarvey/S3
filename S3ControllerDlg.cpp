@@ -949,9 +949,11 @@ bool GetBuildNum(void)
     return true;
 }
 
+// ---------------------------------------------------------------------------
+
 void CS3ControllerDlg::ShowFactory(char screen)
 {
-	if (screen == S3_FACTORY_SCREEN)
+	if (screen == S3_CALIBRATE_SCREEN)
 	{
 		if (S3SetFactoryMode(-1, -1, true))
 			return;
@@ -959,6 +961,7 @@ void CS3ControllerDlg::ShowFactory(char screen)
 		m_FactoryDlg->Init();
 		m_FactoryDlg->ShowWindow(SW_SHOWMAXIMIZED);
 		m_GDIStatic.S3GDIChangeScreen(S3_CALIBRATE_SCREEN);
+		m_GDIStatic.ShowWindow(SW_HIDE);
 	}
 	else if (screen == S3_FACTORY_SYS_SCREEN)
 	{
@@ -968,6 +971,7 @@ void CS3ControllerDlg::ShowFactory(char screen)
 		m_FactorySysDlg->Init();
 		m_FactorySysDlg->ShowWindow(SW_SHOWMAXIMIZED);
 		m_GDIStatic.S3GDIChangeScreen(S3_FACTORY_SYS_SCREEN);
+		m_GDIStatic.ShowWindow(SW_HIDE);
 	}
 }
 
@@ -978,11 +982,12 @@ void CS3ControllerDlg::HideFactory(void)
 	S3SetFactoryMode(0, 0, false);
 
 	if (m_GDIStatic.S3GDIGetScreen() == S3_CALIBRATE_SCREEN)
-		m_FactoryDlg->ShowWindow(false);
+		m_FactoryDlg->ShowWindow(SW_HIDE);
 	else if (m_GDIStatic.S3GDIGetScreen() == S3_FACTORY_SYS_SCREEN)
-		m_FactorySysDlg->ShowWindow(false);
+		m_FactorySysDlg->ShowWindow(SW_HIDE);
 
 	m_GDIStatic.S3GDIChangeScreen(S3_PREVIOUS_SCREEN);
+	m_GDIStatic.ShowWindow(SW_SHOWMAXIMIZED);
 }
 
 // ---------------------------------------------------------------------------

@@ -184,8 +184,8 @@ int CS3GDIScreenMain::S3FindFactoryScreen(POINT p)
 	}
 	else if (m_RectCalibrate.PtInRect(p))
 	{
-		S3GDIChangeScreen(S3_FACTORY_SCREEN);
-		m_Parent->ShowFactory(S3_FACTORY_SCREEN);
+		S3GDIChangeScreen(S3_CALIBRATE_SCREEN);
+		m_Parent->ShowFactory(S3_CALIBRATE_SCREEN);
 		return 1;
 	}
 	else if (m_RectSystem.PtInRect(p))
