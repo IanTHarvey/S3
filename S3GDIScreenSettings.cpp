@@ -72,7 +72,7 @@ void CS3GDIScreenMain::S3InitSettingsScreen(void)
 	m_GDIIPPortEdit->Create(WS_CHILD | ES_LEFT | ES_NOHIDESEL | ES_AUTOHSCROLL,
 												rect, this, S3GDI_NUM_EDIT);
 	m_GDIIPPortEdit->SetFont(&m_cFontL);
-	m_GDIIPPortEdit->ShowWindow(false);
+	m_GDIIPPortEdit->ShowWindow(SW_HIDE);
 	m_GDIIPPortEdit->m_UpdateImmediate = false;
 
 	m_GDIDefaultGainEdit = new CS3NumEdit(this);
@@ -80,18 +80,18 @@ void CS3GDIScreenMain::S3InitSettingsScreen(void)
 	m_GDIDefaultGainEdit->Create(WS_CHILD | ES_LEFT, 
 												rect, this, S3GDI_NUM2_EDIT);
 	m_GDIDefaultGainEdit->SetFont(&m_cFontL);
-	m_GDIDefaultGainEdit->ShowWindow(false);
+	m_GDIDefaultGainEdit->ShowWindow(SW_HIDE);
 	m_GDIDefaultGainEdit->m_UpdateImmediate = false;
 
 	m_GDIDateEdit = new CS3Edit(this);
 	m_GDIDateEdit->Create(WS_CHILD | ES_LEFT, rect, this, S3GDI_DATE_EDIT);
 	m_GDIDateEdit->SetFont(&m_cFontL);
-	m_GDIDateEdit->ShowWindow(false);
+	m_GDIDateEdit->ShowWindow(SW_HIDE);
 
 	m_GDITimeEdit = new CS3Edit(this);
 	m_GDITimeEdit->Create(WS_CHILD | ES_LEFT, rect, this, S3GDI_TIME_EDIT);
 	m_GDITimeEdit->SetFont(&m_cFontL);
-	m_GDITimeEdit->ShowWindow(false);
+	m_GDITimeEdit->ShowWindow(SW_HIDE);
 
 	m_RectSettingsScreen = m_RectScreen;
 	m_RectSettingsScreen.top = m_RectHeader.bottom;
@@ -848,8 +848,8 @@ int CS3GDIScreenMain::S3FindSettingsScreen(POINT p)
 	m_ParaMenu->Clear();
 	m_TxBattInfoPopup->Clear();
 
-	m_GDIDateEdit->ShowWindow(false);
-	m_GDITimeEdit->ShowWindow(false);
+	m_GDIDateEdit->ShowWindow(SW_HIDE);
+	m_GDITimeEdit->ShowWindow(SW_HIDE);
 
 	// Check for keypad press
 	char number = m_NumericPad->Find(p);
@@ -1043,7 +1043,7 @@ int CS3GDIScreenMain::S3FindSettingsScreen(POINT p)
 			str.Format(_T("%d"), Port);
 
 			m_GDIIPPortEdit->SetWindowText(str);
-			m_GDIIPPortEdit->ShowWindow(true);
+			m_GDIIPPortEdit->ShowWindow(SW_SHOWNORMAL);
 
 			m_NumericPad->PopUp(m_HDC, p.x, p.y, m_GDIIPPortEdit,
 				S3_NP_POSITIVE | S3_NP_INTEGER, 5);
@@ -1096,7 +1096,7 @@ int CS3GDIScreenMain::S3FindSettingsScreen(POINT p)
 			str.Format(_T("%d"), Gain);
 
 			m_GDIDefaultGainEdit->SetWindowText(str);
-			m_GDIDefaultGainEdit->ShowWindow(true);
+			m_GDIDefaultGainEdit->ShowWindow(SW_SHOWNORMAL);
 
 			m_NumericPad->PopUp(m_HDC, p.x, p.y, m_GDIDefaultGainEdit,
 				S3_NP_INTEGER, 3);
@@ -1202,7 +1202,7 @@ int CS3GDIScreenMain::S3FindSettingsScreen(POINT p)
 			m_Parent->GetDateStr(str);
 
 			m_GDIDateEdit->SetWindowText(str);
-			m_GDIDateEdit->ShowWindow(true);
+			m_GDIDateEdit->ShowWindow(SW_SHOWNORMAL);
 
 			return S3SetSelectedPara(-1, -1, -1, S3_DATE_EDIT);
 #endif
@@ -1217,7 +1217,7 @@ int CS3GDIScreenMain::S3FindSettingsScreen(POINT p)
 			m_Parent->GetTimeStr(str);
 
 			m_GDITimeEdit->SetWindowText(str);
-			m_GDITimeEdit->ShowWindow(true);
+			m_GDITimeEdit->ShowWindow(SW_SHOWNORMAL);
 
 			return S3SetSelectedPara(-1, -1, -1, S3_TIME_EDIT);
 #endif

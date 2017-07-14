@@ -225,22 +225,22 @@ int CS3GDIScreenMain::S3GDIIPGainProcess(POINT p)
 		
 		if (m_IPGainRectUp1.PtInRect(p))
 		{	
-			m_GDIGainEdit->ShowWindow(false);
+			m_GDIGainEdit->ShowWindow(SW_HIDE);
 			S3SetGain(Rx, Tx, IP, gain + 1);
 		}
 		else if (m_IPGainRectDown1.PtInRect(p))
 		{
-			m_GDIGainEdit->ShowWindow(false);
+			m_GDIGainEdit->ShowWindow(SW_HIDE);
 			S3SetGain(Rx, Tx, IP, gain - 1);
 		}
 		else if (m_IPGainRectUp2.PtInRect(p))
 		{	
-			m_GDIGainEdit->ShowWindow(false);
+			m_GDIGainEdit->ShowWindow(SW_HIDE);
 			S3SetGain(Rx, Tx, IP, gain + 5);
 		}
 		else if (m_IPGainRectDown2.PtInRect(p))
 		{
-			m_GDIGainEdit->ShowWindow(false);
+			m_GDIGainEdit->ShowWindow(SW_HIDE);
 			S3SetGain(Rx, Tx, IP, gain - 5);
 		}
 		else if (m_IPGainRectText.PtInRect(p))
@@ -270,7 +270,7 @@ int CS3GDIScreenMain::S3GDIIPGainProcess(POINT p)
 	}
 
 	m_GDIGainEdit->SetFont(&m_cFontS);
-	m_GDIGainEdit->ShowWindow(false);
+	m_GDIGainEdit->ShowWindow(SW_HIDE);
 	m_IPGainIsUp = false;
 
 	// m_NumericPad->PopDown();
@@ -284,7 +284,7 @@ int CS3GDIScreenMain::S3GDIIPGainProcess(POINT p)
 void CS3GDIScreenMain::S3GDIIPGainClose()
 {
 	m_IPGainIsUp = false;
-	m_GDIGainEdit->ShowWindow(false);
+	m_GDIGainEdit->ShowWindow(SW_HIDE);
 
 	m_NumericPad->PopDown();
 }

@@ -137,7 +137,7 @@ void CS3GDIScreenMain::OnPaint()
 
 	hDC = ::BeginPaint(m_hWnd, &Ps);
 
-	if (m_Screen != S3_CALIBRATE_SCREEN)
+	if (m_Screen != S3_CALIBRATE_SCREEN && m_Screen != S3_FACTORY_SYS_SCREEN)
 	{
 
 	// Paint a background
@@ -305,19 +305,19 @@ int CS3GDIScreenMain::S3GDIChangeScreen(char screen)
 	m_PrevScreen = m_Screen;
 
 	// Tx Screen orphans
-	m_GDINodeNameEdit->ShowWindow(false);
-	m_GDIMaxPowerEdit->ShowWindow(false);
+	m_GDINodeNameEdit->ShowWindow(SW_HIDE);
+	m_GDIMaxPowerEdit->ShowWindow(SW_HIDE);
 	S3GDIIPGainClose();
 
 	// Settings Screen orphans
-	m_GDIIPPortEdit->ShowWindow(false);
-	m_GDIDefaultGainEdit->ShowWindow(false);
-	m_GDIDateEdit->ShowWindow(false);
-	m_GDITimeEdit->ShowWindow(false);
+	m_GDIIPPortEdit->ShowWindow(SW_HIDE);
+	m_GDIDefaultGainEdit->ShowWindow(SW_HIDE);
+	m_GDIDateEdit->ShowWindow(SW_HIDE);
+	m_GDITimeEdit->ShowWindow(SW_HIDE);
 
 	// Shutdown screen orphan
 #ifndef S3_AGENT
-	m_GDIMaintKeyEdit->ShowWindow(false);
+	m_GDIMaintKeyEdit->ShowWindow(SW_HIDE);
 #endif
 
 	m_NumericPad->PopDown();
@@ -1154,7 +1154,7 @@ void CS3GDIScreenMain::OnStnClicked()
 
 	S3Find(p);
 
-	InvalidateRect(m_RectScreen, false);
+	InvalidateRect(NULL, false);
 }
 
 // ----------------------------------------------------------------------------

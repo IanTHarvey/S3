@@ -99,7 +99,7 @@ void CS3GDIScreenMain::S3InitGDIShutdownScreen(void)
 	m_GDIMaintKeyEdit = new CS3Edit(this);
 	m_GDIMaintKeyEdit->Create(WS_CHILD | ES_LEFT, rect, this, S3GDI_MAINT_KEY_EDIT);
 	m_GDIMaintKeyEdit->SetFont(&m_cFontS);
-	m_GDIMaintKeyEdit->ShowWindow(false);
+	m_GDIMaintKeyEdit->ShowWindow(SW_HIDE);
 	m_GDIMaintKeyEdit->SetWindowText(_T(""));
 #endif
 }
@@ -207,7 +207,7 @@ void CS3GDIScreenMain::S3DrawGDIShutdownScreen(void)
 	}
 
 #ifndef S3_AGENT
-	m_GDIMaintKeyEdit->ShowWindow(true);
+	m_GDIMaintKeyEdit->ShowWindow(SW_SHOWNORMAL);
 #endif
 }
 
@@ -275,7 +275,7 @@ int CS3GDIScreenMain::S3FindShutdownScreen(POINT p)
 int CS3GDIScreenMain::S3LeaveShutdownScreen()
 {
 #ifndef S3_AGENT
-	m_GDIMaintKeyEdit->ShowWindow(false);
+	m_GDIMaintKeyEdit->ShowWindow(SW_HIDE);
 
 	CString str;
 	int len;

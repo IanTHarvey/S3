@@ -220,7 +220,7 @@ void CS3GDIScreenMain::S3InitGDITxScreen(void)
 	m_GDINodeNameEdit->Create(WS_CHILD | ES_LEFT | ES_AUTOHSCROLL,
 		rect, this, S3GDI_TEXT_EDIT);
 	m_GDINodeNameEdit->SetFont(&m_cFontL);
-	m_GDINodeNameEdit->ShowWindow(false);
+	m_GDINodeNameEdit->ShowWindow(SW_HIDE);
 	m_GDINodeNameEdit->SetLimitText(8);
 
 	m_GDIGainEdit = new CS3NumEdit(this);
@@ -228,7 +228,7 @@ void CS3GDIScreenMain::S3InitGDITxScreen(void)
 	m_GDIGainEdit->Create(WS_CHILD | ES_RIGHT,
 		rect, this, S3GDI_NUM_EDIT);
 	m_GDIGainEdit->SetFont(&m_cFontL);
-	m_GDIGainEdit->ShowWindow(false);
+	m_GDIGainEdit->ShowWindow(SW_HIDE);
 
 	m_GDIMaxPowerEdit = new CS3NumEdit(this);
 
@@ -237,7 +237,7 @@ void CS3GDIScreenMain::S3InitGDITxScreen(void)
 	m_GDIMaxPowerEdit->Create(WS_CHILD | ES_RIGHT | ES_AUTOHSCROLL,
 		rect2, this, S3GDI_NUM_EDIT);
 	m_GDIMaxPowerEdit->SetFont(&m_cFontL);
-	m_GDIMaxPowerEdit->ShowWindow(false);
+	m_GDIMaxPowerEdit->ShowWindow(SW_HIDE);
 	m_GDIMaxPowerEdit->SetLimitText(8);
 
 	CalcGainTickMarks();
@@ -591,8 +591,8 @@ int CS3GDIScreenMain::S3FindTxScreen(POINT p)
 
 	m_ParaMenu->Clear();
 
-	m_GDINodeNameEdit->ShowWindow(false);
-	m_GDIMaxPowerEdit->ShowWindow(false);
+	m_GDINodeNameEdit->ShowWindow(SW_HIDE);
+	m_GDIMaxPowerEdit->ShowWindow(SW_HIDE);
 
 	char Rx, Tx, IP, Para;
 	S3GetSelected(&Rx, &Tx, &IP);
@@ -735,8 +735,8 @@ int CS3GDIScreenMain::S3FindTxScreen(POINT p)
 					}
 
 					S3SetSelected(Rx, Tx, IP);
-					m_GDINodeNameEdit->ShowWindow(false);
-					m_GDIMaxPowerEdit->ShowWindow(false);
+					m_GDINodeNameEdit->ShowWindow(SW_HIDE);
+					m_GDIMaxPowerEdit->ShowWindow(SW_HIDE);
 
 					int found = S3FindTxScreenPara(p);
 

@@ -355,14 +355,14 @@ void CS3NumberPad::PopDown()
 		m_RectButtons[j].OffsetRect(-m_xref, -m_yref);
 	}
 
-	m_Editor->ShowWindow(false);
+	m_Editor->ShowWindow(SW_HIDE);
 	
 	// This will crash if Create() not called - as asserted must be a
 	// window - which the base CEdit class will not be. As the base
 	// is not actually shown:
 	// a) Is there any point in hiding the window? 
 	// b) Is there any point in basing this class at all?
-	ShowWindow(false);
+	ShowWindow(SW_HIDE);
 }
 
 
@@ -454,7 +454,7 @@ char CS3NumberPad::Find(POINT pt)
 
 				m_Editor->SetWindowText(txt);
 				m_Editor->SetSel(cs, cs);
-				// m_Editor->ShowWindow(true);
+				// m_Editor->ShowWindow(SW_SHOWNORMAL);
 
 				return j;
 			}

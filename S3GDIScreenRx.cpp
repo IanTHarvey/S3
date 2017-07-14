@@ -605,7 +605,7 @@ int CS3GDIScreenMain::S3FindRxScreen(POINT p)
 	char menu_item = m_ParaMenu->FindSelect(p);
 	m_ParaMenu->Clear();
 
-	m_GDINodeNameEdit->ShowWindow(false);
+	m_GDINodeNameEdit->ShowWindow(SW_HIDE);
 
 	char Rx, Tx, IP, Para;
 	S3GetSelected(&Rx, &Tx, &IP);
@@ -657,7 +657,7 @@ int CS3GDIScreenMain::S3FindRxScreen(POINT p)
 			{
 				if (p.x < m_RectRxTable.left + (Tx + 1) * m_RectRxTx.Width())
 				{
-					m_GDINodeNameEdit->ShowWindow(false);
+					m_GDINodeNameEdit->ShowWindow(SW_HIDE);
 
 					char Rx, OldTx, OldIP;
 					
