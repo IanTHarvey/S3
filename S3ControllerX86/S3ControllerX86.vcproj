@@ -845,7 +845,15 @@
 				>
 			</File>
 			<File
+				RelativePath="..\res\GreyButton.bmp"
+				>
+			</File>
+			<File
 				RelativePath="..\res\PPMBGEmbossed.bmp"
+				>
+			</File>
+			<File
+				RelativePath="..\res\RedButton.bmp"
 				>
 			</File>
 			<File
