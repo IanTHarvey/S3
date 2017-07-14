@@ -12,11 +12,7 @@
 
 // See AfxGetMainWnd()->PostMessage(REM_SHUTDOWNREQ, 0, 0);
 // #include "afxwin.h"
-#include <windows.h>
-#include <string.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <ctype.h>
+#include "stdafx.h"
 #include <float.h>
 
 #include "S3DataModel.h"

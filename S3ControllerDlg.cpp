@@ -3,12 +3,6 @@
 //
 #include "stdafx.h"
 
-#include <afxsock.h>		// MFC socket extensions
-#include "afxpriv.h"
-#include <stdio.h>
-#include <string.h>
-#include <math.h>
-
 #ifdef TRIZEPS
 #include "drvLib_app.h"
 #endif

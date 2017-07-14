@@ -4,10 +4,6 @@
 
 #include "stdafx.h"
 
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
-
 #include <atltime.h>
 #include <errno.h>
 #include "S3DataModel.h"

@@ -1,10 +1,7 @@
 // ----------------------------------------------------------------------------
 // Tx Comms over SC16IS740 I2C serial bridge functions.
 
-#include <windows.h>
-#include <string.h>
-#include <stdlib.h>
-#include <stdio.h>
+#include "stdafx.h"
 
 #ifdef TRIZEPS
 #include "drvLib_app.h"

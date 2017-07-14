@@ -3,21 +3,13 @@
 #define WIN32_LEAN_AND_MEAN
 #endif
 
-#ifndef TRIZEPS
-#include "S3ControllerX86/targetver.h"
-#else
-#define WINVER _WIN32_WCE
-#include <ceconfig.h>
-
-#endif
-#include "afxpriv.h"
+#include "stdafx.h"
 
 #include <ifdef.h>
 #include <winsock2.h>
 #include <iphlpapi.h>
 #include <ws2tcpip.h>
-#include <stdio.h>
-#include <string.h>
+
 
 #include "S3DataModel.h"
 #include "S3GPIB.h"

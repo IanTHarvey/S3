@@ -7,11 +7,9 @@
 // All functions assume comms to slot1, tx1 is already set up.
 //
 
-#include <windows.h>
-#include <string.h>
-#include <stdlib.h>
-#include <stdio.h>
+#include "stdafx.h"
 #include <math.h>
+
 #include "S3DataModel.h"
 
 extern pS3DataModel S3Data;

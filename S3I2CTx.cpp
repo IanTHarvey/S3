@@ -6,10 +6,7 @@
 // Tx Comms over SC16IS740 I2C serial bridge to TxOpt and TxCtrl boards and
 // battery.
 
-#include <windows.h>
-#include <string.h>
-#include <stdlib.h>
-#include <stdio.h>
+#include "stdafx.h"
 #include "S3DataModel.h"
 
 extern pS3DataModel S3Data;

@@ -1,9 +1,7 @@
 // ----------------------------------------------------------------------------
 
 #include "stdafx.h"
-#include <string.h>
-#include <stdlib.h>
-#include <stdio.h>
+
 #include "S3DataModel.h"
 
 extern pS3DataModel S3Data;

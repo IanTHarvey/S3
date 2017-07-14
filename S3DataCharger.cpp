@@ -2,9 +2,6 @@
 // Battery charger functions
 
 #include "stdafx.h"
-#include <string.h>
-#include <stdlib.h>
-#include <stdio.h>
 #include "S3DataModel.h"
 #include "S3GPIB.h"
 

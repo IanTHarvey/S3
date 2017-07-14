@@ -2,17 +2,7 @@
 // S3Controller.cpp : Defines the class behaviors for the application.
 //
 
-#ifndef TRIZEPS
-#include "S3ControllerX86/targetver.h"
-#else
-#define WINVER _WIN32_WCE
-#include <ceconfig.h>
-#endif
-
-#include <afxsock.h>		// MFC socket extensions
-#include "afxpriv.h"
-
-
+#include "stdafx.h"
 
 #include "S3DataModel.h"
 #include "S3ControllerDlg.h"

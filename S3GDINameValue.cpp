@@ -16,7 +16,6 @@
 
 #include "stdafx.h"
 
-#include <stdio.h>
 #include "S3DataModel.h"
 
 #ifdef S3_AGENT

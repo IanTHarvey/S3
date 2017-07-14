@@ -2,10 +2,7 @@
 // ----------------------------------------------------------------------------
 // Comparison functions
 
-#include "windows.h"
-#include <string.h>
-#include <stdlib.h>
-#include <stdio.h>
+#include "stdafx.h"
 #include "S3DataModel.h"
 
 // ----------------------------------------------------------------------------

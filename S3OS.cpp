@@ -6,9 +6,6 @@
 
 #include "stdafx.h"
 #include "tchar.h"
-#include <string.h>
-#include <stdlib.h>
-#include <stdio.h>
 #include <errno.h>
 
 #include "S3DataModel.h"

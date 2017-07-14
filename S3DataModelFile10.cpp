@@ -5,11 +5,6 @@
 // ACCESSORS)
 
 #include "stdafx.h"
-#include <string.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <ctype.h>
-#include <math.h>
 #include "S3DataModel.h"
 
 extern	pS3DataModel S3Shadow;

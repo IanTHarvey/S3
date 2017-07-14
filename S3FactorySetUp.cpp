@@ -2,8 +2,6 @@
 //
 #include "stdafx.h"
 
-#include <stdio.h>
-
 #include "S3DataModel.h"
 #include "S3GPIB.h"
 #include "S3USBVCP.h"

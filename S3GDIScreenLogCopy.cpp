@@ -1,8 +1,5 @@
 #include "stdafx.h"
 
-#include <stdio.h>
-#include <math.h>
-#include "mathdefs.h"
 #include "S3DataModel.h"
 
 #ifdef S3_AGENT

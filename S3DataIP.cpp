@@ -2,12 +2,8 @@
 // TODO: Make Rx/Tx/IP indexing char and use -1 to indicate non-existence
 
 #include "stdafx.h"
-#include <string.h>
-#include <stdlib.h>
-#include <stdio.h>
 #include <assert.h>
 #include <float.h>
-#include <math.h>
 
 #include "S3SystemDetails.h"
 #include "S3DataModel.h"
