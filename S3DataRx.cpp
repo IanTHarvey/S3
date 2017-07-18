@@ -298,20 +298,22 @@ int S3RxValidQ(char Rx)
 
 char S3RxGetTxN(char Rx)
 {
+	char ret = 0;
+
 	switch (S3Data->m_Rx[Rx].m_Type)
 	{
 	case S3_Rx1:
-		return 1;
+		ret = 1;
 		break;
 	case S3_Rx2:
-		return 2;
+		ret = 2;
 		break;
 	case S3_Rx6:
-		return 6;
+		ret = 6;
 		break;
 	}
 
-	return 0;
+	return ret;
 }
 
 // ----------------------------------------------------------------------------
@@ -630,7 +632,6 @@ const char *S3RxGetFW(char Rx)
 }
 
 // ---------------------------------------------------------------------------
-
 
 void S3RxSetCoords(char Rx, int x, int y)
 {
