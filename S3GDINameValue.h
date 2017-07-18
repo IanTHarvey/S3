@@ -33,6 +33,7 @@ public:
 	void	SetAlarm(bool alarm) { m_Alarm = alarm; };
 	void	SetEditable(bool editable);
 	bool	GetEditable() { return m_Editable; };
+	CRect	GetEditRect() { return m_EditRect; };
 	char	FindSelect(POINT p);
 
 private:

@@ -1136,6 +1136,8 @@ void CS3GDIScreenMain::S3DrawGDITxIP(char Rx, char Tx, char IP,
 	}
 	else
 	{
+		wchar_t units[10];
+
 #ifdef S3_SHOW_P1DB_MODES
 		fobj = SelectObject(m_HDC, m_hFontS);
 
@@ -1147,7 +1149,6 @@ void CS3GDIScreenMain::S3DrawGDITxIP(char Rx, char Tx, char IP,
 		S3GetLinkParas(Rx, Tx, IP,
 				   &P1dBIn, &P1dBOut, &Sens);
 
-		wchar_t units[10];
 		_tcscpy_s(units, 10, S3GetUnitString());
 
 		if (S3GetUnits() == S3_UNITS_WATTS)
@@ -1271,7 +1272,7 @@ void CS3GDIScreenMain::S3DrawGDITxIP(char Rx, char Tx, char IP,
 		DrawText(m_HDC, str, -1, &fntRc, DT_RIGHT);
 
 		SelectObject(m_HDC, fobj);
-#endif
+#endif // S3_SHOW_P1DB_MODES
 
 #ifdef S3_SHOW_P1DB
 		fobj = SelectObject(m_HDC, m_hFontS);
@@ -1279,7 +1280,7 @@ void CS3GDIScreenMain::S3DrawGDITxIP(char Rx, char Tx, char IP,
 		// Returns in V if g <= -16
 		double p1db = S3IPGetP1dB(Rx, Tx, IP);
 
-		wchar_t units[10];
+		// wchar_t units[10];
 		_tcscpy_s(units, 10, S3GetUnitString());
 
 		if (S3GetUnits() == S3_UNITS_MV || S3IPGetGain(Rx, Tx, IP) <= -16)

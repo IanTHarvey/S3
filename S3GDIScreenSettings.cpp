@@ -15,7 +15,7 @@
 
 #define S3_MAX_SELECTABLES	24
 
-CRect	Selectable[S3_MAX_SELECTABLES];
+CS3NameValue *Selectable[S3_MAX_SELECTABLES];
 char	NSelect;
 
 // 3 vertical panels
@@ -32,7 +32,9 @@ CRect	m_RectSettingsScreen,
 char CS3GDIScreenMain::FindSelectable(POINT p)
 {
 	for(char i = 0; i < NSelect; i++)
-		if (Selectable[i].PtInRect(p))
+		if (Selectable[i] &&
+			Selectable[i]->GetEditable() &&
+			Selectable[i]->GetEditRect().PtInRect(p))
 			return i;
 
 	return -1;
@@ -48,10 +50,15 @@ int CS3GDIScreenMain::AddSelectable(CS3NameValue *item)
 		return 1;
 
 	// Temp fix for items we don't want to see
-	if (item)
-		Selectable[NSelect] = item->RectEdit(m_HDC, m_hFontSB);
-	else
-		Selectable[NSelect].left = Selectable[NSelect].right = Selectable[NSelect].top = Selectable[NSelect].bottom = 0;
+	// if (item)
+		Selectable[NSelect] = item; // ->RectEdit(m_HDC, m_hFontSB);
+
+		if (item)
+			item->RectEdit(m_HDC, m_hFontSB);
+
+	// else
+	//	Selectable[NSelect].left = Selectable[NSelect].right =
+	//			Selectable[NSelect].top = Selectable[NSelect].bottom = 0;
 	
 	NSelect++;
 
@@ -167,15 +174,11 @@ void CS3GDIScreenMain::S3InitSettingsScreen(void)
 					yref + SUBHEAD_ROW + RowCnt++ * PARA_ROW, WCol,
 					_T("Receiver AGC"), _T("Gain Change"), true);
 
-#ifdef S3_SHOW_P1DB_MODES
-	m_SettingsSize = new CS3NameValue(	m_RectSettingsDefaults.left, 
-					yref + SUBHEAD_ROW + RowCnt++ * PARA_ROW, WCol,
-					_T("Signal magnitude"), _T("Small"), true);
-#endif
+#ifndef S3_SHOW_P1DB_MODES
 	m_SettingsUnits = new CS3NameValue(	m_RectSettingsDefaults.left, 
 					yref + SUBHEAD_ROW + RowCnt++ * PARA_ROW, WCol,
-					_T("Units"), _T("Watts"), true);
-
+					_T("Units"), _T("dBuV"), true);
+#endif
 
 	m_SettingsTxStart = new CS3NameValue(	m_RectSettingsDefaults.left, 
 					yref + SUBHEAD_ROW + RowCnt++ * PARA_ROW, WCol,
@@ -196,6 +199,10 @@ void CS3GDIScreenMain::S3InitSettingsScreen(void)
 
 	RowCnt = 0;
 
+	m_SettingsSize = new CS3NameValue(	m_RectSettingsDefaults.left, 
+					yref + SUBHEAD_ROW + RowCnt++ * PARA_ROW, WCol,
+					_T("Signal magnitude"), _T("Small"), true);
+
 	m_SettingsScale = new CS3NameValue(	m_RectSettingsDefaults.left, 
 					yref + SUBHEAD_ROW + RowCnt++ * PARA_ROW, WCol,
 					_T("Scale"), _T("Log"), true);
@@ -210,7 +217,11 @@ void CS3GDIScreenMain::S3InitSettingsScreen(void)
 
 	m_RectSettingsLinkPara.bottom = m_RectSettingsLinkPara.top +
 		SUBHEAD_ROW + RowCnt * PARA_ROW + BMARGIN;
-#endif
+#else
+	m_SettingsSize = NULL;
+	m_SettingsScale = NULL;
+	m_Settings3PCLinearity = NULL;
+#endif // S3_SHOW_P1DB_MODES
 
 	// --------- Defaults ---------
 	
@@ -336,9 +347,9 @@ void CS3GDIScreenMain::S3InitSettingsScreen(void)
 	AddSelectable(m_SettingsUSBPort);
 	AddSelectable(m_SettingsUnits);
 	AddSelectable(m_SettingsGain);
-	AddSelectable(NULL); // m_Settings3PCLinearity);
+	AddSelectable(m_Settings3PCLinearity); // Option
 	AddSelectable(m_SettingsImp);
-	AddSelectable(NULL); // m_SettingsSize);
+	AddSelectable(m_SettingsSize); // Option
 	AddSelectable(m_SettingsSW);
 	AddSelectable(m_SettingsContTComp);
 	AddSelectable(m_SettingsLog);
@@ -349,7 +360,7 @@ void CS3GDIScreenMain::S3InitSettingsScreen(void)
 	AddSelectable(m_SettingsRxAGC);
 	AddSelectable(m_SettingsImageDate);
 	AddSelectable(m_SettingsTxSelfTest);
-	AddSelectable(NULL); // m_SettingsScale);
+	AddSelectable(m_SettingsScale); // Option
 
 	// Attach an S3NumEdit editors to the settings
 	m_SettingsPort->AttachEditor(m_HDC, m_GDIIPPortEdit);
@@ -1191,7 +1202,7 @@ int CS3GDIScreenMain::S3FindSettingsScreen(POINT p)
 		}
 		else if (s == 10) // Date edit
 		{
-			//Disallow the user from changing the date & time remotely
+			// Disallow the user from changing the date & time remotely
 			// this can still be done using the manual SYSSETTIME command
 #ifndef S3_AGENT
 			CString str;
@@ -1206,7 +1217,7 @@ int CS3GDIScreenMain::S3FindSettingsScreen(POINT p)
 		}
 		else if (s == 11) // Time edit
 		{
-			//Disallow the user from changing the date & time remotely
+			// Disallow the user from changing the date & time remotely
             // this can still be done using the manual SYSSETTIME command
 #ifndef S3_AGENT
 			CString str;
