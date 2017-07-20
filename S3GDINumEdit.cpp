@@ -164,3 +164,23 @@ HBRUSH CS3NumEdit::CtlColor(CDC* pDC, UINT nCtlColor)
 }
 
 // ----------------------------------------------------------------------------
+
+BOOL CS3NumEdit::SetWindowPos(CRect &rect)
+{
+	return CWnd::SetWindowPos(
+		&m_Parent->wndTop,
+		rect.left,		rect.top,
+		rect.Width(),	rect.Height(), SWP_SHOWWINDOW);
+}
+
+// ----------------------------------------------------------------------------
+
+void CS3NumEdit::Edit(CRect &rect, CString &str)
+{
+	SetWindowPos(rect);
+	SetWindowText(str);
+	SetFocus();
+	SetSel(0, -1);
+}
+
+// ----------------------------------------------------------------------------

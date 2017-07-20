@@ -19,8 +19,8 @@ class CS3NumEdit : public CEdit
 	bool				m_UpdateImmediate;
 	bool				m_UpdateLoseFocus;
 
-	// COLORREF	m_clrBkgnd;
-	// CBrush		m_brBkgnd;
+	BOOL				SetWindowPos(CRect &rect);
+	void				Edit(CRect &rect, CString &str);
 
 public:
 	CS3NumEdit(CWnd* pParent);

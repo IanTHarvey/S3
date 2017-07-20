@@ -246,19 +246,12 @@ int CS3GDIScreenMain::S3GDIIPGainProcess(POINT p)
 		{
 			m_GDIGainEdit->SetFont(&m_cFontL);
 
-			m_GDIGainEdit->SetWindowPos(&this->wndTop,
-				m_IPGainRectText.left, m_IPGainRectText.top,
-				m_IPGainRectText.Width(), m_IPGainRectText.Height(),
-				SWP_SHOWWINDOW);
-
 			CString str;
 			if (gain == 0)
 				str = _T("-0");
 			else str.Format(_T("%+d"), gain);
-			m_GDIGainEdit->SetWindowText(str);
-			m_GDIGainEdit->SetFocus();
-			m_GDIGainEdit->SetSel(0, -1); // select all text and move cursor at the end
-			// m_GDIGainEdit->SetSel(-1); //  remove selection
+
+			m_GDIGainEdit->Edit(m_IPGainRectText, str);
 
 			m_NumericPad->PopUp(m_HDC, p.x, p.y, m_GDIGainEdit,
 				S3_NP_INTEGER, 5);

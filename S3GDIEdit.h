@@ -10,6 +10,8 @@ class CS3Edit : public CEdit
 	CS3GDIScreenMain	*m_Parent;
 
 	COLORREF			m_clrText;
+	BOOL				SetWindowPos(CRect &rect);
+	void				Edit(CRect &rect, CString &str);
 
 public:
 	CS3Edit(CWnd* pParent);
@@ -25,4 +27,4 @@ public:
 	afx_msg HBRUSH CtlColor(CDC* /*pDC*/, UINT /*nCtlColor*/);
 };
 
-
+// ----------------------------------------------------------------------------
