@@ -149,8 +149,6 @@ public:
 	int		SetSysTime(short h, short m, short s);
 	int		SetSysDate(short y, short m, short d);
 
-
-
 	int		ParseMsg(const char *pMsg, char MsgSrc);
 	
 	void	AppShutdown();
@@ -163,6 +161,9 @@ public:
 	void		SetUSBEnabled(bool enable);
 
 	int			ResetSocket(void);
+
+	HDC		GetDrawable()	{return m_GDIStatic.GetDrawable(); };
+	HFONT	GetDefFont()	{return m_GDIStatic.GetDefFont(); };
 
 	// FILE	*m_DbgLog;	// Socket errors/info only
 	// afx_msg void OnStnDblclickGdiStatic();

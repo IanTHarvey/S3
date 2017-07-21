@@ -27,8 +27,11 @@
 // ----------------------------------------------------------------------------
 // String val should provide a hint to the size of actual values for future use.
 
+char CS3NameValue::m_NSelectable = 0;
+CS3NameValue	*CS3NameValue::m_Selectable[S3_MAX_SELECTABLES] = {};
+
 CS3NameValue::CS3NameValue(int xref, int yref, int xright,
-						   CString lbl, CString val, bool editable)
+						   CString lbl, CString val, bool editable, char ID)
 {
 	m_Parent = NULL;
 	m_Alarm = false;
@@ -38,7 +41,11 @@ CS3NameValue::CS3NameValue(int xref, int yref, int xright,
 	m_lbl = lbl + ':';
 	m_val = val;
 	m_Editable = editable;	// If editable, use a different font/face for value.
-	
+	m_ID = ID;
+
+	if (m_ID != -1)
+		AddSelectable();
+
 	m_Editor = NULL;
 	m_EditRect.SetRectEmpty();
 	m_EditOpenRect.SetRectEmpty();
@@ -49,12 +56,12 @@ CS3NameValue::CS3NameValue(int xref, int yref, int xright,
 
 CS3NameValue::CS3NameValue(
 #ifdef S3_AGENT
-						   CS3AgentDlg *Parent,
+						CS3AgentDlg *Parent,
 #else
-						   CS3ControllerDlg *Parent,
+						CS3ControllerDlg *Parent,
 #endif						   
-						   int xref, int yref, int xright,
-						   CString lbl, CString val, bool editable)
+						int xref, int yref, int xright,
+						CString lbl, CString val, bool editable, char ID)
 {
 	m_Parent = Parent;
 	m_Alarm = false;
@@ -64,10 +71,16 @@ CS3NameValue::CS3NameValue(
 	m_lbl = lbl + ':';
 	m_val = val;
 	m_Editable = editable;	// If editable, use a different font/face for value.
-	
+	m_ID = ID;
+
 	m_Editor = NULL;
 	m_EditRect.SetRectEmpty();
 	m_EditOpenRect.SetRectEmpty();
+
+	if (m_ID != -1)
+	{
+		AddSelectable();
+	}
 }
 
 // ----------------------------------------------------------------------------
@@ -115,7 +128,6 @@ CRect CS3NameValue::RectEdit(HDC hdc, HFONT hFont) // , HFONT hFontLarge)
 }
 
 // ----------------------------------------------------------------------------
-// 
 
 void CS3NameValue::SetValue(CString val)
 {
@@ -160,6 +172,45 @@ char CS3NameValue::FindSelect(POINT p)
 
 	if (m_EditRect.PtInRect(p))
 		return 1;
+
+	return 0;
+}
+
+// ----------------------------------------------------------------------------
+
+char CS3NameValue::FindSelectable(POINT p)
+{
+	for(char i = 0; i < m_NSelectable; i++)
+	{
+		if (m_Selectable[i] &&
+			m_Selectable[i]->GetEditable() &&
+			m_Selectable[i]->GetEditRect().PtInRect(p))
+		{
+			if (m_Selectable[i]->GetID() == -1)
+				return i;
+			else
+				return m_Selectable[i]->GetID();
+		}
+	}
+
+	return -1;
+}
+
+// ----------------------------------------------------------------------------
+
+int CS3NameValue::AddSelectable()
+{
+	ASSERT(m_NSelectable <= S3_MAX_SELECTABLES);
+
+	if (m_NSelectable >= S3_MAX_SELECTABLES)
+		return 1;
+
+	m_Selectable[m_NSelectable] = this;
+	
+	if (m_Parent)
+		RectEdit(m_Parent->GetDrawable(), m_Parent->GetDefFont());
+
+	m_NSelectable++;
 
 	return 0;
 }

@@ -13,11 +13,6 @@
 
 #include "S3GDIInfoPopup.h"
 
-#define S3_MAX_SELECTABLES	24
-
-CS3NameValue *Selectable[S3_MAX_SELECTABLES];
-char	NSelect;
-
 // 3 vertical panels
 CRect	m_RectSettingsScreen,
 			m_RectSettingsRemote,
@@ -26,44 +21,6 @@ CRect	m_RectSettingsScreen,
 				m_RectParasHeader, m_RectSettingsSysWide, m_RectSettingsLinkPara, m_RectSettingsDefaults,
 			m_RectSettingsSystem,
 				m_RectSystemHeader, m_RectSystemDateTime, m_RectIdent, m_RectSettingsInfo;
-
-// ----------------------------------------------------------------------------
-
-char CS3GDIScreenMain::FindSelectable(POINT p)
-{
-	for(char i = 0; i < NSelect; i++)
-		if (Selectable[i] &&
-			Selectable[i]->GetEditable() &&
-			Selectable[i]->GetEditRect().PtInRect(p))
-			return i;
-
-	return -1;
-}
-
-// ----------------------------------------------------------------------------
-
-int CS3GDIScreenMain::AddSelectable(CS3NameValue *item)
-{
-	ASSERT(NSelect <= S3_MAX_SELECTABLES);
-
-	if (NSelect >= S3_MAX_SELECTABLES)
-		return 1;
-
-	// Temp fix for items we don't want to see
-	// if (item)
-		Selectable[NSelect] = item; // ->RectEdit(m_HDC, m_hFontSB);
-
-		if (item)
-			item->RectEdit(m_HDC, m_hFontSB);
-
-	// else
-	//	Selectable[NSelect].left = Selectable[NSelect].right =
-	//			Selectable[NSelect].top = Selectable[NSelect].bottom = 0;
-	
-	NSelect++;
-
-	return 0;
-}
 
 // ----------------------------------------------------------------------------
 
@@ -110,9 +67,9 @@ void CS3GDIScreenMain::S3InitSettingsScreen(void)
 	m_RectRemoteHeader.bottom = m_RectRemoteHeader.top + HEAD_ROW;
 
 	// Get the rect to position the edit box
-	m_SettingsAccess = new CS3NameValue(	m_RectRemoteHeader.left, 
+	m_SettingsAccess = new CS3NameValue(	m_Parent, m_RectRemoteHeader.left, 
 								m_RectRemoteHeader.bottom, WCol,
-								_T("Access"), _T("Remote"), true);
+								_T("Access"), _T("Remote"), true, S3_ACCESS);
 	// m_SettingsAccess->RectEdit(m_HDC, m_hFontSB);
 
 	m_RectEthernet.top = m_RectRemoteHeader.bottom + PARA_ROW;
@@ -120,21 +77,21 @@ void CS3GDIScreenMain::S3InitSettingsScreen(void)
 		SUBHEAD_ROW + 4 * PARA_ROW + BMARGIN;
 
 	// Get the rect to position the edit box
-	m_SettingsIPAddr = new CS3NameValue(	m_RectEthernet.left, 
+	m_SettingsIPAddr = new CS3NameValue(	m_Parent, m_RectEthernet.left, 
 								m_RectEthernet.top + SUBHEAD_ROW + 0 * PARA_ROW, WCol,
 								_T("IP Address"), _T("000.000.000.000"), false);
 	m_SettingsIPAddr->RectEdit(m_HDC, m_hFontSB);
 
-	m_SettingsGateway = new CS3NameValue(	m_RectEthernet.left, 
+	m_SettingsGateway = new CS3NameValue(	m_Parent, m_RectEthernet.left, 
 								m_RectEthernet.top + SUBHEAD_ROW + 1 * PARA_ROW, WCol,
 								_T("Gateway mask"), _T("000.000.000.000"), false);
 	m_SettingsGateway->RectEdit(m_HDC, m_hFontSB);
 
-	m_SettingsPort = new CS3NameValue(	m_RectEthernet.left, 
+	m_SettingsPort = new CS3NameValue(	m_Parent, m_RectEthernet.left, 
 								m_RectEthernet.top + SUBHEAD_ROW + 2 * PARA_ROW, WCol,
-								_T("Port"), _T("555555"), true);
+								_T("Port"), _T("555555"), true, S3_IP_PORT);
 
-	m_SettingsMAC = new CS3NameValue(	m_RectEthernet.left, 
+	m_SettingsMAC = new CS3NameValue(	m_Parent, m_RectEthernet.left, 
 								m_RectEthernet.top + SUBHEAD_ROW + 3 * PARA_ROW, WCol,
 								_T("MAC Address"), _T("00:00:00:00:00:00"), false);
 	m_SettingsMAC->RectEdit(m_HDC, m_hFontSB);
@@ -143,11 +100,11 @@ void CS3GDIScreenMain::S3InitSettingsScreen(void)
 	m_RectUSB.top = m_RectEthernet.bottom;
 	m_RectUSB.bottom = m_RectScreen.bottom;
 
-	m_SettingsUSBPort = new CS3NameValue(	m_RectUSB.left, 
+	m_SettingsUSBPort = new CS3NameValue(	m_Parent, m_RectUSB.left, 
 						m_RectUSB.top + SUBHEAD_ROW + 0 * PARA_ROW, WCol,
-						_T("Port"), _T("Disabled"), true);
+						_T("Port"), _T("Disabled"), true, S3_USB_ENABLE);
 
-	m_SettingsUSBDriver = new CS3NameValue(	m_RectUSB.left, 
+	m_SettingsUSBDriver = new CS3NameValue(	m_Parent, m_RectUSB.left, 
 						m_RectUSB.top + SUBHEAD_ROW + 1 * PARA_ROW, WCol,
 						_T("Driver type"), _T("UnknownX"), false);
 	m_SettingsUSBDriver->RectEdit(m_HDC, m_hFontS);
@@ -166,27 +123,27 @@ void CS3GDIScreenMain::S3InitSettingsScreen(void)
 	// --- System-wide settings ---
 	unsigned char RowCnt = 0;
 
-	m_SettingsContTComp = new CS3NameValue(	m_RectSettingsSysWide.left, 
+	m_SettingsContTComp = new CS3NameValue(	m_Parent, m_RectSettingsSysWide.left, 
 					yref + SUBHEAD_ROW + RowCnt++ * PARA_ROW, WCol,
-					_T("\u03F4 Compensation"), _T("Gain Change"), true);
+					_T("\u03F4 Compensation"), _T("Gain Change"), true, S3_T_COMP_MODE);
 
-	m_SettingsRxAGC = new CS3NameValue(	m_RectSettingsSysWide.left, 
+	m_SettingsRxAGC = new CS3NameValue(	m_Parent, m_RectSettingsSysWide.left, 
 					yref + SUBHEAD_ROW + RowCnt++ * PARA_ROW, WCol,
-					_T("Receiver AGC"), _T("Gain Change"), true);
+					_T("Receiver AGC"), _T("Gain Change"), true, S3_GLOBAL_AGC);
 
 #ifndef S3_SHOW_P1DB_MODES
-	m_SettingsUnits = new CS3NameValue(	m_RectSettingsDefaults.left, 
+	m_SettingsUnits = new CS3NameValue(	m_Parent, m_RectSettingsDefaults.left, 
 					yref + SUBHEAD_ROW + RowCnt++ * PARA_ROW, WCol,
-					_T("Units"), _T("dBuV"), true);
+					_T("Units"), _T("dBuV"), true, S3_IP_POWER_UNITS);
 #endif
 
-	m_SettingsTxStart = new CS3NameValue(	m_RectSettingsDefaults.left, 
+	m_SettingsTxStart = new CS3NameValue(	m_Parent, m_RectSettingsDefaults.left, 
 					yref + SUBHEAD_ROW + RowCnt++ * PARA_ROW, WCol,
-					_T("Tx start state"), _T("Sleep"), true);
+					_T("Tx start state"), _T("Sleep"), true, S3_TX_START_STATE);
 
-	m_SettingsTxSelfTest = new CS3NameValue(	m_RectSettingsDefaults.left, 
+	m_SettingsTxSelfTest = new CS3NameValue(	m_Parent, m_RectSettingsDefaults.left, 
 					yref + SUBHEAD_ROW + RowCnt++ * PARA_ROW, WCol,
-					_T("Tx self test"), _T("Off"), true);
+					_T("Tx self test"), _T("Off"), true, S3_TX_SELF_TEST);
 	m_SettingsTxSelfTest->SetEditable(false);
 
 	m_RectSettingsSysWide.bottom = m_RectSettingsSysWide.top +
@@ -199,21 +156,21 @@ void CS3GDIScreenMain::S3InitSettingsScreen(void)
 
 	RowCnt = 0;
 
-	m_SettingsSize = new CS3NameValue(	m_RectSettingsDefaults.left, 
+	m_SettingsSize = new CS3NameValue(	m_Parent, m_RectSettingsDefaults.left, 
 					yref + SUBHEAD_ROW + RowCnt++ * PARA_ROW, WCol,
-					_T("Signal magnitude"), _T("Small"), true);
+					_T("Signal magnitude"), _T("Small"), true, S3_IP_SIG_SIZE);
 
-	m_SettingsScale = new CS3NameValue(	m_RectSettingsDefaults.left, 
+	m_SettingsScale = new CS3NameValue(	m_Parent, m_RectSettingsDefaults.left, 
 					yref + SUBHEAD_ROW + RowCnt++ * PARA_ROW, WCol,
-					_T("Scale"), _T("Log"), true);
+					_T("Scale"), _T("Log"), true, S3_IP_POWER_SCALE);
 
-	m_SettingsUnits = new CS3NameValue(	m_RectSettingsDefaults.left, 
+	m_SettingsUnits = new CS3NameValue(	m_Parent, m_RectSettingsDefaults.left, 
 					yref + SUBHEAD_ROW + RowCnt++ * PARA_ROW, WCol,
-					_T("Units"), _T("Watts"), true);
+					_T("Units"), _T("Watts"), true, S3_IP_POWER_UNITS);
 
-	m_Settings3PCLinearity = new CS3NameValue(	m_RectSettingsDefaults.left, 
+	m_Settings3PCLinearity = new CS3NameValue(	m_Parent, m_RectSettingsDefaults.left, 
 					yref + SUBHEAD_ROW + RowCnt++ * PARA_ROW, WCol,
-					_T("3% Linearity"), _T("Off"), true);
+					_T("3% Linearity"), _T("Off"), true, S3_3PC_LINEARITY);
 
 	m_RectSettingsLinkPara.bottom = m_RectSettingsLinkPara.top +
 		SUBHEAD_ROW + RowCnt * PARA_ROW + BMARGIN;
@@ -237,29 +194,19 @@ void CS3GDIScreenMain::S3InitSettingsScreen(void)
 
 	RowCnt = 0;
 
-	m_SettingsGain = new CS3NameValue(	m_RectSettingsDefaults.left, 
+	m_SettingsGain = new CS3NameValue(	m_Parent, m_RectSettingsDefaults.left, 
 					yref + SUBHEAD_ROW + RowCnt++ * PARA_ROW, WCol,
-					_T("Gain (dB)"), _T("-55.55"), true);
+					_T("Gain (dB)"), _T("-55.55"), true, S3_DEF_GAIN);
 
-	// Leave stub for now to maintain indexing
-	m_SettingsSigTau = new CS3NameValue(0, 0, 0,
-								_T(""), _T(""), false);
-	/*
-	m_SettingsSigTau = new CS3NameValue(m_RectSettingsDefaults.left, 
+	m_SettingsImp = new CS3NameValue(	m_Parent, m_RectSettingsDefaults.left, 
 					yref + SUBHEAD_ROW + RowCnt++ * PARA_ROW, WCol,
-					_T("\u222B\u03a4 (\u03bcS)"), _T("0.000"), true);
+					_T("Input Z (\u03a9)"), _T("1MMMMM"), true, S3_DEF_IMP);
 
-	*/
-
-	m_SettingsImp = new CS3NameValue(	m_RectSettingsDefaults.left, 
-					yref + SUBHEAD_ROW + RowCnt++ * PARA_ROW, WCol,
-					_T("Input Z (\u03a9)"), _T("1MMMMM"), true);
-
-	// TODO: Make optional
+#ifdef S3LOWNOISE
 	m_SettingsLowNoise = new CS3NameValue(	m_RectSettingsDefaults.left, 
 					yref + SUBHEAD_ROW + RowCnt++ * PARA_ROW, WCol,
-					_T("Low noise mode"), _T("OFFFFF"), true);
-
+					_T("Low noise mode"), _T("OFFFFF"), true, S3_DEF_LOW_NOISE);
+#endif
 
 	// ------- System -------
 
@@ -278,11 +225,11 @@ void CS3GDIScreenMain::S3InitSettingsScreen(void)
 
 #ifndef S3_AGENT
 	m_SettingsDate = new CS3NameValue(m_RectSystemDateTime.left,
-			yref + 0 * PARA_ROW, WCol, _T("Date"), _T("YYYY-MM-DD"), true);
+			yref + 0 * PARA_ROW, WCol, _T("Date"), _T("YYYY-MM-DD"), true, S3_DATE_EDIT);
 	m_SettingsDate->RectEdit(m_HDC, m_hFontSB);
 
 	m_SettingsTime = new CS3NameValue(m_RectSystemDateTime.left,
-			yref + 1 * PARA_ROW, WCol, _T("Time"), _T("hhhh:mm:ss"), true);
+			yref + 1 * PARA_ROW, WCol, _T("Time"), _T("hhhh:mm:ss"), true, S3_TIME_EDIT);
 	m_SettingsTime->RectEdit(m_HDC, m_hFontSB);
 #else
 	m_SettingsDate = new CS3NameValue(m_RectSystemDateTime.left,
@@ -315,11 +262,11 @@ void CS3GDIScreenMain::S3InitSettingsScreen(void)
 	m_SettingsPN->RectEdit(m_HDC, m_hFontSB);
 
 	m_SettingsSW = new CS3NameValue(m_RectIdent.left,
-				yref + RowCnt++ * PARA_ROW, WCol, _T("S/W"), str, true);
+				yref + RowCnt++ * PARA_ROW, WCol, _T("S/W"), str, true, S3_APP_UPDATE);
 	m_SettingsSW->RectEdit(m_HDC, m_hFontSB);
 
 	m_SettingsImageDate = new CS3NameValue(m_RectIdent.left,
-		yref + RowCnt++ * PARA_ROW, WCol, _T("OS Image"), _T("DD/MM/YY:hh:mm"), true);
+		yref + RowCnt++ * PARA_ROW, WCol, _T("OS Image"), _T("DD/MM/YY:hh:mm"), true, S3_OS_UPDATE);
 	m_SettingsImageDate->RectEdit(m_HDC, m_hFontSB);
 
 	m_SettingsBuildNum = new CS3NameValue(m_RectIdent.left,
@@ -338,11 +285,12 @@ void CS3GDIScreenMain::S3InitSettingsScreen(void)
 	m_SettingsCfg->RectEdit(m_HDC, m_hFontSB);
 
 	m_SettingsLog = new CS3NameValue(m_RectSettingsInfo.left,
-					yref + PARA_ROW, WCol, _T("Log file"), _T("LogFileName"), true);
+					yref + PARA_ROW, WCol, _T("Log file"), _T("LogFileName"), true, S3_LOG_COPY_USB);
 	m_SettingsLog->RectEdit(m_HDC, m_hFontSB);
 	
 	// Set-up selectable regions for pop-ups and text edits
 	// NSelect number is returned by FindSelectable called in S3FindSettingsScreen
+	/*
 	AddSelectable(m_SettingsPort);
 	AddSelectable(m_SettingsUSBPort);
 	AddSelectable(m_SettingsUnits);
@@ -361,6 +309,7 @@ void CS3GDIScreenMain::S3InitSettingsScreen(void)
 	AddSelectable(m_SettingsImageDate);
 	AddSelectable(m_SettingsTxSelfTest);
 	AddSelectable(m_SettingsScale); // Option
+	*/
 
 	// Attach an S3NumEdit editors to the settings
 	m_SettingsPort->AttachEditor(m_HDC, m_GDIIPPortEdit);
@@ -400,9 +349,10 @@ void CS3GDIScreenMain::S3CloseSettingsScreen(void)
 #endif
 
 	delete m_SettingsGain;
-	delete m_SettingsSigTau;
 	delete m_SettingsImp;
+#ifdef S3LOWNOISE
 	delete m_SettingsLowNoise;
+#endif
 	delete m_SettingsTxStart;
 	delete m_SettingsTxSelfTest;
 
@@ -870,6 +820,7 @@ int CS3GDIScreenMain::S3FindSettingsScreen(POINT p)
 	}
 	else if (menu_item != -1 && menu_item != -2)
 	{
+		// Something already selected, so handle this click accordingly
 		char Para = S3GetSelectedPara(-1, -1, -1);
 
 		if (Para == S3_USB_ENABLE)
@@ -997,11 +948,11 @@ int CS3GDIScreenMain::S3FindSettingsScreen(POINT p)
 		else if  (Para == S3_GLOBAL_AGC)
 		{
 			if (menu_item == 0)
-				S3SetAGC(S3_AGC_OFF + 100);
+				S3SetAGC(S3_AGC_OFF + S3_PENDING);
 			else if (menu_item == 1)
-				S3SetAGC(S3_AGC_CONT + 100);
+				S3SetAGC(S3_AGC_CONT + S3_PENDING);
 			else if (menu_item == 2)
-				S3SetAGC(S3_AGC_GAIN + 100);
+				S3SetAGC(S3_AGC_GAIN + S3_PENDING);
 		}
 		else if  (Para == S3_TX_SELF_TEST)
 		{
@@ -1031,12 +982,13 @@ int CS3GDIScreenMain::S3FindSettingsScreen(POINT p)
 		return 0;
 	}
 
+	// Has something been selected with this click.
 	// Set up the menu and indicate the parameter to be edited to
 	// be processed by S3SetParaValue()
-	char s = FindSelectable(p); 
+	char s = CS3NameValue::FindSelectable(p); 
 	if (s != -1)
 	{
-		if (s == 0) // Ethernet port edit
+		if (s == S3_IP_PORT) // Ethernet port edit
 		{
 #ifndef S3_AGENT
             //S3Agent Remote application shouldn't be able to modify the IP PORT
@@ -1047,7 +999,6 @@ int CS3GDIScreenMain::S3FindSettingsScreen(POINT p)
 			unsigned short Port = S3GetIPPort();
 
 			CString str;
-
 			str.Format(_T("%d"), Port);
 
 			m_GDIIPPortEdit->SetWindowText(str);
@@ -1058,7 +1009,7 @@ int CS3GDIScreenMain::S3FindSettingsScreen(POINT p)
 #endif
 			return S3SetSelectedPara(-1, -1, -1, S3_IP_PORT);
 		}
-		else if (s == 1) // USB enable/disable toggle
+		else if (s == S3_USB_ENABLE) // USB enable/disable toggle
 		{
 #ifndef S3_AGENT
 			//S3Agent Remote application shouldn't be able to modify the USB enabled/disabled
@@ -1073,13 +1024,12 @@ int CS3GDIScreenMain::S3FindSettingsScreen(POINT p)
 				m_ParaMenu->AddItem(_T("Enable"));
 		
 			m_ParaMenu->SelectItem(-1);
-				
 			m_ParaMenu->Activate();
 
 			return S3SetSelectedPara(-1, -1, -1, S3_USB_ENABLE);
 #endif
 		}
-		else if (s == 2) // Power units selector
+		else if (s == S3_IP_POWER_UNITS) // Power units selector
 		{
 			m_ParaMenu->Init(m_HDC, p.x, p.y);
 		
@@ -1090,12 +1040,11 @@ int CS3GDIScreenMain::S3FindSettingsScreen(POINT p)
 #endif
 			// TODO: Assumes the ordering of units
 			m_ParaMenu->SelectItem(S3GetUnits() - 1);
-				
 			m_ParaMenu->Activate();
 
 			return S3SetSelectedPara(-1, -1, -1, S3_IP_POWER_UNITS);
 		}
-		else if (s == 3)
+		else if (s == S3_DEF_GAIN) // Default gain
 		{
 			char Gain = S3IPGetGain(-1, -1, -1);
 
@@ -1112,7 +1061,7 @@ int CS3GDIScreenMain::S3FindSettingsScreen(POINT p)
 			// Indicate that a system parameter is being edited
 			return S3SetSelectedPara(-1, -1, -1, S3_GAIN);
 		}
-		else if (s == 5) // Input z
+		else if (s == S3_DEF_IMP) // Input z
 		{
 			m_ParaMenu->Init(m_HDC, p.x, p.y);
 		
@@ -1130,7 +1079,7 @@ int CS3GDIScreenMain::S3FindSettingsScreen(POINT p)
 
 			return S3SetSelectedPara(-1, -1, -1, S3_INPUT_IMP);
 		}
-		else if (s == 7) // OS version
+		else if (s == S3_APP_UPDATE) // App version
 		{
 #ifndef S3_AGENT
 			if (S3GetRemote())
@@ -1138,14 +1087,12 @@ int CS3GDIScreenMain::S3FindSettingsScreen(POINT p)
 #endif
 
 			m_ParaMenu->Init(m_HDC, p.x, p.y);
-		
 			m_ParaMenu->AddItem(_T("Update App"));
-
 			m_ParaMenu->Activate();
 
 			return S3SetSelectedPara(-1, -1, -1, S3_APP_UPDATE);
 		}
-		else if (s == 8) // Temp compensation mode
+		else if (s == S3_T_COMP_MODE) // Temp compensation mode
 		{
 #ifndef S3_AGENT
 			if (S3GetRemote())
@@ -1190,17 +1137,15 @@ int CS3GDIScreenMain::S3FindSettingsScreen(POINT p)
 
 			return S3SetSelectedPara(-1, -1, -1, S3_T_COMP_MODE);
 		}
-		else if (s == 9) // Copy log to USB
+		else if (s == S3_LOG_COPY_USB) // Copy log to USB
 		{
 			m_ParaMenu->Init(m_HDC, p.x, p.y);
-		
 			m_ParaMenu->AddItem(_T("Copy to USB"));
-
 			m_ParaMenu->Activate();
 
 			return S3SetSelectedPara(-1, -1, -1, S3_LOG_COPY_USB);
 		}
-		else if (s == 10) // Date edit
+		else if (s == S3_DATE_EDIT) // Date edit
 		{
 			// Disallow the user from changing the date & time remotely
 			// this can still be done using the manual SYSSETTIME command
@@ -1215,7 +1160,7 @@ int CS3GDIScreenMain::S3FindSettingsScreen(POINT p)
 			return S3SetSelectedPara(-1, -1, -1, S3_DATE_EDIT);
 #endif
 		}
-		else if (s == 11) // Time edit
+		else if (s == S3_TIME_EDIT) // Time edit
 		{
 			// Disallow the user from changing the date & time remotely
             // this can still be done using the manual SYSSETTIME command
@@ -1230,10 +1175,11 @@ int CS3GDIScreenMain::S3FindSettingsScreen(POINT p)
 			return S3SetSelectedPara(-1, -1, -1, S3_TIME_EDIT);
 #endif
 		}
-		else if (s == 12) // Access
+		else if (s == S3_ACCESS) // Access
 		{
 			m_ParaMenu->Init(m_HDC, p.x, p.y);
 		
+			// Only change remote->local here
 			if (S3GetRemote())
 			{
 				m_ParaMenu->AddItem(_T("Local"));
@@ -1242,9 +1188,8 @@ int CS3GDIScreenMain::S3FindSettingsScreen(POINT p)
 
 				return S3SetSelectedPara(-1, -1, -1, S3_ACCESS);
 			}
-			// else do nothing
 		}
-		else if (s == 13) // Tx start state
+		else if (s == S3_TX_START_STATE) // Tx start state
 		{
 			m_ParaMenu->Init(m_HDC, p.x, p.y);
 		
@@ -1257,7 +1202,7 @@ int CS3GDIScreenMain::S3FindSettingsScreen(POINT p)
 
 			return S3SetSelectedPara(-1, -1, -1, S3_TX_START_STATE);
 		}
-		else if (s == 14) // Global Rx AGC setting
+		else if (s == S3_GLOBAL_AGC) // Global Rx AGC setting
 		{
 #ifndef S3_AGENT		
 			if (S3GetRemote())
@@ -1275,7 +1220,7 @@ int CS3GDIScreenMain::S3FindSettingsScreen(POINT p)
 
 			return S3SetSelectedPara(-1, -1, -1, S3_GLOBAL_AGC);
 		}
-		else if (s == 15) // App version
+		else if (s == S3_OS_UPDATE) // OS version
 		{
 			if (S3GetRemote())
 				return 0;
@@ -1283,12 +1228,11 @@ int CS3GDIScreenMain::S3FindSettingsScreen(POINT p)
 			m_ParaMenu->Init(m_HDC, p.x, p.y);
 		
 			m_ParaMenu->AddItem(_T("Update Image"));
-
 			m_ParaMenu->Activate();
 
 			return S3SetSelectedPara(-1, -1, -1, S3_OS_UPDATE);
 		}
-		else if (s == 16) // Tx self test
+		else if (s == S3_TX_SELF_TEST) // Tx self test
 		{
 			m_ParaMenu->Init(m_HDC, p.x, p.y);
 		
@@ -1305,7 +1249,7 @@ int CS3GDIScreenMain::S3FindSettingsScreen(POINT p)
 			return S3SetSelectedPara(-1, -1, -1, S3_TX_SELF_TEST);
 		}
 #ifdef S3_SHOW_P1DB_MODES
-		else if (s == 17) // Units scale
+		else if (s == S3_IP_POWER_SCALE) // Units scale
 		{
 			m_ParaMenu->Init(m_HDC, p.x, p.y);
 		
@@ -1314,12 +1258,11 @@ int CS3GDIScreenMain::S3FindSettingsScreen(POINT p)
 
 			// TODO: Assumes the ordering of units
 			m_ParaMenu->SelectItem(S3GetScale() - 1);
-				
 			m_ParaMenu->Activate();
 
 			return S3SetSelectedPara(-1, -1, -1, S3_IP_POWER_SCALE);
 		}
-		else if (s == 6) // Signal size
+		else if (s == S3_IP_SIG_SIZE) // Signal size
 		{
 			m_ParaMenu->Init(m_HDC, p.x, p.y);
 		
@@ -1328,12 +1271,11 @@ int CS3GDIScreenMain::S3FindSettingsScreen(POINT p)
 
 			// TODO: Assumes the ordering of units
 			m_ParaMenu->SelectItem(S3GetSigSize() - 1);
-				
 			m_ParaMenu->Activate();
 
 			return S3SetSelectedPara(-1, -1, -1, S3_IP_SIG_SIZE);
 		}
-		else if (s == 4) // Show 3PC linearity valuse
+		else if (s == S3_3PC_LINEARITY) // Show 3PC linearity valuse
 		{
 			m_ParaMenu->Init(m_HDC, p.x, p.y);
 		

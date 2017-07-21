@@ -101,6 +101,11 @@ extern wchar_t *SigSizeStrings[];
 
 // ----------------------------------------------------------------------------
 
+// Some Unicode symbols
+#define S3_SYM_DEGREE			0x00b0
+#define S3_SYM_MU_LC			0x03bc
+#define S3_SYM_OMEGA_UC			0x03a9
+
 // 
 #define S3_CONTROLLER_VERSION	0.0
 
@@ -330,32 +335,37 @@ typedef enum SigmaT				{TauNone, TauLo, TauMd, TauHi, TauUnknown};
 #define S3_RX_CTRL_06			0x40
 #define S3_RX_CTRL_07			0x80
 
+// ----------------------------------------------------------------------------
 // Parameter to be edited (see S3GDIScreenTx.cpp)
-#define	S3_GAIN					0	// dB. Upper: ?; Lower: ?
-#define	S3_MAX_INPUT			1	// dBm 
-#define	S3_SIGMA_TAU			2	// uS
-#define	S3_INPUT_IMP			3	// W
-#define	S3_LOW_NOISE			4	//
-#define	S3_WIN_TRACK			5	// 
-#define	S3_PASSIVE_INT			6	// 
-#define	S3_ALARM_LED			7	//
-#define	S3_TXTX_NODENAME		8
-#define	S3_TEST_TONE			9
+#define	S3_GAIN					80	// dB. Upper: ?; Lower: ?
+#define	S3_MAX_INPUT			81	// dBm 
+#define	S3_SIGMA_TAU			82	// uS
+#define	S3_INPUT_IMP			83	// W
+#define	S3_LOW_NOISE			84	//
+#define	S3_WIN_TRACK			85	// 
+#define	S3_PASSIVE_INT			86	// 
+#define	S3_ALARM_LED			87	//
+#define	S3_TXTX_NODENAME		88
+#define	S3_TEST_TONE			89
 
 // Input methods
-#define S3_TXIP_NODENAME		10
-#define S3_ACTIVE_INPUT			11
+#define S3_TXIP_NODENAME		90
+#define S3_ACTIVE_INPUT			91
 
 // See S3GDIScreenSettings.cpp
-#define S3_IP_PORT				20
-#define S3_USB_ENABLE			21
-#define S3_IP_POWER_UNITS		22
-#define S3_T_COMP_MODE			23
-#define S3_LOG_COPY_USB			24
-#define S3_ACCESS				25
-#define S3_TX_START_STATE		26
-#define S3_GLOBAL_AGC			27
-#define S3_TX_SELF_TEST			28
+#define S3_IP_PORT				100
+#define S3_USB_ENABLE			101
+#define S3_IP_POWER_UNITS		102
+#define S3_T_COMP_MODE			103
+#define S3_LOG_COPY_USB			104
+#define S3_ACCESS				105
+#define S3_TX_START_STATE		106
+#define S3_GLOBAL_AGC			107
+#define S3_TX_SELF_TEST			108
+#define S3_ID_USB_PORT			109
+#define S3_DEF_GAIN				110
+#define S3_DEF_IMP				111
+#define S3_DEF_LOW_NOISE		112
 
 // See S3GDIScreenRx.cpp
 #define S3_ACTIVE_TX			30
@@ -382,12 +392,10 @@ typedef enum SigmaT				{TauNone, TauLo, TauMd, TauHi, TauUnknown};
 #define S3_IP_SIG_SIZE			71
 #define S3_3PC_LINEARITY		72
 
+// ----------------------------------------------------------------------------
+
 #define S3GDI_MAX_IP_PARAS		16
 #define S3GDI_MAX_TX_PARAS		8
-
-//#define	S3_GAIN					0	// dB. Upper: ?; Lower: ?
-//#define	S3_MAX_INPUT			1	// dBm 
-//#define	S3_SIGMA_TAU			2	// uS
 
 #define S3_MULT_CHOICE			0
 #define S3_INT					1

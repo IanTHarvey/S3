@@ -38,6 +38,8 @@
 #define SUBHEAD_ROW			35
 #define PARA_ROW			25
 
+#define S3_HEIGHT_MSG_BAR	50
+
 // For DrawText()
 #define S3_BTN_CENTRE			(DT_SINGLELINE | DT_VCENTER | DT_CENTER)
 
@@ -335,9 +337,6 @@ private:
 	void		ResetCoords(); // TODO: Not used
 	void		S3CloseGDIMainScreen();
 
-	char		FindSelectable(POINT p);
-	int			AddSelectable(CS3NameValue *item);
-
 public:
 	CS3GDIScreenMain();
 	virtual ~CS3GDIScreenMain();
@@ -351,7 +350,8 @@ public:
 	// virtual void OnDraw(CDC* pDC);  // overridden to draw this view
 	// afx_msg BOOL OnEraseBkgnd(CDC* pDC);
 
-	HDC GetDrawable() { return m_HDC; };
+	HDC		GetDrawable()	{ return m_HDC; };
+	HFONT	GetDefFont()	{ return m_hFontSB; };
 
 	void		S3GDIReInitialise();
 
@@ -682,9 +682,10 @@ protected:
 	CS3NameValue	*m_SettingsTxSelfTest;
 
 	CS3NameValue	*m_SettingsGain;
-	CS3NameValue	*m_SettingsSigTau;
 	CS3NameValue	*m_SettingsImp;
+#ifdef S3LOWNOISE
 	CS3NameValue	*m_SettingsLowNoise;
+#endif
 
 	CS3NameValue	*m_SettingsDate;
 	CS3NameValue	*m_SettingsTime;

@@ -7,6 +7,8 @@
 #define LHMARGIN	5	// For headers
 #define BMARGIN		10
 
+#define S3_MAX_SELECTABLES	24
+
 // class CS3AgentDlg;
 
 class CS3NameValue
@@ -14,17 +16,18 @@ class CS3NameValue
 public:
 	CS3NameValue(	int xref, int yref, int xright,
 					CString lbl, CString val,
-					bool editable);
+					bool editable, char ID = -1);
 	
 	// Allow alarms to be displayed (flashing text)
-	CS3NameValue::CS3NameValue(
+	CS3NameValue(
 #ifdef S3_AGENT
-							CS3AgentDlg *Parent,
+	CS3AgentDlg *Parent,
 #else
-							CS3ControllerDlg *Parent,
+	CS3ControllerDlg *Parent,
 #endif
-						   int xref, int yref, int xright,
-						   CString lbl, CString val, bool editable);
+				   int xref, int yref, int xright,
+				   CString lbl, CString val,
+				   bool editable, char ID = -1);
 
 	void	Draw(HDC hdc, HFONT hFont, HFONT hFontB);
 	CRect	RectEdit(HDC hdc, HFONT hFont);
@@ -34,7 +37,11 @@ public:
 	void	SetEditable(bool editable);
 	bool	GetEditable() { return m_Editable; };
 	CRect	GetEditRect() { return m_EditRect; };
+	char	GetID() { return m_ID; };
 	char	FindSelect(POINT p);
+
+	static char	FindSelectable(POINT p);
+	int		AddSelectable();
 
 private:
 #ifdef S3_AGENT
@@ -43,6 +50,8 @@ private:
 			CS3ControllerDlg *m_Parent;
 #endif
 	bool	m_Alarm;
+
+	char	m_ID;
 
 	int		m_xref;
 	int		m_yref;
@@ -53,6 +62,10 @@ private:
 	CRect	m_EditRect;
 	CRect	m_EditOpenRect;
 	CEdit	*m_Editor;
+
+	static CS3NameValue	*m_Selectable[];
+	static char			m_NSelectable;
 };
+
 
 // ----------------------------------------------------------------------------

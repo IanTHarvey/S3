@@ -130,6 +130,8 @@ public:
     bool    ManualCommandEntryVisible;
     bool    AutoSyncTimesOnConnect;
     
+	HDC		GetDrawable()	{return m_GDIStatic.GetDrawable(); };
+	HFONT	GetDefFont()	{return m_GDIStatic.GetDefFont(); };
 
 // For use by the Sentinel 3 GUI emulation
     char	m_AnimateState; // Toggled by timer
@@ -156,7 +158,6 @@ extern Sentinel3DataBundle Sentinel3;
 //Connection/messages subroutines
 extern void CloseConnectUSB(void);
 extern CString SendSentinel3Message(CString message);
-
 
 extern CString LastUpdateDateStr; 
 extern CString LastUpdateTimeStr;

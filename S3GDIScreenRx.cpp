@@ -24,8 +24,6 @@
 #define S3_RX_TABLE_R_MARG	8
 #define S3_N_RLL_TICKS		15
 
-#define S3_HEIGHT_MSG_BAR	60
-
 char nTxParameters;
 int hTxRow;
 int wTxPara;
@@ -90,6 +88,7 @@ void CS3GDIScreenMain::S3InitGDIRxScreen(void)
 	m_RectRxRx = m_RectScreen;
 	m_RectRxRx.top = m_RectHeader.bottom;
 	m_RectRxRx.right = m_RectRxRx.left + m_wRxRx;
+	m_RectRxRx.bottom = m_RectRxRx.bottom - S3_HEIGHT_MSG_BAR;
 
 	m_RectRxParaList = m_RectRxRx;
 	m_RectRxParaList.left = m_RectRxRx.right;
@@ -108,7 +107,7 @@ void CS3GDIScreenMain::S3InitGDIRxScreen(void)
 
 	m_RxNodeName = new CS3NameValue(
 				m_RectRxRx.left, yTop + RowCnt++ * PARA_ROW, m_wRxRx,
-				_T("Name"), _T("12345678"), true);
+				_T("Name"), _T("12345678"), true, S3_RXRX_NODENAME);
 	m_RectRxNodeName = m_RxNodeName->RectEdit(m_HDC, m_hFontL);
 
 	m_RxType = new CS3NameValue(
