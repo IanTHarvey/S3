@@ -406,7 +406,7 @@ int S3I2CTxUpdateTemp(char Rx, char Tx)
 {
 	unsigned char mode = S3TxGetTCompMode(Rx, Tx);
 
-	if (mode < 100) // Mode change pending
+	if (mode < S3_PENDING) // Mode change pending
 	{
 		char Tnow = S3TxGetTemp(Rx, Tx); // S3I2CTxCtrlGetTemp();
 
@@ -576,9 +576,9 @@ int S3I2CTxSetCompMode(char Rx, char Tx)
 {
 	unsigned char mode = S3TxGetTCompMode(Rx, Tx);
 
-	if (mode >= 100) // Pending
+	if (mode >= S3_PENDING) // Pending
 	{
-		mode -= 100;
+		mode -= S3_PENDING;
 		
 		int err;
 
@@ -749,9 +749,9 @@ int S3I2CTxSetStatus(char Rx, char Tx)
 
 	char IP = S3TxGetActiveIP(Rx, Tx);
 
-	if (IP >= 100)
+	if (IP >= S3_PENDING)
 	{
-		IP -= 100;
+		IP -= S3_PENDING;
 		err = S3I2CTxSwitchInput(Rx, Tx, IP);
 
 		if (err)
@@ -1286,8 +1286,8 @@ int S3I2CTxSetTestTone(char Rx, char Tx, char IP)
 #ifdef TRIZEPS
 	char ToneEnabled = S3IPGetTestToneEnable(Rx, Tx, IP);
 
-	if (ToneEnabled >= 100) // Update pending?
-		ToneEnabled -= 100;
+	if (ToneEnabled >= S3_PENDING) // Update pending?
+		ToneEnabled -= S3_PENDING;
 	else
 		return 0;
 		
@@ -1322,8 +1322,8 @@ int S3I2CTxSwitchInput(char Rx, char Tx, char NewIP)
 	char ToneEnabled = S3IPGetTestToneEnable(Rx, Tx, NewIP);
 	
 	// If not already pending
-	if (ToneEnabled < 100)
-		S3IPSetTestToneEnable(Rx, Tx, NewIP, ToneEnabled + 100);
+	if (ToneEnabled < S3_PENDING)
+		S3IPSetTestToneEnable(Rx, Tx, NewIP, ToneEnabled + S3_PENDING);
 
 	if (S3TxGetType(Rx, Tx) != S3_Tx8)
 	{

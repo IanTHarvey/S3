@@ -1090,16 +1090,16 @@ int S3IPSetTestToneEnable(char Rx, char Tx, char IP, char Enable)
 	if (S3IPGetAlarms(Rx, Tx, IP) & S3_IP_OVERDRIVE)
 	 	return 2;
 
-	if (Enable >= 200) // ASSERT:
-		Enable -= 100;
+	if (Enable >= 2 * S3_PENDING) // ASSERT:
+		Enable -= S3_PENDING;
 	
-	if (Enable >= 100)
+	if (Enable >= S3_PENDING)
 	{
 		S3Data->m_Rx[Rx].m_Tx[Tx].m_Input[IP].m_TestToneEnable = Enable;
 		return 0;
 	}
 	
-	if (S3Data->m_Rx[Rx].m_Tx[Tx].m_Input[IP].m_TestToneEnable >= 100)
+	if (S3Data->m_Rx[Rx].m_Tx[Tx].m_Input[IP].m_TestToneEnable >= S3_PENDING)
 	{
 		S3Data->m_Rx[Rx].m_Tx[Tx].m_Input[IP].m_TestToneEnable = Enable;
 		return 0;
@@ -1107,7 +1107,7 @@ int S3IPSetTestToneEnable(char Rx, char Tx, char IP, char Enable)
 
 	if (S3Data->m_Rx[Rx].m_Tx[Tx].m_Input[IP].m_TestToneEnable != Enable)
 	{
-		S3Data->m_Rx[Rx].m_Tx[Tx].m_Input[IP].m_TestToneEnable = Enable + 100;
+		S3Data->m_Rx[Rx].m_Tx[Tx].m_Input[IP].m_TestToneEnable = Enable + S3_PENDING;
 		return 0;
 	}
 

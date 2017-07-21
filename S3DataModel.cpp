@@ -1760,7 +1760,7 @@ int S3SetAGC(unsigned char AGC)
 #ifdef S3_AGENT
     CString Command, Args, Response;
     Command = L"AGC";
-    if (AGC >= 100) AGC -= 100;
+    if (AGC >= S3_PENDING) AGC -= S3_PENDING;
 	
 	switch(AGC)
     {
@@ -1779,8 +1779,8 @@ int S3SetAGC(unsigned char AGC)
 
     Response = SendSentinel3Message(Command);	
 #else
-	if (AGC >= 100)
-		S3Data->m_AGC = AGC - 100;
+	if (AGC >= S3_PENDING)
+		S3Data->m_AGC = AGC - S3_PENDING;
 	else
 		S3Data->m_AGC = AGC;
 
@@ -1825,13 +1825,13 @@ int S3SetTCompMode(unsigned char ContMode)
 		if (ContMode != S3Data->m_ContTComp)
 		{
 			S3Data->m_ContTComp = ContMode;
-			S3TxSetTCompMode(-1, -1, ContMode + 100);
+			S3TxSetTCompMode(-1, -1, ContMode + S3_PENDING);
 		}
 	}
 	else
 	{
 		// Already pending (but may have changed)
-		S3Data->m_ContTComp = ContMode - 100;
+		S3Data->m_ContTComp = ContMode - S3_PENDING;
 		S3TxSetTCompMode(-1, -1, ContMode);
 	}
 #endif

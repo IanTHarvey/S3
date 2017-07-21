@@ -451,8 +451,8 @@ int S3RxRead(FILE *fid, pS3RxData pRx)
 		fread(&pRx->m_ActiveTx, sizeof(char), 1, fid);
 
 		// Sanity limiting
-		if (pRx->m_ActiveTx >= 100)
-			pRx->m_ActiveTx -= 100;
+		if (pRx->m_ActiveTx >= S3_PENDING)
+			pRx->m_ActiveTx -= S3_PENDING;
 
 		if (pRx->m_ActiveTx < 0 || pRx->m_ActiveTx > S3_MAX_TXS)
 			pRx->m_ActiveTx = 0;
@@ -509,8 +509,8 @@ int S3TxRead(FILE *fid, pS3TxData pTx)
 	}
 
 	// Clear any pending sleep state
-	if (pTx->m_PowerStat >= 100)
-		pTx->m_PowerStat -= 100;
+	if (pTx->m_PowerStat >= S3_PENDING)
+		pTx->m_PowerStat -= S3_PENDING;
 
 	if (pTx->m_PowerStat < 1)
 		pTx->m_PowerStat = S3_TX_ON;
@@ -578,7 +578,7 @@ int S3IPRead(FILE *fid, pS3IPData IP)
 			IP->m_TestToneEnable = 0;
 	}
 
-	// TODO: += 100 to schedule for update?
+	// TODO: += S3_PENDING to schedule for update?
 
 	return 0;
 }

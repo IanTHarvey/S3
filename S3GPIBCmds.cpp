@@ -57,15 +57,15 @@ int CmdAGC()
 
 		if (!STRNCMP(GPIBCmdArgs[1], "OFF", 2))
 		{
-			S3SetAGC(S3_AGC_OFF + 100);
+			S3SetAGC(S3_AGC_OFF + S3_PENDING);
 		}
 		else if (!STRNCMP(GPIBCmdArgs[1], "CONT", 4))
 		{
-			S3SetAGC(S3_AGC_CONT + 100);
+			S3SetAGC(S3_AGC_CONT + S3_PENDING);
 		}
 		else if (!STRNCMP(GPIBCmdArgs[1], "GAIN", 4))
 		{
-			S3SetAGC(S3_AGC_GAIN + 100);
+			S3SetAGC(S3_AGC_GAIN + S3_PENDING);
 		}
 		else
 			return S3_GPIB_INVALID_PARAMETER;

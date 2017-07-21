@@ -558,7 +558,7 @@ int S3TxSetTestToneIP(char Rx, char Tx, char IP) // , unsigned char SigOn)
 	{
 		if (S3Data->m_Rx[Rx].m_Tx[Tx].m_TestSigInput != IP)
 		{
-			S3Data->m_Rx[Rx].m_Tx[Tx].m_TestSigInput = IP + 100;
+			S3Data->m_Rx[Rx].m_Tx[Tx].m_TestSigInput = IP + S3_PENDING;
 		}
 	}
 	
@@ -633,8 +633,8 @@ int S3TxSetActiveIP(char Rx, char Tx, char IP)
 
 	char curIP = pTx->m_ActiveInput;
 
-	if (curIP >= 100)
-		curIP -= 100;
+	if (curIP >= S3_PENDING)
+		curIP -= S3_PENDING;
 
 	if (S3IPGetAlarms(Rx, Tx, curIP) & S3_IP_OVERDRIVE)
 		return 1;
@@ -645,10 +645,10 @@ int S3TxSetActiveIP(char Rx, char Tx, char IP)
 		if (pTx->m_ActiveInput == IP)
 			return 0;
 
-		if (pTx->m_ActiveInput == IP + 100)
-			pTx->m_ActiveInput -= 100;	// Ack
+		if (pTx->m_ActiveInput == IP + S3_PENDING)
+			pTx->m_ActiveInput -= S3_PENDING;	// Ack
 		else
-			pTx->m_ActiveInput = IP + 100; // Updated request
+			pTx->m_ActiveInput = IP + S3_PENDING; // Updated request
 	}
 	else
 		pTx->m_ActiveInput = 0;
@@ -808,8 +808,8 @@ int S3TxSetPowerStat(char Rx, char Tx, S3TxPwrMode mode)
 int S3TxSetTCompMode(char Rx, char Tx, unsigned char mode)
 {
 	// In case multiply scheduled
-	if (mode >= 200)
-		mode -= 100;
+	if (mode >= 2 * S3_PENDING)
+		mode -= S3_PENDING;
 
 	// Update data model
 	if (Rx == -1 && Tx == -1)
@@ -1451,7 +1451,7 @@ int S3TxSetTauUnits(char Rx, char Tx, const unsigned char *units)
 		if (*(units + i * 2 + 1) < 3)
 			nChar = swprintf_s(pTx->m_TauUnits[i + 1], 16, _T("%.1fns"), pTx->m_Tau_ns[i + 1]);
 		else if (*(units + i * 2 + 1) < 6)
-			nChar = swprintf_s(pTx->m_TauUnits[i + 1], 16, _T("%.1f\u03bcs"), pTx->m_Tau_ns[i + 1] / 1000.0); // mu = 03BC	
+			nChar = swprintf_s(pTx->m_TauUnits[i + 1], 16, _T("%.1f%c"), pTx->m_Tau_ns[i + 1] / 1000.0, S3_SYM_MU_LC); // mu = 03BC	
 		else if (*(units + i * 2 + 1) < 9)
 			nChar = swprintf_s(pTx->m_TauUnits[i + 1], 16, _T("%.1fms"), pTx->m_Tau_ns[i + 1] / 1000000.0);
 	}
@@ -1494,7 +1494,7 @@ int S3TxGetTauUnitsA(char *S3TxGetTauUnitsStr, char Rx, char Tx, char IP)
 	
 	for(unsigned char i = 0; i <= _tcslen(str) && i < S3_MAX_TAU_UNITS_LEN; i++)
 	{
-		if (str[i] == 0x3bc)
+		if (str[i] == S3_SYM_MU_LC)
 			S3TxGetTauUnitsStr[i] = 'u';
 		else
 			S3TxGetTauUnitsStr[i] = (char)str[i];

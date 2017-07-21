@@ -278,13 +278,13 @@ int S3I2CRxSetAGC(char Rx, char Tx)
 	unsigned char UserAGC =	S3RxGetAGC(Rx, Tx);
 
 	// Has AGC setting changed?
-	if (UserAGC >= 100)
+	if (UserAGC >= S3_PENDING)
 	{
 		// Force gain update in next poll
 		for(char IP = 0; IP < S3TxGetNIP(Rx, Tx); IP++)
 			S3IPSetGainSent(Rx, Tx, IP, SCHAR_MIN);
 
-		UserAGC -= 100;
+		UserAGC -= S3_PENDING;
 
 		S3RxSetAGC(Rx, Tx, UserAGC);
 	}
@@ -456,7 +456,7 @@ int S3I2CRxSetActiveTx(char Rx)
 	if (Tx == -1)
 		return 0;
 
-	if (Tx < 100)
+	if (Tx < S3_PENDING)
 		return 0; // No change pending
 
 	Tx -= 100; // Clear pending bit

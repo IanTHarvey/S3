@@ -150,8 +150,8 @@ int S3RxInserted(char Rx, S3RxType type)
 	S3RxSetType(pRx, type);
 
 	// Force switch
-	if (pRx->m_ActiveTx < 100)
-		pRx->m_ActiveTx += 100;
+	if (pRx->m_ActiveTx < S3_PENDING)
+		pRx->m_ActiveTx += S3_PENDING;
 #endif
 
 	return 0;
@@ -216,9 +216,9 @@ int S3RxSetActiveTx(char Rx, char Tx)
 		if (pRx->m_ActiveTx == Tx)
 			return 0;
 
-		if (pRx->m_ActiveTx == Tx + 100)
+		if (pRx->m_ActiveTx == Tx + S3_PENDING)
 		{
-			pRx->m_ActiveTx -= 100;	// Ack
+			pRx->m_ActiveTx -= S3_PENDING;	// Ack
 
 			// Rx6 Tx is aleady connected, but RLL stability has not been
 			// established until it becomes active for the first time.
@@ -226,7 +226,7 @@ int S3RxSetActiveTx(char Rx, char Tx)
 				S3Data->m_Rx[Rx].m_Tx[Tx].m_RLLStableCnt = 0;
 		}
 		else
-			pRx->m_ActiveTx = Tx + 100; // Updated request
+			pRx->m_ActiveTx = Tx + S3_PENDING; // Updated request
 	}
 	else
 		pRx->m_ActiveTx = 0;
@@ -495,13 +495,13 @@ int S3RxSetAGC(char Rx, char Tx, unsigned char AGC)
 
     switch(AGC)
     {
-        case (S3_AGC_OFF + 100):
+        case (S3_AGC_OFF + S3_PENDING):
             Args.Format(_T(" %d OFF"), (Rx + 1));
             break;
-        case (S3_AGC_CONT + 100):
+        case (S3_AGC_CONT + S3_PENDING):
             Args.Format(_T(" %d CONT"), (Rx + 1));
             break;
-        case (S3_AGC_GAIN + 100):
+        case (S3_AGC_GAIN + S3_PENDING):
             Args.Format(_T(" %d GAIN"), (Rx + 1));
             break;
     }

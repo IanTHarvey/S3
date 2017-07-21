@@ -190,7 +190,7 @@ BOOL CS3ControllerDlg::OnInitDialog()
 	if (S3GetTCompGainOption() && CompMode == S3_TCOMP_GAIN)
 		CompMode = S3_TCOMP_CONT;
 
-	S3SetTCompMode(CompMode + 100); // Force update
+	S3SetTCompMode(CompMode + S3_PENDING); // Force update
 
 	debug_print("OnInitDialog: Initialised model\n");
 	// See comments in S3EventLog.cpp
