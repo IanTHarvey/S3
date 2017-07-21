@@ -305,7 +305,7 @@ int CS3GDIScreenMain::S3GDIChangeScreen(char screen)
 
 	// Tx Screen orphans
 	m_GDINodeNameEdit->ShowWindow(SW_HIDE);
-	m_GDIMaxPowerEdit->ShowWindow(SW_HIDE);
+	// m_GDIMaxPowerEdit->ShowWindow(SW_HIDE);
 	S3GDIIPGainClose();
 
 	// Settings Screen orphans
