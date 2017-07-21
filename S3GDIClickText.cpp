@@ -44,10 +44,12 @@ void CClickText::Draw(void)
 
 BOOL CClickText::Find(POINT p)
 {
+	BOOL ret = FALSE;
+	
 	if (m_Enabled)
-		return m_r.PtInRect(p);
+		ret = m_r.PtInRect(p);
 
-	return FALSE;
+	return ret;
 }
 
 // ----------------------------------------------------------------------------
