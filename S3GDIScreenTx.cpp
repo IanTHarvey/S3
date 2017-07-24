@@ -45,13 +45,12 @@ extern char S3GDI_RxParaRowMap(char para);
 CClickText *TxLowNoise[S3_MAX_IPS];
 #endif
 
-#define S3_MAX_TXIP_PARAS	10
-
 #define S3_TX_TABLE_R_MARG	8
 
 #define S3_GAIN_MARGIN_W	3
 #define S3_GAIN_BORDER_W	2
 #define S3_GAIN_L_OFFSET	10
+#define S3_MESSAGE_H		50
 
 int		wIPCol;
 
@@ -83,7 +82,14 @@ extern char S3GDI_RowParaMap[];
 extern int hRxTxRows[];
 extern int pRxTxRows[];
 
+#ifndef S3_SHOW_P1DB_MODES
+#define S3_MAX_TXIP_PARAS	10
 int hTxIPRows[S3_MAX_TXIP_PARAS] = {0, 35, 30, 91, 45, 40, 35, 30, 30, 30};
+#else
+#define S3_MAX_TXIP_PARAS	11
+int hTxIPRows[S3_MAX_TXIP_PARAS] = {0, 35, 30, 91, 45, 30, 40, 35, 30, 30, 30};
+#endif
+
 int pTxIPRows[S3_MAX_TXIP_PARAS];
 
 // ITH: Add to initialisation
@@ -188,26 +194,25 @@ void CS3GDIScreenMain::S3InitGDITxScreen(void)
 
 	m_dBperPix = (double)(m_hIPGain - 2 * S3_GAIN_MARGIN_W) / (S3_MAX_GAIN - S3_MIN_GAIN);
 
-	m_RectTxTx.left = m_RectScreen.left;
+	m_RectTxTx = m_RectScreen;
 	m_RectTxTx.top = m_RectHeader.bottom;
 	m_RectTxTx.right = m_RectScreen.left + m_wTxTx;
-	// m_RectTxTx.bottom = m_RectTxTx.top + HEAD_ROW + 8 * PARA_ROW;
 
-	m_RectTxBatt.left = m_RectScreen.left;
-	m_RectTxBatt.top = m_RectTxTx.bottom;
-	m_RectTxBatt.right = m_RectTxTx.right;
-	m_RectTxBatt.bottom = m_RectScreen.bottom;
+	m_RectTxBatt = m_RectTxTx;
+	m_RectTxBatt.bottom -= S3_HEIGHT_MSG_BAR;
 
 	m_RectTxParaList = m_RectTxTx;
 	m_RectTxParaList.left = m_RectTxTx.right;
 	m_RectTxParaList.right = m_RectTxParaList.left + m_wTxIPPara;
-	m_RectTxParaList.bottom = m_RectTxBatt.bottom;
+	m_RectTxParaList.bottom = m_RectScreen.bottom - S3_MESSAGE_H;
 
 	m_RectTxTable = m_RectTxParaList;
 	m_RectTxTable.left = m_RectTxParaList.right;
 	
 	wIPCol = (m_RectScreen.right - m_RectTxTable.left) / S3_MAX_IPS;
-	m_RectTxTable.right = m_RectScreen.right; // + S3_MAX_IPS * wIPCol;
+
+	m_RectTxTable.right = m_RectScreen.right;
+	m_RectTxTable.bottom = m_RectScreen.bottom - S3_HEIGHT_MSG_BAR;
 
 	m_IPGainIsUp = false;
 
@@ -241,37 +246,37 @@ void CS3GDIScreenMain::S3InitGDITxScreen(void)
 
 	CalcGainTickMarks();
 
-	char Row = 0;
+	char RowCnt = 0;
 
 	m_TxNodeName = new CS3NameValue(	m_RectTxTx.left, 
-				m_RectTxTx.top + HEAD_ROW + Row++ * PARA_ROW, m_RectTxTx.Width(),
+				m_RectTxTx.top + HEAD_ROW + RowCnt++ * PARA_ROW, m_RectTxTx.Width(),
 				_T("Name"), _T("12345678"), true);
 
 	m_RectTxNodeName = m_TxNodeName->RectEdit(m_HDC, m_hFontL);
 	
 	m_TxType = new CS3NameValue(	m_RectTxTx.left, 
-				m_RectTxTx.top + HEAD_ROW + Row++ * PARA_ROW, m_RectTxTx.Width(),
+				m_RectTxTx.top + HEAD_ROW + RowCnt++ * PARA_ROW, m_RectTxTx.Width(),
 				_T("Type"), _T("TxN"), false);
 	m_RectTxType = m_TxType->RectEdit(m_HDC, m_hFontS);
 
 	m_TxPowerMode = new CS3NameValue(	m_RectTxTx.left, 
-				m_RectTxTx.top + HEAD_ROW + Row++ * PARA_ROW, m_RectTxTx.Width(),
+				m_RectTxTx.top + HEAD_ROW + RowCnt++ * PARA_ROW, m_RectTxTx.Width(),
 				_T("Power mode"), _T("SSleeping"), true);
 	m_RectTxPowerMode = m_TxPowerMode->RectEdit(m_HDC, m_hFontS);
 
 	m_TxLaserPow = new CS3NameValue(	m_Parent,
 				m_RectTxTx.left, 
-				m_RectTxTx.top + HEAD_ROW + Row++ * PARA_ROW, m_RectTxTx.Width(),
+				m_RectTxTx.top + HEAD_ROW + RowCnt++ * PARA_ROW, m_RectTxTx.Width(),
 				_T("Plaser (dBm)"), _T("-1288"), false);
 	m_TxLaserPow->RectEdit(m_HDC, m_hFontS);
 
 	// ------------------------------------------------------------------------
 
-		m_TxPeakThresh = new CS3NameValue(	m_Parent,
-					m_RectTxTx.left, 
-					m_RectTxTx.top + HEAD_ROW + Row++ * PARA_ROW, m_RectTxTx.Width(),
-					_T("Peak thresh (mV)"), _T("-1288"), false);
-		m_TxPeakThresh->RectEdit(m_HDC, m_hFontS);
+	m_TxPeakThresh = new CS3NameValue(	m_Parent,
+				m_RectTxTx.left, 
+				m_RectTxTx.top + HEAD_ROW + RowCnt++ * PARA_ROW, m_RectTxTx.Width(),
+				_T("Peak thresh (mV)"), _T("-1288"), false);
+	m_TxPeakThresh->RectEdit(m_HDC, m_hFontS);
 
 		//m_TxPeakHold = new CS3NameValue(	m_Parent,
 		//			m_RectTxTx.left, 
@@ -287,7 +292,7 @@ void CS3GDIScreenMain::S3InitGDITxScreen(void)
 
 	m_TxTemp = new CS3NameValue(	m_Parent,
 				m_RectTxTx.left, 
-				m_RectTxTx.top + HEAD_ROW + Row++ * PARA_ROW, m_RectTxTx.Width(),
+				m_RectTxTx.top + HEAD_ROW + RowCnt++ * PARA_ROW, m_RectTxTx.Width(),
 				str, _T("-1288"), false);
 	m_TxTemp->RectEdit(m_HDC, m_hFontS);
 
@@ -295,37 +300,37 @@ void CS3GDIScreenMain::S3InitGDITxScreen(void)
 
 	m_TxTempComp = new CS3NameValue(	m_Parent,
 				m_RectTxTx.left, 
-				m_RectTxTx.top + HEAD_ROW + Row++ * PARA_ROW, m_RectTxTx.Width(),
+				m_RectTxTx.top + HEAD_ROW + RowCnt++ * PARA_ROW, m_RectTxTx.Width(),
 				str, _T("-1288"), true);
 	m_RectTxDoComp = m_TxTempComp->RectEdit(m_HDC, m_hFontS);
 
 	m_TxSN = new CS3NameValue(	m_RectTxTx.left, 
-				m_RectTxTx.top + HEAD_ROW + Row * PARA_ROW, m_RectTxTx.Width() - 16 - NV_LMARGIN,
+				m_RectTxTx.top + HEAD_ROW + RowCnt * PARA_ROW, m_RectTxTx.Width() - 16 - NV_LMARGIN,
 				_T("S/N"), _T("SN1234567"), false);
 	m_TxSN->RectEdit(m_HDC, m_hFontS);
 
 	m_TxInfoPopup = new CS3GDIInfoPopup(this, m_HDC, m_hbmpInfoButton);
 	m_TxInfoPopup->Init(
-		m_RectTxTx.right - m_TxInfoPopup->Width() - NV_LMARGIN, m_RectTxTx.top + HEAD_ROW + Row++ * PARA_ROW);
+		m_RectTxTx.right - m_TxInfoPopup->Width() - NV_LMARGIN, m_RectTxTx.top + HEAD_ROW + RowCnt++ * PARA_ROW);
 
-	m_RectTxTx.bottom = m_RectTxTx.top + HEAD_ROW + Row * PARA_ROW;
+	m_RectTxTx.bottom = m_RectTxTx.top + HEAD_ROW + RowCnt * PARA_ROW;
 	m_RectTxBatt.top = m_RectTxTx.bottom;
 
 	// --------------------------------------------------------------------------
 
-	Row = 0;
+	RowCnt = 0;
 
 	str.Format(_T("\u03F4 (%d - %d%cC)"),
-		S3_BATT_DISCHG_MIN_T / 10, S3_BATT_DISCHG_MAX_T / 10, 0x00b0);
+		S3_BATT_DISCHG_MIN_T / 10, S3_BATT_DISCHG_MAX_T / 10, S3_SYM_DEGREE);
 
 	m_TxBattT = new CS3NameValue(	m_RectTxBatt.left, 
-				m_RectTxBatt.top + m_wChBatt + 3 + HEAD_ROW + Row++ * PARA_ROW,
+				m_RectTxBatt.top + m_wChBatt + 3 + HEAD_ROW + RowCnt++ * PARA_ROW,
 				m_RectTxBatt.Width(),
 				str, _T("100"), false);
 	m_TxBattT->RectEdit(m_HDC, m_hFontS);
 
 	m_TxBattI = new CS3NameValue(	m_RectTxBatt.left, 
-				m_RectTxBatt.top + m_wChBatt + 3 + HEAD_ROW + Row++ * PARA_ROW,
+				m_RectTxBatt.top + m_wChBatt + 3 + HEAD_ROW + RowCnt++ * PARA_ROW,
 				m_RectTxBatt.Width(),
 				_T("I(mA)"), _T("100"), false);
 	m_TxBattI->RectEdit(m_HDC, m_hFontS);
@@ -339,15 +344,13 @@ void CS3GDIScreenMain::S3InitGDITxScreen(void)
 	int xref = m_RectTxTable.left;
 	int yref = m_RectTxTable.top;
 	
-	unsigned char RowCnt;	// TODO: Needs initial value to saty in-line with
-							// optional rows above.
-	for (unsigned char IP = 0; IP < S3_MAX_IPS; IP++)
+	for (char IP = 0; IP < S3_MAX_IPS; IP++)
 	{
 		int xrefcol = xref + IP * wIPCol;
 		int yrefrow = yref;
 		CRect fntRc;
 
-		RowCnt = 5;
+		RowCnt = S3_MAX_TXIP_PARAS - 5;
 
 		fntRc.left = xrefcol;
 		fntRc.right = fntRc.left + wIPCol - S3_TX_TABLE_R_MARG;
@@ -383,19 +386,19 @@ void CS3GDIScreenMain::S3InitGDITxScreen(void)
 #endif
 	}
 
+	rect = S3RectGDITxIPRowName(m_RectTxParaList.left,
+									m_RectTxParaList.top, RowCnt - 2, DT_RIGHT);
+
+	TxTestToneAll = new CClickText(this, rect, m_HDC, DT_RIGHT, 0);
+	TxTestToneAll->SetString(_T("Test tone"));
+
 	m_RectTxMsg = m_RectScreen;
-	m_RectTxMsg.top = yref + pTxIPRows[RowCnt++];
+	m_RectTxMsg.top = m_RectTxMsg.bottom - S3_MESSAGE_H; // Always bottom row
 	m_RectTxMsg.left += 50;
 
 	TxAlarm = new CClickText(this, m_RectTxMsg, m_HDC, DT_LEFT, 1);
 	
 	m_RectTxMsg.left -= 50;
-
-	rect = S3RectGDITxIPRowName(m_RectTxParaList.left,
-		m_RectTxParaList.top, 7, DT_RIGHT);
-
-	TxTestToneAll = new CClickText(this, rect, m_HDC, DT_RIGHT, 0);
-	TxTestToneAll->SetString(_T("Test tone"));
 
 	m_TxPowerState = S3_TX_ON;
 }
@@ -426,7 +429,7 @@ void CS3GDIScreenMain::S3CloseGDITxScreen(void)
 	delete m_TxBattT;
 	delete m_TxBattI;
 
-	for (unsigned char IP = 0; IP < S3_MAX_IPS; IP++)
+	for (char IP = 0; IP < S3_MAX_IPS; IP++)
 	{
 		delete TxSigTau[IP];
 		delete TxHiZ[IP];
@@ -1061,8 +1064,8 @@ void CS3GDIScreenMain::S3DrawGDITxIP(char Rx, char Tx, char IP,
 		// Sleeping
 		cr = SetTextColor(m_HDC, m_crTextNorm);
 
-		if (ActiveIP >= 100)
-			ActiveIP -= 100;
+		if (ActiveIP >= S3_PENDING)
+			ActiveIP -= S3_PENDING;
 		
 		if (IP == ActiveIP)
 		{
@@ -1230,7 +1233,6 @@ void CS3GDIScreenMain::S3DrawGDITxIP(char Rx, char Tx, char IP,
 		}
 		
 		DrawText(m_HDC, str, -1, &fntRc, DT_RIGHT);
-
 		RowCnt++;
 
 		fntRc.top = yref + pTxIPRows[RowCnt];
@@ -1245,7 +1247,7 @@ void CS3GDIScreenMain::S3DrawGDITxIP(char Rx, char Tx, char IP,
 			else
 			{
 				if (Sens < 1.0)
-					str.Format(_T("%.1f\u03bc"), 1000.0 * S3dBm2mW(Sens));
+					str.Format(_T("%.1f%c"), 1000.0 * S3dBm2mW(Sens), S3_SYM_MU_LC);
 				else if (Sens >= 1000.0)
 					str.Format(_T("%.1f"), S3dBm2mW(Sens) / 1000.0);
 				else
@@ -1261,7 +1263,7 @@ void CS3GDIScreenMain::S3DrawGDITxIP(char Rx, char Tx, char IP,
 			else
 			{
 				if (Sens < 1.0)
-					str.Format(_T("%.1f\u03bc"), Sens * 1000.0);
+					str.Format(_T("%.1f%c"), Sens * 1000.0, S3_SYM_MU_LC);
 				else if (Sens >= 1000.0)
 					str.Format(_T("%.2f"), Sens / 1000.0);
 				else
@@ -1270,9 +1272,10 @@ void CS3GDIScreenMain::S3DrawGDITxIP(char Rx, char Tx, char IP,
 		}
 
 		DrawText(m_HDC, str, -1, &fntRc, DT_RIGHT);
+		RowCnt++;
 
 		SelectObject(m_HDC, fobj);
-#endif // S3_SHOW_P1DB_MODES
+#else // S3_SHOW_P1DB_MODES
 
 #ifdef S3_SHOW_P1DB
 		fobj = SelectObject(m_HDC, m_hFontS);
@@ -1310,6 +1313,7 @@ void CS3GDIScreenMain::S3DrawGDITxIP(char Rx, char Tx, char IP,
 			str.Format(_T("%s"), _T("Pulse"));
 
 		DrawText(m_HDC, str, -1, &fntRc, DT_RIGHT);
+		RowCnt++;
 
 		SelectObject(m_HDC, fobj);
 
@@ -1332,11 +1336,12 @@ void CS3GDIScreenMain::S3DrawGDITxIP(char Rx, char Tx, char IP,
 		DrawText(m_HDC, str, -1, &fntRc, DT_RIGHT | DT_VCENTER);
 #endif // S3_SHOW_P1DB
 
+#endif  // !S3_SHOW_P1DB_MODES
+
 		SelectObject(m_HDC, fobj);
 	}
 
 	// ------------------------------------------------------------------------
-	RowCnt++;
 
 	int yCentre = yref + (pTxIPRows[RowCnt] + pTxIPRows[RowCnt + 1] - S3_DIA_LED)/2;
 
@@ -1387,7 +1392,7 @@ void CS3GDIScreenMain::S3DrawGDITxIP(char Rx, char Tx, char IP,
 	
 	char ToneEnabled = S3IPGetTestToneEnable(Rx, Tx, IP);
 
-	if (ToneEnabled >= 100)
+	if (ToneEnabled >= S3_PENDING)
 		str = "Wait";
 	else if (ToneEnabled == 1)
 		str = "On";
@@ -1509,8 +1514,9 @@ void CS3GDIScreenMain::S3DrawGDITxIPTable(char Rx, char Tx)
 	int xref = m_RectTxParaList.left;
 	int yref = m_RectTxParaList.top;
 
-	SelectObject(m_HDC, m_hBrushRed);
-	S3_RECT(m_HDC, m_RectTxTable);
+	SelectObject(m_HDC, m_hBrushBG3);
+	S3_RECT_N(m_HDC, m_RectTxTable);
+	S3_RECT_N(m_HDC, m_RectTxParaList);
 
 	CString str;
 
@@ -1587,7 +1593,7 @@ void CS3GDIScreenMain::S3DrawGDITxIPTable(char Rx, char Tx)
 		
 	S3DrawGDITxIPRowName(xref, yref, RowCnt++, str, DT_RIGHT);
 
-#endif
+#else // S3_SHOW_P1DB_MODES
 
 #ifdef S3_SHOW_P1DB
 
@@ -1609,13 +1615,14 @@ void CS3GDIScreenMain::S3DrawGDITxIPTable(char Rx, char Tx)
 		S3DrawGDITxIPRowName(xref, yref, RowCnt++, str, DT_LEFT | DT_VCENTER);
 	}
 #endif // S3_SHOW_P1DB
+#endif // !S3_SHOW_P1DB_MODES
 
 	S3DrawGDITxIPRowName(xref, yref, RowCnt++, _T("Peak detect"));
 
-	str.Format(_T("\u222b\u03a4 (\u03bcS)"));
+	str.Format(_T("\u222b\u03a4 (%cS)"), S3_SYM_MU_LC);
 	S3DrawGDITxIPRowName(xref, yref, RowCnt++, str);
 
-	str.Format(_T("IPz (\u03a9)"));
+	str.Format(_T("IPz (%c)"), S3_SYM_OMEGA_UC);
 	S3DrawGDITxIPRowName(xref, yref, RowCnt++, str);
 
 	if (RowCnt % 2)
@@ -1626,7 +1633,7 @@ void CS3GDIScreenMain::S3DrawGDITxIPTable(char Rx, char Tx)
 	// Rect returned is the text box, so need to frig...
 	if (S3TxGetType(Rx, Tx) != S3_Tx1)
 	{
-		S3DrawGDITxIPRowName(xref, yref, RowCnt++, _T("Dummy"));
+		S3DrawGDITxIPRowName(xref, yref, RowCnt++, _T("Dummyyyy"));
 
 		CRect rect = TxTestToneAll->Rect();
 		rect.right += S3_TX_TABLE_R_MARG;
@@ -1725,7 +1732,7 @@ CRect CS3GDIScreenMain::S3RectGDITxIPRowName(	int xref, int yref,
 
 // ----------------------------------------------------------------------------
 // Highlight table item
-void CS3GDIScreenMain::S3DrawGDITxIPParaSelect(int xref, int yref,
+void CS3GDIScreenMain::S3DrawGDITxIPParaSelect(		int xref, int yref,
 													char SelectedPara)
 {
 	if (SelectedPara == -1)
@@ -1801,7 +1808,7 @@ void CS3GDIScreenMain::S3DrawGDIParaPopUp(int xref, int yref)
 
 		char ToneEnabled = S3IPGetTestToneEnable(Rx, Tx, IP);
 
-		if (ToneEnabled < 100)
+		if (ToneEnabled < S3_PENDING)
 		{
 			if (ToneEnabled)
 				m_ParaMenu->SelectItem(1); 
@@ -1844,15 +1851,7 @@ void CS3GDIScreenMain::S3DrawGDIParaPopUp(int xref, int yref)
 
 		KeepInRect(m_RectTxTable, RectText);
 
-		m_GDINodeNameEdit->SetWindowPos(&this->wndTop,
-			RectText.left,		RectText.top,
-			RectText.Width(),	RectText.Height(), SWP_SHOWWINDOW);
-
-		m_GDINodeNameEdit->SetWindowText(str);
-		m_GDINodeNameEdit->SetFocus();
-		m_GDINodeNameEdit->SetSel(0, -1);	// Select all and move cursor to end
-		// m_GDINodeNameEdit->SetSel(-1);	// Remove selection
-			
+		m_GDINodeNameEdit->Edit(RectText, str);			
 	}
 	else if (ParaType == S3_RXTX_NODENAME)
 	{
@@ -1869,28 +1868,14 @@ void CS3GDIScreenMain::S3DrawGDIParaPopUp(int xref, int yref)
 
 		KeepInRect(m_RectRxTable, RectText);
 
-		m_GDINodeNameEdit->SetWindowPos(&this->wndTop,
-			RectText.left,		RectText.top,
-			RectText.Width(),	RectText.Height(), SWP_SHOWWINDOW);
-
-		m_GDINodeNameEdit->SetWindowText(str);
-		m_GDINodeNameEdit->SetFocus();
-		m_GDINodeNameEdit->SetSel(0, -1);	// Select all and move cursor to end
-		// m_GDINodeNameEdit->SetSel(-1);	// Remove selection
-			
+		m_GDINodeNameEdit->Edit(RectText, str);			
 	}
 	else if (ParaType == S3_RXRX_NODENAME)
 	{
 		CString str;
 		str.Format(_T("%S"), S3GetNodeName(Rx, -1, -1));
 
-		m_GDINodeNameEdit->SetWindowPos(&this->wndTop,
-			m_RectRxNodeName.left,		m_RectRxNodeName.top,
-			m_RectRxNodeName.Width(),	m_RectRxNodeName.Height(), SWP_SHOWWINDOW);
-
-		m_GDINodeNameEdit->SetWindowText(str);
-		m_GDINodeNameEdit->SetFocus();
-		m_GDINodeNameEdit->SetSel(0, -1);	// Select all and move cursor to end			
+		m_GDINodeNameEdit->Edit(m_RectRxNodeName, str);	
 	}
 	else if (ParaType == S3_TXTX_NODENAME)
 	{
@@ -1898,13 +1883,7 @@ void CS3GDIScreenMain::S3DrawGDIParaPopUp(int xref, int yref)
 		CString str;
 		str.Format(_T("%S"), S3GetNodeName(Rx, Tx, -1));
 
-		m_GDINodeNameEdit->SetWindowPos(&this->wndTop,
-			m_RectTxNodeName.left,		m_RectTxNodeName.top,
-			m_RectTxNodeName.Width(),	m_RectTxNodeName.Height(), SWP_SHOWWINDOW);
-
-		m_GDINodeNameEdit->SetWindowText(str);
-		m_GDINodeNameEdit->SetFocus();
-		m_GDINodeNameEdit->SetSel(0, -1);	// Select all and move cursor to end			
+		m_GDINodeNameEdit->Edit(m_RectTxNodeName, str);	
 	}
 	else if (ParaType == S3_ACTIVE_INPUT)
 	{
@@ -1932,13 +1911,7 @@ void CS3GDIScreenMain::S3DrawGDIParaPopUp(int xref, int yref)
 			m_RectTxTable.top + pTxIPRows[ParaRow]);
 		KeepInRect(m_RectTxTable, rect);	
 
-		m_GDIMaxPowerEdit->SetWindowPos(&this->wndTop,
-			rect.left, rect.top, rect.Width(), rect.Height(), SWP_SHOWWINDOW);
-
-		m_GDIMaxPowerEdit->SetWindowText(str);
-		m_GDIMaxPowerEdit->SetFocus();
-		m_GDIMaxPowerEdit->SetSel(0, -1);	// Select all and move cursor to end
-		// m_GDIMaxPowerEdit->SetSel(-1);	// Remove selection
+		m_GDIMaxPowerEdit->Edit(rect, str);
 	}
 	else if (ParaType == S3_ALARM_LED)
 	{
