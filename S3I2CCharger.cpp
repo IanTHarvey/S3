@@ -19,6 +19,16 @@ extern pS3DataModel S3Data;
 
 int S3I2CChGetFault();
 
+// Back-plane alarm lines
+#define S3_ALARM_RX_FAN1	0x80
+#define S3_ALARM_RX_FAN2	0x40
+#define S3_ALARM_RX0		0x20
+#define S3_ALARM_RX1		0x10
+#define S3_ALARM_RX2		0x08
+#define S3_ALARM_RX3		0x04
+#define S3_ALARM_RX4		0x02
+#define S3_ALARM_RX5		0x01
+
 // ----------------------------------------------------------------------------
 // TODO: Use GPIO for chargers 0 & 1
 
@@ -37,8 +47,9 @@ unsigned char CountPins(unsigned char pins)
 int S3I2CChMS(unsigned char Ch)
 {
 #ifdef TRIZEPS
-	int pins, GPIOPins, ExpanderPins; // = I2C_ReadRandom(S3I2C_EXPANDER_ADDR, 0x04);
+	int pins, GPIOPins, ExpanderPins;
 
+	// TODO: Not currently used
 	unsigned short Alarms = Get_TTLPort(0xFFFF, 0); // & 0x003f;
 
 	if (Ch == 0xFF)
@@ -432,7 +443,7 @@ int S3I2CChGetStatus(unsigned char Ch)
 	// Enable 12V supply if good
 	if (S3ChBattValidated(Ch))
 		S3I2CChEn(Ch, true);
-	else
+	// else
 	//	S3I2CChEn(Ch, false);
 
 	S3I2CChMS(0xFF);
