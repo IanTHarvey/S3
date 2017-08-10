@@ -485,6 +485,7 @@ int S3GetPrimaryMACaddress()
 	{
 		pIPAddrString =	&pAdapterInfo->IpAddressList;
         pIPGwString =	&pAdapterInfo->GatewayList;
+		
 
 		while(pIPAddrString)
 		{
@@ -499,13 +500,21 @@ int S3GetPrimaryMACaddress()
                 continue;
             }
 
-			// First adapter with a default gateway
-            if (ulIPGateway)
+#ifdef TRIZEPS
+			// We know what it'll be called
+			if (!strcmp("ENET1", pAdapterInfo->AdapterName))
 			{
 				primary = pAdapterInfo;
 				break;
             }
-
+#else
+			// Use first adapter with a default gateway on a proper Windows PC
+			if (ulIPGateway)
+			{
+				primary = pAdapterInfo;
+				break;
+            }
+#endif
             pIPAddrString = pIPAddrString->Next;
 		}
 
