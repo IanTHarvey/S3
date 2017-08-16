@@ -14,9 +14,12 @@
 class CS3NameValue
 {
 public:
-	CS3NameValue(	int xref, int yref, int xright,
-					CString lbl, CString val,
-					bool editable, char ID = -1);
+	CS3NameValue(	int xref, int yref,
+					int xright,		// Right justification position
+					CString lbl,	// Left-hand label
+					CString val,	// String representing the longest reasonable input
+					bool editable,	// Displays m_val bold if editable
+					char ID = -1);
 	
 	// Allow alarms to be displayed (flashing text)
 	CS3NameValue(

@@ -52,9 +52,9 @@ int S3SysReport(char *Buf)
 
 	char Addr[S3_MAX_IP_ADDR_LEN];
 
-	S3GetIPAddrStr(Addr);
+	// S3GetIPAddrStr(Addr);
 
-	sprintf_s(Buf + len, S3_MAX_GPIB_RET_LEN - len, "IP:\t%s\n", Addr);
+	sprintf_s(Buf + len, S3_MAX_GPIB_RET_LEN - len, "IP:\t%s\n", S3GetIPAddrStr());
 
 	len = strlen(Buf);
 

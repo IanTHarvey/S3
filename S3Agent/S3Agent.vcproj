@@ -1086,10 +1086,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\S3GDITextInputPopup.cpp"
-				>
-			</File>
-			<File
 				RelativePath="..\S3GDITx.cpp"
 				>
 			</File>

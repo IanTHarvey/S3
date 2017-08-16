@@ -255,7 +255,6 @@ int CS3GDIScreenMain::S3GDIIPGainProcess(POINT p)
 
 			m_NumericPad->PopUp(m_HDC, p.x, p.y, m_GDIGainEdit,
 				S3_NP_INTEGER, 5);
-
 		}
 
 		return 1;

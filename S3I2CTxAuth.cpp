@@ -104,7 +104,6 @@ int S3I2CTxAuthenticate(char Rx, char Tx)
 ERR:
 #endif
 
-
 	if (err)
 	{
 		S3EventLogAdd("TxBattAuth: Failed comms", 3, Rx, Tx, -1);

@@ -138,9 +138,6 @@ int S3I2CRxGetStatus(char Rx)
 
 		S3RxSetAlarm(Rx, -1, S3_RX_INT_FAIL);
 	}
-		
-
-
 
 	if (RxType == S3_Rx1)
 	{

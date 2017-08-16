@@ -149,7 +149,7 @@ int S3RxInserted(char Rx, S3RxType type)
 	pRx->m_Detected = true;
 	S3RxSetType(pRx, type);
 
-	// Force switch
+	// Force switch to active transmitter
 	if (pRx->m_ActiveTx < S3_PENDING)
 		pRx->m_ActiveTx += S3_PENDING;
 #endif
@@ -438,6 +438,7 @@ int S3RxSetRLL(char Rx, char Tx, short RLL)
 		}
 		else
 		{
+			// TODO: Count these to implement time-out?
 			return 0;
 		}
 	}

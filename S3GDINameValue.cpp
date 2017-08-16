@@ -53,6 +53,9 @@ CS3NameValue::CS3NameValue(int xref, int yref, int xright,
 
 // ----------------------------------------------------------------------------
 // String val should provide a hint to the size of actual values for future use.
+// TODO: Rect calculated based on val is too small required by an attached
+// editor, which has to scroll to get the last character in. So val provided
+// here needs to add a charcter to the maximum example string.
 
 CS3NameValue::CS3NameValue(
 #ifdef S3_AGENT

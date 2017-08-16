@@ -13,7 +13,7 @@
 // 1.02 R&S release
 // 1.03 Dev
 
-#define S3_SYS_SW			"1.03r000"
+#define S3_SYS_SW			"1.03r001"
 
 #define S3_SYS_MODEL		"Sentinel 3"
 
