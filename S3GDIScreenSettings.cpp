@@ -1342,6 +1342,9 @@ int CS3GDIScreenMain::S3FindSettingsScreen(POINT p)
 			// S3GetIPAddrStr(cStr);
 			str.Format(_T("%S"), S3GetIPAddrStr());
 
+			if (!wcscmp(str, _T("No Ethernet")))
+				str = _T("");
+
 			m_GDIIPAddrEdit->SetWindowText(str);
 			m_GDIIPAddrEdit->ShowWindow(SW_SHOWNORMAL);
 
