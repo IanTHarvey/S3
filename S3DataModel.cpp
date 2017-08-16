@@ -344,6 +344,14 @@ int	S3SetMACAddr(const unsigned char *MAC)
 
 int	S3SetIPAddrStr(const wchar_t *str, bool user)
 {
+	char tmp[S3_MAX_IP_ADDR_LEN];
+	sprintf_s(tmp, S3_MAX_IP_ADDR_LEN, "%S", str);
+
+	// Don't restart NIC if unchanged
+	// TODO: Base comparison on parsed IP addresses
+	if (!strcmp(S3Data->m_IPv4Addr, tmp))
+		return 0;
+
 #ifndef S3_AGENT
 	if (!user)
 	{
