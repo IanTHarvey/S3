@@ -192,6 +192,8 @@ int S3DataModelInit(pS3DataModel dm, bool DemoMode)
 	
 	dm->m_Modified = false;
 
+	dm->m_DHCPEnabled = true;
+
 	dm->m_Locked = false;
 	dm->m_TxSelfTest = true;
 
@@ -340,49 +342,61 @@ int	S3SetMACAddr(const unsigned char *MAC)
 
 // ----------------------------------------------------------------------------
 
-/*
-int	S3SetIPAddr(const unsigned char *IPAddr)
+int	S3SetIPAddrStr(const wchar_t *str, bool user)
 {
-	for (unsigned char i = 0; i < 4; i++)
-		S3Data->m_IPv4Addr[i] = IPAddr[i];
+#ifndef S3_AGENT
+	if (!user)
+	{
+		sprintf_s(S3Data->m_IPv4Addr, S3_MAX_IP_ADDR_LEN, "%S", str);
+		return 0;
+	}
+	
+	if (*str == '\0')
+	{
+		S3SetDHCP(true);
+		sprintf_s(S3Data->m_IPv4Addr, S3_MAX_IP_ADDR_LEN, "0.0.0.0");
+		sprintf_s(S3Data->m_IPv4Subnet, S3_MAX_IP_ADDR_LEN, "0.0.0.0");
+	}
+	else if (!S3ValidateIPAddress(str))
+	{
+		sprintf_s(S3Data->m_IPv4Addr, S3_MAX_IP_ADDR_LEN, "%S", str);
+		S3SetDHCP(false);
+	}
+	else return 1;
 
-	return 0;
-}
-*/
-
-// ----------------------------------------------------------------------------
-
-int	S3SetIPAddrStr(const char *str)
-{
-	strcpy_s(S3Data->m_IPv4Addr, S3_MAX_IP_ADDR_LEN, str);
-
-	return 0;
-}
-
-// ----------------------------------------------------------------------------
-
-int	S3GetIPAddrStr(char *str)
-{
-	strcpy_s(str, S3_MAX_IP_ADDR_LEN, S3Data->m_IPv4Addr);
-
-	return 0;
-}
-// ----------------------------------------------------------------------------
-
-int	S3SetIPMaskStr(const char *str)
-{
-	strcpy_s(S3Data->m_IPv4Mask, S3_MAX_IP_ADDR_LEN, str);
-
+	// S3WriteEthConfig();
+#endif
+	
 	return 0;
 }
 
 // ----------------------------------------------------------------------------
 
-int	S3GetIPMaskStr(char *str)
+const char *S3GetIPAddrStr()
 {
-	strcpy_s(str, S3_MAX_IP_ADDR_LEN, S3Data->m_IPv4Mask);
+	return S3Data->m_IPv4Addr;
+}
+
+// ----------------------------------------------------------------------------
+
+int	S3SetIPSubnetStr(const wchar_t *str)
+{
+#ifndef S3_AGENT
+	if (!S3ValidateIPAddress(str))
+	{
+		sprintf_s(S3Data->m_IPv4Subnet, S3_MAX_IP_ADDR_LEN, "%S", str);	
+		return 1;
+	}
+#endif
 
 	return 0;
+}
+
+// ----------------------------------------------------------------------------
+
+const char *S3GetIPSubnetStr()
+{
+	return S3Data->m_IPv4Subnet;
 }
 // ---------------------------------------------------------------------------
 
@@ -2058,6 +2072,8 @@ bool S3GetTxSelfTest()
 {
 	return S3Data->m_TxSelfTest;
 }
+
+// ---------------------------------------------------------------------------
 
 int S3SetTxSelfTest(bool on)
 {

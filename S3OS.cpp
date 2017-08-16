@@ -61,7 +61,6 @@ int S3SetFTPDAuthRegKey(bool locked);
 
 // ----------------------------------------------------------------------------
 
-
 int S3OSInit()
 {
 	swprintf_s(OSImageUpdateFilePath, MAX_PATH, _T("%s\\%s"),
@@ -156,7 +155,57 @@ int S3OSInit()
 		}
 	}
 
+	// S3SetStaticIP(_T("10.0.0.212"), _T("255.255.255.0"), _T("0.0.0.0"));
+	// S3SetStaticIP(NULL, NULL, NULL);
+
+	HKEY	hKey;
+
+	err = RegOpenKeyEx(HKEY_LOCAL_MACHINE, _T("Comm\\ENET1\\Parms\\TcpIp"), 0, 
+											KEY_QUERY_VALUE, &hKey);
+
+	if (err == ERROR_SUCCESS)
+	{
+		DWORD	enable, size = sizeof(DWORD);
+		//err = RegGetValue(hKey, _T("EnableDHCP"), NULL, NULL,
+		//					REG_DWORD, (BYTE *)(&enable), sizeof(DWORD));
+
+		err = RegQueryValueEx(hKey, _T("EnableDHCP"), 0, NULL, (PBYTE)&enable, &size);
+
+		if (err != ERROR_SUCCESS)
+		{
+			S3EventLogAdd("Failed to set EnableDHCP registry key", 1, -1, -1, -1);
+			return 1;
+		}
+
+		S3Data->m_DHCPEnabled = (enable == 1);
+	}
+
 	return 0;
+}
+
+// ----------------------------------------------------------------------------
+
+int S3SetDHCP(bool en)
+{
+	if (!en) // && S3Data->m_DHCPEnabled)
+	{
+		// Disable
+		S3SetStaticIP(S3GetIPAddrStr(), S3GetIPSubnetStr(), "0.0.0.0");
+	}
+	else if (en) // && !S3Data->m_DHCPEnabled && en)
+	{
+		// Enable
+		S3SetStaticIP(NULL, NULL, NULL);
+	}
+
+	S3Data->m_DHCPEnabled = en;
+
+	return 0;
+}
+
+bool S3GetDHCP()
+{
+	return S3Data->m_DHCPEnabled;
 }
 
 // ----------------------------------------------------------------------------
@@ -1107,8 +1156,11 @@ int S3SetTelnetDEnableRegKey(bool enable)
 		if (err != ERROR_SUCCESS)
 		{
 			S3EventLogAdd("Failed enable/disable telnetd", 1, -1, -1, -1);
+			RegCloseKey(hKey);
 			return 1;
 		}
+
+		RegCloseKey(hKey);
 	}
 	else
 	{
@@ -1145,8 +1197,11 @@ int S3SetFTPDAuthRegKey(bool enable)
 		if (err != ERROR_SUCCESS)
 		{
 			S3EventLogAdd("Failed to set ftpd registry key", 1, -1, -1, -1);
+			RegCloseKey(hKey);
 			return 1;
 		}
+
+		RegCloseKey(hKey);
 	}
 	else
 	{
@@ -1182,8 +1237,11 @@ int S3SetFTPDEnableRegKey(bool enable)
 		if (err != ERROR_SUCCESS)
 		{
 			S3EventLogAdd("Failed enable/disable ftpd", 1, -1, -1, -1);
+			RegCloseKey(hKey);
 			return 1;
 		}
+
+		RegCloseKey(hKey);
 	}
 	else
 	{
@@ -1216,7 +1274,157 @@ int S3SetSIPRegKey(DWORD data)
 		if (err != ERROR_SUCCESS)
 		{
 			S3EventLogAdd("Failed to set SIP registry key", 1, -1, -1, -1);
+			RegCloseKey(hKey);
 			return 1;
+		}
+
+		RegCloseKey(hKey);
+	}
+	else
+	{
+		S3EventLogAdd("Failed to open SIP registry key", 1, -1, -1, -1);
+		return 1;
+	}
+
+#endif
+
+	return 0;
+}
+
+void RebindAdapter(TCHAR *adaptername);
+
+// ----------------------------------------------------------------------------
+
+int S3SetStaticIP(const char *cIPAddress,
+				  const char *cSMAddress,
+				  const char *cGWAddress)
+{
+	TCHAR	IPAddress[S3_MAX_IP_ADDR_LEN];
+	TCHAR	SMAddress[S3_MAX_IP_ADDR_LEN];
+	TCHAR	GWAddress[S3_MAX_IP_ADDR_LEN];
+
+	swprintf_s(IPAddress, S3_MAX_IP_ADDR_LEN, _T("%S"), cIPAddress);
+	swprintf_s(SMAddress, S3_MAX_IP_ADDR_LEN, _T("%S"), cSMAddress);
+	swprintf_s(GWAddress, S3_MAX_IP_ADDR_LEN, _T("%S"), cGWAddress);
+
+	if (cIPAddress)
+		S3EventLogAdd("Setting DHCP off", 1, -1, -1, -1);
+	else
+		S3EventLogAdd("Setting DHCP on", 1, -1, -1, -1);
+
+#ifdef TRIZEPS
+
+	HKEY	hKey;
+	int		err;
+
+	err = RegOpenKeyEx(HKEY_LOCAL_MACHINE, _T("Comm\\ENET1\\Parms\\TcpIp"), 0, 
+											KEY_SET_VALUE, &hKey);
+
+	if (err == ERROR_SUCCESS)
+	{
+		if (cIPAddress)
+		{
+			DWORD enable = 0;
+			err = RegSetValueEx(hKey, _T("EnableDHCP"), 0,
+							REG_DWORD, (BYTE *)(&enable), sizeof(DWORD));
+
+			if (err != ERROR_SUCCESS)
+			{
+				S3EventLogAdd("Failed to set EnableDHCP registry key", 1, -1, -1, -1);
+				return 1;
+			}
+
+			err = RegSetValueEx(hKey, _T("IpAddress"), 0,
+				REG_MULTI_SZ, (LPBYTE)IPAddress, (_tcslen(IPAddress) + 1) * sizeof(TCHAR));
+
+			if (err != ERROR_SUCCESS)
+			{
+				S3EventLogAdd("Failed to set IpAddress registry key", 1, -1, -1, -1);
+				return 1;
+			}
+
+			err = RegSetValueEx(hKey, _T("Subnetmask"), 0,
+				REG_MULTI_SZ, (LPBYTE)SMAddress, (_tcslen(SMAddress) + 1) * sizeof(TCHAR));
+
+			if (err != ERROR_SUCCESS)
+			{
+				S3EventLogAdd("Failed to set subnet mask registry key", 1, -1, -1, -1);
+				return 1;
+			}
+
+			err = RegSetValueEx(hKey, _T("DefaultGateway"), 0,
+				REG_MULTI_SZ, (LPBYTE)GWAddress, (_tcslen(GWAddress) + 1) * sizeof(TCHAR));
+
+			if (err != ERROR_SUCCESS)
+			{
+				S3EventLogAdd("Failed to set default gateway registry key", 1, -1, -1, -1);
+				return 1;
+			}
+		} // Disable DHCP
+		else
+		{
+			wchar_t NULLAddress[] = {_T("0.0.0.0")};
+			
+			DWORD enable = 1;
+			err = RegSetValueEx(hKey, _T("EnableDHCP"), 0,
+							REG_DWORD, (BYTE *)(&enable), sizeof(DWORD));
+
+			if (err != ERROR_SUCCESS)
+			{
+				S3EventLogAdd("Failed to set EnableDHCP registry key", 1, -1, -1, -1);
+				return 1;
+			}
+
+			S3EventLogAdd("Set EnableDHCP registry key to 1", 1, -1, -1, -1);
+
+			err = RegSetValueEx(hKey, _T("IpAddress"), 0,
+				REG_MULTI_SZ, (LPBYTE)(NULLAddress), (_tcslen(NULLAddress) + 1) * sizeof(TCHAR));
+
+			if (err != ERROR_SUCCESS)
+			{
+				S3EventLogAdd("Failed to set IpAddress registry key", 1, -1, -1, -1);
+				return 1;
+			}
+
+			err = RegSetValueEx(hKey, _T("Subnetmask"), 0,
+				REG_MULTI_SZ, (LPBYTE)(NULLAddress), (_tcslen(NULLAddress) + 1) * sizeof(TCHAR));
+
+			if (err != ERROR_SUCCESS)
+			{
+				S3EventLogAdd("Failed to set subnet mask registry key", 1, -1, -1, -1);
+				return 1;
+			}
+
+			err = RegSetValueEx(hKey, _T("DefaultGateway"), 0,
+				REG_MULTI_SZ, (LPBYTE)(NULLAddress), (_tcslen(NULLAddress) + 1) * sizeof(TCHAR));
+
+			if (err != ERROR_SUCCESS)
+			{
+				S3EventLogAdd("Failed to set default registry key", 1, -1, -1, -1);
+				return 1;
+			}
+
+			/* err = RegSetValueEx(hKey, _T("AutoMask"), 0,
+				REG_MULTI_SZ, (LPBYTE)(NULLAddress), (_tcslen(NULLAddress) + 1) * sizeof(TCHAR));
+
+			if (err != ERROR_SUCCESS)
+			{
+				S3EventLogAdd("Failed to set AutoMask registry key", 1, -1, -1, -1);
+				return 1;
+			}*/
+
+		} // Enable DHCP
+
+		RegCloseKey(hKey);
+
+		RebindAdapter(_T("ENET1"));
+
+		BOOL ok = WriteRegistry();
+
+		if (!ok)
+		{
+			S3EventLogAdd("Failed to write registry after TCP/IP mode change",
+				1, -1, -1, -1);
 		}
 	}
 	else
@@ -1231,3 +1439,61 @@ int S3SetSIPRegKey(DWORD data)
 }
 
 // ----------------------------------------------------------------------------
+
+#ifdef TRIZEPS
+#define NTDDI_VERSION 0x06000000
+#endif
+
+#include "winioctl.h"
+#include "ntddndis.h"
+
+void RebindAdapter(TCHAR *adaptername)
+{
+#ifdef TRIZEPS
+	HANDLE hNdis;
+    BOOL fResult = FALSE;
+    int count;
+
+	// Make this function easier to use - hide the need to have two null characters.
+	int length = wcslen(adaptername);
+	int AdapterSize = (length + 2) * sizeof(TCHAR);
+	TCHAR *Adapter = (TCHAR *)malloc(AdapterSize);
+
+	wcscpy_s(Adapter, AdapterSize, adaptername);
+	Adapter[length] = '\0';
+	Adapter[length + 1] = '\0';
+
+	hNdis = CreateFile(DD_NDIS_DEVICE_NAME,
+                  GENERIC_READ | GENERIC_WRITE,
+                  FILE_SHARE_READ | FILE_SHARE_WRITE,
+                  NULL,
+                  OPEN_ALWAYS,
+                  0,
+                  NULL);
+
+	if (INVALID_HANDLE_VALUE != hNdis)
+	{
+		fResult = DeviceIoControl(hNdis,
+                        IOCTL_NDIS_REBIND_ADAPTER,
+                        Adapter,
+                        AdapterSize,
+                        NULL,
+                        0,
+                        (LPDWORD)&count,
+                        NULL);
+
+		if( !fResult )
+		{
+			S3EventLogAdd("DeviceIoControl failed %d\n", 1, -1, -1, -1);
+		}
+
+		CloseHandle(hNdis);
+	}
+	else
+	{
+		S3EventLogAdd("Failed to open NDIS Handle\n", 1, -1, -1, -1);
+	}
+#endif // TRIZEPS
+}
+
+ // ----------------------------------------------------------------------------

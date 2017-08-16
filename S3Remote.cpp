@@ -4,7 +4,7 @@
 #endif
 
 #include "stdafx.h"
-
+#include "tchar.h"
 #include <ifdef.h>
 #include <winsock2.h>
 #include <iphlpapi.h>
@@ -457,7 +457,7 @@ extern "C" {
 
 int S3GetPrimaryMACaddress()
 {
-	IP_ADAPTER_INFO AdapterInfo[16];       // Allocate information for up to 16 NICs
+	IP_ADAPTER_INFO AdapterInfo[16];       // Allocate for up to 16 NICs
 	DWORD dwBufLen = sizeof(AdapterInfo);  // Save memory size of buffer
 
 	DWORD dwStatus = GetAdaptersInfo(AdapterInfo, &dwBufLen);
@@ -486,15 +486,14 @@ int S3GetPrimaryMACaddress()
 		pIPAddrString =	&pAdapterInfo->IpAddressList;
         pIPGwString =	&pAdapterInfo->GatewayList;
 		
-
 		while(pIPAddrString)
 		{
-			ULONG ulIPMask, ulIPGateway;
+			ULONG ulIPSubnet, ulIPGateway;
 
-			ulIPMask = ntohl(inet_addr( pIPAddrString->IpMask.String));
+			ulIPSubnet = ntohl(inet_addr( pIPAddrString->IpMask.String));
             ulIPGateway = ntohl(inet_addr( pIPGwString->IpAddress.String));
 
-            if (!ulIPMask)
+            if (!ulIPSubnet)
 			{
                 pIPAddrString = pIPAddrString->Next;
                 continue;
@@ -522,8 +521,8 @@ int S3GetPrimaryMACaddress()
 	} while(pAdapterInfo); // Terminate if last adapter
 
 	unsigned char	MAC[MAC_LEN];
-	char			IP[S3_MAX_IP_ADDR_LEN];
-	char			IPMask[S3_MAX_IP_ADDR_LEN];
+	wchar_t			IP[S3_MAX_IP_ADDR_LEN];
+	wchar_t			IPSubnet[S3_MAX_IP_ADDR_LEN];
 	
 	int err = 0;
 	
@@ -533,9 +532,9 @@ int S3GetPrimaryMACaddress()
 		for (char i = 0; i < MAC_LEN; i++)
 			MAC[i] = primary->Address[i];
 
-		strcpy_s(IP, S3_MAX_IP_ADDR_LEN,
+		swprintf_s(IP, S3_MAX_IP_ADDR_LEN, _T("%S"), 
 			primary->IpAddressList.IpAddress.String);
-		strcpy_s(IPMask, S3_MAX_IP_ADDR_LEN,
+		swprintf_s(IPSubnet, S3_MAX_IP_ADDR_LEN, _T("%S"),
 			primary->IpAddressList.IpMask.String);
 	}
 	else
@@ -545,15 +544,20 @@ int S3GetPrimaryMACaddress()
 		for (char i = 0; i < MAC_LEN; i++)
 			MAC[i] = 0;
 
-		strcpy_s(IP, S3_MAX_IP_ADDR_LEN, "No Ethernet");
-		strcpy_s(IPMask, S3_MAX_IP_ADDR_LEN, "N/A");
+		wcscpy_s(IP, S3_MAX_IP_ADDR_LEN, _T("No Ethernet"));
+		wcscpy_s(IPSubnet, S3_MAX_IP_ADDR_LEN, _T("N/A"));
 
 		err = 1;
 	}
 
-	S3SetMACAddr(MAC);
-	S3SetIPAddrStr(IP);
-	S3SetIPMaskStr(IPMask);
+	if (1) // S3GetDHCP())
+	{	
+		S3SetMACAddr(MAC);
+		S3SetIPAddrStr(IP, false);
+		S3SetIPSubnetStr(IPSubnet);
+	}
+
+	// S3WriteEthConfig();
 
 	return 0;
 } // S3GetPrimaryMACaddress
@@ -579,6 +583,136 @@ const char *S3GetWSAErrString()
 	LocalFree(s); // FormatMessageW uses LocalAlloc()
 
 	return WSAErrString;
+}
+
+// ----------------------------------------------------------------------------
+
+int isIp_v4(const char *ip);
+
+int S3ValidateIPAddress(const wchar_t *addr)
+{
+	char c_addr[S3_MAX_IP_ADDRESS_LEN];
+
+	sprintf_s(c_addr, S3_MAX_IP_ADDRESS_LEN, "%S", addr);
+
+	if (!isIp_v4(c_addr))
+		return 1;
+
+	unsigned long ulAddr = inet_addr(c_addr);
+
+	if (ulAddr == INADDR_NONE)
+		return 1;
+
+	struct sockaddr sockaddr_ipv4;
+	int	len = sizeof(sockaddr_ipv4);
+
+	if (WSAStringToAddress((wchar_t *)addr, AF_INET, NULL, &sockaddr_ipv4, &len))
+		return 1;
+
+	return 0;
+}
+
+// ----------------------------------------------------------------------------
+// Just use registry
+
+int S3WriteEthConfig()
+{
+	return 0;
+
+	if (S3GetDHCP())
+	{
+		DeleteFile(_T("\\Flashdisk\\S3\\S3EthCfg.txt"));
+		return 0;
+	}
+
+	FILE *fid;
+
+	int err = fopen_s(&fid, "\\Flashdisk\\S3\\S3EthCfg.txt", "w");
+
+	if (err)
+		return 1;
+
+	fprintf(fid, "%s\n", S3GetIPAddrStr());
+	fprintf(fid, "%s\n", S3GetIPSubnetStr());
+
+	fclose(fid);
+
+	return 0;
+}
+
+// ----------------------------------------------------------------------------
+
+int S3ReadEthConfig()
+{
+	if (S3FileExist(_T("\\Flashdisk\\S3\\S3EthCfg.txt")))
+	{
+		FILE *fid;
+
+		int err = fopen_s(&fid, "\\Flashdisk\\S3\\S3EthCfg.txt", "r");
+
+		if (err)
+		{
+			return 1;
+		}
+
+		char	cbuf[3 * (S3_MAX_IP_ADDR_LEN + 5) + 1];
+		wchar_t	wbuf[3 * (S3_MAX_IP_ADDR_LEN + 5) + 1];
+		wchar_t	IPAddrBuf[3 * (S3_MAX_IP_ADDR_LEN + 5) + 1];
+
+		fgets(cbuf, 3 * (S3_MAX_IP_ADDR_LEN + 5), fid);
+		wsprintf(IPAddrBuf, _T("%S"), cbuf);
+
+		fgets(cbuf, 3 * (S3_MAX_IP_ADDR_LEN + 5), fid);
+		wsprintf(wbuf, _T("%S"), cbuf);
+		S3SetIPSubnetStr(wbuf);
+
+		S3SetIPAddrStr(IPAddrBuf, true);
+
+		//fgets(cbuf, 3 * (S3_MAX_IP_ADDR_LEN + 5), fid);
+		//wsprintf(wbuf, _T("%S"), cbuf);
+		//S3SetIPGatewayStr(wbuf);
+
+		fclose(fid);
+	}
+	else
+	{
+		S3SetDHCP(true);
+	}
+
+	return 0;
+}
+
+// ----------------------------------------------------------------------------
+
+int isIp_v4(const char *c_addr)
+{
+	char	ip[S3_MAX_IP_ADDRESS_LEN];
+
+	strcpy_s(ip, S3_MAX_IP_ADDRESS_LEN, c_addr);
+
+	int		num;
+	int		flag = 1;
+	int		counter = 0;
+	char	*context;
+	char	*p = strtok_s(ip, ".", &context);
+
+	while (p && flag )
+	{
+		num = atoi(p);
+
+		if (num >= 0 && num <= 255 && (counter++ < 4))
+		{
+			flag = 1;
+			p = strtok_s(NULL, ".", &context);
+		}
+		else
+		{
+			flag = 0;
+			break;
+		}
+	}
+
+	return flag && (counter == 4);
 }
 
 // ------------------------------ The End -------------------------------------

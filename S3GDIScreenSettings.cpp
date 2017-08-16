@@ -16,18 +16,42 @@
 // 3 vertical panels
 CRect	m_RectSettingsScreen,
 			m_RectSettingsRemote,
-				m_RectRemoteHeader, m_RectEthernet, m_RectUSB,
+				m_RectRemoteHeader,
+				m_RectEthernet,
+				m_RectUSB,
 			m_RectSysParas,
-				m_RectParasHeader, m_RectSettingsSysWide, m_RectSettingsLinkPara, m_RectSettingsDefaults,
+				m_RectParasHeader,
+				m_RectSettingsSysWide,
+				m_RectSettingsLinkPara,
+				m_RectSettingsDefaults,
 			m_RectSettingsSystem,
-				m_RectSystemHeader, m_RectSystemDateTime, m_RectIdent, m_RectSettingsInfo;
+				m_RectSystemHeader,
+				m_RectSystemDateTime,
+				m_RectIdent,
+				m_RectSettingsInfo;
 
 // ----------------------------------------------------------------------------
 
 void CS3GDIScreenMain::S3InitSettingsScreen(void)
 {
-	CRect rect(0, 0, 80, 40);
-		
+	CRect rect(0, 0, 80, 40); // Over-ridden if editor attached
+
+	m_GDIIPAddrEdit = new CS3NumEdit(this);
+
+	m_GDIIPAddrEdit->Create(WS_CHILD | ES_LEFT | ES_NOHIDESEL | ES_AUTOHSCROLL,
+												rect, this, S3GDI_NUM_EDIT);
+	m_GDIIPAddrEdit->SetFont(&m_cFontL);
+	m_GDIIPAddrEdit->ShowWindow(SW_HIDE);
+	m_GDIIPAddrEdit->m_UpdateImmediate = false;
+
+	m_GDIIPSubnetEdit = new CS3NumEdit(this);
+
+	m_GDIIPSubnetEdit->Create(WS_CHILD | ES_LEFT | ES_NOHIDESEL | ES_AUTOHSCROLL,
+												rect, this, S3GDI_NUM_EDIT);
+	m_GDIIPSubnetEdit->SetFont(&m_cFontL);
+	m_GDIIPSubnetEdit->ShowWindow(SW_HIDE);
+	m_GDIIPSubnetEdit->m_UpdateImmediate = false;
+
 	m_GDIIPPortEdit = new CS3NumEdit(this);
 
 	m_GDIIPPortEdit->Create(WS_CHILD | ES_LEFT | ES_NOHIDESEL | ES_AUTOHSCROLL,
@@ -79,13 +103,13 @@ void CS3GDIScreenMain::S3InitSettingsScreen(void)
 	// Get the rect to position the edit box
 	m_SettingsIPAddr = new CS3NameValue(	m_Parent, m_RectEthernet.left, 
 								m_RectEthernet.top + SUBHEAD_ROW + 0 * PARA_ROW, WCol,
-								_T("IP Address"), _T("000.000.000.000"), false);
+								_T("IP Address"), _T("255.255.255.2555"), true, S3_IP_ADDRESS);
 	m_SettingsIPAddr->RectEdit(m_HDC, m_hFontSB);
 
-	m_SettingsGateway = new CS3NameValue(	m_Parent, m_RectEthernet.left, 
+	m_SettingsIPSubnet = new CS3NameValue(	m_Parent, m_RectEthernet.left, 
 								m_RectEthernet.top + SUBHEAD_ROW + 1 * PARA_ROW, WCol,
-								_T("Gateway mask"), _T("000.000.000.000"), false);
-	m_SettingsGateway->RectEdit(m_HDC, m_hFontSB);
+								_T("Subnet mask"), _T("000.000.000.0000"), true, S3_IP_SUBNET);
+	m_SettingsIPSubnet->RectEdit(m_HDC, m_hFontSB);
 
 	m_SettingsPort = new CS3NameValue(	m_Parent, m_RectEthernet.left, 
 								m_RectEthernet.top + SUBHEAD_ROW + 2 * PARA_ROW, WCol,
@@ -312,6 +336,8 @@ void CS3GDIScreenMain::S3InitSettingsScreen(void)
 	*/
 
 	// Attach an S3NumEdit editors to the settings
+	m_SettingsIPAddr->AttachEditor(m_HDC, m_GDIIPAddrEdit);
+	m_SettingsIPSubnet->AttachEditor(m_HDC, m_GDIIPSubnetEdit);
 	m_SettingsPort->AttachEditor(m_HDC, m_GDIIPPortEdit);
 	m_SettingsGain->AttachEditor(m_HDC, m_GDIDefaultGainEdit);
 	m_SettingsDate->AttachEditor(m_HDC, m_GDIDateEdit);
@@ -322,6 +348,8 @@ void CS3GDIScreenMain::S3InitSettingsScreen(void)
 
 void CS3GDIScreenMain::S3CloseSettingsScreen(void)
 {
+	delete m_GDIIPAddrEdit;
+	delete m_GDIIPSubnetEdit;
 	delete m_GDIIPPortEdit;
 	delete m_GDIDefaultGainEdit;
 
@@ -332,7 +360,7 @@ void CS3GDIScreenMain::S3CloseSettingsScreen(void)
 
 	delete m_SettingsPort;
 	delete m_SettingsIPAddr;
-	delete m_SettingsGateway;
+	delete m_SettingsIPSubnet;
 	delete m_SettingsMAC;
 
 	delete m_SettingsUSBPort;
@@ -425,7 +453,11 @@ void CS3GDIScreenMain::S3DrawGDISettingsRemote(void)
 	S3_RECT(m_HDC, fntRc);
 
 	fntRc.left += LHMARGIN;
-	DrawText(m_HDC, _T("Ethernet"), -1, &fntRc, DT_LEFT);
+	
+	if (S3GetDHCP())
+		DrawText(m_HDC, _T("Ethernet (DHCP)"), -1, &fntRc, DT_LEFT);
+	else
+		DrawText(m_HDC, _T("Ethernet (Static)"), -1, &fntRc, DT_LEFT);
 	
 	fntRc = m_RectUSB;
 	fntRc.bottom = fntRc.top + SUBHEAD_ROW;
@@ -450,17 +482,17 @@ void CS3GDIScreenMain::S3DrawGDISettingsRemote(void)
 	
 	char Addr[S3_MAX_IP_ADDR_LEN];
 
-	S3GetIPAddrStr(Addr);
-	str.Format(_T("%S"), Addr);
+	// S3GetIPAddrStr(Addr);
+	str.Format(_T("%S"), S3GetIPAddrStr());
 
 	m_SettingsIPAddr->SetValue(str);
 	m_SettingsIPAddr->Draw(m_HDC, m_hFontS, m_hFontSB);
 
-	S3GetIPMaskStr(Addr);
-	str.Format(_T("%S"), Addr);
+	// S3GetIPSubnetStr(Addr);
+	str.Format(_T("%S"), S3GetIPSubnetStr());
 
-	m_SettingsGateway->SetValue(str);
-	m_SettingsGateway->Draw(m_HDC, m_hFontS, m_hFontSB);
+	m_SettingsIPSubnet->SetValue(str);
+	m_SettingsIPSubnet->Draw(m_HDC, m_hFontS, m_hFontSB);
 
 	unsigned short Port = S3GetIPPort();
 	str.Format(_T("%d"), Port);
@@ -1005,14 +1037,14 @@ int CS3GDIScreenMain::S3FindSettingsScreen(POINT p)
 			m_GDIIPPortEdit->ShowWindow(SW_SHOWNORMAL);
 
 			m_NumericPad->PopUp(m_HDC, p.x, p.y, m_GDIIPPortEdit,
-				S3_NP_POSITIVE | S3_NP_INTEGER, 5);
+				S3_NP_POSITIVE | S3_NP_INTEGER, S3_MAX_IP_PORT_LEN);
 #endif
 			return S3SetSelectedPara(-1, -1, -1, S3_IP_PORT);
 		}
 		else if (s == S3_USB_ENABLE) // USB enable/disable toggle
 		{
 #ifndef S3_AGENT
-			//S3Agent Remote application shouldn't be able to modify the USB enabled/disabled
+			// S3Agent Remote application shouldn't be able to modify the USB enabled/disabled
 			if (S3GetRemote())
 				return 0;
 
@@ -1292,7 +1324,55 @@ int CS3GDIScreenMain::S3FindSettingsScreen(POINT p)
 
 			return S3SetSelectedPara(-1, -1, -1, S3_3PC_LINEARITY);
 		}
+
+#endif // S3_SHOW_P1DB_MODES
+		
+		else if (s == S3_IP_ADDRESS) // Ethernet address edit
+		{
+#ifndef S3_AGENT
+            //S3Agent Remote application shouldn't be able to modify the IP PORT
+
+			if (S3GetRemote())
+				return 0;
+			
+			// unsigned short Port = S3GetIPPort();
+
+			CString str;
+			// char cStr[S3_MAX_IP_ADDR_LEN];
+			// S3GetIPAddrStr(cStr);
+			str.Format(_T("%S"), S3GetIPAddrStr());
+
+			m_GDIIPAddrEdit->SetWindowText(str);
+			m_GDIIPAddrEdit->ShowWindow(SW_SHOWNORMAL);
+
+			m_NumericPad->PopUp(m_HDC, p.x, p.y, m_GDIIPAddrEdit,
+				S3_NP_POSITIVE, S3_MAX_IP_ADDRESS_LEN);
 #endif
+			return S3SetSelectedPara(-1, -1, -1, S3_IP_ADDRESS);
+		}
+		else if (s == S3_IP_SUBNET) // Ethernet port edit
+		{
+#ifndef S3_AGENT
+            //S3Agent Remote application shouldn't be able to modify the IP PORT
+
+			if (S3GetRemote())
+				return 0;
+			
+			// unsigned short Port = S3GetIPPort();
+
+			CString str;
+			//char cStr[S3_MAX_IP_ADDR_LEN];;
+			//S3GetIPSubnetStr(cStr);
+			str.Format(_T("%S"), S3GetIPSubnetStr());
+
+			m_GDIIPSubnetEdit->SetWindowText(str);
+			m_GDIIPSubnetEdit->ShowWindow(SW_SHOWNORMAL);
+
+			m_NumericPad->PopUp(m_HDC, p.x, p.y, m_GDIIPSubnetEdit,
+				S3_NP_POSITIVE, S3_MAX_IP_ADDRESS_LEN);
+#endif
+			return S3SetSelectedPara(-1, -1, -1, S3_IP_SUBNET);
+		}
 
 		return 0;
 	}

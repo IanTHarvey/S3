@@ -53,10 +53,11 @@ UINT AutoUpdateSentinelDataBundleThread(LPVOID pParam);
 #define IPV4MASK 1
 #define IPV4PORT 2
 #define EMACADDR 3
-#define USBPORT 4
-#define USBDRVR 5
-#define MSGSRC 6
-#define RXDMSG 7
+#define ETH_DHCP 4
+#define USBPORT 5
+#define USBDRVR 6
+#define MSGSRC 7
+#define RXDMSG 8
 
 //Parameter order for S3GETSYSI reply
 #define SYSNAME 0

@@ -201,9 +201,9 @@ int CmdGetBatt(char *Inbuf)
 int CmdGetConn(char *Inbuf)
 {
     sprintf_s(Inbuf, S3_MAX_GPIB_RET_LEN,
-        " %s\037 %s\037 %i\037 %i:%i:%i:%i:%i:%i\037 %s\037 %s\037 %i\037 %s", 
+        " %s\037 %s\037 %i\037 %i:%i:%i:%i:%i:%i\037 %i\037 %s\037 %s\037 %i\037 %s", 
         S3Data->m_IPv4Addr,
-        S3Data->m_IPv4Mask,
+        S3Data->m_IPv4Subnet,
         S3Data->m_IPPort,
         S3Data->m_MACAddr[0],
         S3Data->m_MACAddr[1],
@@ -211,6 +211,7 @@ int CmdGetConn(char *Inbuf)
         S3Data->m_MACAddr[3],
         S3Data->m_MACAddr[4],
         S3Data->m_MACAddr[5],
+		S3Data->m_DHCPEnabled,
         S3Data->m_DisplayedUSBPort,
         S3Data->m_DisplayedUSBDriver,
         S3Data->m_PrevMsgSrc,

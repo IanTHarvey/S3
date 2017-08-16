@@ -22,8 +22,9 @@ class CS3GDIScreenMain;
 // #define S3_NP_DISP_H			30
 
 // Constraints
-#define S3_NP_INTEGER			1
-#define S3_NP_POSITIVE			2
+#define S3_NP_INTEGER			0x01
+#define S3_NP_POSITIVE			0x02
+#define S3_NP_DECIMAL			0x04
 
 class CS3NumberPad : public CEdit
 {

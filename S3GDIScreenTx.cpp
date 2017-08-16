@@ -874,13 +874,21 @@ void CS3GDIScreenMain::S3DrawGDITxTx(char Rx, char Tx)
 	m_TxType->SetValue(str);
 	m_TxType->Draw(m_HDC, m_hFontS, m_hFontSB);
 
-	switch (m_TxPowerState)
+	if (S3TxSelfTestPending(Rx, Tx))
 	{
-	case S3_TX_ON:				str = _T("On"); break;
-	case S3_TX_ON_PENDING:		str = _T("Waking"); break;
-	case S3_TX_SLEEP_PENDING:	str = _T("Sleeping"); break;
-	case S3_TX_SLEEP:			str = _T("Sleep"); break;
-	default:					str = _T("Unknown");
+		str = _T("Testing");
+		m_TxPowerMode->SetEditable(false);
+	}
+	else
+	{
+		switch (m_TxPowerState)
+		{
+		case S3_TX_ON:				str = _T("On"); break;
+		case S3_TX_ON_PENDING:		str = _T("Waking"); break;
+		case S3_TX_SLEEP_PENDING:	str = _T("Sleeping"); break;
+		case S3_TX_SLEEP:			str = _T("Sleep"); break;
+		default:					str = _T("Unknown");
+		}
 	}
 
 	m_TxPowerMode->SetValue(str);
@@ -1926,18 +1934,24 @@ void CS3GDIScreenMain::S3DrawGDIParaPopUp(int xref, int yref)
 	}
 	else if (ParaType == S3_TX_POWER_MODE)
 	{
-		m_ParaMenu->Init(m_HDC, xref, yref);
-		m_ParaMenu->AddItem(_T("On"));
-		m_ParaMenu->AddItem(_T("Sleep"));
-
-		switch(m_TxPowerState)
+		if (!S3TxSelfTestPending(Rx, Tx))
 		{
-		case S3_TX_ON:		m_ParaMenu->SelectItem(0); break;
-		case S3_TX_SLEEP_PENDING:
-		case S3_TX_SLEEP:	m_ParaMenu->SelectItem(1); break;
-		}
+			m_ParaMenu->Init(m_HDC, xref, yref);
+			m_ParaMenu->AddItem(_T("On"));
+			m_ParaMenu->AddItem(_T("Sleep"));
+			
+			if (S3GetTxSelfTest())
+				m_ParaMenu->AddItem(_T("Self test"));
 
-		m_ParaMenu->Activate();
+			switch(m_TxPowerState)
+			{
+			case S3_TX_ON:		m_ParaMenu->SelectItem(0); break;
+			case S3_TX_SLEEP_PENDING:
+			case S3_TX_SLEEP:	m_ParaMenu->SelectItem(1); break;
+			}
+
+			m_ParaMenu->Activate();
+		}
 	}
 	else if (ParaType == S3_TX_DO_COMP)
 	{
@@ -1971,12 +1985,15 @@ void CS3GDIScreenMain::S3DrawGDIParaPopUp(int xref, int yref)
 
 // ----------------------------------------------------------------------------
 // 'Callback' for text input pop-up
-int CS3GDIScreenMain::S3GDITextSupplied(CString txt)
+int CS3GDIScreenMain::S3GDITextSupplied(const wchar_t *txt)
 {
 	char Rx, Tx, IP, Para;
 				
 	S3GetSelected(&Rx, &Tx, &IP);
 	Para = S3GetSelectedPara(Rx, Tx, IP);
+
+	char ctmp[S3_MAX_EDIT_LEN];
+	sprintf_s(ctmp, S3_MAX_EDIT_LEN, "%S", txt);
 
 	if (Para == S3_DATE_EDIT)
 	{
@@ -1994,12 +2011,7 @@ int CS3GDIScreenMain::S3GDITextSupplied(CString txt)
 		return 0;
 	}
 
-	char ctmp[S3_MAX_EDIT_LEN];
-	CStringA tmpA; 
-	tmpA = txt;
-	strcpy_s(ctmp, S3_MAX_EDIT_LEN, tmpA);
-
-	if (S3IPSetParaTxt(Rx, Tx, IP, Para, ctmp))
+	if (S3IPSetParaTxt(Rx, Tx, IP, Para, txt))
 		return 1;
 
 	if (Para == S3_IP_PORT)

@@ -602,7 +602,6 @@ void DecodeSystemDetails(CString Response)
                 S3Data->m_Locked = (temp != 0);
             }
             break;
-            
         }
         Line = Response.Tokenize(_T(DATA_ITEM_SEPARATOR), MessageTokenPos);
         ParamIndex++;
@@ -629,7 +628,7 @@ void DecodeConnectionDetails(CString Response)
         case IPV4MASK:
             {
                 CT2A ascii(Line);
-                strcpy_s(S3Data->m_IPv4Mask, S3_MAX_IP_ADDR_LEN, ascii.m_psz);
+                strcpy_s(S3Data->m_IPv4Subnet, S3_MAX_IP_ADDR_LEN, ascii.m_psz);
             }
             break;
         case IPV4PORT:
@@ -650,6 +649,11 @@ void DecodeConnectionDetails(CString Response)
                 }
             }
             break;
+		case ETH_DHCP:
+			{
+                unsigned char temp = _ttoi(Line);
+				S3Data->m_DHCPEnabled = (temp != 0);
+            }
         case USBPORT:
             {
                 CT2A ascii(Line);
