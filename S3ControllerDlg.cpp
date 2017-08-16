@@ -800,7 +800,7 @@ int CS3ControllerDlg::SetSysDate(short y, short m, short d)
 
 // ----------------------------------------------------------------------------
 // A very basic time parser
-int CS3ControllerDlg::SetSysTimeStr(CString &str)
+int CS3ControllerDlg::SetSysTimeStr(const wchar_t *str)
 {
 	wchar_t	*eptr;
 	char h = (char)_tcstol(str, &eptr, 10);
@@ -823,7 +823,7 @@ int CS3ControllerDlg::SetSysTimeStr(CString &str)
 
 // ----------------------------------------------------------------------------
 // A very basic date parser
-int CS3ControllerDlg::SetSysDateStr(CString &str)
+int CS3ControllerDlg::SetSysDateStr(const wchar_t *str)
 {
 	wchar_t	*eptr;
 	short y = (short)_tcstol(str, &eptr, 10);

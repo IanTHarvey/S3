@@ -58,7 +58,7 @@ void CS3Edit::OnEnUpdate()
 	CString txt;
 
 	GetWindowText(txt);
-	m_Parent->S3GDITextSupplied(txt);
+	m_Parent->S3GDITextSupplied((const wchar_t *)txt);
 }
 
 void CS3Edit::OnEnKillFocus()
@@ -83,7 +83,7 @@ HBRUSH CS3Edit::CtlColor(CDC* pDC, UINT nCtlColor)
 	// pDC->SetBkColor(m_clrBkgnd);	// Text bkgnd
 	pDC->SetBkColor(m_Parent->m_crMenuBGLight);	// Text bkgnd
 	
-	return m_Parent->m_hBrushMenuBGLight; // m_brBkgnd;				// Control bkgnd
+	return m_Parent->m_hBrushMenuBGLight; // m_brBkgnd;		// Control bkgnd
 }
 
 // ----------------------------------------------------------------------------

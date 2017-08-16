@@ -138,7 +138,7 @@ void CS3NumberPad::OnEnUpdate()
         SetSel(nLen, nLen);
     }
 
-	m_Parent->S3GDITextSupplied(txt);
+	m_Parent->S3GDITextSupplied((LPCWSTR)txt);
 }
 
 // ----------------------------------------------------------------------------

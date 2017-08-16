@@ -144,8 +144,8 @@ public:
 	void	GetDateTimeStrA(char *str);
 	void	GetTimeStrA(	char *str);
 
-	int		SetSysTimeStr(		CString &str);
-	int		SetSysDateStr(		CString &str);
+	int		SetSysTimeStr(		const wchar_t *str);
+	int		SetSysDateStr(		const wchar_t *str);
 	int		SetSysTime(short h, short m, short s);
 	int		SetSysDate(short y, short m, short d);
 

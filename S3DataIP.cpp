@@ -221,6 +221,11 @@ int S3SetParaValue(	char Rx, char Tx, char IP, char Para, char MenuItem)
 				S3TxSetPowerStat(Rx, Tx, S3_TX_SLEEP);
 				S3TxSetUserSleep(Rx, Tx, true);
 			}
+			else if (MenuItem == 2)
+			{
+				// Item only added if S3GetTxSelfTest() == true
+				S3TxSetSelfTestPending(Rx, Tx, true);
+			}
 			break;
 		case S3_TX_DO_COMP:
 			if (MenuItem == 0)
@@ -315,27 +320,30 @@ int S3SetNodeNameNew(char Rx, char Tx, char IP, char *NodeName)
 
 // ----------------------------------------------------------------------------
 
-int S3IPSetParaTxt(	char Rx, char Tx, char IP, char Para, char *Txt)
+int S3IPSetParaTxt(	char Rx, char Tx, char IP, char Para, const wchar_t *Txt)
 {
-	char *eptr;
+	wchar_t *eptr;
 	long lgain;
+
+	char ctmp[S3_MAX_EDIT_LEN];
+	sprintf_s(ctmp, S3_MAX_EDIT_LEN, "%S", Txt);
 	
 	switch(Para)
 	{
 		case S3_TXIP_NODENAME: // IP from Tx screen
-				S3SetNodeNameNew(Rx, Tx, IP, Txt);
+				S3SetNodeNameNew(Rx, Tx, IP, ctmp);
 			break;
 		case S3_RXTX_NODENAME: // Tx from rx screen
-				S3SetNodeNameNew(Rx, Tx, -1, Txt);
+				S3SetNodeNameNew(Rx, Tx, -1, ctmp);
 			break;
 		case S3_TXTX_NODENAME: // Tx from Tx screen
-				S3SetNodeNameNew(Rx, Tx, -1, Txt);
+				S3SetNodeNameNew(Rx, Tx, -1, ctmp);
 			break;
 		case S3_RXRX_NODENAME: // Rx from rx screen
-				S3SetNodeNameNew(Rx, -1, -1, Txt);
+				S3SetNodeNameNew(Rx, -1, -1, ctmp);
 			break;
 		case S3_GAIN:
-			lgain = strtol(Txt, &eptr, 10);
+			lgain = wcstol(Txt, &eptr, 10);
 			
             if (lgain > SCHAR_MAX)
                 lgain = SCHAR_MAX;
@@ -356,8 +364,18 @@ int S3IPSetParaTxt(	char Rx, char Tx, char IP, char Para, char *Txt)
 			break;
 		case S3_IP_PORT:
 			{
-				unsigned short port = (unsigned short)strtol(Txt, &eptr, 10);
+				unsigned short port = (unsigned short)wcstol(Txt, &eptr, 10);
 				S3SetIPPort(port);
+			}
+			break;
+		case S3_IP_ADDRESS:
+			{
+				S3SetIPAddrStr(Txt, true);
+			}
+			break;
+		case S3_IP_SUBNET:
+			{
+				S3SetIPSubnetStr(Txt);
 			}
 			break;
 		case S3_TIME_EDIT:

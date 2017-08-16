@@ -578,7 +578,7 @@ public:
 	CRect	InitNameVal(int xref, int yref,
 								   CString Name, CString Val);
 
-	int		S3GDITextSupplied(CString txt);
+	int		S3GDITextSupplied(const wchar_t *txt);
 
 	void	SelectionChanged();
 	void	SetSelection(bool goToOverview);
@@ -664,7 +664,7 @@ protected:
 	CS3NameValue	*m_SettingsAccess;
 	CS3NameValue	*m_SettingsPort;
 	CS3NameValue	*m_SettingsIPAddr;
-	CS3NameValue	*m_SettingsGateway;
+	CS3NameValue	*m_SettingsIPSubnet;
 	CS3NameValue	*m_SettingsMAC;
 
 	CS3NameValue	*m_SettingsUSBPort;
@@ -700,6 +700,8 @@ protected:
 	CS3NameValue	*m_SettingsCfg;
 	CS3NameValue	*m_SettingsLog;
 
+	CS3NumEdit		*m_GDIIPAddrEdit;
+	CS3NumEdit		*m_GDIIPSubnetEdit;
 	CS3NumEdit		*m_GDIIPPortEdit;
 	CS3NumEdit		*m_GDIDefaultGainEdit;
 

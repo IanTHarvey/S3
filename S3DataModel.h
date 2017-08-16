@@ -132,6 +132,10 @@ extern wchar_t *SigSizeStrings[];
 #define S3_MAX_NODE_NAME_LEN	32
 #define S3_MAX_EDIT_LEN			32
 
+// Pop-up editors
+#define S3_MAX_IP_ADDRESS_LEN	(4 * 3 + 3)
+#define S3_MAX_IP_PORT_LEN	5
+
 #define S3_DEF_WIN_TRACK_OPTION	false
 #define S3_DEF_OVERDRIVE_OPTION	false
 
@@ -366,6 +370,8 @@ typedef enum SigmaT				{TauNone, TauLo, TauMd, TauHi, TauUnknown};
 #define S3_DEF_GAIN				110
 #define S3_DEF_IMP				111
 #define S3_DEF_LOW_NOISE		112
+#define S3_IP_ADDRESS			113
+#define S3_IP_SUBNET			114
 
 // See S3GDIScreenRx.cpp
 #define S3_ACTIVE_TX			30
@@ -792,10 +798,11 @@ typedef struct sS3DataModel
 
 	// Ethernet
 	char			m_IPv4Addr[S3_MAX_IP_ADDR_LEN];
-	char			m_IPv4Mask[S3_MAX_IP_ADDR_LEN];
+	char			m_IPv4Subnet[S3_MAX_IP_ADDR_LEN];
 	unsigned short	m_IPv6Addr[8];
 	unsigned char	m_MACAddr[MAC_LEN];
 	unsigned short	m_IPPort;
+	bool			m_DHCPEnabled;
 
 	bool			m_Remote;		// Exclusive local/remote config mode
 	bool			m_Modified;		// Changes pending
@@ -939,12 +946,12 @@ int				S3SetCloseAppFailed(bool set);
 bool			S3GetCloseAppFailed();
 
 int				S3SetMACAddr(	const unsigned char *MAC);
-// int			S3SetIPAddr(	const unsigned char *IP);
-int				S3SetIPAddrStr(	const char *addr);
-int				S3SetIPMaskStr(	const char *addr);
+int				S3SetIPAddrStr(	const wchar_t *addr, bool user);
+int				S3SetIPSubnetStr(	const wchar_t *addr);
+int				S3ValidateIPAddress(const wchar_t *addr);
 
-int				S3GetIPAddrStr(	char *addr);
-int				S3GetIPMaskStr(	char *addr);
+const char		*S3GetIPAddrStr();
+const char		*S3GetIPSubnetStr();
 
 unsigned short	S3GetIPPort();
 int				S3SetIPPort(	unsigned short port);
@@ -1022,7 +1029,7 @@ int S3TxSetNodeName(	const char *Node, char *NodeName);
 int S3IPSetNodeName(	const char *Node, char *NodeName);
 
 int S3SetNodeNameNew(	char Rx, char Tx, char IP, char *NodeName);
-int S3IPSetParaTxt(		char Rx, char Tx, char IP, char Para, char *Txt);
+int S3IPSetParaTxt(		char Rx, char Tx, char IP, char Para, const wchar_t *Txt);
 
 const char *S3GetSelNodeName();
 const char *S3GetNodeName(char Rx, char Tx, char IP);
@@ -1582,8 +1589,18 @@ int		S3SysWriteSN();
 int		S3SysReadPN();
 int		S3SysWritePN();
 
+int		S3WriteEthConfig();
+int		S3ReadEthConfig();
+
 int			S3SysSetBuildNum(const char *bn);
 const char	*S3SysGetBuildNum();
+
+int S3SetStaticIP(const char *IPAddress,
+				  const char *SMAddress,
+				  const char *GWAddress);
+
+bool S3GetDHCP();
+int S3SetDHCP(bool en);
 
 int S3SetSIPRegKey(DWORD data);
 
