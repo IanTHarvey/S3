@@ -1222,7 +1222,8 @@ int S3RxAlarmGetString(char Rx, char *S3AlarmString, int len)
 		return 1;
 	}
 
-	if (pRx->m_RxAlarms[1] & S3_RX_CTRL_FAN_FAIL)
+	// Alarm (or fan detection) not reliable
+	if (0x00 & pRx->m_RxAlarms[1] & S3_RX_CTRL_FAN_FAIL)
 	{
 			strcpy_s(S3AlarmString, len, "W:Fan failed");
 			pRx->m_CurAlarmSrc = 1;
