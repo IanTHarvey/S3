@@ -100,8 +100,11 @@
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
-			IntermediateDirectory="$(ConfigurationName)"
+			OutputDirectory="$(PlatformName)\$(ConfigurationName)"
+			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
 			ConfigurationType="1"
+			UseOfMFC="2"
+			CharacterSet="1"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -120,6 +123,9 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
+				AdditionalIncludeDirectories="Y:\Software\boost;Y:\Software\National Instruments\Shared\ExternalCompilerSupport\C\include"
+				PreprocessorDefinitions="NO_S3_SHOW_P1DB_MODES;S3_SHOW_PEAK;S3_OVERDRIVE_DETECT;S3_SHOW_P1DB;S3_AGENT;WIN32;_WINDOWS"
+				RuntimeLibrary="2"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -132,6 +138,11 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				AdditionalDependencies="ni4882.obj"
+				AdditionalLibraryDirectories="&quot;Y:\Software\boost\lib32-msvc-9.0&quot;;&quot;Y:\Software\National Instruments\Shared\ExternalCompilerSupport\C\lib32\msvc&quot;"
+				IgnoreDefaultLibraryNames=""
+				SubSystem="2"
+				TargetMachine="1"
 			/>
 			<Tool
 				Name="VCALinkTool"
