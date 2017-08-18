@@ -210,7 +210,7 @@
 				RuntimeLibrary="0"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
-				DebugInformationFormat="3"
+				DebugInformationFormat="0"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -231,8 +231,8 @@
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="&quot;C:\Program Files (x86)\Windows CE Tools\SDKs\SDK_TrizepsVII_armv4i_2016Q3\Lib\ARMv4I&quot;"
 				GenerateDebugInformation="false"
-				StackReserveSize="65536"
-				StackCommitSize="4096"
+				StackReserveSize="262144"
+				StackCommitSize="262144"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
 				OptimizeForWindows98="0"
@@ -590,6 +590,10 @@
 			</File>
 			<File
 				RelativePath=".\S3GPIBCmds.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\S3GPIBCmdsPPM.cpp"
 				>
 			</File>
 			<File
