@@ -95,9 +95,9 @@ int S3TxInit(pS3TxData node)
 	node->m_Tau_ns[3] = 10000.0;	// 10.0us
 
 	_tcscpy_s(node->m_TauUnits[0], S3_MAX_TAU_UNITS_LEN, _T("None"));
-	_tcscpy_s(node->m_TauUnits[1], S3_MAX_TAU_UNITS_LEN, _T("0.1\u03BCs"));
-	_tcscpy_s(node->m_TauUnits[2], S3_MAX_TAU_UNITS_LEN, _T("1.0\u03BCs"));
-	_tcscpy_s(node->m_TauUnits[3], S3_MAX_TAU_UNITS_LEN, _T("10.0\u03BCs"));
+	_tcscpy_s(node->m_TauUnits[1], S3_MAX_TAU_UNITS_LEN, _T("0.1\u03BC"));
+	_tcscpy_s(node->m_TauUnits[2], S3_MAX_TAU_UNITS_LEN, _T("1.0\u03BC"));
+	_tcscpy_s(node->m_TauUnits[3], S3_MAX_TAU_UNITS_LEN, _T("10.0\u03BC"));
 
 	return 0;
 }
@@ -1449,11 +1449,11 @@ int S3TxSetTauUnits(char Rx, char Tx, const unsigned char *units)
 		pTx->m_Tau_ns[i + 1] = *(units) * pow(10.0, *(units + i * 2 + 1));
 
 		if (*(units + i * 2 + 1) < 3)
-			nChar = swprintf_s(pTx->m_TauUnits[i + 1], 16, _T("%.1fns"), pTx->m_Tau_ns[i + 1]);
+			nChar = swprintf_s(pTx->m_TauUnits[i + 1], 16, _T("%.1fn"), pTx->m_Tau_ns[i + 1]);
 		else if (*(units + i * 2 + 1) < 6)
 			nChar = swprintf_s(pTx->m_TauUnits[i + 1], 16, _T("%.1f%c"), pTx->m_Tau_ns[i + 1] / 1000.0, S3_SYM_MU_LC); // mu = 03BC	
 		else if (*(units + i * 2 + 1) < 9)
-			nChar = swprintf_s(pTx->m_TauUnits[i + 1], 16, _T("%.1fms"), pTx->m_Tau_ns[i + 1] / 1000000.0);
+			nChar = swprintf_s(pTx->m_TauUnits[i + 1], 16, _T("%.1fm"), pTx->m_Tau_ns[i + 1] / 1000000.0);
 	}
 
 	return 0;

@@ -1627,7 +1627,7 @@ void CS3GDIScreenMain::S3DrawGDITxIPTable(char Rx, char Tx)
 
 	S3DrawGDITxIPRowName(xref, yref, RowCnt++, _T("Peak detect"));
 
-	str.Format(_T("\u222b\u03a4 (%cS)"), S3_SYM_MU_LC);
+	str.Format(_T("\u222b\u03a4 (S)")); // S3_SYM_MU_LC);
 	S3DrawGDITxIPRowName(xref, yref, RowCnt++, str);
 
 	str.Format(_T("IPz (%c)"), S3_SYM_OMEGA_UC);
