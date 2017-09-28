@@ -1,12 +1,5 @@
 // ----------------------------------------------------------------------------
-// GPIB remote commands
-//
-// Incoming GPIB messages use 1-based indexing, internally zero-based node
-// addressing is used, with -1 indicating invalid nodes. See:
-//
-//		GPIBRx = -1;
-//		GPIBTx = -1; // For settings etc
-//		GPIBIP = -1;
+// GPIB remote commands for PPM set-up only
 //
 // ----------------------------------------------------------------------------
 
@@ -18,8 +11,8 @@
 #include "S3I2C.h"
 
 extern unsigned char	GPIBNArgs;
-extern char			GPIBCmd[S3_MAX_GPIB_CMD_LEN];
-extern char			*GPIBCmdArgs[S3_MAX_ARGS];
+extern char				GPIBCmd[S3_MAX_GPIB_CMD_LEN];
+extern char				*GPIBCmdArgs[S3_MAX_ARGS];
 
 extern char		GPIBCmdBuf[S3_MAX_GPIB_CMD_LEN];
 extern char		GPIBRetBuf[S3_MAX_GPIB_RET_LEN];
@@ -30,13 +23,12 @@ extern char		GPIBRx, GPIBTx, GPIBIP;
 
 extern pS3DataModel S3Data;
 
-extern SigmaT S3Str2SigmaT(const char *str);
-extern InputZ S3Str2InputZ(const char *str);
+extern SigmaT	S3Str2SigmaT(const char *str);
+extern InputZ	S3Str2InputZ(const char *str);
 
 extern char		GetAddArg(		const char *carg);
 extern short	GetShortArg(	const char *carg);
 extern double	GetDoubleArg(	const char *carg);
-
 
 // ----------------------------------------------------------------------------
 // Must specify channel although only required for Rx2
@@ -283,6 +275,7 @@ int CmdPPMTXID()
 }
 
 // ----------------------------------------------------------------------------
+// Type, PN, SN
 
 int CmdPPMRXID()
 {
