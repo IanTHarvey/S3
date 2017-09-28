@@ -444,7 +444,7 @@ int S3LookUpError(char *buf, int err)
 	else if (err == S3_GPIB_CH_AUTH_FAILED)
 		strcpy_s(buf, S3_MAX_GPIB_RET_LEN, "E: Battery validation failed");
 	else if (err == S3_GPIB_ID_WRITE_FAILED)
-		strcpy_s(buf, S3_MAX_GPIB_RET_LEN, "E: Tx ID write failed");
+		strcpy_s(buf, S3_MAX_GPIB_RET_LEN, "E: Device ID write failed");
 	else if (err == S3_GPIB_INVALID_SNPN)
 		strcpy_s(buf, S3_MAX_GPIB_RET_LEN, "E: Invalid SN/PN");
 	else if (err == S3_GPIB_INVALID_TYPE)
