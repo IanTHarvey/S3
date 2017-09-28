@@ -10,10 +10,11 @@
 // Minor	- add/changes to functionality, HB update required.
 // Revision - implementation changes, bug fixes committed, no user changes.
 
-// 1.02 R&S release
-// 1.03 Dev
+// 1.02.000 R&S release
+// 1.03.001 R&S Added static IP assignment to application only
+// 1.03.002 As 1.03.001 but new image build
 
-#define S3_SYS_SW			"1.03r001"
+#define S3_SYS_SW			"1.03r002"
 
 #define S3_SYS_MODEL		"Sentinel 3"
 
