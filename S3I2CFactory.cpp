@@ -373,6 +373,8 @@ int S3I2CRxWriteID(const char *Type, const char *PN, const char *SN)
 	{
 		I2C_WriteRandom(S3I2C_RX_CTRL_ADDR, S3I2C_RX_CTRL_RX_TYPE, (unsigned char)S3Type);
 
+		Sleep(100);
+
 		unsigned char rtype = I2C_ReadRandom(S3I2C_RX_CTRL_ADDR, S3I2C_RX_CTRL_RX_TYPE);
 	
 		if (rtype != S3Type)
