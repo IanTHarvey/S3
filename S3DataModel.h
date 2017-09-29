@@ -39,7 +39,7 @@ class CS3ControllerDlg;
 // ----------------------------------------------------------------------------
 
 #ifdef _DEBUG
-#define DBGLOG 1
+#define DBGLOG 0
 #else
 #define DBGLOG 0
 #endif
