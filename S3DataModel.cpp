@@ -195,7 +195,7 @@ int S3DataModelInit(pS3DataModel dm, bool DemoMode)
 	dm->m_DHCPEnabled = true;
 
 	dm->m_Locked = false;
-	dm->m_TxSelfTest = true;
+	dm->m_TxSelfTest = false;
 
 	dm->m_FactoryMode = false;
 

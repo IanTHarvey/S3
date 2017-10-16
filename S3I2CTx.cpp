@@ -273,7 +273,9 @@ int S3I2CGetTxWakeUp(char Rx, char Tx)
 	S3IPSetGainSent(Rx, Tx, IP, SCHAR_MIN); // Force update
 
 	char ToneEnabled = S3IPGetTestToneEnable(Rx, Tx, IP);
-	S3IPSetTestToneEnable(Rx, Tx, IP, ToneEnabled + 100);
+	
+	if (ToneEnabled)
+		S3IPSetTestToneEnable(Rx, Tx, IP, ToneEnabled + 100);
 
 	S3TxSetTCompMode(Rx, Tx, S3TxGetTCompMode(Rx, Tx) + 100);
 
