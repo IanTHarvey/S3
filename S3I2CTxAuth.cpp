@@ -1,4 +1,6 @@
 // ----------------------------------------------------------------------------
+// Tx battery authentication.
+// ----------------------------------------------------------------------------
 
 #include "stdafx.h"
 #include "S3DataModel.h"
@@ -15,7 +17,8 @@ extern pS3DataModel S3Data;
 #define S3_FLASH_BLOCK_SIZE	32
 
 extern int S3GenerateChallenge(BYTE *chal);
-extern int HMAC3(unsigned char *Digest, unsigned char *Message, unsigned char *Key);
+extern int HMAC3(unsigned char *Digest, unsigned char *Message,
+				 unsigned char *Key);
 
 extern int	HexStr2Hex(BYTE *buf, char *str);
 extern char	S3BattAuthKeyStr[];
@@ -25,6 +28,9 @@ extern BYTE	S3BattAuthKey[];
 
 int S3I2CTxAuthenticate(char Rx, char Tx)
 {
+	if (!S3TxExistQ(Rx, Tx))
+		return 1;
+
 	int err = 0;
 	BYTE ErrCnt = 0;
 

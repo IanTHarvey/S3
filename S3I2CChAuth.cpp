@@ -1,4 +1,6 @@
 // ----------------------------------------------------------------------------
+// On-charge battery authentication.
+// ----------------------------------------------------------------------------
 
 #include "stdafx.h"
 
@@ -157,12 +159,15 @@ extern int HMAC3(unsigned char *Digest, unsigned char *Message, unsigned char *K
 
 int S3I2CChAuthenticate(char Ch)
 {
+	if (!S3ChOccupied(Ch))
+		return 1;
+	
 	BYTE ErrCnt = 0;
 
 #ifdef TRIZEPS
-	BYTE	Challenge[SHA1_DIGEST_LEN]; // Random challenge
-	BYTE	ChallengeRev[SHA1_DIGEST_LEN]; // Applied in reverse byte-order
-	BYTE	Digest[SHA1_DIGEST_LEN]; // Expected response
+	BYTE	Challenge[SHA1_DIGEST_LEN];		// Random challenge
+	BYTE	ChallengeRev[SHA1_DIGEST_LEN];	// Applied in reverse byte-order
+	BYTE	Digest[SHA1_DIGEST_LEN];		// Expected response
 
 	BYTE i;
 
@@ -211,7 +216,7 @@ int S3I2CChAuthenticate(char Ch)
 	ok = I2C_WriteRead(S3I2C_CH_BATT_ADDR, cmd, 2, NULL, 0);
 
 	if (!ok)
-		return 1;
+		return 10;
 
 	Sleep(100);
 
