@@ -21,6 +21,7 @@
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
 #ifdef _WIN32
 LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+#pragma code_page(1252)
 #endif //_WIN32
 
 /////////////////////////////////////////////////////////////////////////////
@@ -166,6 +167,7 @@ END
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENG)
 #ifdef _WIN32
 LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_UK
+#pragma code_page(1252)
 #endif //_WIN32
 
 /////////////////////////////////////////////////////////////////////////////
@@ -359,7 +361,6 @@ IDB_RX2_RLL2_ON_BITMAP  BITMAP                  "..\\res\\Rx2RLL2On.bmp"
 IDB_RX2_RLL1_ON_BITMAP  BITMAP                  "..\\res\\Rx2RLL1On.bmp"
 IDB_RX2_RLL1_RED_BITMAP BITMAP                  "..\\res\\Rx2RLL1Red.bmp"
 IDB_RX2_RLL5_RED_BITMAP BITMAP                  "..\\res\\Rx2RLL5Red.bmp"
-IDB_PPMBG_BITMAP        BITMAP                  "..\\res\\PPMBGEmbossed.bmp"
 IDB_RX_EMPTY_BAR_BITMAP BITMAP                  "..\\res\\S3RxEmptyBar.bmp"
 IDB_SENTINEL3_BITMAP    BITMAP                  "res\\Sentinel3.bmp"
 IDB_SYS_WARN_BITMAP     BITMAP                  "..\\res\\S3SysWarn.bmp"

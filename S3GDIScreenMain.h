@@ -589,8 +589,6 @@ protected:
 	HBITMAP			S3LoadBitmap(const int &nBitmapID);
 	HDC				CreateBitmap(HDC ParentDC, const int &nBitmapID);
 
-	HDC				m_hbmpPPMBG;
-
 	// Charger
 	HDC				m_hbmpBattCharging;
 	HDC				m_hbmpBattExclam;

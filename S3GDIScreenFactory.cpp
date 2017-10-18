@@ -85,7 +85,7 @@ void CS3GDIScreenMain::S3DrawGDIFactoryScreen(void)
 	SelectObject(m_HDC, m_hBrushBG3);
 
 	// S3_RECT(m_HDC, m_RectShutdownScreen);
-	S3BLTR(m_hbmpPPMBG, m_RectShutdownScreen);
+	// S3BLTR(m_hbmpPPMBG, m_RectShutdownScreen);
 
 	//RECT fntRc;
 	//fntRc.left = xref + m_lChBatt + 10;

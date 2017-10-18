@@ -320,9 +320,6 @@ void CS3GDIScreenMain::S3GDIInit()
 		m_hbmpTxUBatt[i] =		CreateBitmap(hh, BattUBmpIds[i]);
 	}
 
-	// BOOTPPMTPC.bmp
-	m_hbmpPPMBG = CreateBitmap(hh, IDB_PPMBG_BITMAP);
-
 	// TODO: Implement the rest like these, get rid of Mem suffix
 
 	m_hbmpSysWarn =				CreateBitmap(hh, IDB_SYS_WARN_BITMAP);

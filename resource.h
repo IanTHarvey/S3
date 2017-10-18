@@ -72,7 +72,6 @@
 #define IDB_RX1_RLL1_RED_BITMAP         242
 #define IDB_RX2_RLL5_RED_BITMAP         243
 #define IDB_RX2_RLL1_RED_BITMAP         244
-#define IDB_PPMBG_BITMAP                245
 #define IDB_RX_EMPTY_BAR_BITMAP         246
 #define IDB_TXBATT1GV_BITMAP            248
 #define IDB_TXBATT1GUV_BITMAP           249
@@ -83,10 +82,10 @@
 #define IDB_RED_BUTTON_BITMAP           255
 #define IDC_TEST_BUTTON                 1010
 #define IDC_GDI_STATIC                  1546
-#define S3GDI_DATE_EDIT                 1631
 #define S3GDI_TEXT_EDIT                 1627
 #define S3GDI_NUM_EDIT                  1628
 #define S3GDI_NUM2_EDIT                 1630
+#define S3GDI_DATE_EDIT                 1631
 #define IDC_RX1_CAL_EDIT                1635
 #define IDC_RX1_CAL_STATIC              1636
 #define IDC_TX_CAL_STATIC               1637

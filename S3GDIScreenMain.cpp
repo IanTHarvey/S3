@@ -164,27 +164,15 @@ void CS3GDIScreenMain::OnPaint()
 	}
 	else
 	{
-		// Watermark
-		if (isS3GUIWatermarked)
-		{
-            //USe PPM as watermark
-			S3OPBLTR(m_hbmpPPMBG, m_RectPhysicalScreen);
-		}
+		if (!S3GetLocked())
+			SelectObject(m_HDC, m_hBrushRed);
 		else
-		{
-            //No watermark
-			if (!S3GetLocked())
-				SelectObject(m_HDC, m_hBrushRed);
-			else
-				SelectObject(m_HDC, m_hBrushWhite);
+			SelectObject(m_HDC, m_hBrushWhite);
 
-			S3_RECT_N(m_HDC, m_RectPhysicalScreen);
+		S3_RECT_N(m_HDC, m_RectPhysicalScreen);
 
-			SelectObject(m_HDC, m_hBrushBG1);
-			S3_RECT_N(m_HDC, m_RectScreen);
-			/*Rectangle(m_HDC, m_RectScreen.left, m_RectScreen.top,
-							m_RectHeader.right + 1, m_RectHeader.bottom + 1);*/
-		}
+		SelectObject(m_HDC, m_hBrushBG1);
+		S3_RECT_N(m_HDC, m_RectScreen);
 	}
 
 	S3DrawGDIHeader();
