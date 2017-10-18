@@ -264,11 +264,13 @@ void CS3FactorySysSetUp::OnBnClickedTestButton()
 	m_StatusMsgStatic.Invalidate();
 	m_StatusMsgStatic.UpdateWindow();
 
-	char Rx = 0, Tx = 0;
-	// int AuthCh = S3I2CChAuthenticate();
-	int AuthTx = S3I2CTxAuthenticate(Rx, Tx);
+	int		Auth;
+	char	Ch = 0;
+	Auth = S3I2CChAuthenticate(Ch);
+	// char	Rx = 0, Tx = 0;
+	// Auth = S3I2CTxAuthenticate(Rx, Tx);
 
-	tmp.Format(_T("Authenticate: Err: %d"), AuthTx);
+	tmp.Format(_T("Authenticate: Err: %d"), Auth);
 	m_StatusMsgStatic.SetWindowText(tmp);
 }
 
