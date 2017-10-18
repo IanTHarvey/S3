@@ -1034,9 +1034,6 @@ int S3IPSetParaTxt(		char Rx, char Tx, char IP, char Para, const wchar_t *Txt);
 const char *S3GetSelNodeName();
 const char *S3GetNodeName(char Rx, char Tx, char IP);
 
-int S3StartUpReadRack();
-int S3StartUpReadSlot(char Rx);
-
 // TODO: rationalise?
 int S3RxExistQ(	char Rx);
 int S3RxValidQ(	char Rx);

@@ -721,44 +721,6 @@ int S3SysSetNodeName(const char *CurrentNode, char *NodeName)
 
 // ----------------------------------------------------------------------------
 
-int S3StartUpReadRack()
-{
-	for (char i = 0; i < S3_MAX_RXS; i++)
-	{
-		S3StartUpReadSlot(i);
-	}
-
-	return 0;
-}
-
-// ----------------------------------------------------------------------------
-
-int S3StartUpReadSlot(char Rx)
-{
-	// Read type - deduce number of inputs
-	// Read serial number
-	// Read part number
-
-	// For each Tx
-		// Get type - deduce number of inputs
-		// Get serial number
-		// Get part number
-
-		// Set parameters
-		// Get alarms
-
-		// For each input
-			// Set parameters
-			// Get alarms
-
-	return 0;
-}
-
-
-
-
-// ----------------------------------------------------------------------------
-
 int S3SetSysTimeStr(const char *str)
 {
 	char	*eptr;
