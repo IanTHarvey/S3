@@ -554,7 +554,7 @@ int S3GetPrimaryMACaddress()
 	{	
 		S3SetMACAddr(MAC);
 		S3SetIPAddrStr(IP, false);
-		S3SetIPSubnetStr(IPSubnet);
+		S3SetIPSubnetStr(IPSubnet, false);
 	}
 
 	// S3WriteEthConfig();
@@ -641,6 +641,7 @@ int S3WriteEthConfig()
 }
 
 // ----------------------------------------------------------------------------
+// Not used, saved in registry instead.
 
 int S3ReadEthConfig()
 {
@@ -664,7 +665,7 @@ int S3ReadEthConfig()
 
 		fgets(cbuf, 3 * (S3_MAX_IP_ADDR_LEN + 5), fid);
 		wsprintf(wbuf, _T("%S"), cbuf);
-		S3SetIPSubnetStr(wbuf);
+		S3SetIPSubnetStr(wbuf, true);
 
 		S3SetIPAddrStr(IPAddrBuf, true);
 

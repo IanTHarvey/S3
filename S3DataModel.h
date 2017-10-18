@@ -946,8 +946,8 @@ int				S3SetCloseAppFailed(bool set);
 bool			S3GetCloseAppFailed();
 
 int				S3SetMACAddr(	const unsigned char *MAC);
-int				S3SetIPAddrStr(	const wchar_t *addr, bool user);
-int				S3SetIPSubnetStr(	const wchar_t *addr);
+int				S3SetIPAddrStr(		const wchar_t *addr, bool user);
+int				S3SetIPSubnetStr(	const wchar_t *addr, bool user);
 int				S3ValidateIPAddress(const wchar_t *addr);
 
 const char		*S3GetIPAddrStr();

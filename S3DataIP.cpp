@@ -375,7 +375,7 @@ int S3IPSetParaTxt(	char Rx, char Tx, char IP, char Para, const wchar_t *Txt)
 			break;
 		case S3_IP_SUBNET:
 			{
-				S3SetIPSubnetStr(Txt);
+				S3SetIPSubnetStr(Txt, true);
 			}
 			break;
 		case S3_TIME_EDIT:
