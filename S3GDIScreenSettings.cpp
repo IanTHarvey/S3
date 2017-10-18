@@ -1349,7 +1349,7 @@ int CS3GDIScreenMain::S3FindSettingsScreen(POINT p)
 			m_GDIIPAddrEdit->ShowWindow(SW_SHOWNORMAL);
 
 			m_NumericPad->PopUp(m_HDC, p.x, p.y, m_GDIIPAddrEdit,
-				S3_NP_POSITIVE, S3_MAX_IP_ADDRESS_LEN);
+				S3_NP_POSITIVE, S3_MAX_IP_ADDRESS_LEN - 1);
 #endif
 			return S3SetSelectedPara(-1, -1, -1, S3_IP_ADDRESS);
 		}
@@ -1372,7 +1372,7 @@ int CS3GDIScreenMain::S3FindSettingsScreen(POINT p)
 			m_GDIIPSubnetEdit->ShowWindow(SW_SHOWNORMAL);
 
 			m_NumericPad->PopUp(m_HDC, p.x, p.y, m_GDIIPSubnetEdit,
-				S3_NP_POSITIVE, S3_MAX_IP_ADDRESS_LEN);
+				S3_NP_POSITIVE, S3_MAX_IP_ADDRESS_LEN - 1);
 #endif
 			return S3SetSelectedPara(-1, -1, -1, S3_IP_SUBNET);
 		}
