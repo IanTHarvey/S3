@@ -1,3 +1,5 @@
+// S3Agent-specific comms functions
+
 #pragma once
 #include "S3AgentDlg.h"
 #include <string.h>
@@ -33,3 +35,5 @@ int SendMessageOpenSocketSC3(const char *msg);
 int IPv4ToolsRemLeadZ(char *IPAddr);
 int OpenGPIBConnection();
 int CloseGPIBConnection();
+
+int SaveValidIPAddr();

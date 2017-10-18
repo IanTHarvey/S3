@@ -31,7 +31,6 @@ int OpenConnectUSB()
 
         FILE *fid;
         int err = 0;
-        int line_no = 0;
 
         //Alert the user if we cannot save the valid COM port to a file.
         err = fopen_s(&fid, Filename, "w");
@@ -443,11 +442,18 @@ int SendMessageSC3_2(const char *TxBuf)
 
 
 // ----------------------------------------------------------------------------
-// Once we have an open socket to a Sentinel 3, send a message, and recieve its response 
+// Once we have an open socket to a Sentinel 3, send a message, and recieve its response
+
+#define S3_RECV_RETRIES	10
+
 int SendMessageOpenSocketSC3(const char *TxBuf)
 {
     size_t len = strlen(TxBuf);
     int iResult; //, ClientErr;
+
+	*RxBuf = '\0';
+	int cnt = 0;
+	while((iResult = recv(ConnectSocket, RxBuf, DEFAULT_BUFLEN, 0)) != SOCKET_ERROR) cnt++;
 
     *RxBuf = '\0';
     // Send an initial buffer - NOT terminator
@@ -465,52 +471,17 @@ int SendMessageOpenSocketSC3(const char *TxBuf)
         return 1;
     }
 
-    iResult = recv(ConnectSocket, RxBuf, DEFAULT_BUFLEN, 0);
+	int retries = 0;
+	while((iResult = recv(ConnectSocket, RxBuf, DEFAULT_BUFLEN, 0)) == SOCKET_ERROR &&
+			retries < S3_RECV_RETRIES)
+		retries++;
 
-    if (iResult > 0)
+    if (iResult > 0 && retries < S3_RECV_RETRIES)
     {
         RxBuf[iResult] = '\0';
 
-        printf("Bytes received: %d\n", iResult);
-        
-        // Look for Ok\n at end of buffer
-        if (STRNCMP(&RxBuf[iResult-3], "Ok", 2))
-        {
-            return 0;
-        }
-        else
-        {
-            // Save 'valid IP' adddress
-            char Filename[MAX_SCRIPT_LEN];
-
-            sprintf_s(Filename, MAX_SCRIPT_LEN, "%ls\\S3IP.txt", DataLocStr);
-
-            FILE *fid;
-            int err = 0;
-            int line_no = 0;
-
-            err = fopen_s(&fid, Filename, "w");
-            if (err)
-            {
-                AfxMessageBox(_T("Failed to save IP address"));
-            }
-
-            CStringA tmpA(IPv4Addr);
-            char	IPAddr[MAX_IP_ADDR_LEN];
-            strcpy_s(IPAddr, MAX_IP_ADDR_LEN, (LPCSTR)tmpA);
-
-            fprintf(fid, "%s", IPAddr);
-
-            fclose(fid);
-
-        }
-        // ClientErr = 666;
-
-        if (0) // !strncmp(TxBuf, "dbg", 3))
-            Sleep(10);
+		SaveValidIPAddr();
     }
-
-    printf("Bytes Sent: %ld\n", iResult);
 
     return 0;
 }
@@ -666,4 +637,31 @@ int CloseGPIBConnection()
 }
 // ----------------------------------------------------------------------------
 
+int SaveValidIPAddr()
+{
+    // Save 'valid IP' adddress
+    char Filename[MAX_SCRIPT_LEN];
 
+    sprintf_s(Filename, MAX_SCRIPT_LEN, "%ls\\S3IP.txt", DataLocStr);
+
+    FILE *fid;
+    int err = 0;
+
+    err = fopen_s(&fid, Filename, "w");
+    if (err)
+    {
+        return 1;
+    }
+
+    CStringA tmpA(IPv4Addr);
+    char	IPAddr[MAX_IP_ADDR_LEN];
+    strcpy_s(IPAddr, MAX_IP_ADDR_LEN, (LPCSTR)tmpA);
+
+    fprintf(fid, "%s", IPAddr);
+
+    fclose(fid);
+
+	return 0;
+}
+
+// ----------------------------------------------------------------------------
