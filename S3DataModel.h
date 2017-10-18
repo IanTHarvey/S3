@@ -133,8 +133,8 @@ extern wchar_t *SigSizeStrings[];
 #define S3_MAX_EDIT_LEN			32
 
 // Pop-up editors
-#define S3_MAX_IP_ADDRESS_LEN	(4 * 3 + 3)
-#define S3_MAX_IP_PORT_LEN	5
+#define S3_MAX_IP_ADDRESS_LEN	(4 * 3 + 3) + 1
+#define S3_MAX_IP_PORT_LEN		5
 
 #define S3_DEF_WIN_TRACK_OPTION	false
 #define S3_DEF_OVERDRIVE_OPTION	false
