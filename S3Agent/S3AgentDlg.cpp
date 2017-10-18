@@ -74,6 +74,8 @@ CS3AgentDlg::CS3AgentDlg(CWnd* pParent /*=NULL*/)
 
 	m_SWUpdateScheduled = false;
 	m_AppUpdateScheduled = false;
+
+	connectionmethod = ETHERNET; // Set default connection method
 }
 
 void CS3AgentDlg::DoDataExchange(CDataExchange* pDX)
@@ -350,6 +352,12 @@ BOOL CS3AgentDlg::OnInitDialog()
 
     m_LogCopyDlg = NULL;
 
+	if (connectionmethod == ETHERNET)
+		m_EthSelRdoButton.SetCheck(TRUE);
+	else if (connectionmethod = USB)
+		m_USBSelRdoButton.SetCheck(TRUE);
+	else if (connectionmethod = GPIB)
+		m_GPIBSelRdoButton.SetCheck(TRUE);
 
 	return TRUE;  // return TRUE  unless you set the focus to a control
 }
@@ -606,19 +614,38 @@ UINT SendMessageThread(LPVOID pParam)
     CMDMsg.Trim();
     if(!CMDMsg.IsEmpty())
     {
+		// pObject->
+		RxBuf[0] = '\0';
         pObject->m_MessageEdit.EnableWindow(false);
         MsgResponse = SendSentinel3Message(CMDMsg);
+
+		if (MsgResponse.Left(2) != _T("E:") &&
+			MsgResponse.Left(2) != _T("I:") &&
+			MsgResponse.Left(3) != _T("OK:"))
+		{
+			MsgResponse = _T("Invalid Response");
+		}
 
         MsgResponse.Replace(_T("\n"), _T("\r\n"));
 
         RespStr.Format(_T("%s\t%s\r\n"),CMDMsg,MsgResponse);
 
-        int nLength = pObject->m_CommandEdit.GetWindowTextLength();
-        pObject->m_CommandEdit.SetSel(nLength, nLength);
-        pObject->m_CommandEdit.ReplaceSel(RespStr);
+        int nLength = (int)pObject->m_CommandEdit.GetWindowTextLength();
 
-        pObject->m_MessageEdit.SetWindowTextW(L"");
-        pObject->m_MessageEdit.EnableWindow(true);
+		if (nLength < (int)pObject->m_CommandEdit.GetLimitText())
+		{
+			pObject->m_CommandEdit.SetSel(nLength, nLength);
+			pObject->m_CommandEdit.ReplaceSel(RespStr);
+		}
+		else
+		{
+			pObject->m_CommandEdit.SetSel(2000, nLength);
+			pObject->m_CommandEdit.ReplaceSel(RespStr);
+		}
+
+		pObject->m_MessageEdit.SetWindowTextW(L"");
+		pObject->m_MessageEdit.EnableWindow(true);
+
     }
     return 0;
 }
@@ -1020,3 +1047,5 @@ int CS3AgentDlg::EnumCOMPorts()
     }
 	return NewDevCnt;
 }
+
+
