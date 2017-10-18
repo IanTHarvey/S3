@@ -322,8 +322,9 @@ int S3SetNodeNameNew(char Rx, char Tx, char IP, char *NodeName)
 
 int S3IPSetParaTxt(	char Rx, char Tx, char IP, char Para, const wchar_t *Txt)
 {
-	wchar_t *eptr;
-	long lgain;
+	wchar_t	*eptr;
+	long	lgain;
+	int		err = 0;
 
 	char ctmp[S3_MAX_EDIT_LEN];
 	sprintf_s(ctmp, S3_MAX_EDIT_LEN, "%S", Txt);
@@ -365,17 +366,17 @@ int S3IPSetParaTxt(	char Rx, char Tx, char IP, char Para, const wchar_t *Txt)
 		case S3_IP_PORT:
 			{
 				unsigned short port = (unsigned short)wcstol(Txt, &eptr, 10);
-				S3SetIPPort(port);
+				err = S3SetIPPort(port);
 			}
 			break;
 		case S3_IP_ADDRESS:
 			{
-				S3SetIPAddrStr(Txt, true);
+				err = S3SetIPAddrStr(Txt, true);
 			}
 			break;
 		case S3_IP_SUBNET:
 			{
-				S3SetIPSubnetStr(Txt, true);
+				err = S3SetIPSubnetStr(Txt, true);
 			}
 			break;
 		case S3_TIME_EDIT:
@@ -384,7 +385,7 @@ int S3IPSetParaTxt(	char Rx, char Tx, char IP, char Para, const wchar_t *Txt)
 			break;
 	}
 
-	return 0;
+	return err;
 }
 
 // ----------------------------------------------------------------------------

@@ -365,12 +365,12 @@ int	S3SetIPAddrStr(const wchar_t *str, bool user)
 		sprintf_s(S3Data->m_IPv4Addr, S3_MAX_IP_ADDR_LEN, "0.0.0.0");
 		sprintf_s(S3Data->m_IPv4Subnet, S3_MAX_IP_ADDR_LEN, "0.0.0.0");
 	}
-	else if (!S3ValidateIPAddress(str))
+	else if (S3ValidateIPAddress(str))
 	{
 		sprintf_s(S3Data->m_IPv4Addr, S3_MAX_IP_ADDR_LEN, "%S", str);
 		S3SetDHCP(false);
 	}
-	else return 1;
+	else return 1; // and leave as was
 
 	// S3WriteEthConfig();
 #endif
@@ -404,10 +404,10 @@ int	S3SetIPSubnetStr(const wchar_t *str, bool user)
 		return 0;
 	}
 
-	if (!S3ValidateIPAddress(str))
+	if (S3ValidateIPAddress(str))
 	{
 		sprintf_s(S3Data->m_IPv4Subnet, S3_MAX_IP_ADDR_LEN, "%S", str);
-		S3SetDHCP(false);
+		S3SetDHCP(false); // and leave as was
 	}
 	else return 1;
 #endif

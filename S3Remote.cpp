@@ -589,27 +589,27 @@ const char *S3GetWSAErrString()
 
 int isIp_v4(const char *ip);
 
-int S3ValidateIPAddress(const wchar_t *addr)
+bool S3ValidateIPAddress(const wchar_t *addr)
 {
 	char c_addr[S3_MAX_IP_ADDRESS_LEN];
 
 	sprintf_s(c_addr, S3_MAX_IP_ADDRESS_LEN, "%S", addr);
 
 	if (!isIp_v4(c_addr))
-		return 1;
+		return false;
 
 	unsigned long ulAddr = inet_addr(c_addr);
 
 	if (ulAddr == INADDR_NONE)
-		return 1;
+		return false;
 
 	struct sockaddr sockaddr_ipv4;
 	int	len = sizeof(sockaddr_ipv4);
 
 	if (WSAStringToAddress((wchar_t *)addr, AF_INET, NULL, &sockaddr_ipv4, &len))
-		return 1;
+		return false;
 
-	return 0;
+	return true;
 }
 
 // ----------------------------------------------------------------------------
@@ -684,6 +684,7 @@ int S3ReadEthConfig()
 }
 
 // ----------------------------------------------------------------------------
+// Checks for 4 numeric fields separated by '.'s
 
 int isIp_v4(const char *c_addr)
 {
@@ -705,6 +706,12 @@ int isIp_v4(const char *c_addr)
 		{
 			flag = 1;
 			p = strtok_s(NULL, ".", &context);
+
+			if (strlen(p) < 1 || strlen(p) > 3)
+			{
+				flag = 0;
+				break;
+			}
 		}
 		else
 		{

@@ -2012,7 +2012,10 @@ int CS3GDIScreenMain::S3GDITextSupplied(const wchar_t *txt)
 	}
 
 	if (S3IPSetParaTxt(Rx, Tx, IP, Para, txt))
+	{
+		// TODO: Report failure
 		return 1;
+	}
 
 	if (Para == S3_IP_PORT)
 	{
