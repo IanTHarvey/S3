@@ -453,6 +453,8 @@ int SendMessageOpenSocketSC3(const char *TxBuf)
 
 	*RxBuf = '\0';
 	int cnt = 0;
+	// If running with remote view enabled, buffer may be full of data from
+	// S3 update, so read and clear before sending command
 	while((iResult = recv(ConnectSocket, RxBuf, DEFAULT_BUFLEN, 0)) != SOCKET_ERROR) cnt++;
 
     *RxBuf = '\0';
