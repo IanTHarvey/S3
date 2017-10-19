@@ -38,7 +38,7 @@ void CS3GDIScreenMain::S3GDIInit()
 	CDC				*cc = GetDC();
 	HDC				hh = *cc;
 
-	// ---------------------------------------------------------------------------
+	// ------------------------------------------------------------------------
 	// Set up resources
 	// Horizontal
 
@@ -82,7 +82,7 @@ void CS3GDIScreenMain::S3GDIInit()
 	m_lf.lfHeight = 16;
 	m_hFontVS = CreateFontIndirect(&m_lf);
 
-	// ---------------------------------------------------------------------------
+	// ------------------------------------------------------------------------
 	// Colours
 
 #ifdef BLUESCHEME
@@ -162,7 +162,7 @@ void CS3GDIScreenMain::S3GDIInit()
 	m_crSel =			RGBw( 50,  50,  50); // General selection colour
 	m_hBrushSel = CreateSolidBrush(m_crSel);
 
-	// ---------------------------------------------------------------------------
+	// ------------------------------------------------------------------------
 	// GDI objects
 
 	// INSIDEFRAME or width != 1 causes solid pen...
@@ -287,7 +287,7 @@ void CS3GDIScreenMain::S3GDIInit()
 
 	m_hBrushRxNum =			CreateSolidBrush(m_crBG4);
 
-	// ---------------------------------------------------------------------------
+	// ------------------------------------------------------------------------
 	// Bitmaps
 
 	// Create battery bitmap DCs
@@ -310,7 +310,7 @@ void CS3GDIScreenMain::S3GDIInit()
 		IDB_TXBATT1GUV_BITMAP,
 		IDB_TXBATT1AUV_BITMAP,
 		IDB_TXBATT1RUV_BITMAP
-	};
+	}; 
 
 	unsigned char	i;
 	
@@ -319,8 +319,6 @@ void CS3GDIScreenMain::S3GDIInit()
 		m_hbmpTxBatt[i] =		CreateBitmap(hh, BattBmpIds[i]);
 		m_hbmpTxUBatt[i] =		CreateBitmap(hh, BattUBmpIds[i]);
 	}
-
-	// TODO: Implement the rest like these, get rid of Mem suffix
 
 	m_hbmpSysWarn =				CreateBitmap(hh, IDB_SYS_WARN_BITMAP);
 	m_hbmpSysError =			CreateBitmap(hh, IDB_SYS_ERROR_BITMAP);

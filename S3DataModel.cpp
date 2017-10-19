@@ -348,7 +348,8 @@ int	S3SetIPAddrStr(const wchar_t *str, bool user)
 	sprintf_s(tmp, S3_MAX_IP_ADDR_LEN, "%S", str);
 
 	// Don't restart NIC if unchanged
-	// TODO: Base comparison on parsed IP addresses
+	// TODO: Base comparison on parsed IP addresses - e.g. inserted leading 0's
+	// will cause restart. [SWI56]
 	if (!strcmp(S3Data->m_IPv4Addr, tmp))
 		return 0;
 
@@ -372,7 +373,6 @@ int	S3SetIPAddrStr(const wchar_t *str, bool user)
 	}
 	else return 1; // and leave as was
 
-	// S3WriteEthConfig();
 #endif
 	
 	return 0;
