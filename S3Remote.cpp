@@ -707,7 +707,7 @@ int isIp_v4(const char *c_addr)
 			flag = 1;
 			p = strtok_s(NULL, ".", &context);
 
-			if (strlen(p) < 1 || strlen(p) > 3)
+			if (p && (strlen(p) < 1 || strlen(p) > 3))
 			{
 				flag = 0;
 				break;
