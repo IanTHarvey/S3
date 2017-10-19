@@ -1,6 +1,11 @@
 // ----------------------------------------------------------------------------
 // S3GDINumberPad.cpp : implementation file
 //
+// Single instance (m_NumericPad) gets attached to a CNumEdit when popped up.
+//
+// TODO: Set permissable characters
+//
+// ----------------------------------------------------------------------------
 
 #include "stdafx.h"
 
@@ -237,11 +242,17 @@ void CS3NumberPad::Draw()
 			DrawText(m_HDC, str, -1, & m_RectButtons[j], DT_CENTER);
 		}
 		else if (j == S3_NP_PLUS_MINUS_KEY)
-			DrawText(m_HDC, _T("\u00b1"), -1, & m_RectButtons[j], DT_CENTER);
+		{
+			if (!(m_Constraints & S3_NP_POSITIVE))
+				DrawText(m_HDC, _T("\u00b1"), -1, & m_RectButtons[j], DT_CENTER);
+		}
 		else if (j == S3_NP_ZERO_KEY)
 			DrawText(m_HDC, _T("0"), -1, & m_RectButtons[j], DT_CENTER);
 		else if (j == S3_NP_DECIMAL_KEY)
-			DrawText(m_HDC, _T("."), -1, & m_RectButtons[j], DT_CENTER);
+		{
+			if (!(m_Constraints & S3_NP_INTEGER))
+				DrawText(m_HDC, _T("."), -1, & m_RectButtons[j], DT_CENTER);
+		}
 		else if (j == S3_NP_DELETE_KEY)
 		{
 			// Not in main character set and not found on iPAN - found
@@ -282,6 +293,7 @@ void CS3NumberPad::PopUp(HDC hdc, int xref, int yref, CS3NumEdit *editor,
 	m_yref = yref;
 
 	m_Editor = editor;
+	m_Editor->SetLimitText((unsigned)m_MaxChars);
 
 	CString str;
 
