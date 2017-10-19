@@ -911,6 +911,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\S3GDINumberPad.h"
+				>
+			</File>
+			<File
+				RelativePath=".\S3GDINumEdit.h"
+				>
+			</File>
+			<File
 				RelativePath=".\S3GDIParameterMenu.h"
 				>
 			</File>
@@ -928,14 +936,6 @@
 			</File>
 			<File
 				RelativePath=".\S3I2C.h"
-				>
-			</File>
-			<File
-				RelativePath=".\S3NumberPad.h"
-				>
-			</File>
-			<File
-				RelativePath=".\S3NumEdit.h"
 				>
 			</File>
 			<File
