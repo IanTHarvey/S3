@@ -28,6 +28,8 @@ char	TxBuf[S3_MAX_GPIB_RET_LEN];
 
 extern pS3DataModel S3Data;
 
+int S3IsValidIPV4(const char *ip, wchar_t *clean_addr);
+
 // Temporary
 extern "C" {
 	int S3GetPrimaryMACaddress();
@@ -587,15 +589,14 @@ const char *S3GetWSAErrString()
 
 // ----------------------------------------------------------------------------
 
-int isIp_v4(const char *ip);
-
 bool S3ValidateIPAddress(const wchar_t *addr)
 {
 	char c_addr[S3_MAX_IP_ADDRESS_LEN];
+	wchar_t c_clean_addr[S3_MAX_IP_ADDRESS_LEN];
 
 	sprintf_s(c_addr, S3_MAX_IP_ADDRESS_LEN, "%S", addr);
 
-	if (!isIp_v4(c_addr))
+	if (!S3IsValidIPV4(c_addr, c_clean_addr))
 		return false;
 
 	unsigned long ulAddr = inet_addr(c_addr);
@@ -604,9 +605,9 @@ bool S3ValidateIPAddress(const wchar_t *addr)
 		return false;
 
 	struct sockaddr sockaddr_ipv4;
-	int	len = sizeof(sockaddr_ipv4);
+	int	sizeaddr = sizeof(sockaddr_ipv4);
 
-	if (WSAStringToAddress((wchar_t *)addr, AF_INET, NULL, &sockaddr_ipv4, &len))
+	if (WSAStringToAddress((wchar_t *)addr, AF_INET, NULL, &sockaddr_ipv4, &sizeaddr))
 		return false;
 
 	return true;
@@ -686,9 +687,10 @@ int S3ReadEthConfig()
 // ----------------------------------------------------------------------------
 // Checks for 4 numeric fields separated by '.'s
 
-int isIp_v4(const char *c_addr)
+int S3IsValidIPV4(const char *c_addr, wchar_t *clean_addr)
 {
 	char	ip[S3_MAX_IP_ADDRESS_LEN];
+	wchar_t	tmp_addr[S3_MAX_IP_ADDRESS_LEN];
 
 	strcpy_s(ip, S3_MAX_IP_ADDRESS_LEN, c_addr);
 
@@ -698,7 +700,13 @@ int isIp_v4(const char *c_addr)
 	char	*context;
 	char	*p = strtok_s(ip, ".", &context);
 
-	while (p && flag )
+	if (clean_addr)
+	{
+		*clean_addr = '\0';
+		*tmp_addr = '\0';
+	}
+
+	while(p && flag)
 	{
 		num = atoi(p);
 
@@ -707,10 +715,23 @@ int isIp_v4(const char *c_addr)
 			flag = 1;
 			p = strtok_s(NULL, ".", &context);
 
-			if (p && (strlen(p) < 1 || strlen(p) > 3))
+			if (p)
 			{
-				flag = 0;
-				break;
+				if (strlen(p) < 1 || strlen(p) > 3)
+				{
+					flag = 0;
+					break;
+				}
+			}
+
+			if (clean_addr)
+			{
+				if (*clean_addr != '\0')
+					swprintf_s(tmp_addr, _T("%s.%d"), clean_addr, num);
+				else
+					swprintf_s(tmp_addr, _T("%d"), num);
+				
+				wcscpy_s(clean_addr, S3_MAX_IP_ADDRESS_LEN, tmp_addr);
 			}
 		}
 		else
