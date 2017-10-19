@@ -68,10 +68,27 @@ void CS3NumEdit::OnEnSetFocus()
 
 void CS3NumEdit::OnEnUpdate()
 {
+	// Filter out all except '0' - '9' & '.'
+	int cs, ce;
+	CString	txt;
+
+	GetWindowText(txt);
+	GetSel(cs, ce);
+
+	if (cs == ce && cs > 0)
+	{
+		TCHAR NewChar = txt[cs - 1];
+		if ((NewChar < '0' || NewChar > '9') && NewChar != '.')
+		{
+			CString txt2 = txt.Left(cs - 1) + txt.Right(txt.GetLength() - cs);
+			SetWindowText(txt2);
+			SetSel(cs - 1, ce - 1);
+			return;
+		}
+	}
+	
 	if (!m_UpdateImmediate)
 		return;
-
-	CString txt;
 
 	GetWindowText(txt);
 
