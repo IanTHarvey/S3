@@ -17,7 +17,7 @@ public:
 	CS3NameValue(	int xref, int yref,
 					int xright,		// Right justification position
 					CString lbl,	// Left-hand label
-					CString val,	// String representing the longest reasonable input
+					CString val,	// String hinting at the longest reasonable input
 					bool editable,	// Displays m_val bold if editable
 					char ID = -1);
 	

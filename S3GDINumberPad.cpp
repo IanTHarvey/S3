@@ -20,6 +20,7 @@
 
 extern COLORREF RGBw(BYTE r, BYTE g, BYTE b);
 
+// Vertices for <|X|
 POINT DeleteKey[9] = {
 	{11, 8},
 	{25, 8},
@@ -376,7 +377,6 @@ void CS3NumberPad::PopDown()
 	ShowWindow(SW_HIDE);
 }
 
-
 // ----------------------------------------------------------------------------
 
 char CS3NumberPad::Find(POINT pt)
@@ -388,13 +388,15 @@ char CS3NumberPad::Find(POINT pt)
 	{
 		int cs, ce;
 		CString	txt;
-		int	len;
+		int	len, sel_len;
 
 		m_Editor->GetWindowText(txt);
 		m_Editor->GetSel(cs, ce);
 
 		len = txt.GetLength();
-		bool CanInsert = (len < m_MaxChars);
+		sel_len = ce - cs;
+		bool CanInsert = (len < m_MaxChars) || sel_len;
+		// bool AllSel = (cs != ce) && (cs == 0) && (ce == len);
 
 		for(char j = 0; j < S3_NP_N_KEYS; j++)
 		{
@@ -402,52 +404,92 @@ char CS3NumberPad::Find(POINT pt)
 			{
 				if (j == S3_NP_LEFT_KEY)
 				{
-					if (cs > 0)
+					if (sel_len)
+					{
+						// Do nothing
+					}
+					else if (cs > 0)
 					{
 						cs--;
 					}
 				}
 				else if (j == S3_NP_RIGHT_KEY)
 				{
+					if (sel_len)
+					{
+						cs = ce;
+					}
+					else
+					{
 						cs++;
+					}
 				}
 				else if (j == S3_NP_DELETE_KEY)
 				{
-					if (cs > 0)
-					{
+					if (cs > 0 && !sel_len)
+					{	// Single character
 						txt.Delete(cs - 1);
 						cs--;
+					}
+					else
+					{	// Multiple character
+						txt.Delete(cs, sel_len);
+					}
+				}
+				else if (j == S3_NP_PLUS_MINUS_KEY)
+				{
+					if (!(S3_NP_POSITIVE & m_Constraints))
+					{
+						if (txt[0] == _T('+'))
+						{
+							txt.Delete(0, 1);
+							txt.Insert(0, _T('-'));
+							// cs = 1;
+						}
+						else if (txt[0] == _T('-'))
+						{
+							txt.Delete(0, 1);
+							txt.Insert(0, _T('+'));
+						}
+						else
+						{
+							if (len < m_MaxChars)
+								txt.Insert(0, _T('-'));
+						}
 					}
 				}
 				else if (CanInsert)
 				{
-					if (j == S3_NP_PLUS_MINUS_KEY)
+					if (j == S3_NP_ZERO_KEY)
 					{
-						if (!(S3_NP_POSITIVE & m_Constraints))
-						{
-							if (ce == cs && cs == 0)
-							{
-								txt.Insert(ce, _T('-'));
-								cs++;
-							}
-						}
-					}
-					else if (j == S3_NP_ZERO_KEY)
-					{
-						if (ce == cs)
+						if (!sel_len)
 						{
 							txt.Insert(ce, _T('0'));
 							cs++;
+						}
+						else
+						{
+							txt.Delete(cs, sel_len);
+							txt.Insert(cs, _T('0'));
+							// if (!AllSel)
+								cs++;
 						}
 					}
 					else if (j == S3_NP_DECIMAL_KEY)
 					{
 						if (!(S3_NP_INTEGER & m_Constraints))
 						{
-							if (ce == cs)
+							if (!sel_len)
 							{
 								txt.Insert(ce, _T('.'));
 								cs++;
+							}
+							else
+							{
+								txt.Delete(cs, sel_len);
+								txt.Insert(cs, _T('.'));
+								// if (!AllSel)
+									cs++;
 							}
 						}
 					}
@@ -455,10 +497,17 @@ char CS3NumberPad::Find(POINT pt)
 					{
 						TCHAR c = TCHAR(j + 0x30 + 1);
 
-						if (ce == cs)
+						if (!sel_len)
 						{
 							txt.Insert(ce, c);
 							cs++;
+						}
+						else
+						{
+							txt.Delete(cs, sel_len);
+							txt.Insert(cs, c);
+							// if (!AllSel)
+								cs++;
 						}
 					}
 				}

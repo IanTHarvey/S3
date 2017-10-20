@@ -37,10 +37,10 @@ class CS3NumberPad : public CEdit
 
 	COLORREF			m_clrText, m_clrBG;
 
-	bool				m_UpdateImmediate;
-	bool				m_UpdateLoseFocus;
+	bool				m_UpdateImmediate;	// Update-while-typing
+	bool				m_UpdateLoseFocus;	// Only when focus lost
 
-	bool				m_PoppedUp;
+	bool				m_PoppedUp;	// Current state
 	CRect				m_RectButtons[S3_NP_N_KEYS];	// [L->R; T->B][. 0 -]
 	CRect				m_RectPad;			// Background
 //	CRect				m_RectDisplay;		// On-pad display
