@@ -204,9 +204,6 @@ private:
 				m_RectFactoryRestart,
 				m_RectFactoryClose;
 	
-	//, m_RectFactoryInstr,
-	//		m_RectFactoryYes, m_RectFactoryNo;
-
 	CRect	m_RectCalibrate, m_RectSystem, m_RectTest, m_RectDemo;
 	CRect	m_RectFactoryMsg;
 
@@ -231,8 +228,6 @@ private:
 	int			m_RxSep;
 
 	// Rx main
-	// static const int		m_wRx = 61;
-	// static const int		m_hRx = 60;
 	int		m_wRx;
 	int		m_hRx;
 
@@ -606,7 +601,6 @@ protected:
 	HDC				m_hbmpFOL;
 	HDC				m_hbmpFOLDark;
 
-// TEST:
 	HDC				m_hbmpSysWarn;
 	HDC				m_hbmpSysError;
 	HDC				m_hbmpSysInfo;
@@ -698,6 +692,7 @@ protected:
 	CS3NameValue	*m_SettingsCfg;
 	CS3NameValue	*m_SettingsLog;
 
+	// Pop-up number editors to attach to CS3NameValue items
 	CS3NumEdit		*m_GDIIPAddrEdit;
 	CS3NumEdit		*m_GDIIPSubnetEdit;
 	CS3NumEdit		*m_GDIIPPortEdit;
@@ -708,7 +703,6 @@ protected:
 					*m_TxLaserPow, *m_TxTemp, *m_TxTempComp, *m_TxSN;
 	CS3NameValue	*m_TxPeakThresh; //, *m_TxPeakHold;
 	CS3NameValue	*m_TxBattT, *m_TxBattI;
-	// CS3NameValue	*m_TxBattPN, *m_TxBattHW, *m_TxBattFW;
 	
 	CS3NumEdit		*m_GDIGainEdit;
 	CS3NumEdit		*m_GDIMaxPowerEdit;
@@ -719,7 +713,7 @@ protected:
 	CS3NameValue	*m_RxType, *m_RxNodeName, *m_RxTemp, *m_RxVcc, *m_RxSN,
 					*m_RxPN, *m_RxFW, *m_RxFWDate; // *m_RxHW, *m_RxAGC, 
 
-	// Generic
+	// Text editors to attach to CS3NameValue items
 	CS3Edit			*m_GDINodeNameEdit;
 	CS3Edit			*m_GDIDateEdit;
 	CS3Edit			*m_GDITimeEdit;
