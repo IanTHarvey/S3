@@ -444,7 +444,6 @@ char CS3NumberPad::Find(POINT pt)
 						{
 							txt.Delete(0, 1);
 							txt.Insert(0, _T('-'));
-							// cs = 1;
 						}
 						else if (txt[0] == _T('-'))
 						{
@@ -471,8 +470,7 @@ char CS3NumberPad::Find(POINT pt)
 						{
 							txt.Delete(cs, sel_len);
 							txt.Insert(cs, _T('0'));
-							// if (!AllSel)
-								cs++;
+							cs++;
 						}
 					}
 					else if (j == S3_NP_DECIMAL_KEY)
@@ -488,8 +486,7 @@ char CS3NumberPad::Find(POINT pt)
 							{
 								txt.Delete(cs, sel_len);
 								txt.Insert(cs, _T('.'));
-								// if (!AllSel)
-									cs++;
+								cs++;
 							}
 						}
 					}
