@@ -509,7 +509,7 @@ int CS3USBVCP::EnumCOMPorts(bool test)
 {
 	INT		i = 0, iRet;
 	HKEY	hKey;
-	WCHAR	szName[128];
+	wchar_t	szName[128];
 	DWORD	dwType, dwSize;
 	CString	NewDeviceList[S3USB_MAX_DEVICES];
 	char	NewDevCnt;
@@ -609,7 +609,7 @@ int CS3USBVCP::EnumCOMPorts(bool test)
 {
 	INT		i = 0, iRet;
 	HKEY	hKey, hSubKey;
-	WCHAR	szName[128];
+	wchar_t	szName[128];
 	DWORD	dwType, dwSize;
 	CString	NewDeviceList[S3USB_MAX_DEVICES];
 	char	NewDevCnt;
