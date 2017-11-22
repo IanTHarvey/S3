@@ -326,8 +326,7 @@ int CS3GDIScreenMain::S3GDIChangeScreen(char screen)
 }
 
 // ----------------------------------------------------------------------------
-// Draw battery with continuous (1% interval) bar.
-
+// 
 void CS3GDIScreenMain::S3DrawGDIBattCharge(char Ch, int xref, int yref)
 {
 	// Draw with primitives
@@ -339,9 +338,9 @@ void CS3GDIScreenMain::S3DrawGDIBattCharge(char Ch, int xref, int yref)
 		SelectObject(m_HDC, m_hBrushWhite);
 
 	// Body & +ve button
-	Rectangle(m_HDC, xref, yref, xref + m_lChChBatt, yref + m_wChChBatt);
-	Rectangle(m_HDC, xref + m_lChChBatt - 1, yref + (int)(0.25 * m_wChChBatt),
-		xref + m_lChChBatt + m_lChChBattBtn, yref + (int)(0.75 * m_wChChBatt));
+	Rectangle(m_HDC, xref, yref, xref + m_lChBatt, yref + m_wChBatt);
+	Rectangle(m_HDC, xref + m_lChBatt - 1, yref + (int)(0.25 * m_wChBatt),
+		xref + m_lChBatt + m_lChBattBtn, yref + (int)(0.75 * m_wChBatt));
 
 	SelectObject(m_HDC, m_hFontS);
 	CString str;
@@ -354,30 +353,30 @@ void CS3GDIScreenMain::S3DrawGDIBattCharge(char Ch, int xref, int yref)
 	SelectObject(m_HDC, m_hPenNone);
 	SelectObject(m_HDC, m_hBrushLightGrey);
 
-	Rectangle(m_HDC, xref + 3, yref + 3, xref + m_lChChBatt - 2, yref + m_wChChBatt - 2);
+	Rectangle(m_HDC, xref + 3, yref + 3, xref + m_lChBatt - 2, yref + m_wChBatt - 2);
 
 	if (!S3ChBattValidated(Ch))
 	{
 		S3BLT(m_hbmpBattExclam,
-			xref + m_lChChBatt / 2 - 24, yref + m_wChChBatt / 2 - 24, 48, 48);
+			xref + m_lChBatt / 2 - 24, yref + m_wChBatt / 2 - 24, 48, 48);
 
 		return;
 	}
 	else if (ChLevel < 0) // Failed
 	{
-		S3BLT(m_hbmpBattFail, xref + m_lChChBatt / 2 - 10, yref + m_wChChBatt / 2 - 16, 14, 32);
+		S3BLT(m_hbmpBattFail, xref + m_lChBatt / 2 - 10, yref + m_wChBatt / 2 - 16, 14, 32);
 	}
 	else if (S3ChGetAlarms(Ch) & S3_CH_BATT_COLD)
 	{
 		S3BLT(m_hbmpTxTxBattCold,
-			xref + m_lChChBatt / 2 - 8 / 2, yref + m_wChChBatt / 2 - 28 / 2, 8, 28);
+			xref + m_lChBatt / 2 - 8 / 2, yref + m_wChBatt / 2 - 28 / 2, 8, 28);
 
 		return; // Suppress charge display below
 	}
 	else if (S3ChGetAlarms(Ch) & S3_CH_BATT_HOT)
 	{
 		S3BLT(m_hbmpTxTxBattHot,
-			xref + m_lChChBatt / 2 - 8 / 2, yref + m_wChChBatt / 2 - 28 / 2, 8, 28);
+			xref + m_lChBatt / 2 - 8 / 2, yref + m_wChBatt / 2 - 28 / 2, 8, 28);
 
 		return;
 	}
@@ -385,26 +384,26 @@ void CS3GDIScreenMain::S3DrawGDIBattCharge(char Ch, int xref, int yref)
 	{
 		unsigned char MeterBar;
 
-		MeterBar = (unsigned char)floor(((double)ChLevel * (m_lChChBatt - 5)) / 100.0);
+		MeterBar = (unsigned char)floor(((double)ChLevel * (m_lChBatt - 5)) / 100.0);
 
 		SelectObject(m_HDC, m_hLiveIPBrush);
 
 		Rectangle(m_HDC,	xref + 3, yref + 3,
-							xref + 3 + MeterBar, yref + m_wChChBatt - 2);
+							xref + 3 + MeterBar, yref + m_wChBatt - 2);
 
 		// if (!S3ChFullyCharged(Ch) && 
 		if (S3ChGetBattI(Ch) > 0)
 		{
-			S3BLT(m_hbmpChBattCharging,
-				xref + m_lChChBatt / 2 - 16, yref + m_wChChBatt / 2 - 24, 32, 48);
+			S3BLT(m_hbmpBattCharging,
+				xref + m_lChBatt / 2 - 16, yref + m_wChBatt / 2 - 16, 32, 32);
 		}
 	}
 
 	RECT fntRc;
-	fntRc.left = xref + m_lChChBatt / 5;
-	fntRc.top = yref + 6;
-	fntRc.right = xref + m_lChChBatt - m_lChChBatt / 5;
-	fntRc.bottom = yref + m_wChChBatt;
+	fntRc.left = xref + m_lChBatt / 5;
+	fntRc.top = yref + 2;
+	fntRc.right = xref + m_lChBatt - m_lChBatt / 5;
+	fntRc.bottom = yref + m_wChBatt;
 
 	if (ChLevel < 0)
 	{
@@ -415,7 +414,7 @@ void CS3GDIScreenMain::S3DrawGDIBattCharge(char Ch, int xref, int yref)
 	else if (m_Screen == S3_CH_SCREEN)
 	{
 		str.Format(_T("%d%c"), ChLevel, '%');
-		DrawText(m_HDC, str, -1, &fntRc, DT_CENTER);
+		DrawText(m_HDC, str, -1, &fntRc, DT_LEFT);
 	}
 
 }
@@ -471,7 +470,7 @@ void CS3GDIScreenMain::S3DrawGDIBattChargers(void)
 }
 
 // ----------------------------------------------------------------------------
-// Draw battery with blocky (20% interval) bar.
+
 void CS3GDIScreenMain::S3DrawGDIBattChargeSeg(char Ch, int xref, int yref)
 {
 	// Draw with primitives

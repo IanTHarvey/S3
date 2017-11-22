@@ -325,7 +325,6 @@ void CS3GDIScreenMain::S3GDIInit()
 	m_hbmpSysInfo =				CreateBitmap(hh, IDB_SYS_INFO_BITMAP);
 
 	m_hbmpBattCharging =		CreateBitmap(hh, IDB_CHARGING_BITMAP);
-	m_hbmpChBattCharging =		CreateBitmap(hh, IDB_CHCHARGING_BITMAP);
 	m_hbmpBattExclam =			CreateBitmap(hh, IDB_CH_BATT_EXCLAM_BITMAP);
 	m_hbmpBattFail =			CreateBitmap(hh, IDB_CH_BATT_FAIL_BITMAP);
 	m_hbmpTxSelBattInvalid =	CreateBitmap(hh, IDB_TX_SEL_BATT_INVALID_BITMAP);
