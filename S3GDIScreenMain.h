@@ -264,10 +264,15 @@ private:
 	static const int		m_shutdown_xref = m_settings_xref + 70;
 	static const int		m_shutdown_yref = 0;
 
-	// Charger batteries
+	// Charger batteries on overview screen
 	static const int		m_lChBatt = 60;
 	static const int		m_wChBatt = 25;
 	static const int		m_lChBattBtn = 5;
+
+	// Charger batteries on charger screen
+	static const int		m_lChChBatt = 90;
+	static const int		m_wChChBatt = 35;
+	static const int		m_lChChBattBtn = 8;
 
 	// Tx selected
 	static const int		m_radTxSel = 30;
@@ -585,6 +590,7 @@ protected:
 	HDC				CreateBitmap(HDC ParentDC, const int &nBitmapID);
 
 	// Charger
+	HDC				m_hbmpChBattCharging;
 	HDC				m_hbmpBattCharging;
 	HDC				m_hbmpBattExclam;
 	HDC				m_hbmpBattFail;
