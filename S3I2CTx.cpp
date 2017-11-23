@@ -33,7 +33,7 @@ extern int S3I2CTxSelfTest2(	char Rx, char Tx);
 int S3I2CTxGetRFCalGain(		char Rx, char Tx);
 int S3I2CTxWriteFactoryCal(		char Rx, char Tx); // short *CalPath);
 
-int S3I2CTxDisablePeakDet(		char Rx, char Tx);
+// int S3I2CTxDisablePeakDet(		char Rx, char Tx);
 int S3I2CTxDisableRFLevelAlarm(	char Rx, char Tx);
 extern int S3I2CTxOptAlarmMask();
 
@@ -472,6 +472,7 @@ int S3I2CTxUpdateTempPath(char Rx, char Tx)
 // Set peak threshold according to path, on path change.
 // Password required.
 
+/*
 int S3I2CTxSetPeakThreshOld(char Rx, char Tx, char path)
 {
 	int err = S3I2CWriteSerialShort(S3I2C_TX_OPT_ADDR,
@@ -479,6 +480,7 @@ int S3I2CTxSetPeakThreshOld(char Rx, char Tx, char path)
 
 	return err;
 }
+*/
 
 // ----------------------------------------------------------------------------
 
@@ -509,39 +511,34 @@ int S3I2CTxSetPeakThresh(char Rx, char Tx, char path)
 }
 
 // ----------------------------------------------------------------------------
-
+/*
 int S3I2CTxFixBias(char Rx, char Tx)
 {
 	int	err;
 	
 	err = S3I2CTxOptSetPassword("D200");
 
-	/*
-	int err = S3I2CWriteSerialShort(S3I2C_TX_OPT_ADDR,
-				S3I2C_TX_OPT_BIAS_H, -10536);
+	//int err = S3I2CWriteSerialShort(S3I2C_TX_OPT_ADDR,
+	//			S3I2C_TX_OPT_BIAS_H, -10536);
 
-	Sleep(500);
+	//Sleep(500);
 
-	err = S3I2CWriteSerialShort(S3I2C_TX_OPT_ADDR,
-				S3I2C_TX_OPT_BIAS_H + 2, 5500);
+	//err = S3I2CWriteSerialShort(S3I2C_TX_OPT_ADDR,
+	//			S3I2C_TX_OPT_BIAS_H + 2, 5500);
 
-	Sleep(500);
-	*/
+	//Sleep(500);
 
 	err = S3I2CWriteSerialShort(S3I2C_TX_OPT_ADDR,
 				0xA0, 15000);
 
 	Sleep(500);
 
-	
-	/*
-	short h, l;
-	err = S3I2CReadSerialShort(S3I2C_TX_OPT_ADDR,
-				S3I2C_TX_OPT_BIAS_H, &h);
+	//short h, l;
+	//err = S3I2CReadSerialShort(S3I2C_TX_OPT_ADDR,
+	//			S3I2C_TX_OPT_BIAS_H, &h);
 
-	err = S3I2CReadSerialShort(S3I2C_TX_OPT_ADDR,
-				S3I2C_TX_OPT_BIAS_H + 2, &l);
-	*/
+	//err = S3I2CReadSerialShort(S3I2C_TX_OPT_ADDR,
+	//			S3I2C_TX_OPT_BIAS_H + 2, &l);
 
 	short b;
 
@@ -550,6 +547,7 @@ int S3I2CTxFixBias(char Rx, char Tx)
 
 	return err;
 }
+*/
 
 int S3I2CTxFixTau(char Rx, char Tx)
 {
@@ -930,8 +928,8 @@ int S3I2CTxGetStatus(char Rx, char Tx)
 	else
 		S3TxCancelAlarm(Rx, Tx, S3_TX_COMM_FAIL);
 
-	// TODO: Is this redundant?
-	S3I2CTxSetOptCtrlBits(Rx, Tx);
+	// TODO: Is this redundant? Yes
+	// S3I2CTxSetOptCtrlBits(Rx, Tx);
 
 	// Catch-all for Kludge above
 	S3TxCancelAlarm(Rx, Tx, S3_TX_INIT_FAIL);
