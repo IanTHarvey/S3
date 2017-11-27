@@ -80,6 +80,7 @@
 #define IDB_SYS_INFO_BITMAP             252
 #define IDB_GREY_BUTTON_BITMAP          254
 #define IDB_RED_BUTTON_BITMAP           255
+#define IDB_CHCHARGING_BITMAP           256
 #define IDC_TEST_BUTTON                 1010
 #define IDC_GDI_STATIC                  1546
 #define S3GDI_TEXT_EDIT                 1627
