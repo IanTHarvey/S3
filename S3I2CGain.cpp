@@ -318,18 +318,18 @@ int S3I2CSetIPGain(char Rx, char Tx, char IP)
 		else
 			Paras = S3GetGainParas_dB(Gain);
 
-		char Atten = 0;
+		char RFAtten = 0;
 
 		if (S3I2CCurPath >= 3 && S3I2CCurPath <= 6)
 		{
-			Atten = Paras[TX_RF1_PAD1] + Paras[TX_RF1_PAD2];
+			RFAtten = Paras[TX_RF1_PAD1] + Paras[TX_RF1_PAD2];
 		}
 		else if (S3I2CCurPath == 1)
 		{
-			Atten = Paras[TX_RF1_DSA];
+			RFAtten = Paras[TX_RF1_DSA];
 		}
 		else if (S3I2CCurPath == 7 || S3I2CCurPath == 2)
-			Atten = 0;	// Not used
+			RFAtten = 0;	// Not used
 		else
 			return 1;	// Trouble
 
@@ -373,7 +373,7 @@ int S3I2CSetIPGain(char Rx, char Tx, char IP)
 		if (S3I2CSetTxOptDSA(Rx, Tx, IP, Paras[TX_OPT_DSA]))
 			return 5;
 
-		if (S3I2CSetRFAtten(Atten, Rx, Tx))
+		if (S3I2CSetRFAtten(RFAtten, Rx, Tx))
 			return 3;
 
 		// *Presumed* successful as no read-back
