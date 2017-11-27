@@ -49,9 +49,9 @@ void CParameterMenu::Adjust()
 		}
 	}
 
-	if (rect.bottom > rectscreen.bottom)
+	if (rect.bottom > rectscreen.bottom - PM_BOTTOM_CLEARANCE)
 	{
-		int shift = rectscreen.bottom - rect.bottom;
+		int shift = rectscreen.bottom - PM_BOTTOM_CLEARANCE - rect.bottom;
 		rect.OffsetRect(0, shift);
 
 		for(char i = 0; i < NumItems; i++)

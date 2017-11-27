@@ -9,6 +9,7 @@
 
 #define PM_MARGIN			8
 #define PM_BOTTOM_MARGIN	10
+#define PM_BOTTOM_CLEARANCE	10	// Bottom margin of pop-up menu at bottom of screen
 
 class CParameterMenu
 {
