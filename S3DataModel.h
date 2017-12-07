@@ -225,8 +225,10 @@ typedef enum SigmaT				{TauNone, TauLo, TauMd, TauHi, TauUnknown};
 #define	S3_MIN_GAIN				-78
 #define	S3_MAX_GAIN				40
 #define S3_DEFAULT_GAIN			0
-#define S3_ATTEN_GAIN_OFFSET	6	// Available on some Txs where gain
-									// is available on attenuation paths.
+
+// Available on some Txs where gain is available on attenuation paths.
+// #define S3_ATTEN_GAIN_OFFSET	6	
+#define S3_ATTEN_GAIN_OFFSET	0	// Requires further work
 
 #define CONFIG(A, B)			(A->m_Config.B)
 
