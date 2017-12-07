@@ -181,7 +181,7 @@ int S3DataModelInit(pS3DataModel dm, bool DemoMode)
 	dm->m_FileVersion = S3_FILE_VERSION;
 
 	dm->m_ContTComp = S3_TCOMP_CONT; // Continuous by default
-	dm->m_AGC = S3_AGC_CONT;
+	dm->m_AGC = S3_AGC_GAIN;
 	dm->m_TxStartState = S3_TXSTART_SLEEP;
 
 	dm->m_TCompGainOption = true;
