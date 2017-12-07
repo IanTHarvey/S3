@@ -18,7 +18,7 @@ class CS3ControllerDlg;
 //	0xBE-C1:	Gain compensation temp and slope
 #define S3I2C_TX_OPT_TCOMP_T	0xBE	// 2B Gain compensation temp
 #define S3I2C_TX_OPT_TCOMP_M	0xC0	// 2B Gain compensation slope
-#define S3I2C_TX_OPT_TCOMP_ON	0xCC	// bit2 gain switch
+#define S3I2C_TX_OPT_TCOMP_ON	0xCC	// bit2 Gain compensation switch
 
 #define S3I2C_RX_OPT_ADDR		0xA4
 #define S3I2C_RX_OPT_DSA		0xA4	// + A5
@@ -35,8 +35,8 @@ class CS3ControllerDlg;
 #define S3I2C_TX_OPT_THRESH		0x70	// 32B
 #define S3I2C_TX_OPT_MON		0xD0	// 66B
 #define S3I2C_TX_OPT_ALARM		0xFA	// 66B
-#define S3I2C_TX_OPT_PEAK_H		0x88	// 2B
-#define S3I2C_TX_OPT_PEAK_L		0x8A	// 2B
+// #define S3I2C_TX_OPT_PEAK_H		0x88	// 2B
+// #define S3I2C_TX_OPT_PEAK_L		0x8A	// 2B
 #define S3I2C_TX_OPT_RF_H		0x7C	// 2B
 #define S3I2C_TX_OPT_RF_L		0x7E	// 2B
 #define S3I2C_TX_OPT_BIAS_H		0x74	// 2B

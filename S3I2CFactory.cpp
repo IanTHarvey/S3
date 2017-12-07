@@ -297,6 +297,7 @@ int S3I2CTxWriteOptCalValue(double dcal)
 // ----------------------------------------------------------------------------
 // Password required
 
+/*
 int S3I2CTxDisablePeakDet(char Rx, char Tx)
 {
 	// Set to 327dBm
@@ -305,6 +306,7 @@ int S3I2CTxDisablePeakDet(char Rx, char Tx)
 
 	return err;
 }
+*/
 
 // ----------------------------------------------------------------------------
 // Password not required
