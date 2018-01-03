@@ -73,7 +73,7 @@ int S3I2CRxGetStatus(char Rx)
 	unsigned char	wbuf;
 	int				err;
 
-	// Get RX-CTRL alarms
+	// Get 3x RX-CTRL alarms
 	wbuf = S3I2C_RX_CTRL_ALARMS;
 	ok = I2C_WriteRead(S3I2C_RX_CTRL_ADDR, &wbuf, 1, S3I2CRxReadBuf, 3);
 
