@@ -16,7 +16,7 @@
 // 1.03.003 Ignore TxOpt 0xCC:0 triggered by peak detection which is not sorted.
 //			Also, correcting it caused failure to trac certain gain changes.
 
-#define S3_SYS_SW			"1.03r003"
+#define S3_SYS_SW			"1.03r004"
 
 #define S3_SYS_MODEL		"Sentinel 3"
 
