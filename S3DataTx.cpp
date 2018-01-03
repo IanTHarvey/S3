@@ -1835,10 +1835,10 @@ short S3TxGetPeakPulse()
 
 // ----------------------------------------------------------------------------
 // TODO: This change backed out as actual gain setting not implemented
-// correctly.
+// correctly. WIP: 03/11/17
 char S3TxGetAttenGainOffset(char Rx, char Tx)
 {
-	return 0; // S3Data->m_Rx[Rx].m_Tx[Tx].m_AttenGainOffset;
+	return S3Data->m_Rx[Rx].m_Tx[Tx].m_AttenGainOffset;
 }
 
 // ----------------------------------------------------------------------------
