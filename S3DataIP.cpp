@@ -675,7 +675,9 @@ int S3IPSetSigmaTau(char Rx, char Tx, char IP, SigmaT Tau)
 		if (PrevTau == TauNone)
 			S3IPSetPrevZ(Rx, Tx, IP, S3IPGetImpedance(Rx, Tx, IP));
 		
-		S3IPSetImpedance(Rx, Tx, IP, W1M);
+		S3Data->m_Rx[Rx].m_Tx[Tx].m_Input[IP].m_Config.m_InputZ = W50;
+		
+		// S3IPSetImpedance(Rx, Tx, IP, W50);
 
 		S3IPSetLowNoiseMode(Rx, Tx, IP, false);
 	}
@@ -979,7 +981,7 @@ int S3IPSetImpedance(char Rx, char Tx, char IP, InputZ z)
 
 	S3Data->m_Rx[Rx].m_Tx[Tx].m_Input[IP].m_Config.m_InputZ = z;
 	
-	if (z == W50)
+	if (z == W1M)
 		S3IPSetSigmaTau(Rx, Tx, IP, TauNone);
 	else
 		S3IPSetLowNoiseMode(Rx, Tx, IP, false);
