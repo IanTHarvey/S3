@@ -409,6 +409,13 @@ int S3SysRead(FILE *fid, pS3DataModel pSys)
 	{
 		fread(&pSys->m_TxStartState, sizeof(unsigned char), 1, fid);
 		fread(&pSys->m_AGC, sizeof(unsigned char), 1, fid);
+
+		if (pSys->m_AGC >= S3_PENDING)
+			pSys->m_AGC -= S3_PENDING;
+		
+		for (char Rx = 0; Rx < S3_MAX_RXS; Rx++)
+			for (char Tx = 0; Tx < 2; Tx++)
+				pSys->m_Rx[Rx].m_AGC[Tx] = pSys->m_AGC + S3_PENDING;
 	}
 
 	if (LATER_VERSION(readModel.m_FileVersion, 1.8))

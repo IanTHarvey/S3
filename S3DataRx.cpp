@@ -48,8 +48,8 @@ int S3RxInit(pS3RxData node)
 		node->m_TxAlarms[i] = 0;
 	}
 
-	node->m_AGC[0] = S3_AGC_CONT;
-	node->m_AGC[1] = S3_AGC_CONT;
+	node->m_AGC[0] = S3_AGC_GAIN;
+	node->m_AGC[1] = S3_AGC_GAIN;
 
 	node->m_Vcc = 0;
 

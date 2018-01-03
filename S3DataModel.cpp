@@ -1783,8 +1783,7 @@ int S3SetAGC(unsigned char AGC)
 	else
 		S3Data->m_AGC = AGC;
 
-	// Backwards compatibility only
-	// OBSOLETE
+	// Need to flag individual Rx AGC settings as pending
 	for(char Rx = 0; Rx < S3_MAX_RXS; Rx++)
 	{
 		S3RxSetAGC(Rx, 0, AGC);
