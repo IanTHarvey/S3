@@ -92,6 +92,7 @@
 #define IDB_SYS_INFO_BITMAP             260
 #define IDB_GREY_BUTTON_BITMAP          261
 #define IDB_RED_BUTTON_BITMAP           262
+#define IDB_CHCHARGING_BITMAP           263
 #define IDC_SEND_BUTTON                 1000
 #define IDC_MAN_CMD_EDIT                1001
 #define IDC_IPV4_PORT_EDIT              1002
