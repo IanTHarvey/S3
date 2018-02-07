@@ -302,15 +302,16 @@ int CmdGetRXMod(char *Inbuf, int Rx)
         sprintf_s(Inbuf, S3_MAX_GPIB_RET_LEN,
             " %i\037 %i\037 %s\037 %i\037 %i\037 %i\037"
             " %s\037 %s\037 %s\037 %s\037 %s\037"
-            " %i\037 %i\037 %i\037 %i\037 %i\037 %i\037"
-            " %i\037 %i\037 %i\037 %i\037 %i\037 %i\037"
-            " %i\037 %i\037 %i\037 %i\037 %i\037 %i\037"
+            " %i\037 %i\037 %i\037 %i\037 %i\037 %i\037"		// RLL
+            " %i\037 %i\037 %i\037 %i\037 %i\037 %i\037"		// RFGain
+            " %i\037 %i\037 %i\037 %i\037 %i\037 %i\037"		// Link gain
             " %i\037 %i\037 %i\037 %i\037 %i\037 %i\037 %i\037 %i\037 %i\037"
             " %i\037 %f\037 %i\037 %i\037 %i\037 %i\037"
 			" %i\037 %i\037 %i\037"								// RxCtrl alarms
             " %i\037 %i\037 %i\037 %i\037 %i\037 %i\037"		// Tx alarms
             " %i\037 %i\037 %i\037 %i\037 %i\037 %s\037"
-            " %i\037 %i\037 %i\037 %i\037 %i\037 %i",
+            " %i\037 %i\037 %i\037 %i\037 %i\037 %i"
+			" %i\037",											// Extra gain,
             S3Data->m_Rx[Rx].m_Type,
             S3Data->m_Rx[Rx].m_Detected,
             S3Data->m_Rx[Rx].m_NodeName,
@@ -371,7 +372,9 @@ int CmdGetRXMod(char *Inbuf, int Rx)
             S3Data->m_Rx[Rx].m_RFLevel[2],
             S3Data->m_Rx[Rx].m_RFLevel[3],
             S3Data->m_Rx[Rx].m_RFLevel[4],
-            S3Data->m_Rx[Rx].m_RFLevel[5]);  
+            S3Data->m_Rx[Rx].m_RFLevel[5],
+
+			S3Data->m_Rx[Rx].m_ExtraGainCap);
     }
     else
     {

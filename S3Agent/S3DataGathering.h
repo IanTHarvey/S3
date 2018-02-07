@@ -146,6 +146,7 @@ UINT AutoUpdateSentinelDataBundleThread(LPVOID pParam);
 #define RXFMAX 33
 #define RXFWDATE 34
 #define RXRFLEVEL 35
+#define RXEXTRAGAINCAP 36
 
 //Parameter order for the S3GETTXMOD reply
 #define TXTYPE 0

@@ -1128,8 +1128,14 @@ void DecodeRxModuleDetails(CString Response, int Rx)
                 }
             }
             break;
-           
+		case RXEXTRAGAINCAP:
+			{
+	            short gain = _ttoi(Line);
+                S3Data->m_Rx[Rx].m_ExtraGainCap = (char)gain;
+			}
+		   break;
         }
+
         Line = Response.Tokenize(_T(DATA_ITEM_SEPARATOR), MessageTokenPos);
         ParamIndex++;
     }
@@ -1238,7 +1244,7 @@ void DecodeTxModuleDetails(CString Response, int Rx, int Tx)
             break;
         case TXBATTTEMP:
             {
-                char temp = _ttoi(Line);
+                short temp = _ttoi(Line);
                 S3Data->m_Rx[Rx].m_Tx[Tx].m_BattTemp = temp;
             }
             break;
