@@ -69,6 +69,7 @@ void CS3FactorySetUp::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_PEAK_THR_EDIT, m_PeakThrEdit);
 	DDX_Control(pDX, IDC_PEAK_THR_BUTTON, m_PeakThrSetButton);
 	DDX_Control(pDX, IDC_SELF_TEST_BUTTON, m_TxSelfTestButton);
+	DDX_Control(pDX, IDC_TX8_SOAK_TEST_BUTTON, m_Tx8SoakTestButton);
 	DDX_Control(pDX, IDC_DUMP_DIAG_BUTTON, m_DumpDiagsButton);
 }
 
@@ -89,6 +90,7 @@ BEGIN_MESSAGE_MAP(CS3FactorySetUp, CDialog)
 	ON_BN_CLICKED(IDC_SELF_TEST_BUTTON, &CS3FactorySetUp::OnBnClickedSelfTestButton)
 	ON_BN_CLICKED(IDC_PEAK_THR_BUTTON, &CS3FactorySetUp::OnBnClickedPeakThrButton)
 	ON_CBN_DROPDOWN(IDC_RX_COMBO, &CS3FactorySetUp::OnCbnDropdownRxCombo)
+	ON_BN_CLICKED(IDC_TX8_SOAK_TEST_BUTTON, &CS3FactorySetUp::OnBnClickedTx8SoakTestButton)
 END_MESSAGE_MAP()
 
 // ----------------------------------------------------------------------------
@@ -274,6 +276,7 @@ void CS3FactorySetUp::Enable(BOOL enable)
 			m_TxOptCalEdit.EnableWindow(FALSE);
 
 			m_TxSelfTestButton.EnableWindow(FALSE);
+			m_Tx8SoakTestButton.EnableWindow(FALSE);
 			m_PeakThrEdit.EnableWindow(FALSE);
 			m_PeakThrSetButton.EnableWindow(FALSE);
 		}
@@ -289,12 +292,14 @@ void CS3FactorySetUp::Enable(BOOL enable)
 			if (S3TxGetPowerStat(m_Rx, m_Tx) == S3_TX_ON)
 			{
 				m_TxSelfTestButton.EnableWindow(TRUE);
+				m_Tx8SoakTestButton.EnableWindow(TRUE);
 				m_TxOptCalSetButton.EnableWindow(TRUE);
 				m_TxOptCalEdit.EnableWindow(TRUE);
 			}
 			else
 			{
 				m_TxSelfTestButton.EnableWindow(FALSE);
+				m_Tx8SoakTestButton.EnableWindow(FALSE);
 				m_TxOptCalSetButton.EnableWindow(FALSE);
 				m_TxOptCalEdit.EnableWindow(FALSE);
 			}
@@ -520,7 +525,7 @@ void CS3FactorySetUp::OnBnClickedRx1CalSetButton()
 	}
 	else
 	{
-		int err = S3I2CRxSetCalibration(m_Rx, -1, CalVal);
+		int err = S3I2CRxSetCalibration(m_Rx, m_Tx, CalVal);
 
 		if (err == -1)
 		{
@@ -543,7 +548,7 @@ void CS3FactorySetUp::OnBnClickedRx1CalSetButton()
 
 	CString tmp;
 	
-	tmp.Format(_T("%.2f"), (double)S3RxGetCalGain(0, 0) / 100.0);
+	tmp.Format(_T("%.2f"), (double)S3RxGetCalGain(m_Rx, m_Tx) / 100.0);
 	m_Rx1CalEdit.SetWindowText(tmp);
 }
 
@@ -802,8 +807,8 @@ void CS3FactorySetUp::OnBnClickedSelfTestButton()
 	char Rx = 0, Tx = 0;
 	short v1, v2;
 
-	S3TxSetSelfTestPending(Rx, Tx, true);
-	int err = S3I2CTxSelfTest(&v1, &v2, Rx, Tx);
+	S3TxSetSelfTestPending(m_Rx, m_Tx, true);
+	int err = S3I2CTxSelfTest(&v1, &v2, m_Rx, m_Tx);
 
 	tmp.Format(_T("SelfTest: %d %d; Err: %d"), v1, v2, err);
 	m_StatusMsgStatic.SetWindowText(tmp);
@@ -838,6 +843,57 @@ void CS3FactorySetUp::OnCbnDropdownRxCombo()
 {
 	// In factory mode, so won't pick up any changes (Rx insert/remove)
 	// UpdateRxTxCombos();
+}
+
+extern int S3I2CTx8SelfTest(short *v1, short *v2, char Rx, char Tx);
+extern int S3I2CTx8SoakTest(FILE *fid, short *v1, short *v2, char Rx, char Tx);
+
+// ----------------------------------------------------------------------------
+
+void CS3FactorySetUp::OnBnClickedTx8SoakTestButton()
+{
+	if (m_Rx < 0 || m_Tx < 0)
+		return;
+
+	FILE *fd;
+	
+	errno_t ferr = fopen_s(&fd, "\\Flashdisk\\Tx8SoakLog.txt", "w");
+
+	CString tmp;
+
+	if (ferr)
+	{
+		tmp.Format(_T("Tx8SoakTest: File fail"));
+		m_StatusMsgStatic.SetWindowText(tmp);
+		m_StatusMsgStatic.Invalidate();
+		m_StatusMsgStatic.UpdateWindow();
+		return;
+	}
+
+	tmp.Format(_T("Tx8SoakTest:"));
+	m_StatusMsgStatic.SetWindowText(tmp);
+	m_StatusMsgStatic.Invalidate();
+	m_StatusMsgStatic.UpdateWindow();
+
+	short v1, v2;
+
+	int err = 0;
+	int cnt = 0;
+	
+	while(!err)
+	{
+		fprintf(fd, "-------------- %04d ---------------\n", cnt++);
+
+		err = S3I2CTx8SoakTest(fd, &v1, &v2, m_Rx, m_Tx);
+	}
+
+	if (err)
+		fprintf(fd, "Finished with err: %d\n", err);
+
+	fclose(fd);
+
+	tmp.Format(_T("SelfTest: %d %d; Err: %d"), v1, v2, err);
+	m_StatusMsgStatic.SetWindowText(tmp);
 }
 
 // ----------------------------------------------------------------------------

@@ -68,6 +68,7 @@ public:
 	CButton m_TxOptCalSetButton;
 	
 	CButton m_TxSelfTestButton;
+	CButton m_Tx8SoakTestButton;
 	CButton m_PeakThrSetButton;
 	CStatic m_PeakThrStatic;
 	CEdit m_PeakThrEdit;
@@ -92,6 +93,7 @@ public:
 	afx_msg void OnBnClickedFactTestButton();
 	CButton m_DumpDiagsButton;
 	afx_msg void OnCbnDropdownRxCombo();
+	afx_msg void OnBnClickedTx8SoakTestButton();
 };
 
 

@@ -341,8 +341,14 @@ ENDTEST:
 
 int S3I2CTx8SelfTest(short *v1, short *v2, char Rx, char Tx)
 {
+	if (Rx < 0 || Tx < 0)
+		return 0;
+
 	int		err = 0;
 	char	IP = 0;
+
+	*v1 = *v2 = 0;
+
 #ifdef TRIZEPS
 
 	short	RFLevel1 = 0;
@@ -633,4 +639,118 @@ int S3I2CTxSelfTest2(char Rx, char Tx)
 }
 
 // ----------------------------------------------------------------------------
-// Dev only
+
+int S3I2CTx8SoakTest(FILE *fid, short *v1, short *v2, char Rx, char Tx)
+{
+	if (Rx < 0 || Tx < 0)
+		return 0;
+
+	int		err = 0;
+	char	IP = 0;
+
+	*v1 = *v2 = 0;
+
+	// Max out Tx DSA
+	if (1)
+	{
+		short TxCal = S3TxGetCalOpt(Rx, Tx);
+
+		err = S3I2CWriteSerialShort(S3I2C_TX_OPT_ADDR, S3I2C_TX_OPT_DSA, TxCal);
+		if (err)
+			{ err = 1;  goto ENDTEST; }
+	}
+
+#ifdef TRIZEPS
+
+	short	RFLevel1 = 0;
+	short	RFLevelBG = 0;
+
+	S3TxSetTestToneEnableAll(Rx, Tx, 1);
+	S3TxSetTestToneEnableAll(Rx, Tx, 1);
+
+	// ------------------------------------------------------------------------
+	//  Path 1
+
+	if (set_RF_inp_board(1, 0, Rx, Tx))
+		{ err = 11;  goto ENDTEST; }
+
+	Sleep(400);
+
+	char randIP[8];
+
+	for(char i = 0; i < 8; i++)
+		randIP[i] = i;
+
+	for(int i = 0; i < 8; i++)
+	{
+		char s1 = (char)(8.0 * (double)rand() / RAND_MAX);
+		char s2 = (char)(8.0 * (double)rand() / RAND_MAX);
+		char tmp = randIP[s1];
+		randIP[s1] = randIP[s2];
+		randIP[s2] = tmp;
+	}
+
+	for(char IP = 0; IP < S3TxGetNIP(Rx, Tx); IP++)
+	{
+		S3TxSetActiveIP(Rx, Tx, randIP[IP]);
+		S3TxSetActiveIP(Rx, Tx, randIP[IP]);
+
+		S3TxSetTestToneEnableAll(Rx, Tx, 1);
+
+		// Test all Tx8 input select relays
+		// if (IP)
+			if (err = select_RF_input((unsigned char)S3Tx8IPMap[randIP[IP]], true))
+				{ err = 13;  goto ENDTEST; }
+
+		if (S3I2CSwitchTestTone(false))
+			{ err = 15;  goto ENDTEST; }
+
+		Sleep(1000);
+		S3Redraw();
+
+		if (!S3I2CReadSerialShort(S3I2C_TX_OPT_ADDR, S3I2C_TX_OPT_RF_MON, &RFLevelBG))
+		{
+			*v1 = RFLevelBG;
+		}
+		else
+			{ err = 14;  goto ENDTEST; }
+
+		if (RFLevelBG > 0)
+			{ err = 50; goto ENDTEST; }
+
+		if (S3I2CSwitchTestTone(true))
+			{ err = 15;  goto ENDTEST; }
+
+		Sleep(1000);
+		S3Redraw();
+
+		if (!S3I2CReadSerialShort(S3I2C_TX_OPT_ADDR, S3I2C_TX_OPT_RF_MON, &RFLevel1))
+		{
+			*v2 = RFLevel1;
+
+			if (RFLevel1 - RFLevelBG < 3000)
+			{ err = 200; goto ENDTEST; }
+			
+		}
+		else
+			{ err = 14;  goto ENDTEST; }
+
+		fprintf(fid, "%d: %8d%8d; d = %8d\n",
+			randIP[IP], RFLevelBG, RFLevel1, RFLevel1 - RFLevelBG);
+	}
+
+ENDTEST:
+
+	if (S3I2CSwitchTestTone(false))
+		err = 60;
+#endif // TRIZEPS
+
+	S3TxSetTestToneEnableAll(Rx, Tx, 0);
+	S3TxSetTestToneEnableAll(Rx, Tx, 0);
+
+	S3IPSetGainSent(Rx, Tx, 0, SCHAR_MIN);
+	S3Data->m_Rx[Rx].m_Tx[Tx].m_SelfTestPending = false;
+
+	return err; // All good
+}
+// ----------------------------------------------------------------------------
