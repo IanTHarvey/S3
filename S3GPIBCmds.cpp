@@ -566,18 +566,18 @@ int CmdSHOW3PC()
 }
 
 // ----------------------------------------------------------------------------
-
-int CmdSYS()
-{
-	S3RxReport(GPIBRetBuf, GPIBRx); 
-	S3TxReport(GPIBRetBuf, GPIBRx, GPIBTx);
-
-	// ... and for each IP, 
-	for(char IP = 0; IP < S3TxGetNIP(GPIBRx, GPIBTx); IP++)
-		S3IPReport(GPIBRetBuf, GPIBRx, GPIBTx, IP);
-
-	return 0;
-}
+// Obsolete though still documented
+//int CmdSYS()
+//{
+//	S3RxReport(GPIBRetBuf, GPIBRx); 
+//	S3TxReport(GPIBRetBuf, GPIBRx, GPIBTx);
+//
+//	// ... and for each IP, 
+//	for(char IP = 0; IP < S3TxGetNIP(GPIBRx, GPIBTx); IP++)
+//		S3IPReport(GPIBRetBuf, GPIBRx, GPIBTx, IP);
+//
+//	return 0;
+//}
 
 // ----------------------------------------------------------------------------
 
@@ -589,13 +589,18 @@ int CmdREPORT()
 	int err = 0;
 
 	char	all, Rx, Tx, IP;
-	const char *cmd;
+	char	cmd[S3_MAX_GPIB_CMD_LEN];
 
-	cmd = GPIBCmdArgs[GPIBNArgs - 1];
+	// Get sub-command
+	strcpy_s(cmd, S3_MAX_GPIB_CMD_LEN, GPIBCmdArgs[1]);
 
 	if (GPIBNArgs != 2)
 	{
-		int		res = GetAddress2(&all, &Rx, &Tx, &IP);
+		GPIBNArgs--;
+		for(char i = 1; i < GPIBNArgs; i++)
+			GPIBCmdArgs[i] = GPIBCmdArgs[i + 1];
+
+		int		res = GetAddress2NoArg(&all, &Rx, &Tx, &IP);
 		
 		if (res < 0)
 		{
@@ -616,11 +621,7 @@ int CmdREPORT()
 		IP = GPIBIP;
 	}
 
-	if (!STRCMP(cmd, "ALL"))
-	{
-		err = CmdSYS();
-	}
-	else if (!STRCMP(cmd, "TOPOLOGY"))
+	if (!STRCMP(cmd, "TOPOLOGY"))
 	{
 		err = S3TopologyReport(GPIBRetBuf);
 	}

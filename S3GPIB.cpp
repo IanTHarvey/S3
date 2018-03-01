@@ -311,7 +311,7 @@ int S3ProcessGPIBCommand(const char *cmd)
 		else if (!STRCMP(Cmd,	"SELECTIP"))	err = CmdSELECTIP();
 		else if (!STRCMP(Cmd,	"SET"))			err = CmdSET();
 		else if (!STRCMP(Cmd,	"SELECTTX"))	err = CmdSELECTTX();
-		else if (!STRCMP(Cmd,	"SYS"))			err = CmdSYS();
+		// else if (!STRCMP(Cmd,	"SYS"))			err = CmdSYS();
 		else if (!STRCMP(Cmd,	"SYSRESET"))	err = CmdSYSRESET();
 		else if (!STRCMP(Cmd,	"SYSSETTIME"))	err = CmdSYSSETTIME();
         else if (!STRCMP(Cmd,   "SHUTDOWN"))    err = CmdSHUTDOWN();
