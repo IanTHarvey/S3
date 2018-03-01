@@ -134,7 +134,8 @@ BEGIN
     PUSHBUTTON      "Set",IDC_PEAK_THR_BUTTON,140,77,22,12
     EDITTEXT        IDC_PEAK_THR_EDIT,96,77,40,12,ES_AUTOHSCROLL
     LTEXT           "Peak thresh [N] (mVp-p):",IDC_PEAK_THR_STATIC,7,79,86,9
-    PUSHBUTTON      "Tx Self-test",IDC_SELF_TEST_BUTTON,90,110,59,14
+    PUSHBUTTON      "Tx Self-test",IDC_SELF_TEST_BUTTON,61,111,41,12
+    PUSHBUTTON      "Tx8SoakTest",IDC_TX8_SOAK_TEST_BUTTON,110,111,43,12
 END
 
 IDD_FACTORY_SYS_DIALOG DIALOG  0, 0, 282, 147
@@ -261,7 +262,7 @@ IDB_SETTINGS_BITMAP     BITMAP                  "res\\Settings.bmp"
 IDB_RX_BACK_BTN_BITMAP  BITMAP                  "res\\S3BackButton3.bmp"
 IDB_CHARGING_BITMAP     BITMAP                  "res\\ChBattCharging.bmp"
 IDB_CHCHARGING_BITMAP   BITMAP                  "res\\ChChBattCharging.bmp"
-IDB_CH_BATT_EXCLAM_BITMAP BITMAP                "res\\ChBattInvalid.bmp"
+IDB_CH_BATT_EXCLAM_BITMAP BITMAP                  "res\\ChBattInvalid.bmp"
 IDB_CH_BATT_FAIL_BITMAP BITMAP                  "res\\ChBattFail.bmp"
 IDB_SHUTDOWN_BITMAP     BITMAP                  "res\\S3ShutDown.bmp"
 IDB_TX_SEL_ACT_BITMAP   BITMAP                  "res\\S3TxLrg.bmp"
