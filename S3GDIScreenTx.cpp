@@ -92,6 +92,7 @@ int hTxIPRows[S3_MAX_TXIP_PARAS] = {0, 35, 30, 91, 45, 30, 40, 35, 30, 30, 30};
 
 int pTxIPRows[S3_MAX_TXIP_PARAS];
 
+// ----------------------------------------------------------------------------
 // ITH: Add to initialisation
 int TxIPRowsCumSum()
 {
@@ -145,6 +146,7 @@ char S3GDI_ParaRowMap(char para)
 }
 
 // ----------------------------------------------------------------------------
+// Assumes gain *range* will not change
 
 int		GainTickMarks[32];
 char	NTick;
@@ -495,6 +497,7 @@ void CS3GDIScreenMain::S3DrawGDITxMessage(char Rx, char Tx)
 
 	int NMsg = S3TxAlarmGetString(Rx, Tx, S3AlarmString, S3_EVENTS_LINE_LEN);
 
+	// Prioritise alarm messages over stabilising message
 	if (NMsg)
 	{
 		if (S3AlarmString[0] == 'E')
@@ -1353,7 +1356,7 @@ void CS3GDIScreenMain::S3DrawGDITxIP(char Rx, char Tx, char IP,
 
 	int yCentre = yref + (pTxIPRows[RowCnt] + pTxIPRows[RowCnt + 1] - S3_DIA_LED)/2;
 
-	if (m_TxPowerState >= S3_TX_SLEEP || !S3TxGetPeakHoldCap(Rx, Tx))
+	if (m_TxPowerState >= S3_TX_SLEEP) // || !S3TxGetPeakHoldCap(Rx, Tx))
 	{
 		S3BLT(m_hbmpBlkLED, xref + (wIPCol - S3_DIA_LED) / 2,
 								yCentre,
@@ -1454,10 +1457,10 @@ void CS3GDIScreenMain::S3DrawGDITxGain(char Rx, char Tx, char IP,
 	int yl = yref + m_hIPGain - S3_GAIN_MARGIN_W,
 		yh = yref + S3_GAIN_MARGIN_W;
 
-	int GainBar =	(int)((S3_MAX_GAIN - Gain) * m_dBperPix);
+	int GainBar =	(int)((S3GetMaxGain(Rx, Tx) - Gain) * m_dBperPix);
 	if (Gain < 0) GainBar++;
 
-	int Gain0 =		(int)((S3_MAX_GAIN - 0) * m_dBperPix);
+	int Gain0 =		(int)((S3GetMaxGain(Rx, Tx) - 0) * m_dBperPix);
 
 	SelectObject(m_HDC, m_hPenIPLive);
 	SelectObject(m_HDC, m_hBrushLightGrey);

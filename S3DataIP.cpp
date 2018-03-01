@@ -468,10 +468,10 @@ int S3IPInvalidQ(char Rx, char Tx, char IP)
 }
 
 // ----------------------------------------------------------------------------
-
+// Only used by obsolete S3SetGainPush()
 int S3IPSetGain(pS3IPData pIP, int gain)
 {
-	if (gain < S3_MIN_GAIN || gain > S3_MAX_GAIN)
+	if (gain < S3_MIN_GAIN || gain > S3_MAX_GAIN) // OBSOLETE
 		return 1;
 
 	double maxip = S3CalcMaxIP(gain);
@@ -769,8 +769,8 @@ unsigned char S3IPGetWindowTrack(char Rx, char Tx, char IP)
 // TODO: Integrate this with I2C path setting code
 int S3GetGainLimits(char Rx, char Tx, char IP, char *low, char *high)
 {
-	*high = S3_MAX_GAIN;
-	*low = S3_MIN_GAIN;
+	*high = S3GetMaxGain(Rx, Tx);
+	*low = S3GetMinGain(Rx, Tx);
 
 	SigmaT	Tau;
 	InputZ	Z; 
@@ -793,8 +793,8 @@ int S3GetGainLimits(char Rx, char Tx, char IP, char *low, char *high)
 	if (LNMode)
 	{
 		// Path 2
-		*low = 0;
-		*high = 20;
+		*low = 0 + S3RxGetExtraGainCap(Rx);
+		*high = 20 + S3RxGetExtraGainCap(Rx);
 
 		return 0;
 	}
@@ -804,8 +804,8 @@ int S3GetGainLimits(char Rx, char Tx, char IP, char *low, char *high)
 		// Path 7
 		if (Z == W1M)
 		{
-			*low = -30 + S3TxGetAttenGainOffset(Rx, Tx);
-			*high = 0 + S3TxGetAttenGainOffset(Rx, Tx);
+			*low = -30 + S3TxGetAttenGainOffset(Rx, Tx) + S3RxGetExtraGainCap(Rx);
+			*high = 0 + S3TxGetAttenGainOffset(Rx, Tx) + S3RxGetExtraGainCap(Rx);
 		}
 		else
 		{
@@ -816,7 +816,7 @@ int S3GetGainLimits(char Rx, char Tx, char IP, char *low, char *high)
 	else
 	{
 		// Paths 4, 5, 6
-		*high = 0 + S3TxGetAttenGainOffset(Rx, Tx);
+		*high = 0 + S3TxGetAttenGainOffset(Rx, Tx) + S3RxGetExtraGainCap(Rx);
 	}
 
 	return 0;

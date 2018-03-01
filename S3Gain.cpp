@@ -292,12 +292,12 @@ char S3TxGetRFPath(char Rx, char Tx, char IP)
 	default:
 		if (Imp == W1M)
 			RFPath = 7;
-		else if (Gain <= 0)
+		else if (Gain <= (0 + S3RxGetExtraGainCap(Rx)))
 			RFPath = 3;
 		else
 			RFPath = 1;
 	}
-		
+
 	return RFPath;
 }
 
@@ -310,7 +310,7 @@ int S3GetLinkParas(char Rx, char Tx, char IP,
 {
 	int		Gain = S3IPGetGain(Rx, Tx, IP);
 
-	char Idx = (char)(Gain + 78);
+	char Idx = (char)(Gain - S3GetMinGain(Rx, Tx));
 
 	if (S3Data->m_SigSize == S3_UNITS_SMALL)
 	{
@@ -380,6 +380,21 @@ int S3GetLinkParas(char Rx, char Tx, char IP,
 	}
 
 	return 0;
+}
+
+// ----------------------------------------------------------------------------
+// Set these according to Rx and (potential) Tx capabilities
+
+char S3GetMinGain(char Rx, char Tx)
+{
+	return S3_MIN_GAIN + S3Data->m_Rx[Rx].m_ExtraGainCap;
+}
+
+// ----------------------------------------------------------------------------
+
+char S3GetMaxGain(char Rx, char Tx)
+{
+	return S3_MAX_GAIN + S3Data->m_Rx[Rx].m_ExtraGainCap;
 }
 
 // ----------------------------------------------------------------------------

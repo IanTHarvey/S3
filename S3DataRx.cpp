@@ -11,11 +11,6 @@
 extern pS3DataModel S3Data;
 // extern pS3DataModel S3Shadow;
 
-// Special values for m_RLLStableCnt
-#define S3_RLL_STAB_UNKNOWN	0xFE	// Rx6 Tx awake but not Active
-#define S3_RLL_STAB_OK		0xFF	// RLL stable
-#define S3_RLL_STAB_RESET	0x00	// Reset counter
-
 // ----------------------------------------------------------------------------
 
 int S3RxInit(pS3RxData node)
@@ -30,6 +25,7 @@ int S3RxInit(pS3RxData node)
 	// connected (or not)
 
 	node->m_Fmax = S3_1GHZ;
+	node->m_ExtraGainCap = 15;
 
 	strcpy_s(node->m_SN, S3_MAX_SN_LEN, "Unknown");
 	strcpy_s(node->m_PN, S3_MAX_PN_LEN, "Unknown");
@@ -426,25 +422,47 @@ int S3RxSetRLL(char Rx, char Tx, short RLL)
 	// Wait for stable RLL on start-up (inc. wake-up)
 	if (S3Data->m_Rx[Rx].m_Tx[Tx].m_RLLStableCnt != S3_RLL_STAB_OK)
 	{
-		if (RLL > S3_RLL_GOOD_LO_10MDBM && ABS(RLL - OldRLL) < S3_RLL_STABLE_THRESH)
-			S3Data->m_Rx[Rx].m_Tx[Tx].m_RLLStableCnt++;
-		else
+		if (RLL <= S3_RLL_GOOD_LO_10MDBM)
+		{
 			S3Data->m_Rx[Rx].m_Tx[Tx].m_RLLStableCnt = 0;
 
-		if (S3Data->m_Rx[Rx].m_Tx[Tx].m_RLLStableCnt > S3_RLL_STABLE_CNT)
-		{
-			// Mark Tx as 'stable'. Permanent until TxOpt reset (wake)
-			S3Data->m_Rx[Rx].m_Tx[Tx].m_RLLStableCnt = S3_RLL_STAB_OK;
+			if (S3Data->m_Rx[Rx].m_Tx[Tx].m_RLLLowCnt < S3_RLL_LOW_CNT)
+				S3Data->m_Rx[Rx].m_Tx[Tx].m_RLLLowCnt++;
+			else
+				S3Data->m_Rx[Rx].m_Tx[Tx].m_RLLStableCnt = S3_RLL_STAB_LOW;
 		}
 		else
 		{
-			// TODO: Count these to implement time-out?
-			return 0;
+			// Reset stability count if RLL was low and now OK
+			if (S3Data->m_Rx[Rx].m_Tx[Tx].m_RLLLowCnt)
+			{
+				S3Data->m_Rx[Rx].m_Tx[Tx].m_RLLStableCnt = 0;
+			}
+
+			S3Data->m_Rx[Rx].m_Tx[Tx].m_RLLLowCnt = 0;
+
+			if (RLL > S3_RLL_GOOD_LO_10MDBM && ABS(RLL - OldRLL) < S3_RLL_STABLE_THRESH)
+			{
+				S3Data->m_Rx[Rx].m_Tx[Tx].m_RLLStableCnt++;
+			}
+			else
+				S3Data->m_Rx[Rx].m_Tx[Tx].m_RLLStableCnt = 0;
+
+			if (S3Data->m_Rx[Rx].m_Tx[Tx].m_RLLStableCnt > S3_RLL_STABLE_CNT)
+			{
+				// Mark Tx as 'stable'. Permanent until TxOpt reset (wake)
+				S3Data->m_Rx[Rx].m_Tx[Tx].m_RLLStableCnt = S3_RLL_STAB_OK;
+			}
+			else
+			{
+				// TODO: Count these to implement time-out?
+				return 0;
+			}
 		}
 	}
 
-	if (	RLL < S3RxGetRLLLo(Rx) &&
-			RLL != SHRT_MIN) // && RLL > S3_RX_ZERO_RLL)
+	if (S3Data->m_Rx[Rx].m_Tx[Tx].m_RLLStableCnt == S3_RLL_STAB_LOW ||
+		(RLL < S3RxGetRLLLo(Rx) && RLL != SHRT_MIN))
 	{
 		S3RxSetAlarm(Rx, Tx, S3_RX_RLL_LOW);
 		return 0;
@@ -797,6 +815,25 @@ int S3RxSetRFLevel(char Rx, char Tx, short level)
 short S3RxGetRFLevel(char Rx, char Tx)
 {
 	return S3Data->m_Rx[Rx].m_RFLevel[Tx];
+}
+
+// ---------------------------------------------------------------------------
+
+int S3RxSetExtraGainCap(char Rx, const char *FWPartNum)
+{
+	if (!strcmp(FWPartNum, "82044"))
+		S3Data->m_Rx[Rx].m_ExtraGainCap = 0;
+	else // 82060 onwards
+		S3Data->m_Rx[Rx].m_ExtraGainCap = 15;
+
+	return 0;
+}
+
+// ----------------------------------------------------------------------------
+
+char S3RxGetExtraGainCap(char Rx)
+{
+	return S3Data->m_Rx[Rx].m_ExtraGainCap;
 }
 
 // ---------------------------------------------------------------------------
