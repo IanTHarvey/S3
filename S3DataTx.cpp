@@ -67,6 +67,7 @@ int S3TxInit(pS3TxData node)
 	node->m_TempReport = SCHAR_MIN;
 
 	node->m_RLLStableCnt = 0;
+	node->m_RLLLowCnt = 0;
 
 	node->m_LaserPow = SHRT_MIN;
 	node->m_LaserLo = SHRT_MIN;	// Disabled
@@ -213,6 +214,7 @@ int S3TxInserted(char Rx, char Tx, S3TxType type)
 	pTx->m_TempChange = 0;
 
 	pTx->m_RLLStableCnt = 0;
+	pTx->m_RLLLowCnt = 0;
 
 	S3Data->m_Rx[Rx].m_RLL[Tx] = SHRT_MIN;
 
@@ -636,6 +638,8 @@ int S3TxSetActiveIP(char Rx, char Tx, char IP)
 	if (curIP >= S3_PENDING)
 		curIP -= S3_PENDING;
 
+	ASSERT(curIP >= 0);
+
 	if (S3IPGetAlarms(Rx, Tx, curIP) & S3_IP_OVERDRIVE)
 		return 1;
 
@@ -648,10 +652,14 @@ int S3TxSetActiveIP(char Rx, char Tx, char IP)
 		if (pTx->m_ActiveInput == IP + S3_PENDING)
 			pTx->m_ActiveInput -= S3_PENDING;	// Ack
 		else
+		{
 			pTx->m_ActiveInput = IP + S3_PENDING; // Updated request
+		}
 	}
 	else
 		pTx->m_ActiveInput = 0;
+
+	ASSERT(curIP >= 0);
 
 	return 0;
 #endif
@@ -776,6 +784,7 @@ int S3TxSetPowerStat(char Rx, char Tx, S3TxPwrMode mode)
 			pTx->m_Alarms = 0;
 			pTx->m_OptAlarms[0] = pTx->m_OptAlarms[1] = pTx->m_OptAlarms[2] = 0x00;
 			pTx->m_RLLStableCnt = 0;
+			pTx->m_RLLLowCnt = 0;
 
 			// If was in protection mode, safe to cancel alarms and allow
 			// changing of IP parameters when sleeping.
@@ -791,6 +800,7 @@ int S3TxSetPowerStat(char Rx, char Tx, S3TxPwrMode mode)
 			pTx->m_Uptime = 0;
 			pTx->m_Alarms = 0;
 			pTx->m_RLLStableCnt = 0;
+			pTx->m_RLLLowCnt = 0;
 		}
 		else if (pTx->m_PowerStat == S3_TX_ON_PENDING && mode == S3_TX_ON)
 		{
@@ -1705,7 +1715,7 @@ bool S3TxRLLStable(char Rx, char Tx)
 	if (S3TxGetPowerStat(Rx, Tx) == S3_TX_SLEEP)
 		return true;
 
-	return S3Data->m_Rx[Rx].m_Tx[Tx].m_RLLStableCnt >= 0xFE;
+	return S3Data->m_Rx[Rx].m_Tx[Tx].m_RLLStableCnt >= S3_RLL_STAB_UNKNOWN;
 }
 
 // ----------------------------------------------------------------------------
@@ -1736,6 +1746,9 @@ int S3TxClearPeakHold(char Rx, char Tx, unsigned char ack)
 
 int S3TxGetNIP(char Rx, char Tx)
 {
+	if (Rx == -1 || Tx == -1)
+		return -1;
+
 	switch (S3Data->m_Rx[Rx].m_Tx[Tx].m_Type)
 	{
 	case S3_Tx1:
@@ -1864,5 +1877,20 @@ int S3TxSetSelfTestPending(char Rx, char Tx, bool pending)
 
 	return 0;
 }
+
+// ---------------------------------------------------------------------------
+
+/*
+bool S3TxNotActive(char Rx, char Tx)
+{
+	if (S3Data->m_Rx[Rx].m_Type == S3_Rx6)
+	{
+		if (S3Data->m_Rx[Rx].m_ActiveTx != Tx)
+			return false;
+	}
+		
+	return true;
+}
+*/
 
 // ---------------------------------------------------------------------------

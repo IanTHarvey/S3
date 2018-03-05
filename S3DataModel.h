@@ -98,6 +98,7 @@ extern wchar_t *SigSizeStrings[];
 
 #define S3_RLL_STABLE_CNT		3	// No. of polls for which RLL mut be stable
 #define S3_RLL_STABLE_THRESH	50	// Metric of RLL stability (x10mdBm = 0.5dBm)
+#define S3_RLL_LOW_CNT			30
 
 // ----------------------------------------------------------------------------
 
@@ -224,6 +225,16 @@ typedef enum SigmaT				{TauNone, TauLo, TauMd, TauHi, TauUnknown};
 // User-settable gain limits (inclusive)
 #define	S3_MIN_GAIN				-78
 #define	S3_MAX_GAIN				40
+// #define	S3_MIN_GAIN_HI			(S3_MIN_GAIN + 15)
+// #define	S3_MAX_GAIN_HI			(S3_MAX_GAIN + 15)
+
+// Special values for m_RLLStableCnt
+#define S3_RLL_STAB_RESET	0x00	// Reset counter
+#define S3_RLL_STAB_LOW		0xFD	// RLL too low long enough to replace
+									// stabilising message with an alarm
+#define S3_RLL_STAB_UNKNOWN	0xFE	// Rx6 Tx awake but not Active
+#define S3_RLL_STAB_OK		0xFF	// RLL stable
+
 #define S3_DEFAULT_GAIN			0
 
 // Available on some Txs where gain is available on attenuation paths.
@@ -266,7 +277,7 @@ typedef enum SigmaT				{TauNone, TauLo, TauMd, TauHi, TauUnknown};
 #define S3_TX_UNDER_TEMP		0x1000
 #define S3_TX_RLL_UNSTABLE		0x2000
 #define S3_TX_SELF_TEST_RETRY	0x4000
-#define S3_TX_15				0x8000
+#define S3_TX_NOT_ACTIVE		0x8000
 
 // Tx battery alarms
 #define S3_TX_BATT_COMM_FAIL	0x01
@@ -545,11 +556,12 @@ typedef struct sS3TxData
 	bool			m_OldTauOrder;
 	bool			m_PeakHoldCap;
 	bool			m_AttenGainCap;
-	bool			m_PeakDetCap;
+	bool			m_PeakDetCap;		// Not used
 	
 	char			m_AttenGainOffset; // S3_ATTEN_GAIN_OFFSET
 
 	unsigned char	m_RLLStableCnt;
+	unsigned char	m_RLLLowCnt;
 
 	// Inheritables (Tx defaults)
 	S3Config		m_Config;
@@ -633,6 +645,8 @@ typedef struct sS3RxData
 	bool			m_Detected;
 	char			m_NodeName[S3_MAX_NODE_NAME_LEN];
 	char			m_Id;
+
+	char			m_ExtraGainCap; // dB above original -78 to + 40dB
 
 	// Inheritables (module defaults)
 	S3Config		m_Config;
@@ -1360,6 +1374,12 @@ int			S3TxSetFmax(char Rx, char Tx, const char *s);
 S3Fmax		S3TxGetFmax(char Rx, char Tx);
 
 bool		S3TxIsDetected(char Rx, char Tx);
+
+char		S3GetMinGain(char Rx, char Tx);
+char		S3GetMaxGain(char Rx, char Tx);
+
+int			S3RxSetExtraGainCap(char Rx, const char *FWPartNum);
+char		S3RxGetExtraGainCap(char Rx);
 
 const char *S3TxGetPN(		char Rx, char Tx);
 const char *S3TxGetSN(		char Rx, char Tx);
