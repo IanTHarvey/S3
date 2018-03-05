@@ -18,6 +18,10 @@
 #define S3SCREENSMALL 0
 #define S3SCREENLARGE 1
 
+extern int S3TimerInit();
+extern int S3TimerStart(unsigned char Tid);
+extern int S3TimerStop(unsigned char Tid);
+
 // TODO: Make static members
 SOCKET ConnectSocket;
 char	RxBuf[DEFAULT_BUFLEN];
@@ -358,6 +362,8 @@ BOOL CS3AgentDlg::OnInitDialog()
 		m_USBSelRdoButton.SetCheck(TRUE);
 	else if (connectionmethod = GPIB)
 		m_GPIBSelRdoButton.SetCheck(TRUE);
+
+	S3TimerInit();
 
 	return TRUE;  // return TRUE  unless you set the focus to a control
 }

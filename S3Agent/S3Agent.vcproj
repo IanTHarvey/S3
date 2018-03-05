@@ -46,7 +46,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="Y:\Software\boost;&quot;Y:\Software\National Instruments\Shared\ExternalCompilerSupport\C\include&quot;"
-				PreprocessorDefinitions="NO_S3_SHOW_P1DB_MODES;S3_SHOW_PEAK;S3_OVERDRIVE_DETECT;S3_SHOW_P1DB;S3_AGENT;WIN32;_DEBUG;_WINDOWS"
+				PreprocessorDefinitions="S3_DIAG_TIMING;NO_S3_SHOW_P1DB_MODES;S3_SHOW_PEAK;S3_OVERDRIVE_DETECT;S3_SHOW_P1DB;S3_AGENT;WIN32;_DEBUG;_WINDOWS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="0"
 				RuntimeLibrary="3"
@@ -124,7 +124,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalIncludeDirectories="Y:\Software\boost;Y:\Software\National Instruments\Shared\ExternalCompilerSupport\C\include"
-				PreprocessorDefinitions="NO_S3_SHOW_P1DB_MODES;S3_SHOW_PEAK;S3_OVERDRIVE_DETECT;S3_SHOW_P1DB;S3_AGENT;WIN32;_WINDOWS"
+				PreprocessorDefinitions="S3_DIAG_TIMING;NO_S3_SHOW_P1DB_MODES;S3_SHOW_PEAK;S3_OVERDRIVE_DETECT;S3_SHOW_P1DB;S3_AGENT;WIN32;_WINDOWS"
 				RuntimeLibrary="2"
 			/>
 			<Tool
@@ -1006,6 +1006,10 @@
 			</File>
 			<File
 				RelativePath="..\S3DataTx.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\S3DiagTimer.cpp"
 				>
 			</File>
 			<File

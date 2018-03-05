@@ -387,6 +387,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath="..\S3DiagTimer.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\S3EventLog.cpp"
 				>
 				<FileConfiguration
