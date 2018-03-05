@@ -525,6 +525,19 @@ void CS3GDIScreenMain::S3DrawGDITxMessage(char Rx, char Tx)
 		TxAlarm->Enable(true);
 		TxAlarm->SetString(str);
 	}
+	else if (!S3RxIsActiveTx(Rx, Tx))
+	{
+		S3BLT(m_hbmpSysInfo, m_RectTxMsg.left + 10, m_RectTxMsg.top + 5,
+					32, 32);
+
+		CString str("Transmitter not active.");
+
+		RECT fntRc = m_RectTxMsg;
+		fntRc.top += 5;
+
+		TxAlarm->Enable(true);
+		TxAlarm->SetString(str);
+	}
 	else if (!S3TxRLLStable(Rx, Tx))
 	{
 		S3BLT(m_hbmpSysInfo, m_RectTxMsg.left + 10, m_RectTxMsg.top + 5,
