@@ -151,7 +151,9 @@ short	S3I2CCalcTxOptDSA(char Rx, char Tx, char IP, char dsa)
 	if (S3I2CCurPath == 7)
 	{
 		int gain = S3IPGetGain(Rx, Tx, IP);
-		if (gain < -15 && gain >= -30)
+		
+		if ((gain - S3TxGetAttenGainOffset(Rx, Tx)) - S3RxGetExtraGainCap(Rx) < -15 &&
+			(gain - S3TxGetAttenGainOffset(Rx, Tx)) - S3RxGetExtraGainCap(Rx) >= -30)
 			dsa = 15 + 1;
 	}
 
@@ -177,8 +179,8 @@ int	S3I2CSetTxOptDSA(char Rx, char Tx, char IP, char dsa)
 	if (S3I2CCurPath == 7)
 	{
 		// int gain = S3IPGetGain(Rx, Tx, IP);
-		if (	(gain - S3TxGetAttenGainOffset(Rx, Tx)) < -15 &&
-				(gain - S3TxGetAttenGainOffset(Rx, Tx)) >= -30)
+		if (	(gain - S3TxGetAttenGainOffset(Rx, Tx)) - S3RxGetExtraGainCap(Rx) < -15 &&
+				(gain - S3TxGetAttenGainOffset(Rx, Tx)) - S3RxGetExtraGainCap(Rx) >= -30)
 				dsa = 15 + 1;
 	}
 
@@ -302,7 +304,7 @@ int S3I2CSetIPGain(char Rx, char Tx, char IP)
 	char	GainSent = S3IPGetGainSent(Rx, Tx, IP);
 	char	PathSent = S3IPGetPathSent(Rx, Tx, IP);
 
-	if (GainSent == -128) // Pending
+	if (GainSent == SCHAR_MIN) // Pending
 	{
 		// Careful: this is true if tx is asleep
 		if (!S3TxRLLStable(Rx, Tx))
@@ -314,9 +316,9 @@ int S3I2CSetIPGain(char Rx, char Tx, char IP)
 
 		const char *Paras;
 		if (S3I2CCurPath > 3 && S3I2CCurPath <= 7)
-			Paras = S3GetGainParas_dB(Gain - 0); // S3TxGetAttenGainOffset(Rx, Tx));
+			Paras = S3GetGainParas_dB(Gain - S3RxGetExtraGainCap(Rx));
 		else
-			Paras = S3GetGainParas_dB(Gain);
+			Paras = S3GetGainParas_dB(Gain - S3RxGetExtraGainCap(Rx));
 
 		char RFAtten = 0;
 

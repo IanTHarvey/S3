@@ -82,10 +82,12 @@ class CS3ControllerDlg;
 
 #define S3I2C_RX_ADDR			0x90 // TODO: Don't know this yet
 
+#define S3I2C_RX_OPT_ADDR_0		0xA4
+#define S3I2C_RX_OPT_ADDR_1		0xA6	// Rx2
+
 // Rx-opt registers
 #define S3I2C_RX_OPT_IDENT		0x00
-#define S3I2C_RX_OPT_ADDR_0		0xA4
-#define S3I2C_RX_OPT_ADDR_1		0xA6
+#define S3I2C_RX_BOARD_NO		0x0A
 #define S3I2C_RX_OPT_THRESH		0x70	// 48B
 #define S3I2C_RX_OPT_CONFIG		0xA0	// 48B
 #define S3I2C_RX_OPT_CAL_GAIN	0xA8
