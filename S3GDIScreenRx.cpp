@@ -342,17 +342,20 @@ void CS3GDIScreenMain::S3DrawGDIRxTx(char Rx, char Tx)
 
 	SelectObject(m_HDC, m_hFontS);
 
-	RectItem.top = RectItem.bottom;
-	RectItem.bottom += hRxTxRows[4];
+	if (!S3GetLocked())
+	{
+		RectItem.top = RectItem.bottom;
+		RectItem.bottom += hRxTxRows[4];
 
-	str.Format(_T("%+.1f"), S3RxGetRFGain(Rx, Tx) / 100.0);
-	DrawText(m_HDC, str, -1, &RectItem, DT_CENTER);
+		str.Format(_T("%+.1f"), S3RxGetRFGain(Rx, Tx) / 100.0);
+		DrawText(m_HDC, str, -1, &RectItem, DT_CENTER);
 
-	RectItem.top = RectItem.bottom;
-	RectItem.bottom += hRxTxRows[5];
+		RectItem.top = RectItem.bottom;
+		RectItem.bottom += hRxTxRows[5];
 
-	str.Format(_T("%+.1f"), S3RxGetRFLevel(Rx, Tx) / 100.0);
-	DrawText(m_HDC, str, -1, &RectItem, DT_CENTER);
+		str.Format(_T("%+.1f"), S3RxGetRFLevel(Rx, Tx) / 100.0);
+		DrawText(m_HDC, str, -1, &RectItem, DT_CENTER);
+	}
 }
 
 // ----------------------------------------------------------------------------
@@ -465,7 +468,10 @@ void CS3GDIScreenMain::S3DrawGDIRxRLL(char Rx, char Tx, int xref, int yref)
 
 	SelectObject(m_HDC, m_hFontL);
 
-	str.Format(_T("%+0.1f"), RLLDisplay);
+	if (S3RxGetRLL(Rx, Tx) == SHRT_MIN)
+		str = "---";
+	else
+		str.Format(_T("%+0.1f"), RLLDisplay);
 	DrawText(m_HDC, str, -1, &fntRc, DT_LEFT);
 
 	SelectObject(m_HDC, m_hFontS);
@@ -503,9 +509,13 @@ void CS3GDIScreenMain::S3DrawGDIRxTxTable(char Rx)
 	
 	S3DrawGDIRxTxRowName(1, _T(""));
 	S3DrawGDIRxTxRowName(2, _T("RLL (dBm)"));
-	S3DrawGDIRxTxRowName(3, _T("RF Gain\n(dB)"));
-	S3DrawGDIRxTxRowName(4, _T("RF Level\n(dBm)"));
-	S3DrawGDIRxTxRowName(5, _T(""));
+
+	if (!S3GetLocked())
+	{
+		S3DrawGDIRxTxRowName(3, _T("RF Gain\n(dB)"));
+		S3DrawGDIRxTxRowName(4, _T("RF Level\n(dBm)"));
+		S3DrawGDIRxTxRowName(5, _T(""));
+	}
 
 	// Columns
 	for (Tx = 0; Tx < S3RxGetNTx(Rx); Tx++)
