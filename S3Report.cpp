@@ -145,6 +145,9 @@ int S3RxReport(char *Buf, char Rx)
 
 int S3TxReport(char *Buf, char Rx, char Tx)
 {
+	if (Rx == -1 || Tx == -1)
+		return 0;
+	
 	pS3TxData pTx = &S3Data->m_Rx[Rx].m_Tx[Tx];
 
 	int len = strlen(Buf);
