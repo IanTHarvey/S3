@@ -221,7 +221,7 @@ int CmdPPMBATTAUTH()
 
 	S3SetFactoryMode(-1, -1, true);
 
-	S3I2CChMS(Ch); // S3SetFactoryMode sets to 0
+	S3I2CChMS(Ch);
 
 	err = S3I2CChWriteSecKeys();
 

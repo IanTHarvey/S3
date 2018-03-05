@@ -1,4 +1,31 @@
 // ----------------------------------------------------------------------------
+// I2C master select
+//
+// Rx & Ch used shared I2C which shouldn't be a problem as on different
+// addresses. However making battery and and Rx MSs exclusive seems to make it
+// more robust.
+//
+// TTL IO
+// 0 MS_BAT_2
+// 1 MS_BAT_1
+// 2 MS_1
+// 3 MS_2
+// 4 MS_3
+// 5 MS_4
+// 6 MS_5
+// 7 MS_6
+// 
+// Expander Port 0
+// 0 MS_BAT_3
+// 1 MS_BAT_4
+// 2 BAT_EN_4
+// 3 BAT_EN_3
+// 4 BAT_EN_2
+// 5 BAT_EN_1
+// 6 BAT_FAULT_4
+// 7 BAT_FAULT_3
+// 
+// -----------------------------------------------------------------------------
 
 #include "stdafx.h"
 
@@ -47,24 +74,24 @@ unsigned char CountPins(unsigned char pins)
 int S3I2CChMS(unsigned char Ch)
 {
 #ifdef TRIZEPS
-	int pins, GPIOPins, ExpanderPins;
+	int pins;
 
 	// TODO: Not currently used
 	unsigned short Alarms = Get_TTLPort(0xFFFF, 0); // & 0x003f;
 
 	if (Ch == 0xFF)
 	{
-		pins = I2C_ReadRandom(S3I2C_EXPANDER_ADDR, 0x04);
+		// Deselect all chargers
+		// return 0;
 
 		// Zero bits 0 & 1 of expander port 0
+		pins = I2C_ReadRandom(S3I2C_EXPANDER_ADDR, 0x04);
 		pins &= ~0x03;
-
 		I2C_WriteRandom(S3I2C_EXPANDER_ADDR, 0x04, pins);
 
+		// Zero pins 0 & 1 of TTL port
 		pins = Get_TTLOutPort(0xFFFF, 0);
-
 		pins &= ~0x03;
-
 		Set_TTLPort(pins, 0);
 
 		return 0;
@@ -72,47 +99,38 @@ int S3I2CChMS(unsigned char Ch)
 
 	if (Ch < 2)
 	{
-		// MS on TTL port
-		pins = I2C_ReadRandom(S3I2C_EXPANDER_ADDR, 0x04);
+		// MS on TTL port pins 0 & 1
 
+		// Clear pins 0 & 1 on expander port
+		pins = I2C_ReadRandom(S3I2C_EXPANDER_ADDR, 0x04);
 		pins &= ~MS_BAT_3;
 		pins &= ~MS_BAT_4;
-		// pins &= ~(MS_BAT_3 | MS_BAT_4);
-
-		ExpanderPins = pins & 3;
 
 		I2C_WriteRandom(S3I2C_EXPANDER_ADDR, 0x04, pins);
 
-		pins = Get_TTLOutPort( 0xFFFF, 0);
+		// Set pin 0/1 on TTL port and clear Rx MS pins
+		pins = 0;
 		
 		if (Ch == 0)
 		{
 			pins |= MS_BAT_1;
-			pins &= ~MS_BAT_2;
 		}
 		else if (Ch == 1)
 		{
-			pins &= ~MS_BAT_1;
 			pins |= MS_BAT_2;
 		}
 
 		Set_TTLPort(pins, 0);
-
-		GPIOPins = pins & 0x03;
 	}
 	else
 	{
-		// MS on expander port 0
-		pins = Get_TTLOutPort(0xFFFF, 0);
+		// MS on expander port 0: pins 0 & 1
 
-		pins &= ~MS_BAT_1;
-		pins &= ~MS_BAT_2;
-		// pins &= ~(MS_BAT_1 | MS_BAT_2);
-
-		GPIOPins = pins & 0x03;
-
+		// Clear all Rx MS pins on TTL port
+		pins = 0;
 		Set_TTLPort(pins, 0);
 
+		// Set pins 0/1 on expander port
 		pins = I2C_ReadRandom(S3I2C_EXPANDER_ADDR, 0x04);
 
 		if (Ch == 2)
@@ -127,8 +145,6 @@ int S3I2CChMS(unsigned char Ch)
 		}
 
 		I2C_WriteRandom(S3I2C_EXPANDER_ADDR, 0x04, pins);
-		ExpanderPins = pins & 0x03;
-
 		// Sleep(1);
 	}
 
@@ -138,6 +154,42 @@ int S3I2CChMS(unsigned char Ch)
 
 
 #endif // TRIZEPS
+	return 0;
+}
+
+// ----------------------------------------------------------------------------
+// MS lines are now exclusive
+
+int S3I2CRxMS(unsigned char Rx)
+{
+#ifdef TRIZEPS
+
+	unsigned char pins;
+
+	// Clear battery MS pins 0 & 1 on expander port
+	pins = I2C_ReadRandom(S3I2C_EXPANDER_ADDR, 0x04);
+	pins &= ~MS_BAT_3;
+	pins &= ~MS_BAT_4;
+
+	I2C_WriteRandom(S3I2C_EXPANDER_ADDR, 0x04, pins);
+
+	// Set Rx MS pin on TTL port and clear battery MSs
+	unsigned short pin;
+	if (Rx == 0xFF)
+		pin = 0;
+	else
+		pin = 1 << (Rx + 2); 
+		
+	// First arg appears to make no difference
+	Clr_TTLPortBit(0xFFFF, 0);
+	Set_TTLPortBit(pin, 0);
+
+#endif
+
+	// ASSERT?
+	// if (CountPins((unsigned char)pin) > 1)
+	// 	return 0;
+
 	return 0;
 }
 
@@ -308,7 +360,6 @@ int S3I2CChGetStatus(unsigned char Ch)
 	S3TimerStart(1);
 
 	S3I2CChMS(Ch);
-
 	S3I2CChEn(Ch, true);
 	
 	unsigned char i2cStartAddr = 0x00;
@@ -527,39 +578,6 @@ int S3I2CChReadSNPN(char Ch, char *SN, char *PN)
 	return 0;
 }
 
-// ----------------------------------------------------------------------------
-// MS lines are now exclusive
-
-int S3I2CRxMS(unsigned char Rx)
-{
-#ifdef TRIZEPS
-
-	unsigned short pin;
-
-	if (Rx == 0xFF)
-		pin = 0;
-	else
-		pin = 1 << (Rx + 2); 
-		
-	// First arg appears to make no difference
-	unsigned int prev = Get_TTLOutPort(0xFFFF, 0);
-
-	// Clear but preserve battery MSs
-	prev &= 0x03;
-
-	Clr_TTLPortBit(0xFFFF, 0);
-	
-	Set_TTLPortBit(pin | prev, 0);
-	// Set_TTLPortBit(0x00, 0);
-
-#endif
-
-	// ASSERT?
-	// if (CountPins((unsigned char)pin) > 1)
-	// 	return 0;
-
-	return 0;
-}
 
 // ----------------------------------------------------------------------------
 

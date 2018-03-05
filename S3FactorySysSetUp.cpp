@@ -92,6 +92,8 @@ void CS3FactorySysSetUp::Init()
 
 	m_StatusMsgStatic.SetWindowText(_T(""));
 
+	S3I2CChMS(0);
+
 	Update();
 }
 

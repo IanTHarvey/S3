@@ -782,6 +782,8 @@ int S3RxGetNTx(char Rx)
 // ----------------------------------------------------------------------------
 // TODO: Why worry about what's installed - just apply to all at each sub-level?
 // TODO: Any value in this?
+
+// TODO: Not used
 int S3SetGainPush(char cRx, char cTx, char cIP, char gain)
 {
 	if (gain < S3_MIN_GAIN)
@@ -1924,8 +1926,8 @@ int S3SetFactoryMode(char Rx, char Tx, bool mode)
 			if (S3I2CRxMS(Rx))
 				return 1;
 
-		if (S3I2CChMS(0))
-			return 1;
+		// if (S3I2CChMS(0))
+		//	return 1;
 
 		if (Tx != -1)
 		{
