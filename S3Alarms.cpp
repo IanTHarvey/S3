@@ -174,6 +174,16 @@ int S3TxSetAlarm(char Rx, char Tx, unsigned short alarms)
 	pS3TxData pTx = &S3Data->m_Rx[Rx].m_Tx[Tx];
 	
 	// Alarm requested
+	if (alarms & S3_TX_NOT_ACTIVE)
+	{
+		// Alarm already raised?
+		if (!(pTx->m_Alarms & S3_TX_NOT_ACTIVE))
+		{
+			pTx->m_Alarms |= S3_TX_NOT_ACTIVE;
+			StateChange = 1;
+		}
+	}
+
 	if (alarms & S3_TX_RLL_UNSTABLE)
 	{
 		// Alarm already raised?
@@ -322,6 +332,13 @@ int S3TxAlarmGetString(char Rx, char Tx, char *S3AlarmString, int len)
 		pTx->m_CurAlarmSrc = 0;
 		pTx->m_CurAlarm = pTx->m_Alarms;
 		return 1;
+	}
+
+	// Special case for Rx6 where Tx is not the selected Tx and start-up
+	// errors are generated.
+	if (pTx->m_OptAlarms[1] == 0x06 && !S3RxIsActiveTx(Rx, Tx))
+	{
+		return 0;
 	}
 
 	if (pTx->m_Alarms & S3_TX_RLL_UNSTABLE)
@@ -623,6 +640,15 @@ int S3TxCancelAlarm(char Rx, char Tx, unsigned short alarms)
 	int StateChange = 0;
 
 	pS3TxData pTx = &S3Data->m_Rx[Rx].m_Tx[Tx];
+
+	if (alarms & S3_TX_NOT_ACTIVE)
+	{
+		if (pTx->m_Alarms & S3_TX_NOT_ACTIVE)
+		{
+			pTx->m_Alarms &= ~S3_TX_NOT_ACTIVE;
+			StateChange = 1;
+		}
+	}
 
 	if (alarms & S3_TX_RLL_UNSTABLE)
 	{
