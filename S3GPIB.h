@@ -78,7 +78,7 @@ int CmdSIGTYPE();
 int CmdSHOW3PC();
 
 int CmdREPORT();
-int CmdSYS();
+// int CmdSYS();
 int CmdIMP();
 int CmdSELECTIP();
 int CmdSELECTTX();
