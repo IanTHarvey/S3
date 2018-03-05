@@ -113,10 +113,12 @@ int S3I2CRxGetStatus(char Rx)
 
 	unsigned char RxType = S3RxGetType(Rx);
 
-	// Get general optical board data from channel 1
-
+	// Switch optical input BEFORE attempting to read RLL
+	S3I2CRxSetActiveTx(Rx);
 	S3I2CSetUpOptAddr(Rx, 0);
 
+	// Get general optical board data from channel 1
+	// Read Tx monitors including RLL
 	wbuf = S3I2C_RX_OPT_MON;
 	ok = I2C_WriteRead(S3I2CCurRxOptAddr, &wbuf, 1, S3I2CRxReadBuf, 16);
 
@@ -156,7 +158,7 @@ int S3I2CRxGetStatus(char Rx)
 	}
 	else if (RxType == S3_Rx6)
 	{
-		S3I2CRxSetActiveTx(Rx);
+		// S3I2CRxSetActiveTx(Rx);
 
 		for(char Tx = 0; Tx < S3_MAX_TXS; Tx++)
 		{
@@ -363,11 +365,10 @@ int S3I2CGetRxStartUp(char Rx)
 	TrailSpaceTo0(SN, S3I2C_SN_LEN);
 	S3RxSetSN(Rx, SN);
 
-
 #ifdef S3_RX_DIAGS
 	int err;
 
-	err = S3I2CRxWriteCtrlConfig(Rx);
+	err = S3I2CRxDumpCtrlConfig(Rx);
 	
 	S3I2CSetUpOptAddr(Rx, 0);
 	err = S3I2CRxDumpOptConfig(Rx);
@@ -386,6 +387,12 @@ int S3I2CGetRxStartUp(char Rx)
 	// ok = I2C_WriteRead(S3I2C_RX_CTRL_ADDR, &wbuf, 1, S3I2CRxReadBuf, 0x44);
 
 	S3I2CSetUpOptAddr(Rx, 0);
+
+	wbuf = S3I2C_RX_BOARD_NO;
+	ok = I2C_WriteRead(S3I2CCurRxOptAddr, &wbuf, 1, S3I2CRxReadBuf, 5);
+	S3I2CRxReadBuf[5] = '\0';
+
+	S3RxSetExtraGainCap(Rx, (char *)S3I2CRxReadBuf);
 
 	// ---------------------------------------------------------------------------
 	// Get RX-OPT thresholds from RxOpt[0]

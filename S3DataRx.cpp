@@ -222,7 +222,16 @@ int S3RxSetActiveTx(char Rx, char Tx)
 				S3Data->m_Rx[Rx].m_Tx[Tx].m_RLLStableCnt = 0;
 		}
 		else
-			pRx->m_ActiveTx = Tx + S3_PENDING; // Updated request
+		{
+			// Ensure Tx updates selected input and gain
+			if (pRx->m_Tx[Tx].m_ActiveInput < S3_PENDING)
+				pRx->m_Tx[Tx].m_ActiveInput += S3_PENDING;
+			
+			if (pRx->m_ActiveTx < S3_PENDING)
+				pRx->m_ActiveTx = Tx + S3_PENDING; // Updated request
+
+			ASSERT(pRx->m_Tx[Tx].m_ActiveInput >= 0);
+		}
 	}
 	else
 		pRx->m_ActiveTx = 0;
@@ -410,7 +419,8 @@ int S3RxSetRLL(char Rx, char Tx, short RLL)
 		return 0;
 	}
  
-	if (S3TxGetPowerStat(Rx, Tx) == S3_TX_SLEEP_PENDING)
+	if (S3TxGetPowerStat(Rx, Tx) == S3_TX_SLEEP_PENDING ||
+		S3TxGetPowerStat(Rx, Tx) == S3_TX_SLEEP)
 	{
 		S3Data->m_Rx[Rx].m_RLL[Tx] = SHRT_MIN;
 		return 0;
@@ -483,8 +493,7 @@ int S3RxSetRLL(char Rx, char Tx, short RLL)
 }
 
 // ---------------------------------------------------------------------------
-// Tx for Rx2 only
-// OBSOLETE
+// Tx (1 or 2) is only applicable to Rx2
 
 unsigned char S3RxGetAGC(char Rx, char Tx)
 {
@@ -496,15 +505,17 @@ unsigned char S3RxGetAGC(char Rx, char Tx)
 	{
 		ASSERT(Tx < 2);
 	}
-	
-	if (S3RxGetType(Rx) == S3_Rx6 || Tx == -1)
+	else
+	{
 		Tx = 0;
+	}
 
 	return S3Data->m_Rx[Rx].m_AGC[Tx];
 }
 
 // ---------------------------------------------------------------------------
-// OBSOLETE
+// Although global setting, need to track whether changes have been applied
+// to individual receivers.
 
 int S3RxSetAGC(char Rx, char Tx, unsigned char AGC)
 {
@@ -525,12 +536,13 @@ int S3RxSetAGC(char Rx, char Tx, unsigned char AGC)
             break;
     }
 
-
     Command.Append(Args);
     Response = SendSentinel3Message(Command);
 	return 0;
 #else
-	if (Tx == -1)
+	if (S3RxGetType(Rx) == S3_Rx2)
+		ASSERT(Tx < 2);
+	else
 		Tx = 0;
 
 	S3Data->m_Rx[Rx].m_AGC[Tx] = AGC;

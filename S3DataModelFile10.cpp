@@ -169,6 +169,7 @@ int S3ReadConfig(FILE *fid, S3Config *src)
 {
 	fread((void *)src, sizeof(S3Config), 1, fid);
 
+	// TODO: OBSOLETE test
 	if (src->m_Gain > S3_MAX_GAIN || src->m_Gain < S3_MIN_GAIN)
 		src->m_Gain = 0;
 
@@ -503,6 +504,10 @@ int S3TxRead(FILE *fid, pS3TxData pTx)
 	fread(&Type, sizeof(unsigned char), 1, fid);
 
 	fread(&pTx->m_ActiveInput, sizeof(char), 1, fid);
+
+	if (pTx->m_ActiveInput < 0)
+		pTx->m_ActiveInput = 0;
+
 
 	fread(pTx->m_SN, sizeof(char), S3_MAX_SN_LEN, fid);
 	fread(pTx->m_PN, sizeof(char), S3_MAX_PN_LEN, fid);
