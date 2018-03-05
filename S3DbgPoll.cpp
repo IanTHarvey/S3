@@ -373,7 +373,7 @@ int S3PollSetDummyData()
 		for(cTx = 0; cTx < S3_MAX_TXS; cTx++)
 		{
 			if (S3TxGetPowerStat(cRx, cTx) != S3_TX_SLEEP)
-				DbgPollSysData.Rx[cRx].RLL[cTx] = (short)(1000 + 200 * ((double)rand() / RAND_MAX - 0.5));
+				DbgPollSysData.Rx[cRx].RLL[cTx] = (short)(800 + 400 * ((double)rand() / RAND_MAX - 0.5));
 			else
 				DbgPollSysData.Rx[cRx].RLL[cTx] = SHRT_MIN;
 
