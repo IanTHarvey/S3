@@ -6,7 +6,7 @@
 #include "S3GPIB.h"
 
 extern pS3DataModel S3Data;
-extern wchar_t *BattTypeStrings[];
+extern const wchar_t *BattTypeStrings[];
 
 // ---------------------------------------------------------------------------
 

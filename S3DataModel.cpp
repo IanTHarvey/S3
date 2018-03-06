@@ -40,18 +40,18 @@ wchar_t *UnitStrings[] = {
 };
 #endif
 
-wchar_t *ScaleStrings[] = {
+const wchar_t *ScaleStrings[] = {
 	{L"Log"},
 	{L"Lin"}
 };
 
-wchar_t *SigSizeStrings[] = {
+const wchar_t *SigSizeStrings[] = {
 	{L"Small"},
 	{L"Large"}
 };
 
 // Use type defines to index. TODO: Worth implementing as functions?
-wchar_t *RxTypeStrings[] = {
+const wchar_t *RxTypeStrings[] = {
 	{ L"Empty" },
 	{ L"Rx1" },
 	{ L"Rx2" },
@@ -61,7 +61,7 @@ wchar_t *RxTypeStrings[] = {
 	{ L"Rx6" }
 };
 
-wchar_t *TxTypeStrings[] = {
+const wchar_t *TxTypeStrings[] = {
 	{ L"Unconnected" },
 	{ L"Tx1" },
 	{ L"" },
@@ -73,7 +73,7 @@ wchar_t *TxTypeStrings[] = {
 	{ L"Tx8" }
 };
 
-wchar_t *ParaValueStrings[] = {
+const wchar_t *ParaValueStrings[] = {
 	{ L"Unconnected" },
 	{ L"Tx1" },
 	{ L"" },
@@ -85,7 +85,7 @@ wchar_t *ParaValueStrings[] = {
 	{ L"Tx8" }
 };
 
-wchar_t *BattTypeStrings[] = {
+const wchar_t *BattTypeStrings[] = {
 	{ L"Unknown" },
 	{ L"Unvalidated" },
 	{ L"" },
@@ -106,7 +106,7 @@ extern int S3GPIOtest();
 extern int S3I2CSetIPGain(char Rx, char Tx, char IP);
 
 // TODO: TBD... Map user input to internal Tx input
-unsigned char S3Tx8IPMap[8] = {0, 1, 2, 3, 4, 5, 6, 7};
+const unsigned char S3Tx8IPMap[8] = {0, 1, 2, 3, 4, 5, 6, 7};
 
 short PeakThTable[S3_TX_N_RF_PATH] =
 	{200,	200,	-700,	-700,	-700,	-700,	-700};
@@ -529,10 +529,25 @@ int S3ConfigInit(pS3Config config)
 
 // ----------------------------------------------------------------------------
 
+const wchar_t *S3GetModelName(char Rx, char Tx)
+{
+	if (Rx == -1)
+		return RxTypeStrings[S3_RxEmpty];
+		
+	if (Tx == -1)
+	{
+		return S3Data->m_Rx[Rx].m_ModelName;
+	}
+
+	return S3Data->m_Rx[Rx].m_Tx[Tx].m_ModelName;
+}
+
+// ----------------------------------------------------------------------------
+
 const wchar_t *S3GetTypeStr(char Rx, char Tx)
 {
 	if (Rx == -1)
-		RxTypeStrings[0];
+		return RxTypeStrings[S3_RxEmpty];
 		
 	if (Tx == -1)
 	{
@@ -1242,7 +1257,7 @@ unsigned char S3GetScale()
 
 // ----------------------------------------------------------------------------
 
-wchar_t *S3GetScaleString()
+const wchar_t *S3GetScaleString()
 {
 	return ScaleStrings[S3Data->m_DisplayScale - 1];
 }
@@ -1284,7 +1299,7 @@ unsigned char S3GetSigSize()
 
 // ----------------------------------------------------------------------------
 
-wchar_t *S3GetSigSizeString()
+const wchar_t *S3GetSigSizeString()
 {
 	return SigSizeStrings[S3Data->m_SigSize - 1];
 }
@@ -1904,7 +1919,7 @@ int S3SetDemoMode(bool DemoMode)
 }
 
 // ---------------------------------------------------------------------------
-// Disable Rx polling and switch to Rx[0], Tx[0]
+// Disable Rx polling and set up MS and addressing for Rx, Tx
 
 int S3SetFactoryMode(char Rx, char Tx, bool mode)
 {

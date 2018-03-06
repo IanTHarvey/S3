@@ -112,7 +112,7 @@ void CS3GDIScreenMain::S3InitGDIRxScreen(void)
 
 	m_RxType = new CS3NameValue(
 				m_RectRxRx.left,	yTop + RowCnt++ * PARA_ROW, m_wRxRx,
-				_T("Type"), _T("RxN"), false);
+				_T("Type"), _T("RxN+"), false);
 	m_RxType->RectEdit(m_HDC, m_hFontS);
 
 	CString str;
@@ -243,7 +243,7 @@ void CS3GDIScreenMain::S3DrawGDIRxRx(char Rx)
 	m_RxNodeName->SetValue(str);
 	m_RxNodeName->Draw(m_HDC, m_hFontS, m_hFontSB);
 
-	str.Format(_T("%s"), S3GetTypeStr(Rx, -1));
+	str.Format(_T("%s"), S3GetModelName(Rx, -1));
 	m_RxType->SetValue(str);
 	m_RxType->Draw(m_HDC, m_hFontS, m_hFontSB);
 
