@@ -620,7 +620,7 @@ void CS3FactorySetUp::OnBnClickedTxOptCalSetButton()
 	}
 	else
 	{
-		int err = S3I2CTxSetOptCalibration(CalVal);
+		int err = S3I2CTxSetOptCalibration(m_Rx, m_Tx, CalVal);
 
 		if (err == -1)
 		{
