@@ -1039,7 +1039,7 @@ int S3I2CTxGetBattSN(char Rx, char Tx)
 	{
 		S3TxSetBattInfo(Rx, Tx, (char *)(S3I2CTxReadBuf + 0),
 								(char *)(S3I2CTxReadBuf + 10), NULL, NULL);
-			
+
 		return 0;
 	}
 

@@ -436,18 +436,18 @@ int S3I2CTxSetRFCalibration(char Rx, char Tx, char RFPath, double val)
 
 // ----------------------------------------------------------------------------
 // Write Tx optical DSA attenuation 
-int S3I2CTxSetOptCalibration(double val)
+int S3I2CTxSetOptCalibration(char Rx, char Tx, double val)
 {
-	if (S3RxGetType(0) == S3_RxEmpty)
+	if (S3RxGetType(Rx) == S3_RxEmpty)
 		return -1;
 
-	if (S3TxGetType(0, 0) == S3_TxUnconnected)
+	if (S3TxGetType(Rx, Tx) == S3_TxUnconnected)
 		return -2;
 
 	int err = S3I2CTxWriteOptCalValue(val);
 
 	if (!err)
-		S3TxSetCalOpt(0, 0, (short)(val * 100.0));
+		S3TxSetCalOpt(Rx, Tx, (short)(val * 100.0));
 
 	return err;
 }

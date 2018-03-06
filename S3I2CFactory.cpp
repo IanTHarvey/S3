@@ -812,6 +812,8 @@ int S3I2CRxWriteCalValue(char Rx, char Tx, double dcal)
 {
 #ifdef TRIZEPS
 	short cal;
+	BOOL ok;
+	unsigned char wbuf[3];
 
 	cal = (short)(ROUND(dcal * 100.0));
 
@@ -822,12 +824,11 @@ int S3I2CRxWriteCalValue(char Rx, char Tx, double dcal)
 
 	Sleep(50);
 
-	unsigned char wbuf[3];
 	wbuf[0] = S3I2C_RX_OPT_CAL_GAIN;
 	wbuf[1] = *((char *)&cal + 1);
 	wbuf[2] = *((char *)&cal + 0);
 
-	BOOL ok = I2C_WriteRead(S3I2CCurRxOptAddr, wbuf, 3, NULL, 0);
+	ok = I2C_WriteRead(S3I2CCurRxOptAddr, wbuf, 3, NULL, 0);
 
 	if (!ok)
 		return 2;

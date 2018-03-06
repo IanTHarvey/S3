@@ -140,7 +140,7 @@ int CmdPPMCALTXOPT()
 
 	if (1)
 	{
-		if (S3I2CTxSetOptCalibration(val))
+		if (S3I2CTxSetOptCalibration(Rx, Tx, val))
 			return S3_GPIB_CALIBRATION_FAILED;
 	}
 	else
