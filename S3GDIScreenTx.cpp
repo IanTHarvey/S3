@@ -467,11 +467,7 @@ void CS3GDIScreenMain::S3DrawGDITxScreen(void)
 
 	S3DrawGDIBackButton();
 
-	// SelectObject(m_HDC, m_hPenNone);
-	// SelectObject(m_HDC, m_hBrushBG1);
 	SetTextColor(m_HDC, m_crTextNorm);
-
-	// S3_RECT_N(m_HDC, m_RectTxTx);
 
 	S3DrawGDITxTx(Rx, Tx);
 	S3DrawGDITxIPTable(Rx, Tx);
@@ -1149,22 +1145,10 @@ void CS3GDIScreenMain::S3DrawGDITxIP(char Rx, char Tx, char IP,
 	fntRc.top = yref + pTxIPRows[RowCnt];
 	fntRc.bottom = yref + pTxIPRows[RowCnt + 1];
 
+	wchar_t units[S3_MAX_UNIT_STR_LEN];
 
-	if (0) // S3GetUnits() == S3_UNITS_MV)
+	if (S3IPGetSigmaTau(Rx, Tx, IP) == TauNone)
 	{
-		double maxip = S3IPGetMaxInput(Rx, Tx, IP);
-
-		if (maxip >= 1.00)
-			str.Format(_T("%.1f\nV"), maxip);
-		else
-			str.Format(_T("%.2f\nmV"), 1000.0 * maxip);
-
-		DrawText(m_HDC, str, -1, &fntRc, DT_RIGHT);
-	}
-	else
-	{
-		wchar_t units[10];
-
 #ifdef S3_SHOW_P1DB_MODES
 		fobj = SelectObject(m_HDC, m_hFontS);
 
@@ -1176,7 +1160,7 @@ void CS3GDIScreenMain::S3DrawGDITxIP(char Rx, char Tx, char IP,
 		S3GetLinkParas(Rx, Tx, IP,
 				   &P1dBIn, &P1dBOut, &Sens);
 
-		_tcscpy_s(units, 10, S3GetUnitString());
+		_tcscpy_s(units, S3_MAX_UNIT_STR_LEN, S3GetUnitString());
 
 		if (S3GetUnits() == S3_UNITS_WATTS)
 		{
@@ -1299,25 +1283,25 @@ void CS3GDIScreenMain::S3DrawGDITxIP(char Rx, char Tx, char IP,
 		RowCnt++;
 
 		SelectObject(m_HDC, fobj);
-#else // S3_SHOW_P1DB_MODES
+	#else // S3_SHOW_P1DB_MODES
 
-#ifdef S3_SHOW_P1DB
+	#ifdef S3_SHOW_P1DB
 		fobj = SelectObject(m_HDC, m_hFontS);
 
 		// Returns in V if g <= -16
 		double p1db = S3IPGetP1dB(Rx, Tx, IP);
 
-		// wchar_t units[10];
-		_tcscpy_s(units, 10, S3GetUnitString());
+		// wchar_t units[S3_MAX_UNIT_STR_LEN];
+		_tcscpy_s(units, S3_MAX_UNIT_STR_LEN, S3GetUnitString());
 
 		if (S3GetUnits() == S3_UNITS_MV || S3IPGetGain(Rx, Tx, IP) <= -16)
 		{
 			if (ABS(p1db) < 1.0)
 			{
 				p1db *= 1000.0;
-				_tcscpy_s(units, 10, _T("mV"));
+				_tcscpy_s(units, S3_MAX_UNIT_STR_LEN, _T("mV"));
 			}
-			else _tcscpy_s(units, 10, _T("V"));
+			else _tcscpy_s(units, S3_MAX_UNIT_STR_LEN, _T("V"));
 
 			str.Format(_T("%d%s"), (int)ROUND(p1db), units);
 		}
@@ -1353,17 +1337,23 @@ void CS3GDIScreenMain::S3DrawGDITxIP(char Rx, char Tx, char IP,
 		str.Format(_T("%.2f"), p1db);
 		DrawText(m_HDC, str, -1, &fntRc, DT_RIGHT);
 		*/
-#endif
+	#endif
 
-#ifdef NO_S3_SHOW_P1DB
+	#ifdef NO_S3_SHOW_P1DB
 		str.Format(_T("%.2f"), maxip);
 		DrawText(m_HDC, str, -1, &fntRc, DT_RIGHT | DT_VCENTER);
-#endif // S3_SHOW_P1DB
+	#endif // S3_SHOW_P1DB
 
-#endif  // !S3_SHOW_P1DB_MODES
+	#endif  // !S3_SHOW_P1DB_MODES
 
-		SelectObject(m_HDC, fobj);
+	} // S3IPGetSigmaTau(Rx, Tx, IP) == TauNone
+	else
+	{
+		RowCnt++;
+		RowCnt++;
 	}
+
+	SelectObject(m_HDC, fobj);
 
 	// ------------------------------------------------------------------------
 
@@ -1557,44 +1547,38 @@ void CS3GDIScreenMain::S3DrawGDITxIPTable(char Rx, char Tx)
 	
 #ifdef S3_SHOW_P1DB_MODES
 
-	if (0) // S3TxGetType(Rx, Tx) == S3_Tx1 && S3IPGetGain(Rx, Tx, 0) <= -16)
-		str.Format(_T("iP1dB\n(%s)"), _T("Vpk"));
-	else
+	if (!S3Get3PCLinearity())
 	{
-		if (!S3Get3PCLinearity())
+		if (S3GetScale() == S3_SCALE_LOG)
 		{
-			if (S3GetScale() == S3_SCALE_LOG)
-			{
-				if (S3GetUnits() == S3_UNITS_WATTS)
-					str.Format(_T("P1dB      in:\n(dBm)   out:"));
-				else
-					str.Format(_T("P1dB      in:\n(dBmV)  out:"));
-			}
+			if (S3GetUnits() == S3_UNITS_WATTS)
+				str.Format(_T("P1dB      in:\n(dBm)   out:"));
 			else
-			{
-				if (S3GetUnits() == S3_UNITS_WATTS)
-					str.Format(_T("P1dB       in:\n(W)       out:"));
-				else
-					str.Format(_T("P1dB      in:\n(Vpk)    out:"));
-			}
+				str.Format(_T("P1dB      in:\n(dBmV)  out:"));
 		}
 		else
 		{
-			if (S3GetScale() == S3_SCALE_LOG)
-			{
-				if (S3GetUnits() == S3_UNITS_WATTS)
-					str.Format(_T("3%c Lin    in:\n(dBm)   out:"), '%');
-				else
-					str.Format(_T("3%c Lin    in:\n(dBmV)  out:"), '%');
-			}
+			if (S3GetUnits() == S3_UNITS_WATTS)
+				str.Format(_T("P1dB       in:\n(W)       out:"));
 			else
-			{
-				if (S3GetUnits() == S3_UNITS_WATTS)
-					str.Format(_T("3%c Lin    in:\n(W)       out:"), '%');
-				else
-					str.Format(_T("3%c Lin    in:\n(Vpk)    out:"), '%');
-			}
-
+				str.Format(_T("P1dB      in:\n(Vpk)    out:"));
+		}
+	}
+	else
+	{
+		if (S3GetScale() == S3_SCALE_LOG)
+		{
+			if (S3GetUnits() == S3_UNITS_WATTS)
+				str.Format(_T("3%c Lin    in:\n(dBm)   out:"), '%');
+			else
+				str.Format(_T("3%c Lin    in:\n(dBmV)  out:"), '%');
+		}
+		else
+		{
+			if (S3GetUnits() == S3_UNITS_WATTS)
+				str.Format(_T("3%c Lin    in:\n(W)       out:"), '%');
+			else
+				str.Format(_T("3%c Lin    in:\n(Vpk)    out:"), '%');
 		}
 	}
 
@@ -2120,7 +2104,6 @@ void CS3GDIScreenMain::S3DrawGDITxBattSeg(char Rx, char Tx, int xref, int yref)
 
 	CString status;
 
-	// TEST: Uncomment
 	if (!S3TxGetBattValidated(Rx, Tx))
 	{
 		S3BLT(m_hbmpBattExclam,
