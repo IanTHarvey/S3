@@ -285,7 +285,7 @@ int S3I2CRxSetAGC(char Rx, char Tx)
 
 		UserAGC -= S3_PENDING;
 
-		S3RxSetAGC(Rx, Tx, UserAGC);
+		S3RxSetAGC(Rx, Tx, UserAGC); // Ack
 	}
 
 	if (AGC > 0 && (UserAGC != S3_AGC_CONT))

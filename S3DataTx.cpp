@@ -221,6 +221,9 @@ int S3TxInserted(char Rx, char Tx, S3TxType type)
 	// In case 'sleeped' when live
 	// pTx->m_PowerStat = S3_TX_ON;
 
+	if (pTx->m_ActiveInput < S3_PENDING)
+		pTx->m_ActiveInput += S3_PENDING;
+
 	return 0;
 }
 
@@ -234,8 +237,6 @@ int S3TxRemoved(char Rx, char Tx)
 
 	S3TxCancelAlarm(Rx, Tx, S3_TX_ALARMS_ALL);
 	S3TxSetType(Rx, Tx, S3_TxUnconnected);
-
-	// S3TxSetActiveIP(Rx, Tx, -1);
 
 	pTx->m_Detected = false;
 	pTx->m_TestSigInput = -1;
@@ -790,6 +791,8 @@ int S3TxSetPowerStat(char Rx, char Tx, S3TxPwrMode mode)
 			// changing of IP parameters when sleeping.
 			for(char IP = 0; IP < S3_MAX_IPS; IP++)
 				S3IPCancelAlarm(Rx, Tx, IP, S3_ALARMS_ALL);
+
+			S3RxCancelAlarm(Rx, Tx, S3_ALARMS_ALL);
 		}
 		else if (pTx->m_PowerStat == S3_TX_SLEEP && mode == S3_TX_ON)
 		{
@@ -1713,6 +1716,9 @@ unsigned char S3TxGetStableCnt(char Rx, char Tx)
 bool S3TxRLLStable(char Rx, char Tx)
 {
 	if (S3TxGetPowerStat(Rx, Tx) == S3_TX_SLEEP)
+		return true;
+
+	if (S3Data->m_Rx[Rx].m_Tx[Tx].m_RLLStableCnt == S3_RLL_STAB_LOW)
 		return true;
 
 	return S3Data->m_Rx[Rx].m_Tx[Tx].m_RLLStableCnt >= S3_RLL_STAB_UNKNOWN;

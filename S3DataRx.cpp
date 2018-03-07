@@ -405,11 +405,13 @@ short S3RxGetRLLHi(char Rx)
 
 int S3RxSetRLL(char Rx, char Tx, short RLL)
 {
+	pS3TxData pTx = &S3Data->m_Rx[Rx].m_Tx[Tx];
+
 	// If not the active Rx6 Tx, then hold onto old value and suppress alarm
 	if (!S3RxIsActiveTx(Rx, Tx))
 	{
-		if (S3Data->m_Rx[Rx].m_Tx[Tx].m_RLLStableCnt != S3_RLL_STAB_OK)
-			S3Data->m_Rx[Rx].m_Tx[Tx].m_RLLStableCnt = S3_RLL_STAB_UNKNOWN;
+		if (pTx->m_RLLStableCnt != S3_RLL_STAB_OK)
+			pTx->m_RLLStableCnt = S3_RLL_STAB_UNKNOWN;
 		return 0;
 	}
 
@@ -423,6 +425,7 @@ int S3RxSetRLL(char Rx, char Tx, short RLL)
 		S3TxGetPowerStat(Rx, Tx) == S3_TX_SLEEP)
 	{
 		S3Data->m_Rx[Rx].m_RLL[Tx] = SHRT_MIN;
+
 		return 0;
 	}
 
@@ -430,38 +433,38 @@ int S3RxSetRLL(char Rx, char Tx, short RLL)
 	S3Data->m_Rx[Rx].m_RLL[Tx] = RLL;
 
 	// Wait for stable RLL on start-up (inc. wake-up)
-	if (S3Data->m_Rx[Rx].m_Tx[Tx].m_RLLStableCnt != S3_RLL_STAB_OK)
+	if (pTx->m_RLLStableCnt != S3_RLL_STAB_OK)
 	{
-		if (RLL <= S3_RLL_GOOD_LO_10MDBM)
+		if (RLL < S3RxGetRLLLo(Rx)) // S3_RLL_GOOD_LO_10MDBM)
 		{
-			S3Data->m_Rx[Rx].m_Tx[Tx].m_RLLStableCnt = 0;
+			pTx->m_RLLStableCnt = 0;
 
-			if (S3Data->m_Rx[Rx].m_Tx[Tx].m_RLLLowCnt < S3_RLL_LOW_CNT)
-				S3Data->m_Rx[Rx].m_Tx[Tx].m_RLLLowCnt++;
+			if (pTx->m_RLLLowCnt < S3_RLL_LOW_CNT)
+				pTx->m_RLLLowCnt++;
 			else
-				S3Data->m_Rx[Rx].m_Tx[Tx].m_RLLStableCnt = S3_RLL_STAB_LOW;
+				pTx->m_RLLStableCnt = S3_RLL_STAB_LOW;
 		}
 		else
 		{
 			// Reset stability count if RLL was low and now OK
-			if (S3Data->m_Rx[Rx].m_Tx[Tx].m_RLLLowCnt)
+			if (pTx->m_RLLLowCnt)
 			{
-				S3Data->m_Rx[Rx].m_Tx[Tx].m_RLLStableCnt = 0;
+				pTx->m_RLLStableCnt = 0;
 			}
 
-			S3Data->m_Rx[Rx].m_Tx[Tx].m_RLLLowCnt = 0;
+			pTx->m_RLLLowCnt = 0;
 
 			if (RLL > S3_RLL_GOOD_LO_10MDBM && ABS(RLL - OldRLL) < S3_RLL_STABLE_THRESH)
 			{
-				S3Data->m_Rx[Rx].m_Tx[Tx].m_RLLStableCnt++;
+				pTx->m_RLLStableCnt++;
 			}
 			else
-				S3Data->m_Rx[Rx].m_Tx[Tx].m_RLLStableCnt = 0;
+				pTx->m_RLLStableCnt = 0;
 
-			if (S3Data->m_Rx[Rx].m_Tx[Tx].m_RLLStableCnt > S3_RLL_STABLE_CNT)
+			if (pTx->m_RLLStableCnt > S3_RLL_STABLE_CNT)
 			{
 				// Mark Tx as 'stable'. Permanent until TxOpt reset (wake)
-				S3Data->m_Rx[Rx].m_Tx[Tx].m_RLLStableCnt = S3_RLL_STAB_OK;
+				pTx->m_RLLStableCnt = S3_RLL_STAB_OK;
 			}
 			else
 			{
@@ -471,17 +474,33 @@ int S3RxSetRLL(char Rx, char Tx, short RLL)
 		}
 	}
 
-	if (S3Data->m_Rx[Rx].m_Tx[Tx].m_RLLStableCnt == S3_RLL_STAB_LOW ||
+	// Once S3_RLL_STAB_OK, treat low RLLs as read
+	if ((pTx->m_RLLStableCnt == S3_RLL_STAB_OK ||
+								pTx->m_RLLStableCnt == S3_RLL_STAB_LOW) &&
 		(RLL < S3RxGetRLLLo(Rx) && RLL != SHRT_MIN))
 	{
 		S3RxSetAlarm(Rx, Tx, S3_RX_RLL_LOW);
 		return 0;
 	}
 	else
-		S3RxCancelAlarm(Rx, Tx, S3_RX_RLL_LOW);
+	{
+		int update = S3RxCancelAlarm(Rx, Tx, S3_RX_RLL_LOW);
 
-	if (	RLL > S3RxGetRLLHi(Rx) &&
-			RLL != SHRT_MIN)
+		// If low RLL now good, need to force a gain change
+		if (update)
+		{
+			unsigned char UserAGC =	S3RxGetAGC(Rx, Tx);
+
+			if (UserAGC >= S3_PENDING)
+				UserAGC -= S3_PENDING;
+			
+			// If AGC gain-change mode, need to re-apply RLL factor
+			if (UserAGC == S3_AGC_CONT)
+				S3IPSetGainSent(Rx, Tx, S3TxGetActiveIP(Rx, Tx), SCHAR_MIN); 
+		}
+	}
+
+	if (RLL > S3RxGetRLLHi(Rx) && RLL != SHRT_MIN)
 	{
 		S3RxSetAlarm(Rx, Tx, S3_RX_RLL_HIGH);
 		return 0;
@@ -552,6 +571,7 @@ int S3RxSetAGC(char Rx, char Tx, unsigned char AGC)
 }
 
 // ---------------------------------------------------------------------------
+
 short S3RxGetRFGain(char Rx, char Tx)
 {
 	pS3RxData	pRx;
