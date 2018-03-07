@@ -42,8 +42,8 @@ extern GRADIENT_RECT gRect; // = {0, 1};
 
 #define S3_N_RXTX_PARAS	8
 
-int hRxTxRows[S3_N_RXTX_PARAS] = {0, 35, 30, 160, 40, 40, 80, 40}; // , 35, 35, 35, 35, 35};
-int pRxTxRows[S3_N_RXTX_PARAS]; // , 35, 35, 35, 35, 35};
+int hRxTxRows[S3_N_RXTX_PARAS] = {0, 35, 30, 160, 40, 40, 80, 40};
+int pRxTxRows[S3_N_RXTX_PARAS];
 
 CClickText	*RxAlarm;
 
@@ -129,11 +129,6 @@ void CS3GDIScreenMain::S3InitGDIRxScreen(void)
 				_T("Vcc (V)"), _T("222.8"), false);
 	m_RxVcc->RectEdit(m_HDC, m_hFontS);
 
-	//m_RxAGC = new CS3NameValue(
-	//			m_RectRxRx.left,	yTop + RowCnt++ * PARA_ROW, m_wRxRx,
-	//			_T("AGC"), _T("Offf"), true);
-	//m_RectRxAGC = m_RxAGC->RectEdit(m_HDC, m_hFontS);
-
 	RowCnt += 1;
 
 	m_RxSN = new CS3NameValue(
@@ -181,7 +176,6 @@ void CS3GDIScreenMain::S3CloseGDIRxScreen(void)
 	delete m_RxType;
 	delete m_RxTemp;
 	delete m_RxVcc;
-	// delete m_RxAGC;
 	delete m_RxSN;
 	delete m_RxPN;
 	// delete m_RxHW;
@@ -210,10 +204,6 @@ void CS3GDIScreenMain::S3DrawGDIRxScreen(void)
 
 	xref = 0;
 	yref = m_RectHeader.bottom;
-
-	//SelectObject(m_HDC, m_hPenNone);
-	//SelectObject(m_HDC, m_hBrushBG1);
-	//S3_RECT_N(m_HDC, m_RectRxRx);
 
 	S3DrawGDIRxRx(Rx);
 	S3DrawGDIRxTxTable(Rx);
@@ -258,14 +248,6 @@ void CS3GDIScreenMain::S3DrawGDIRxRx(char Rx)
 		(S3_RX_OVER_VOLT | S3_RX_UNDER_VOLT)) != 0);
 	m_RxVcc->SetValue(str);
 	m_RxVcc->Draw(m_HDC, m_hFontS, m_hFontSB);
-
-	//if (S3RxGetAGC(Rx))
-	//	str = _T("On");
-	//else
-	//	str= _T("Off");
-
-	// m_RxAGC->SetValue(str);
-	// m_RxAGC->Draw(m_HDC, m_hFontS, m_hFontSB);
 
 	const char		*SN, *PN, *HWV, *FWV;
 	S3RxGetInfo(Rx, &SN, &PN, &HWV, &FWV);
@@ -489,17 +471,16 @@ void CS3GDIScreenMain::S3DrawGDIRxRLL(char Rx, char Tx, int xref, int yref)
 
 void CS3GDIScreenMain::S3DrawGDIRxTxTable(char Rx)
 {
-	SelectObject(m_HDC, m_hBrushBG1);
+	SelectObject(m_HDC, m_hBrushBG2);
+	S3_RECT_N(m_HDC, m_RectRxTable);
+
+	SelectObject(m_HDC, m_hBrushBG3);
 	S3_RECT_N(m_HDC, m_RectRxParaList);
 	
 	char Tx;
 	unsigned char	RxType = S3RxGetType(Rx);
 
 	nTxParameters = 3; // TODO: Just label, name and RLL for now
-	// hTxRow = (m_RectScreen.bottom - yref) / nTxParameters;
-	// wTxPara = 95;
-	// wTxCol = (m_RectScreen.right - xref - wTxPara) / S3_MAX_TXS;
-
 	// Row labels
 	
 	if (RxType == S3_Rx6)
