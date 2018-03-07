@@ -650,6 +650,8 @@ int S3I2CTx8SoakTest(FILE *fid, short *v1, short *v2, char Rx, char Tx)
 
 	*v1 = *v2 = 0;
 
+#ifdef TRIZEPS
+
 	// Max out Tx DSA
 	if (1)
 	{
@@ -659,8 +661,6 @@ int S3I2CTx8SoakTest(FILE *fid, short *v1, short *v2, char Rx, char Tx)
 		if (err)
 			{ err = 1;  goto ENDTEST; }
 	}
-
-#ifdef TRIZEPS
 
 	short	RFLevel1 = 0;
 	short	RFLevelBG = 0;
