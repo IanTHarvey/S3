@@ -495,7 +495,7 @@ int S3RxSetRLL(char Rx, char Tx, short RLL)
 				UserAGC -= S3_PENDING;
 			
 			// If AGC gain-change mode, need to re-apply RLL factor
-			if (UserAGC == S3_AGC_CONT)
+			if (UserAGC == S3_AGC_GAIN)
 				S3IPSetGainSent(Rx, Tx, S3TxGetActiveIP(Rx, Tx), SCHAR_MIN); 
 		}
 	}
