@@ -586,6 +586,25 @@ int S3TxAlarmGetString(char Rx, char Tx, char *S3AlarmString, int len)
 		}
 	}
 
+	// Get any "receiver" alarms
+	pS3RxData pRx = &S3Data->m_Rx[Rx];
+
+	if (pRx->m_TxAlarms[Tx] & S3_RX_RLL_LOW)
+	{
+		strcpy_s(S3AlarmString, len, "E:Received light level low");
+		pRx->m_CurAlarmSrc = 100 + Tx;
+		pRx->m_CurAlarm = S3_RX_RLL_LOW;
+		return 1;
+	}
+
+	if (pRx->m_TxAlarms[Tx] & S3_RX_RLL_HIGH)
+	{
+		strcpy_s(S3AlarmString, len, "W:Received light level high");
+		pRx->m_CurAlarmSrc = 100 + Tx;
+		pRx->m_CurAlarm = S3_RX_RLL_HIGH;
+		return 1;
+	}
+
 	return 0;
 }
 
@@ -1078,6 +1097,7 @@ int S3RxSetAlarm(char Rx, char Tx, unsigned char alarms)
 
 	pS3RxData pRx = &S3Data->m_Rx[Rx];
 
+	// If Tx specified, alarm is specific to FOL channel serving that Tx
 	if (Tx != -1)
 	{
 		// Alarm requested
@@ -1102,7 +1122,7 @@ int S3RxSetAlarm(char Rx, char Tx, unsigned char alarms)
 			}
 		}
 
-		return 0;
+		return StateChange;
 	}
 	
 	// Alarm requested
@@ -1176,7 +1196,6 @@ int S3RxSetAlarm(char Rx, char Tx, unsigned char alarms)
 			StateChange = 1;
 		}
 	}
-	
 
 	return StateChange;
 }
@@ -1311,7 +1330,7 @@ int S3RxCancelAlarm(char Rx, char Tx, unsigned char alarms)
 			}
 		}
 
-		return 0;
+		return StateChange;
 	}
 
 	if (alarms & S3_RX_INT_FAIL)
