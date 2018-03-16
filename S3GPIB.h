@@ -44,15 +44,7 @@ char *S3GPIBGetCmdBuf();
 char S3GetRemoteSrc();
 void S3SetRemoteSrc(char MsgSrc);
 
-int GetAddress(char *all, char *Rx, char *Tx, char *IP,
-					const char **lastarg,
-					const char *args);
-
 int GetAddress2(char *all, char *Rx, char *Tx, char *IP);
-
-int GetAddressNoArg(char *all, char *Rx, char *Tx, char *IP,
-					const char *args);
-
 int GetAddress2NoArg(char *all, char *Rx, char *Tx, char *IP);
 
 // Good

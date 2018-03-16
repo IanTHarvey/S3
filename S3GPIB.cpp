@@ -46,7 +46,8 @@ short	GetShortArg(	const char *carg);
 double	GetDoubleArg(	const char *carg);
 
 // ----------------------------------------------------------------------------
-// In-place de-spacer
+// In-place de-space
+
 int S3DeSpace(char *str)
 {
 	unsigned	len = strlen(str);
@@ -68,7 +69,7 @@ int S3DeSpace(char *str)
 	// Trailing
 	i = len - 1;
 
-	while (str[i] == ' ' || str[i] == '\r' || str[i] == '\n')
+	while(str[i] == ' ' || str[i] == '\r' || str[i] == '\n')
 	{
 		str[i] = '\0';
 
@@ -77,13 +78,13 @@ int S3DeSpace(char *str)
 	}
 
 	// Multiple repeated
-	for (i = 0; i < len; i++)
+	for(i = 0; i < len; i++)
 	{
 		if (str[i] == ' ')
 		{
 			while (str[i + 1] == ' ')
 			{
-				for (unsigned j = i + 1; j < len + 1; j++)
+				for(unsigned j = i + 1; j < len + 1; j++)
 					str[j] = str[j + 1];
 
 				len--;
@@ -311,7 +312,6 @@ int S3ProcessGPIBCommand(const char *cmd)
 		else if (!STRCMP(Cmd,	"SELECTIP"))	err = CmdSELECTIP();
 		else if (!STRCMP(Cmd,	"SET"))			err = CmdSET();
 		else if (!STRCMP(Cmd,	"SELECTTX"))	err = CmdSELECTTX();
-		// else if (!STRCMP(Cmd,	"SYS"))			err = CmdSYS();
 		else if (!STRCMP(Cmd,	"SYSRESET"))	err = CmdSYSRESET();
 		else if (!STRCMP(Cmd,	"SYSSETTIME"))	err = CmdSYSSETTIME();
         else if (!STRCMP(Cmd,   "SHUTDOWN"))    err = CmdSHUTDOWN();
@@ -592,241 +592,6 @@ int GetAddress2(char *all, char *Rx, char *Tx, char *IP)
 
 		if (!S3RxExistQ(*Rx))
 			return S3_GPIB_RX_NOT_EXIST;
-
-		return 1;
-	}
-
-	return 0;
-}
-
-// ----------------------------------------------------------------------------
-// Deprecate in favour of GetAddress2()
-
-int GetAddress(char *all, char *Rx, char *Tx, char *IP,
-			   const char **lastarg, const char *args)
-{
-	char			*eptr;
-	
-	const char		*starts[4];
-	char			argscpy[S3_MAX_GPIB_CMD_LEN];
-
-	*all = *Rx = *Tx = *IP = -1;
-	*lastarg = NULL;
-
-	unsigned		l = strlen(args);
-
-	if (l > S3_MAX_GPIB_CMD_LEN)
-		return -1;
-
-	strcpy_s(argscpy, S3_MAX_GPIB_CMD_LEN, args);
-
-	unsigned char last = 0, nargs = 0;
-	// Get number of arguments and replace delimiter with '\0'
-	for (unsigned char i = 0; i < l + 1 && nargs < 4; i++)
-	{
-		if (argscpy[i] == ' ' || argscpy[i] == '\0')
-		{
-			*lastarg = args + last;
-
-			starts[nargs] = argscpy + last;
-			argscpy[i] = '\0';
-			nargs++;
-			last = i + 1;
-		}
-	}
-
-	// Just the value, no address
-	if (nargs < 2)
-		return 0;
-
-	// Just plain wrong
-	if (nargs > 4)
-		return -1;
-
-	if (nargs == 2)
-	{
-		if (!STRCMP(starts[0], "ALL"))
-		{
-			*all = 1;
-
-			return 100;
-		}
-	}
-
-	long			rxl, txl, ipl;
-
-	if (nargs == 4)
-	{
-		ipl = strtol(starts[2], &eptr, 10);
-		txl = strtol(starts[1], &eptr, 10);
-		rxl = strtol(starts[0], &eptr, 10);
-
-		// TODO: Check valid range
-		*IP = (char)ipl - 1;
-		*Tx = (char)txl - 1;
-		*Rx = (char)rxl - 1;
-
-		if (!ipl || !txl || !rxl)
-			return -2;
-
-		if (!S3TxExistQ(*Rx, *Tx))
-			return -3;
-
-		if (!S3IPValidQ(*Rx, *Tx, *IP))
-			return -4;
-
-		return 3;
-	}
-	else if (nargs == 3)
-	{
-		txl = strtol(starts[1], &eptr, 10);
-		rxl = strtol(starts[0], &eptr, 10);
-
-		if (!txl || !rxl)
-			return -2;
-
-		*Tx = (char)txl - 1;
-		*Rx = (char)rxl - 1;
-
-		if (!S3TxExistQ(*Rx, *Tx))
-			return -3;
-
-		return 2;
-	}
-	else if (nargs == 2)
-	{
-		if (*starts[0] == '0') // Rx0 == Controller
-		{
-			*Rx = -2;
-			return 1;
-		}
-
-		rxl = strtol(starts[0], &eptr, 10);
-
-		if (rxl < 0)
-			return -2;
-
-		*Rx = (char)rxl - 1;
-
-		if (!S3RxExistQ(*Rx))
-			return -3;
-
-		return 1;
-	}
-
-	return 0;
-}
-
-// ----------------------------------------------------------------------------
-
-int GetAddressNoArg(char *all, char *Rx, char *Tx, char *IP, const char *args)
-{
-	char			*eptr;
-	
-	const char		*starts[4];
-	char			argscpy[S3_MAX_GPIB_CMD_LEN];
-
-	*all = *Rx = *Tx = *IP = -1;
-
-	unsigned		l = strlen(args);
-
-	if (l > S3_MAX_GPIB_CMD_LEN)
-		return -1;
-
-	strcpy_s(argscpy, S3_MAX_GPIB_CMD_LEN, args);
-
-	unsigned char last = 0, nargs = 0;
-	
-	if (l)
-	{
-		// Get number of arguments and replace delimiter with '\0'
-		for (unsigned char i = 0; i < l + 1 && nargs < 4; i++)
-		{
-			if (argscpy[i] == ' ' || argscpy[i] == '\0')
-			{
-				starts[nargs] = argscpy + last;
-				argscpy[i] = '\0';
-				nargs++;
-				last = i + 1;
-			}
-		}
-	}
-
-	// Just the cmd, no address
-	if (nargs < 1)
-		return 0;
-
-	// Just plain wrong
-	if (nargs > 3)
-		return -1;
-
-	if (nargs == 1)
-	{
-		if (!STRCMP(starts[0], "ALL"))
-		{
-			*all = 1;
-
-			return 100;
-		}
-	}
-
-	long			rxl, txl, ipl;
-
-	if (nargs == 3)
-	{
-		ipl = strtol(starts[2], &eptr, 10);
-		txl = strtol(starts[1], &eptr, 10);
-		rxl = strtol(starts[0], &eptr, 10);
-
-		// TODO: Check valid range
-		*IP = (char)ipl - 1;
-		*Tx = (char)txl - 1;
-		*Rx = (char)rxl - 1;
-
-		if (!ipl || !txl || !rxl)
-			return -2;
-
-		if (!S3TxExistQ(*Rx, *Tx))
-			return -3;
-
-		if (!S3IPValidQ(*Rx, *Tx, *IP))
-			return -4;
-
-		return 3;
-	}
-	else if (nargs == 2)
-	{
-		txl = strtol(starts[1], &eptr, 10);
-		rxl = strtol(starts[0], &eptr, 10);
-
-		if (!txl || !rxl)
-			return -2;
-
-		*Tx = (char)txl - 1;
-		*Rx = (char)rxl - 1;
-
-		if (!S3TxExistQ(*Rx, *Tx))
-			return -3;
-
-		return 2;
-	}
-	else if (nargs == 1)
-	{
-		if (*starts[0] == '0') // Rx0 == Controller
-		{
-			*Rx = -2;
-			return 1;
-		}
-
-		rxl = strtol(starts[0], &eptr, 10);
-
-		if (rxl < 0)
-			return -2;
-
-		*Rx = (char)rxl - 1;
-
-		if (!S3RxExistQ(*Rx))
-			return -3;
 
 		return 1;
 	}
