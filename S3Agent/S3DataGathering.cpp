@@ -914,7 +914,7 @@ void DecodeRxModuleDetails(CString Response, int Rx)
         case RXMODELNAME:
             {
                 CT2A ascii(Line);
-                strcpy_s(S3Data->m_Rx[Rx].m_ModelName, S3_MAX_MODEL_ID_LEN, ascii.m_psz);
+                wcscpy_s(S3Data->m_Rx[Rx].m_ModelName, S3_MAX_MODEL_ID_LEN, Line);
             }
             break;
         case RXRLL:
@@ -1215,7 +1215,7 @@ void DecodeTxModuleDetails(CString Response, int Rx, int Tx)
         case TXMODELNAME:
             {
                 CT2A ascii(Line);
-                strcpy_s(S3Data->m_Rx[Rx].m_Tx[Tx].m_ModelName, S3_MAX_MODEL_ID_LEN, ascii.m_psz);
+                wcscpy_s(S3Data->m_Rx[Rx].m_Tx[Tx].m_ModelName, S3_MAX_MODEL_ID_LEN, Line);
             }
             break;
         case TXBATTSN:
