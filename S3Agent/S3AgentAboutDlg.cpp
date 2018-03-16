@@ -1,7 +1,7 @@
 // CAboutDlg dialog used for App About
 #include "stdafx.h"
 #include "S3AgentAboutDlg.h"
-
+#include "../S3SystemDetails.h"
 
 CAboutDlg::CAboutDlg() : CDialogEx(CAboutDlg::IDD)
 {
@@ -25,8 +25,14 @@ BOOL CAboutDlg::OnInitDialog()
 
     //Remember to update the information in Resource.rc as well as here!
     AboutText = "Sentinel 3 Remote Agent\r\n"
-        "Version: 1.1 for Sentinel 3 SW\r\n"
-        "Copyright (C) Pulse Power and Measurement Ltd 2016. All rights reserved.\r\n"
+		"Version: 1.01.000 for Sentinel 3 SW\r\n"
+		"Built on: ";
+
+	AboutText += S3_SYS_SW;
+	
+	AboutText += " Sentinel 3 base code\r\n\r\n";
+
+    AboutText += "Copyright (C) Pulse Power and Measurement Ltd 2016. All rights reserved.\r\n"
         "\r\nDistributed under the following License:"
         "\r\n\r\n"
        "PPM Proprietary Software License\r\n\
