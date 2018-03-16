@@ -6,6 +6,11 @@
 #include "S3Comms.h"
 #include "defines.h"
 extern void ReadFromSerialPort();
+
+extern int S3TimerInit();
+extern int S3TimerStart(unsigned char Tid);
+extern int S3TimerStop(unsigned char Tid);
+
 // ----------------------------------------------------------------------------
 // Open the USB connection
 // - Listens on selected USB/COM port
@@ -51,7 +56,6 @@ int OpenConnectUSB()
         return 0;
     }
 }
-
 
 // ----------------------------------------------------------------------------
 // Close the USB connection
@@ -321,7 +325,9 @@ CString SendSentinel3Message(CString message)
                 // TxBuf[i++] = S3_CMD_TERMINATOR;
                 TxBuf[i++] = '\0';
 
+				S3TimerStart(0);
                 int err = SendMessageSC3_2(TxBuf);
+				S3TimerStop(0);
 
                 if (err == 666)
                 {
@@ -459,6 +465,7 @@ int SendMessageOpenSocketSC3(const char *TxBuf)
 
     *RxBuf = '\0';
     // Send an initial buffer - NOT terminator
+	S3TimerStart(1);
     iResult = send(ConnectSocket, TxBuf, (int)len, 0);
 
     CString tmp;
@@ -477,6 +484,8 @@ int SendMessageOpenSocketSC3(const char *TxBuf)
 	while((iResult = recv(ConnectSocket, RxBuf, DEFAULT_BUFLEN, 0)) == SOCKET_ERROR &&
 			retries < S3_RECV_RETRIES)
 		retries++;
+
+	S3TimerStop(1);
 
     if (iResult > 0 && retries < S3_RECV_RETRIES)
     {
