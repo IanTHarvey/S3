@@ -270,14 +270,16 @@ int S3I2CGetTxWakeUp(char Rx, char Tx)
 	// ------------------------------------------------------------------------
 
 	char IP = S3TxGetActiveIP(Rx, Tx);
+
+	// S3TxSetActiveIP(Rx, Tx, IP + S3_PENDING);
 	S3IPSetGainSent(Rx, Tx, IP, SCHAR_MIN); // Force update
 
 	char ToneEnabled = S3IPGetTestToneEnable(Rx, Tx, IP);
 	
 	if (ToneEnabled)
-		S3IPSetTestToneEnable(Rx, Tx, IP, ToneEnabled + 100);
+		S3IPSetTestToneEnable(Rx, Tx, IP, ToneEnabled + S3_PENDING);
 
-	S3TxSetTCompMode(Rx, Tx, S3TxGetTCompMode(Rx, Tx) + 100);
+	S3TxSetTCompMode(Rx, Tx, S3TxGetTCompMode(Rx, Tx) + S3_PENDING);
 
 	if (0)
 	{
@@ -762,24 +764,28 @@ int S3I2CTxSetStatus(char Rx, char Tx)
 	// if (S3Data->m_Rx[Rx].m_Tx[Tx].m_Uptime == S3_RLL_WARMUP_POLLS && S3GetAGC() == S3_AGC_GAIN)
 	//	S3IPSetGainSent(Rx, Tx, IP, SCHAR_MIN);
 
-	err = S3I2CSetIPGain(Rx, Tx, IP);
-	
-	if (err)
+	// Issue 79: Don't set anything in the gain path if not active Tx.
+	if (S3RxIsActiveTx(Rx, Tx))
 	{
-		switch(err)
+		err = S3I2CSetIPGain(Rx, Tx, IP);
+		
+		if (err)
 		{
-			case 1:	S3EventLogAdd("S3I2CSetIPGain: Generic fail", 3, Rx, Tx, -1); break;
-			case 2:	S3EventLogAdd("S3I2CSetIPGain: Path fail", 3, Rx, Tx, -1); break;
-			case 3:	S3EventLogAdd("S3I2CSetIPGain: RF DSA fail", 3, Rx, Tx, -1); break;
-			case 4:	S3EventLogAdd("S3I2CSetIPGain: Rx DSA fail", 3, Rx, Tx, -1); break;
-			case 5:	S3EventLogAdd("S3I2CSetIPGain: Tx DSA fail", 3, Rx, Tx, -1); break;
-			default:S3EventLogAdd("S3I2CSetIPGain: Unknown error", 3, Rx, Tx, -1); break;
+			switch(err)
+			{
+				case 1:	S3EventLogAdd("S3I2CSetIPGain: Generic fail", 3, Rx, Tx, -1); break;
+				case 2:	S3EventLogAdd("S3I2CSetIPGain: Path fail", 3, Rx, Tx, -1); break;
+				case 3:	S3EventLogAdd("S3I2CSetIPGain: RF DSA fail", 3, Rx, Tx, -1); break;
+				case 4:	S3EventLogAdd("S3I2CSetIPGain: Rx DSA fail", 3, Rx, Tx, -1); break;
+				case 5:	S3EventLogAdd("S3I2CSetIPGain: Tx DSA fail", 3, Rx, Tx, -1); break;
+				default:S3EventLogAdd("S3I2CSetIPGain: Unknown error", 3, Rx, Tx, -1); break;
+			}
 		}
-	}
 
-	S3I2CTxSetCompMode(Rx, Tx); // IFF changed
-	S3I2CTxUpdateTemp(Rx, Tx);
-	S3I2CTxDoComp(Rx, Tx);
+		S3I2CTxSetCompMode(Rx, Tx); // IFF changed
+		S3I2CTxUpdateTemp(Rx, Tx);
+		S3I2CTxDoComp(Rx, Tx);
+	}
 
 	if (1)
 	{
@@ -933,7 +939,6 @@ int S3I2CTxGetStatus(char Rx, char Tx)
 
 	// Catch-all for Kludge above
 	S3TxCancelAlarm(Rx, Tx, S3_TX_INIT_FAIL);
-
 
 #ifdef S3_TEMP_LOG
 	//DIAG:
