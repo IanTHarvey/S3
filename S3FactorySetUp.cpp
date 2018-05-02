@@ -768,6 +768,14 @@ void CS3FactorySetUp::UpdateInfoStatic()
 			tmp.Append(_T("Awake; "));
 		else
 			tmp.Append(_T("Asleep; "));
+
+		if (S3RxGetType(m_Rx) == S3_Rx6)
+		{
+			if (S3RxIsActiveTx(m_Rx, m_Tx))
+				tmp.Append(_T("Active; "));
+			else
+				tmp.Append(_T("NOT Active; "));
+		}
 	}
 
 	m_RxTxInfoStatic.SetWindowText(tmp);
@@ -897,3 +905,4 @@ void CS3FactorySetUp::OnBnClickedTx8SoakTestButton()
 }
 
 // ----------------------------------------------------------------------------
+
