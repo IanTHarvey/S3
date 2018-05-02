@@ -135,6 +135,8 @@ extern const wchar_t *TxTypeStrings[];
 #define S3_MAX_NODE_NAME_LEN	32
 #define S3_MAX_EDIT_LEN			32
 
+#define S3_MAX_UNIT_STR_LEN		10
+
 // Pop-up editors
 #define S3_MAX_IP_ADDRESS_LEN	(4 * 3 + 3) + 1
 #define S3_MAX_IP_PORT_LEN		5
@@ -227,8 +229,6 @@ typedef enum SigmaT				{TauNone, TauLo, TauMd, TauHi, TauUnknown};
 // User-settable gain limits (inclusive)
 #define	S3_MIN_GAIN				-78
 #define	S3_MAX_GAIN				40
-// #define	S3_MIN_GAIN_HI			(S3_MIN_GAIN + 15)
-// #define	S3_MAX_GAIN_HI			(S3_MAX_GAIN + 15)
 
 // Special values for m_RLLStableCnt
 #define S3_RLL_STAB_RESET	0x00	// Reset counter
