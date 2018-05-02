@@ -35,9 +35,10 @@ extern pS3DataModel S3Data;
 
 // #define RUNTIME_DIRECTORY
 
-#define S3_RUN_DIR	"\\Flashdisk\\S3Controller"
-#define S3_HOME_DIR	"\\Flashdisk\\S3"
+#define S3_RUN_DIR		"\\Flashdisk\\S3Controller"
+#define S3_HOME_DIR		"\\Flashdisk\\S3"
 
+#define S3_IMAGE_UPDATE		"S3TestOS.nb0"
 #define S3_UPDATE_FILENAME	"S3CUpdate.upd"
 #define S3_EXE_NAME			"S3Controller.exe"
 #define S3_EXE_BAK_NAME		"S3Controller.bak"
@@ -46,7 +47,7 @@ extern pS3DataModel S3Data;
 wchar_t OSHDDDirectory[] =	{_T("\\Hard Disk")};
 wchar_t OSFDDDirectory[] =	{_T("\\Flashdisk")};
 
-wchar_t OSImageUpdateFilename[] =	{_T("S3TestOS.nb0")};
+wchar_t OSImageUpdateFilename[] =	{_T(S3_IMAGE_UPDATE)};
 wchar_t OSAppUpdateFilename[] =		{_T(S3_UPDATE_FILENAME)};
 wchar_t OSImageUpdateFilePath[MAX_PATH];
 wchar_t OSAppUpdateFilePath[MAX_PATH];
