@@ -27,6 +27,8 @@
 // 
 // -----------------------------------------------------------------------------
 
+unsigned char ChRev[4] = {3, 2, 1, 0};
+
 #include "stdafx.h"
 
 #include "S3DataModel.h"
@@ -73,6 +75,8 @@ unsigned char CountPins(unsigned char pins)
 
 int S3I2CChMS(unsigned char Ch)
 {
+	Ch = ChRev[Ch];
+
 #ifdef TRIZEPS
 	int pins;
 
@@ -204,35 +208,35 @@ int S3I2CChGetFault()
 	unsigned char fault[4] = {0, 0, 0, 0};
 	if (!(pins0 & 0x40))
 	{
-		S3ChSetAlarm(3, S3_CH_CHARGE_FAULT);
-		fault[3] = 1;
+		S3ChSetAlarm(ChRev[3], S3_CH_CHARGE_FAULT);
+		fault[ChRev[3]] = 1;
 	}
 	else
-		S3ChCancelAlarm(3, S3_CH_CHARGE_FAULT);
+		S3ChCancelAlarm(ChRev[3], S3_CH_CHARGE_FAULT);
 
 	if (!(pins0 & 0x80))
 	{
-		S3ChSetAlarm(2, S3_CH_CHARGE_FAULT);
-		fault[2] = 1;
+		S3ChSetAlarm(ChRev[2], S3_CH_CHARGE_FAULT);
+		fault[ChRev[2]] = 1;
 	}
 	else
-		S3ChCancelAlarm(2, S3_CH_CHARGE_FAULT);
+		S3ChCancelAlarm(ChRev[2], S3_CH_CHARGE_FAULT);
 
 	if (!(pins1 & 0x01))
 	{
-		S3ChSetAlarm(1, S3_CH_CHARGE_FAULT);
-		fault[1] = 1;
+		S3ChSetAlarm(ChRev[1], S3_CH_CHARGE_FAULT);
+		fault[ChRev[1]] = 1;
 	}
 	else
-		S3ChCancelAlarm(1, S3_CH_CHARGE_FAULT);
+		S3ChCancelAlarm(ChRev[1], S3_CH_CHARGE_FAULT);
 
 	if (!(pins1 & 0x02))
 	{
-		S3ChSetAlarm(0, S3_CH_CHARGE_FAULT);
-		fault[0] = 1;
+		S3ChSetAlarm(ChRev[0], S3_CH_CHARGE_FAULT);
+		fault[ChRev[0]] = 1;
 	}
 	else
-		S3ChCancelAlarm(0, S3_CH_CHARGE_FAULT);
+		S3ChCancelAlarm(ChRev[0], S3_CH_CHARGE_FAULT);
 
 	// char Msg[S3_EVENTS_LINE_LEN];
 
@@ -250,6 +254,8 @@ int S3I2CChGetFault()
 int S3I2CChEn(unsigned char Ch, bool enable)
 {
 #ifdef TRIZEPS
+	Ch = ChRev[Ch];
+
 	int pins = I2C_ReadRandom(S3I2C_EXPANDER_ADDR, 0x04);
 
 	// enable = false;
@@ -310,6 +316,8 @@ int S3I2CChEn(unsigned char Ch, bool enable)
 
 int S3I2CChargerInit(unsigned char Ch)
 {
+	Ch = ChRev[Ch];
+
 	return 0;
 }
 
@@ -357,6 +365,8 @@ int S2I2CChFactoryPN();
 int S3I2CChGetStatus(unsigned char Ch)
 {
 #ifdef TRIZEPS
+	Ch = ChRev[Ch];
+
 	S3TimerStart(1);
 
 	S3I2CChMS(Ch);
@@ -510,6 +520,8 @@ int S3I2CChGetStatus(unsigned char Ch)
 int S3I2CChReadSNPN(char Ch, char *SN, char *PN)
 {
 #ifdef TRIZEPS
+	Ch = ChRev[Ch];
+
 	unsigned char cmd[3] = {0x00, 0x00, 0x00};
 	BOOL ok;
 	unsigned char i2cStartAddr = 0x00;
