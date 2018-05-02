@@ -923,7 +923,7 @@ int S3SetGain(char Rx, char Tx, char IP, char gain)
 	 		return 2;
 
 		double maxip = S3CalcMaxIP(gain);
-		double P1dB = S3CalcP1dB(gain);
+		double P1dB = S3CalcP1dB(gain - S3RxGetExtraGainCap(Rx));
 
 		S3Data->m_Rx[Rx].m_Tx[Tx].m_Input[IP].m_Config.m_Gain = gain;
 		
@@ -1035,7 +1035,7 @@ double S3CalcMaxIP(int g)
 
 // ----------------------------------------------------------------------------
 // Input power that will cause 1dB of gain loss due to compression.
-// If gain <= -16dB assume intereted in pulse power, so convert to V
+// If gain <= -16dB assume interested in pulse power, so convert to V
 // whatever the user preference.
 
 double S3CalcP1dB(int g_dB)
@@ -1941,15 +1941,20 @@ int S3SetFactoryMode(char Rx, char Tx, bool mode)
 			if (S3I2CRxMS(Rx))
 				return 1;
 
-		// if (S3I2CChMS(0))
-		//	return 1;
-
 		if (Tx != -1)
 		{
 			S3I2CSetUpOptAddr(Rx, Tx);
 
-			if (S3I2CRxSwitchTx(Rx, Tx))
+			S3RxSetActiveTx(Rx, Tx);
+			if (S3I2CRxSetActiveTx(Rx))
 				return 1;
+
+			// Force switch to active IP and update to gain
+			S3TxSetActiveIP(Rx, Tx, 0);
+			S3I2CTxSwitchInput(Rx, Tx, 0);
+
+			S3IPSetGainSent(Rx, Tx, 0, SCHAR_MIN);
+			S3I2CSetIPGain(Rx, Tx, 0);
 		}
 	}
 
@@ -2015,13 +2020,6 @@ bool S3GetWinTrackOption()
 {
 	return S3Data->m_WinTrackOption;
 }
-
-// ---------------------------------------------------------------------------
-// Should be per Tx
-//bool S3TxGetOverdriveOption(char Rx, char Tx)
-//{
-//	return S3Data->m_Rx[Rx].m_Tx[Tx].m_OverdriveOption;
-//}
 
 // ---------------------------------------------------------------------------
 
