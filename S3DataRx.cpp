@@ -808,11 +808,11 @@ int S3RxSetVcc(char Rx, unsigned short v)
 }
 
 // ---------------------------------------------------------------------------
-// int S3RxSetCalGain(char Rx, short cal)
+// Issue 80: Tx only applicable to Rx2
 
 int S3RxSetCalGain(char Rx, char Tx, short cal)
 {
-	if (Tx == -1)
+	if (S3RxGetType(Rx) != S3_Rx2 || Tx == -1)
 		Tx = 0;
 
 	S3Data->m_Rx[Rx].m_CalGain[Tx] = cal;

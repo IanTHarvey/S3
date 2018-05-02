@@ -113,8 +113,10 @@ int S3I2CRxGetStatus(char Rx)
 
 	unsigned char RxType = S3RxGetType(Rx);
 
-	// Switch optical input BEFORE attempting to read RLL
+	// Switch optical input BEFORE attempting to read Rx6's RLL
 	S3I2CRxSetActiveTx(Rx);
+
+	// Read all Rx control data from Rx[0], even if Rx2
 	S3I2CSetUpOptAddr(Rx, 0);
 
 	// Get general optical board data from channel 1
@@ -153,6 +155,7 @@ int S3I2CRxGetStatus(char Rx)
 		err = S3I2CRxProcessTx(Rx, 0);
 
 		S3I2CSetUpOptAddr(Rx, 1);
+		// Read data from 2nd Rx (includes RLL)
 		ok = I2C_WriteRead(S3I2CCurRxOptAddr, &wbuf, 1, S3I2CRxReadBuf, 16);
 		err = S3I2CRxProcessTx(Rx, 1);
 	}
