@@ -653,13 +653,9 @@ int S3SysReadSN()
 			{
 				S3Data->m_SoftShutdownOption = false;
 			}
-			else if (!strcmp(S3Data->m_SN, "1247843")) // ATiS
-			{
-				S3Data->m_SoftShutdownOption = false;
-			}
 			else if (!strncmp(S3Data->m_SN, "DEMO000", strlen("DEMO000"))) // Demo1
 			{
-				S3Data->m_SoftShutdownOption = false;
+				S3Data->m_SoftShutdownOption = true;
 			}
 			else // Eng0002 and all future S3s
 			{
