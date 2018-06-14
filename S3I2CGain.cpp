@@ -243,7 +243,7 @@ int	S3I2CSetRxOptDSA(char Rx, char Tx, char dsa)
 	unsigned char wbuf[3];
 	short val;
 
-	short cal = S3RxGetCalGain(Rx, Tx);
+	short cal = 2000; // S3RxGetCalGain(Rx, Tx);
 
 	val = cal - ((short)dsa * 100 + 450);
 	val -= S3I2CRxOptFact[S3I2CCurPath - 1];
