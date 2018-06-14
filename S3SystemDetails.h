@@ -18,8 +18,9 @@
 // 1.03.004 
 // 1.03.005 Rx+ support added, mods and fixes
 // 1.04.000 Release to production
+// 1.04.001 Release to BAE
 
-#define S3_SYS_SW			"1.04.000" // Not released
+#define S3_SYS_SW			"1.04.001"
 
 #define S3_SYS_MODEL		"Sentinel 3"
 
