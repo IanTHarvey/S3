@@ -23,6 +23,9 @@ int S3I2CSetIPGain(char Rx, char Tx, char IP);
 #include "S3TableModeA.h"
 #include "S3TableModeB.h"
 
+#include "S3TableRxPlusModeA.h"
+#include "S3TableRxPlusModeB.h"
+
 // User gain, user power, DSA1, DSA2, DSA3
 
 // Tables from Y:\Project files\Sentinel3\System\s3_lineup.xlsm
@@ -312,36 +315,50 @@ int S3GetLinkParas(char Rx, char Tx, char IP,
 
 	char Idx = (char)(Gain - S3GetMinGain(Rx, Tx));
 
+	double (*TableModeA)[15];
+	double (*TableModeB)[15];
+
+	if (S3RxGetExtraGainCap(Rx) == 0)
+	{
+		TableModeA = S3TableModeA;
+		TableModeB = S3TableModeB;
+	}
+	else
+	{
+		TableModeA = S3TableRxPlusModeA;
+		TableModeB = S3TableRxPlusModeB;
+	}
+
 	if (S3Data->m_SigSize == S3_UNITS_SMALL)
 	{
 		if (!S3Get3PCLinearity())
 		{
 			if (S3Data->m_DisplayUnits == S3_UNITS_WATTS)
 			{
-				*P1dBIn =	S3TableModeA[Idx][4];
-				*P1dBOut =	S3TableModeA[Idx][8];
-				*Sens =		S3TableModeA[Idx][2];
+				*P1dBIn =	TableModeA[Idx][4];
+				*P1dBOut =	TableModeA[Idx][8];
+				*Sens =		TableModeA[Idx][2];
 			}
 			else
 			{
-				*P1dBIn =	S3TableModeA[Idx][5];
-				*P1dBOut =	S3TableModeA[Idx][9];
-				*Sens =		S3TableModeA[Idx][3];
+				*P1dBIn =	TableModeA[Idx][5];
+				*P1dBOut =	TableModeA[Idx][9];
+				*Sens =		TableModeA[Idx][3];
 			}
 		}
 		else
 		{
 			if (S3Data->m_DisplayUnits == S3_UNITS_WATTS)
 			{
-				*P1dBIn =	S3TableModeA[Idx][6];
-				*P1dBOut =	S3TableModeA[Idx][10];
-				*Sens =		S3TableModeA[Idx][2];
+				*P1dBIn =	TableModeA[Idx][6];
+				*P1dBOut =	TableModeA[Idx][10];
+				*Sens =		TableModeA[Idx][2];
 			}
 			else
 			{
-				*P1dBIn =	S3TableModeA[Idx][7];
-				*P1dBOut =	S3TableModeA[Idx][11];
-				*Sens =		S3TableModeA[Idx][3];
+				*P1dBIn =	TableModeA[Idx][7];
+				*P1dBOut =	TableModeA[Idx][11];
+				*Sens =		TableModeA[Idx][3];
 			}
 		}
 	}
@@ -351,30 +368,30 @@ int S3GetLinkParas(char Rx, char Tx, char IP,
 		{
 			if (S3Data->m_DisplayUnits == S3_UNITS_WATTS)
 			{
-				*P1dBIn =	S3TableModeB[Idx][4];
-				*P1dBOut =	S3TableModeB[Idx][8];
-				*Sens =		S3TableModeB[Idx][2];
+				*P1dBIn =	TableModeB[Idx][4];
+				*P1dBOut =	TableModeB[Idx][8];
+				*Sens =		TableModeB[Idx][2];
 			}
 			else
 			{
-				*P1dBIn =	S3TableModeB[Idx][5];
-				*P1dBOut =	S3TableModeB[Idx][9];
-				*Sens =		S3TableModeB[Idx][3];
+				*P1dBIn =	TableModeB[Idx][5];
+				*P1dBOut =	TableModeB[Idx][9];
+				*Sens =		TableModeB[Idx][3];
 			}
 		}
 		else
 		{
 			if (S3Data->m_DisplayUnits == S3_UNITS_WATTS)
 			{
-				*P1dBIn =	S3TableModeB[Idx][6];
-				*P1dBOut =	S3TableModeB[Idx][10];
-				*Sens =		S3TableModeB[Idx][2];
+				*P1dBIn =	TableModeB[Idx][6];
+				*P1dBOut =	TableModeB[Idx][10];
+				*Sens =		TableModeB[Idx][2];
 			}
 			else
 			{
-				*P1dBIn =	S3TableModeB[Idx][7];
-				*P1dBOut =	S3TableModeB[Idx][11];
-				*Sens =		S3TableModeB[Idx][3];
+				*P1dBIn =	TableModeB[Idx][7];
+				*P1dBOut =	TableModeB[Idx][11];
+				*Sens =		TableModeB[Idx][3];
 			}
 		}
 	}

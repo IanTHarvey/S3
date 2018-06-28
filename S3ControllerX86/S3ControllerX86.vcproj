@@ -1173,6 +1173,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\S3TableRxPlusModeA.h"
+				>
+			</File>
+			<File
+				RelativePath="..\S3TableRxPlusModeB.h"
+				>
+			</File>
+			<File
 				RelativePath="..\S3USBVCP.h"
 				>
 			</File>
@@ -1212,6 +1220,10 @@
 			</File>
 			<File
 				RelativePath="..\res\ChBattInvalid.bmp"
+				>
+			</File>
+			<File
+				RelativePath="..\res\ChChBattCharging.bmp"
 				>
 			</File>
 			<File

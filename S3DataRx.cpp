@@ -25,7 +25,8 @@ int S3RxInit(pS3RxData node)
 	// connected (or not)
 
 	node->m_Fmax = S3_1GHZ;
-	node->m_ExtraGainCap = 15;
+	// node->m_ExtraGainCap = 15;
+	node->m_ExtraGainCap = 0;
 
 	strcpy_s(node->m_SN, S3_MAX_SN_LEN, "Unknown");
 	strcpy_s(node->m_PN, S3_MAX_PN_LEN, "Unknown");
