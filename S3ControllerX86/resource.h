@@ -72,7 +72,6 @@
 #define IDB_RX1_RLL1_RED_BITMAP         242
 #define IDB_RX2_RLL5_RED_BITMAP         243
 #define IDB_RX2_RLL1_RED_BITMAP         244
-#define IDB_PPMBG_BITMAP                245
 #define IDB_RX_EMPTY_BAR_BITMAP         246
 #define IDB_TXBATT1GV_BITMAP            248
 #define IDB_TXBATT1GUV_BITMAP           249
@@ -84,10 +83,10 @@
 #define IDB_CHCHARGING_BITMAP           256
 #define IDC_TEST_BUTTON                 1010
 #define IDC_GDI_STATIC                  1546
-#define S3GDI_DATE_EDIT                 1631
 #define S3GDI_TEXT_EDIT                 1627
 #define S3GDI_NUM_EDIT                  1628
 #define S3GDI_NUM2_EDIT                 1630
+#define S3GDI_DATE_EDIT                 1631
 #define IDC_RX1_CAL_EDIT                1635
 #define IDC_RX1_CAL_STATIC              1636
 #define IDC_TX_CAL_STATIC               1637
@@ -135,6 +134,7 @@
 #define IDC_BATTERY_SN_EDIT             1681
 #define IDC_BATTERY_SN_STATIC           1682
 #define IDC_RX2_CAL_SET_BUTTON          1683
+#define IDC_TX8_SOAK_TEST_BUTTON        1685
 
 // Next default values for new objects
 // 
@@ -142,7 +142,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        258
 #define _APS_NEXT_COMMAND_VALUE         32778
-#define _APS_NEXT_CONTROL_VALUE         1685
+#define _APS_NEXT_CONTROL_VALUE         1686
 #define _APS_NEXT_SYMED_VALUE           107
 #endif
 #endif
