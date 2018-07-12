@@ -425,6 +425,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\S3SystemDetails.h"
+				>
+			</File>
+			<File
 				RelativePath=".\S3USBVCP.h"
 				>
 			</File>
