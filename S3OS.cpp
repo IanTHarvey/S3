@@ -655,7 +655,7 @@ int S3SysReadSN()
 			}
 			else if (!strncmp(S3Data->m_SN, "DEMO000", strlen("DEMO000"))) // Demo1
 			{
-				S3Data->m_SoftShutdownOption = true;
+				S3Data->m_SoftShutdownOption = false;
 			}
 			else // Eng0002 and all future S3s
 			{
