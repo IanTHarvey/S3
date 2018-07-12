@@ -2059,11 +2059,11 @@ void CS3GDIScreenMain::S3GDITxNewTx(void)
 	str.Format(_T("%S"), PN);
 	m_TxBattInfoPopup->AddItem(_T("P/N:"), str);
 
-	str.Format(_T("%S"), HWV);
-	m_TxBattInfoPopup->AddItem(_T("H/W:"), str);
+	//str.Format(_T("%S"), HWV);
+	//m_TxBattInfoPopup->AddItem(_T("H/W:"), str);
 
-	str.Format(_T("%S"), FWV);
-	m_TxBattInfoPopup->AddItem(_T("F/W:"), str);
+	//str.Format(_T("%S"), FWV);
+	//m_TxBattInfoPopup->AddItem(_T("F/W:"), str);
 }
 
 // ----------------------------------------------------------------------------
