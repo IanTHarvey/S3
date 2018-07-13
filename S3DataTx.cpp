@@ -46,7 +46,7 @@ int S3TxInit(pS3TxData node)
 	strcpy_s(node->m_PN, S3_MAX_PN_LEN, "Unknown");
 	strcpy_s(node->m_FW, S3_MAX_SW_VER_LEN, "Unknown");
 	strcpy_s(node->m_HW, S3_MAX_SW_VER_LEN, "Unknown");
-	wcscpy_s(node->m_ModelName, S3_MAX_MODEL_ID_LEN, TxTypeStrings[S3_TxUnconnected]);
+	strcpy_s(node->m_ModelName, S3_MAX_MODEL_ID_LEN, TxTypeStrings[S3_TxUnconnected]);
 
 	strcpy_s(node->m_BattSN, S3_MAX_SN_LEN, "Unknown");
 	strcpy_s(node->m_BattPN, S3_MAX_SN_LEN, "Unknown");
@@ -114,21 +114,21 @@ int S3TxSetType(char Rx, char Tx, S3TxType type)
 		if (pTx->m_Type != S3_TxUnconnected)
 			S3TxSetUnconnected(pTx);
 
-		wcscpy_s(pTx->m_ModelName, S3_MAX_MODEL_ID_LEN, TxTypeStrings[S3_TxUnconnected]);
+		strcpy_s(pTx->m_ModelName, S3_MAX_MODEL_ID_LEN, TxTypeStrings[S3_TxUnconnected]);
 	}
 	else if (type == S3_Tx1)
 	{
 		if (pTx->m_Type == S3_TxUnconnected)
 			S3TxSetConnected(pTx);
 
-		wcscpy_s(pTx->m_ModelName, S3_MAX_MODEL_ID_LEN, TxTypeStrings[S3_Tx1]);
+		strcpy_s(pTx->m_ModelName, S3_MAX_MODEL_ID_LEN, TxTypeStrings[S3_Tx1]);
 	}
 	else if (type == S3_Tx8)
 	{
 		if (pTx->m_Type == S3_TxUnconnected)
 			S3TxSetConnected(pTx);
 
-		wcscpy_s(pTx->m_ModelName, S3_MAX_MODEL_ID_LEN, TxTypeStrings[S3_Tx8]);
+		strcpy_s(pTx->m_ModelName, S3_MAX_MODEL_ID_LEN, TxTypeStrings[S3_Tx8]);
 	}
 	else
 		return 1;
@@ -153,21 +153,21 @@ int S3TxSetTypeP(pS3TxData pTx, S3TxType type)
 		if (pTx->m_Type != S3_TxUnconnected)
 			S3TxSetUnconnected(pTx);
 
-		wcscpy_s(pTx->m_ModelName, S3_MAX_MODEL_ID_LEN, TxTypeStrings[S3_TxUnconnected]);
+		strcpy_s(pTx->m_ModelName, S3_MAX_MODEL_ID_LEN, TxTypeStrings[S3_TxUnconnected]);
 	}
 	else if (type == S3_Tx1)
 	{
 		if (pTx->m_Type == S3_TxUnconnected)
 			S3TxSetConnected(pTx);
 
-		wcscpy_s(pTx->m_ModelName, S3_MAX_MODEL_ID_LEN, TxTypeStrings[S3_Tx1]);
+		strcpy_s(pTx->m_ModelName, S3_MAX_MODEL_ID_LEN, TxTypeStrings[S3_Tx1]);
 	}
 	else if (type == S3_Tx8)
 	{
 		if (pTx->m_Type == S3_TxUnconnected)
 			S3TxSetConnected(pTx);
 
-		wcscpy_s(pTx->m_ModelName, S3_MAX_MODEL_ID_LEN, TxTypeStrings[S3_Tx8]);
+		strcpy_s(pTx->m_ModelName, S3_MAX_MODEL_ID_LEN, TxTypeStrings[S3_Tx8]);
 	}
 	else
 		return 1;
@@ -461,7 +461,7 @@ int S3TxCopy(pS3TxData node, pS3TxData src)
 	node->m_ActiveInput = src->m_ActiveInput;
 
 	strcpy_s(node->m_SN, S3_MAX_SN_LEN, src->m_SN);
-	wcscpy_s(node->m_ModelName, S3_MAX_MODEL_ID_LEN, src->m_ModelName);
+	strcpy_s(node->m_ModelName, S3_MAX_MODEL_ID_LEN, src->m_ModelName);
 
 	S3CopyConfig(&node->m_Config, &src->m_Config);
 

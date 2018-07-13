@@ -51,26 +51,26 @@ const wchar_t *SigSizeStrings[] = {
 };
 
 // Use type defines to index. TODO: Worth implementing as functions?
-const wchar_t *RxTypeStrings[] = {
-	{ L"Empty" },
-	{ L"Rx1" },
-	{ L"Rx2" },
-	{ L"" },
-	{ L"" },
-	{ L"" },
-	{ L"Rx6" }
+const char *RxTypeStrings[] = {
+	{ "Empty" },
+	{ "Rx1" },
+	{ "Rx2" },
+	{ "" },
+	{ "" },
+	{ "" },
+	{ "Rx6" }
 };
 
-const wchar_t *TxTypeStrings[] = {
-	{ L"Unconnected" },
-	{ L"Tx1" },
-	{ L"" },
-	{ L"" },
-	{ L"" },
-	{ L"" },
-	{ L"" },
-	{ L"" },
-	{ L"Tx8" }
+const char *TxTypeStrings[] = {
+	{ "Unconnected" },
+	{ "Tx1" },
+	{ "" },
+	{ "" },
+	{ "" },
+	{ "" },
+	{ "" },
+	{ "" },
+	{ "Tx8" }
 };
 
 const wchar_t *ParaValueStrings[] = {
@@ -529,7 +529,7 @@ int S3ConfigInit(pS3Config config)
 
 // ----------------------------------------------------------------------------
 
-const wchar_t *S3GetModelName(char Rx, char Tx)
+const char *S3GetModelName(char Rx, char Tx)
 {
 	if (Rx == -1)
 		return RxTypeStrings[S3_RxEmpty];
@@ -544,7 +544,7 @@ const wchar_t *S3GetModelName(char Rx, char Tx)
 
 // ----------------------------------------------------------------------------
 
-const wchar_t *S3GetTypeStr(char Rx, char Tx)
+const char *S3GetTypeStr(char Rx, char Tx)
 {
 	if (Rx == -1)
 		return RxTypeStrings[S3_RxEmpty];

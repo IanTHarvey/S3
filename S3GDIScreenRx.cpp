@@ -233,7 +233,7 @@ void CS3GDIScreenMain::S3DrawGDIRxRx(char Rx)
 	m_RxNodeName->SetValue(str);
 	m_RxNodeName->Draw(m_HDC, m_hFontS, m_hFontSB);
 
-	str.Format(_T("%s"), S3GetModelName(Rx, -1));
+	str.Format(_T("%S"), S3GetModelName(Rx, -1));
 	m_RxType->SetValue(str);
 	m_RxType->Draw(m_HDC, m_hFontS, m_hFontSB);
 

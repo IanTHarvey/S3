@@ -60,10 +60,10 @@ extern FILE *S3DbgLog;
 extern const unsigned char S3Tx8IPMap[];
 
 // TODO: Don't access directly
-extern const wchar_t *ScaleStrings[];
-extern const wchar_t *SigSizeStrings[];
-extern const wchar_t *RxTypeStrings[];
-extern const wchar_t *TxTypeStrings[];
+extern const wchar_t	*ScaleStrings[];
+extern const wchar_t	*SigSizeStrings[];
+extern const char		*RxTypeStrings[];
+extern const char		*TxTypeStrings[];
 
 // ----------------------------------------------------------------------------
 
@@ -576,7 +576,7 @@ typedef struct sS3TxData
 	char			m_FW[S3_MAX_SW_VER_LEN];
 	char			m_FWDate[S3_MAX_FW_DATE_LEN];	// Ctrl board
 	char			m_HW[S3_MAX_SW_VER_LEN];
-	wchar_t			m_ModelName[S3_MAX_MODEL_ID_LEN];	// PPM model name
+	char			m_ModelName[S3_MAX_MODEL_ID_LEN];	// PPM model name
 
 	unsigned char	m_Wavelength;	// S3_L_Unknown, S3_1310nm, S3_1550nm				2
 
@@ -667,7 +667,7 @@ typedef struct sS3RxData
 	char			m_FW[S3_MAX_SW_VER_LEN];
 	char			m_FWDate[S3_MAX_FW_DATE_LEN];
 	char			m_HW[S3_MAX_SW_VER_LEN];
-	wchar_t			m_ModelName[S3_MAX_MODEL_ID_LEN]; // Redundant?
+	char			m_ModelName[S3_MAX_MODEL_ID_LEN]; // Redundant?
 	
 	// These could logically be in the Tx struct, but 'physically' belong here
 	short			m_RLL[S3_MAX_TXS];		// 10mdBm
@@ -1228,8 +1228,8 @@ int S3GetSelPathStr(	char **str);
 int S3GetPathStr(		char Rx, char Tx, char IP, char **str);
 char *S3GetPathStrStr(	unsigned char *cData);
 
-const wchar_t *S3GetModelName(char Rx, char Tx);
-const wchar_t *S3GetTypeStr(char Rx, char Tx);
+const char		*S3GetModelName(char Rx, char Tx);
+const char		*S3GetTypeStr(char Rx, char Tx);
 char S3GetType(char Rx, char Tx);
 
 const char *S3GetConfigName();

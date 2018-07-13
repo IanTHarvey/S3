@@ -32,7 +32,7 @@ int S3RxInit(pS3RxData node)
 	strcpy_s(node->m_PN, S3_MAX_PN_LEN, "Unknown");
 	strcpy_s(node->m_HW, S3_MAX_SW_VER_LEN, "Unknown");
 	strcpy_s(node->m_FW, S3_MAX_SW_VER_LEN, "Unknown");
-	wcscpy_s(node->m_ModelName, S3_MAX_MODEL_ID_LEN, RxTypeStrings[S3_RxEmpty]);
+	strcpy_s(node->m_ModelName, S3_MAX_MODEL_ID_LEN, RxTypeStrings[S3_RxEmpty]);
 
 	// Enable all as don't know type here
 	for (unsigned char i = 0; i < S3_MAX_TXS; i++)
@@ -80,7 +80,7 @@ int S3RxSetType(pS3RxData Rx, S3RxType type)
 		if (Rx->m_Type != S3_RxEmpty)
 			S3EventLogAdd("Receiver disconnected", 1, Rx->m_Id, -1, -1);
 
-		wcscpy_s(Rx->m_ModelName, S3_MAX_MODEL_ID_LEN, RxTypeStrings[S3_RxEmpty]);
+		strcpy_s(Rx->m_ModelName, S3_MAX_MODEL_ID_LEN, RxTypeStrings[S3_RxEmpty]);
 	}
 	else
 	{
@@ -89,15 +89,15 @@ int S3RxSetType(pS3RxData Rx, S3RxType type)
 
 		if (type == S3_Rx1)
 		{
-			wcscpy_s(Rx->m_ModelName, S3_MAX_MODEL_ID_LEN, RxTypeStrings[S3_Rx1]);
+			strcpy_s(Rx->m_ModelName, S3_MAX_MODEL_ID_LEN, RxTypeStrings[S3_Rx1]);
 		}
 		else if (type == S3_Rx2)
 		{
-			wcscpy_s(Rx->m_ModelName, S3_MAX_MODEL_ID_LEN, RxTypeStrings[S3_Rx2]);
+			strcpy_s(Rx->m_ModelName, S3_MAX_MODEL_ID_LEN, RxTypeStrings[S3_Rx2]);
 		}
 		else if (type == S3_Rx6)
 		{
-			wcscpy_s(Rx->m_ModelName, S3_MAX_MODEL_ID_LEN, RxTypeStrings[S3_Rx6]);
+			strcpy_s(Rx->m_ModelName, S3_MAX_MODEL_ID_LEN, RxTypeStrings[S3_Rx6]);
 		}
 		else
 			return 1;
@@ -859,7 +859,7 @@ int S3RxSetExtraGainCap(char Rx, const char *FWPartNum)
 	else // 82060 onwards
 	{
 		S3Data->m_Rx[Rx].m_ExtraGainCap = 15;
-		wcscat_s(S3Data->m_Rx[Rx].m_ModelName, S3_MAX_MODEL_ID_LEN, _T("+"));
+		strcat_s(S3Data->m_Rx[Rx].m_ModelName, S3_MAX_MODEL_ID_LEN, "+");
 	}
 
 	return 0;

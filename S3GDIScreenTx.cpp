@@ -882,7 +882,7 @@ void CS3GDIScreenMain::S3DrawGDITxTx(char Rx, char Tx)
 	m_TxNodeName->SetValue(str);
 	m_TxNodeName->Draw(m_HDC, m_hFontS, m_hFontSB);
 
-	str.Format(_T("%s"), S3GetTypeStr(Rx, Tx));
+	str.Format(_T("%S"), S3GetTypeStr(Rx, Tx));
 	m_TxType->SetValue(str);
 	m_TxType->Draw(m_HDC, m_hFontS, m_hFontSB);
 
