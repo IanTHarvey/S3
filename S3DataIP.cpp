@@ -766,7 +766,7 @@ unsigned char S3IPGetWindowTrack(char Rx, char Tx, char IP)
 
 // ----------------------------------------------------------------------------
 // Determines gain limits based on RF path. 
-// TODO: Integrate this with I2C path setting code
+
 int S3GetGainLimits(char Rx, char Tx, char IP, char *low, char *high)
 {
 	*high = S3GetMaxGain(Rx, Tx);

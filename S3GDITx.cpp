@@ -27,6 +27,9 @@ void CS3GDIScreenMain::S3DrawGDITxSel(char Rx, char Tx,
 	TxType = S3TxGetType(Rx, Tx);
 	S3TxPwrMode PowerState = S3TxGetPowerStat(Rx, Tx);
 	ActiveTx = S3RxGetActiveTx(Rx);
+	if (ActiveTx >= S3_PENDING)
+		ActiveTx -= S3_PENDING;
+
 	char BattValid = S3TxGetBattValidated(Rx, Tx);
 
 	S3TxSetCoords(Rx, Tx, xref, yref);
@@ -251,6 +254,9 @@ void CS3GDIScreenMain::S3DrawGDITxUnsel(char Rx, char Tx,
 	S3TxType	TxType = S3TxGetType(Rx, Tx);
 	S3TxPwrMode	PowerState = S3TxGetPowerStat(Rx, Tx);
 	char		ActiveTx = S3RxGetActiveTx(Rx);
+		
+	if (ActiveTx >= S3_PENDING)
+		ActiveTx -= S3_PENDING;
 
 	S3TxSetCoords(Rx, Tx, xref, yref);
 

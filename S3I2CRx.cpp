@@ -453,11 +453,10 @@ int S3I2CGetRxStartUp(char Rx)
 
 
 // ----------------------------------------------------------------------------
-// TODO: Untested & unused
+// TODO: Untested
 
 int S3I2CRxSetActiveTx(char Rx)
 {
-#ifdef TRIZEPS
 	char Tx = S3RxGetActiveTx(Rx);
 
 	if (Tx == -1)
@@ -466,7 +465,7 @@ int S3I2CRxSetActiveTx(char Rx)
 	if (Tx < S3_PENDING)
 		return 0; // No change pending
 
-	Tx -= 100; // Clear pending bit
+	Tx -= S3_PENDING; // Clear pending bit
 
 	// TEST: RX6
 	// Sleep(1000);
@@ -474,12 +473,8 @@ int S3I2CRxSetActiveTx(char Rx)
 	if (S3I2CRxSwitchTx(Rx, Tx))
 		return 1;
 
-	// S3RxSetActiveTx(Rx, Tx); // Ack
-
 	// TEST: RX6
 	// Sleep(1000);
-
-#endif
 
 	return 0;
 }
@@ -515,15 +510,17 @@ int S3I2CRxSwitchTx(char Rx, char Tx)
 	// TEST: Rx6
 	val = I2C_ReadRandom(S3I2C_RX_CTRL_ADDR, S3I2C_RX_CTRL_OPT_SW_POS);
 
-	S3RxSetActiveTx(Rx, val - 1);
+	S3RxSetActiveTx(Rx, val - 1);  // Ack
 
 	// TEST: Rx6
-	if (val != wbuf[1])
+	if (val != (Tx + 1))
 	{	
 		return 1;
 	}
-		
+#else
+	S3RxSetActiveTx(Rx, Tx);  // Ack
 #endif
+
 	return 0;
 }
 

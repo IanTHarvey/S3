@@ -43,7 +43,7 @@ void CS3GDIScreenMain::S3DrawGDIRxRLL2(char Rx, int xref, int yref)
 			// Change pending?
 			Tx = S3RxGetActiveTx(Rx);
 			if (Tx >= S3_PENDING)
-				Tx = Tx - S3_PENDING;
+				Tx -= S3_PENDING;
 				// return;
 		}
 

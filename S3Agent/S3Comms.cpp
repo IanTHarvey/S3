@@ -448,7 +448,8 @@ int SendMessageSC3_2(const char *TxBuf)
 
 
 // ----------------------------------------------------------------------------
-// Once we have an open socket to a Sentinel 3, send a message, and recieve its response
+// Once we have an open socket to a Sentinel 3, send a message, and recieve
+// its response
 
 #define S3_RECV_RETRIES	10
 
@@ -461,7 +462,8 @@ int SendMessageOpenSocketSC3(const char *TxBuf)
 	int cnt = 0;
 	// If running with remote view enabled, buffer may be full of data from
 	// S3 update, so read and clear before sending command
-	while((iResult = recv(ConnectSocket, RxBuf, DEFAULT_BUFLEN, 0)) != SOCKET_ERROR) cnt++;
+	while((iResult = recv(ConnectSocket, RxBuf, DEFAULT_BUFLEN, 0))!= SOCKET_ERROR)
+		cnt++;
 
     *RxBuf = '\0';
     // Send an initial buffer - NOT terminator

@@ -347,9 +347,6 @@ int S3Read2(const char *Filename)
 #ifndef S3_AGENT
 	S3DbgPollInit();
 #endif
-	// TODO: We may try and set Tx active with invalidated battery
-	// for (char Rx = 0; Rx < S3_MAX_RXS; Rx++)
-	// 	S3RxSetActiveTx(Rx, 0);
 
 	return 0;
 }
