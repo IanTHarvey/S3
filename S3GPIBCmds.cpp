@@ -1190,7 +1190,7 @@ int CmdSELECTTX()
 
 	if (GPIBNArgs == 3) // Rx address
 	{
-		int res = GetAddress2NoArg(NULL, &Rx, &Tx, &IP);
+		int res = GetAddress2NoArg(NULL, &Rx, &Tx, &IP, false);
 
 		if (res != 2 || !S3TxValidQ(Rx, Tx))
 			return S3_GPIB_INVALID_ADDRESS;
@@ -1199,7 +1199,6 @@ int CmdSELECTTX()
 			return res;
 
 		S3RxSetActiveTx(Rx, Tx);
-
 	}
 	else if (GPIBNArgs == 2) // No args found
 	{

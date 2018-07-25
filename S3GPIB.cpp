@@ -493,14 +493,14 @@ char *S3GPIBGetCmdBuf()
 // ----------------------------------------------------------------------------
 // Wrapper for commands that only provide an address
 
-int GetAddress2NoArg(char *all, char *Rx, char *Tx, char *IP)
+int GetAddress2NoArg(char *all, char *Rx, char *Tx, char *IP, bool mustExist)
 {
 	if (GPIBNArgs < S3_MAX_ARGS)
 	{
 		strcat_s(GPIBCmdBuf, S3_MAX_GPIB_CMD_LEN, " DUMMY");
 		GPIBCmdArgs[GPIBNArgs++] = GPIBCmdBuf + strlen(GPIBCmdBuf) - 5;
 
-		return GetAddress2(all, Rx, Tx, IP);
+		return GetAddress2(all, Rx, Tx, IP, mustExist);
 	}
 
 	return -1; // Too many args
@@ -511,7 +511,7 @@ int GetAddress2NoArg(char *all, char *Rx, char *Tx, char *IP)
 // be a final argument after any address args. A small +ve integer return
 // indicates the likely length of the address.
 
-int GetAddress2(char *all, char *Rx, char *Tx, char *IP)
+int GetAddress2(char *all, char *Rx, char *Tx, char *IP, bool mustExist)
 {
 	char			*eptr;
 
@@ -567,10 +567,10 @@ int GetAddress2(char *all, char *Rx, char *Tx, char *IP)
 		*Tx = (char)txl - 1;
 		*Rx = (char)rxl - 1;
 		
-		if (!S3RxExistQ(*Rx))
+		if (mustExist && !S3RxExistQ(*Rx))
 			return S3_GPIB_RX_NOT_EXIST;
 
-		if (!S3TxExistQ(*Rx, *Tx))
+		if (mustExist && !S3TxExistQ(*Rx, *Tx))
 			return S3_GPIB_TX_NOT_EXIST;
 
 		return 2;
@@ -590,7 +590,7 @@ int GetAddress2(char *all, char *Rx, char *Tx, char *IP)
 
 		*Rx = (char)rxl - 1;
 
-		if (!S3RxExistQ(*Rx))
+		if (mustExist && !S3RxExistQ(*Rx))
 			return S3_GPIB_RX_NOT_EXIST;
 
 		return 1;

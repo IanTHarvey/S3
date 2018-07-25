@@ -44,8 +44,9 @@ char *S3GPIBGetCmdBuf();
 char S3GetRemoteSrc();
 void S3SetRemoteSrc(char MsgSrc);
 
-int GetAddress2(char *all, char *Rx, char *Tx, char *IP);
-int GetAddress2NoArg(char *all, char *Rx, char *Tx, char *IP);
+int GetAddress2(char *all, char *Rx, char *Tx, char *IP, bool mustExist = true);
+int GetAddress2NoArg(char *all, char *Rx, char *Tx, char *IP,
+					 bool mustExist = true);
 
 // Good
 int CmdMAXIP();
