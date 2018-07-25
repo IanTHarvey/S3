@@ -2173,8 +2173,8 @@ void CS3GDIScreenMain::S3DrawGDITxBattSeg(char Rx, char Tx, int xref, int yref)
 		}
 
 		unsigned short ATTE = S3TxGetATTE(Rx, Tx);
-		char h = ATTE / 60;
-		char m = ATTE % 60;
+		unsigned short h = ATTE / 60;
+		unsigned short m = ATTE % 60;
 		
 		if (h < 10)
 			status.Format(_T("%d%c (%dh:%02dm)"), SoC, '%', h, m);
