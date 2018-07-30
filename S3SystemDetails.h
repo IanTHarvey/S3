@@ -19,8 +19,11 @@
 // 1.03.005 Rx+ support added, mods and fixes
 // 1.04.000 Release to production
 // 1.04.001 Release to BAE
+// 1.04.002 Added Rx+ compression/sensitivity look-ups
+// 1.04.003 Fixed read of charger battery S/N & P/N
+//			Added protection for selecting -ve active Tx & IP
 
-#define S3_SYS_SW			"1.04.001"
+#define S3_SYS_SW			"1.04.003"
 
 #define S3_SYS_MODEL		"Sentinel 3"
 
