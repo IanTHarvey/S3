@@ -550,6 +550,8 @@ void CS3FactorySetUp::OnBnClickedRx1CalSetButton()
 	
 	tmp.Format(_T("%.2f"), (double)S3RxGetCalGain(m_Rx, m_Tx) / 100.0);
 	m_Rx1CalEdit.SetWindowText(tmp);
+
+	Update();
 }
 
 // ----------------------------------------------------------------------------
@@ -598,6 +600,7 @@ void CS3FactorySetUp::OnBnClickedRx2CalSetButton()
 	tmp.Format(_T("%.2f"), (double)S3RxGetCalGain(m_Rx, 1) / 100.0);
 	m_Rx2CalEdit.SetWindowText(tmp);
 	
+	Update();
 }
 
 // ----------------------------------------------------------------------------
