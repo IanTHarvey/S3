@@ -50,22 +50,6 @@ void CS3GDIScreenMain::S3DrawGDIRx(char Rx)
 
 	S3RxSetCoords(Rx, xref, m_RxYref);
 
-	// Indicate live detected stuff vs stuff read from config file. Moot apart
-	// from implmentation of demo mode
-	if (0) // S3RxGetDetected(Rx))
-	{
-		HGDIOBJ pen = SelectObject(m_HDC, m_hPenAlarm);
-		HGDIOBJ br = SelectObject(m_HDC, GetStockObject(HOLLOW_BRUSH));
-
-		RoundRect(m_HDC,
-			xref - m_wRx / 2 - 5, m_RxYref - m_hRx / 2 - 5,
-			xref + m_wRx / 2 + 15, m_RxYref + m_hRx / 2 + 5,
-			30, 30);
-
-		SelectObject(m_HDC, pen);
-		SelectObject(m_HDC, br);
-	}
-
 	if (RxType == S3_RxEmpty)
 	{
 		SelectObject(m_HDC, m_hPenIPOff);
@@ -92,11 +76,15 @@ void CS3GDIScreenMain::S3DrawGDIRx(char Rx)
 		char SelectedTx = S3RxGetHighlightedTx(Rx);
 
 		S3DrawGDIRxRLL2(Rx, xref, m_RxYref - 20);
-		S3DrawGDIFOLSym(Rx, xref, m_RectRx.bottom + 20, SelectedTx < 4);
-
+		
 		if (RxType == S3_Rx6)
 		{
 			char ActiveTx = S3RxGetActiveTx(Rx);
+
+			if (ActiveTx >= S3_PENDING)
+				ActiveTx -= S3_PENDING;
+
+			S3DrawGDIFOLSym(Rx, xref, m_RectRx.bottom + 20, ActiveTx < 4);
 
 			int	xrefTx = Rx * m_RxSep + m_RxSep / 2;
 			int yrefTx = (m_RectTx.bottom + m_RectTx.top) / 2;
@@ -142,6 +130,8 @@ void CS3GDIScreenMain::S3DrawGDIRx(char Rx)
 		}
 		else if (RxType == S3_Rx2)
 		{
+			S3DrawGDIFOLSym(Rx, xref, m_RectRx.bottom + 20, true);
+
 			// Draw FOL from both Txs to the Rx
 			int			xrefTx, yrefTx;
 			S3TxType	TxType1, TxType2;
@@ -212,6 +202,8 @@ void CS3GDIScreenMain::S3DrawGDIRx(char Rx)
 		}
 		else if (RxType == S3_Rx1)
 		{
+			S3DrawGDIFOLSym(Rx, xref, m_RectRx.bottom + 20, true);
+
 			int	xrefTx = Rx * m_RxSep + m_RxSep / 2;
 			int yrefTx = (m_RectTx.bottom + m_RectTx.top) / 2;
 
@@ -231,21 +223,6 @@ void CS3GDIScreenMain::S3DrawGDIRx(char Rx)
 
 	// Draw number as rack slot even if empty
 	S3DrawGDIRxNumber(Rx, xref + m_RxNumXOffset, m_RxYref + +m_RxNumYOffset);
-
-	/*
-	// Indicate selected
-	if (S3IsSelected(Rx, -1, -1))
-	{
-		// SelectObject(m_HDC, m_hPenIPSelected);
-		SelectObject(m_HDC, m_hPenSel);
-		SelectObject(m_HDC, GetStockObject(HOLLOW_BRUSH));
-
-		RoundRect(m_HDC,
-			xref - 2 * m_wRx / 3, m_RxYref + 2 * m_hRx / 3,
-			xref + 2 * m_wRx / 3, m_RxYref - 2 * m_hRx / 3,
-			30, 30);
-	}*/
-
 }
 
 // ----------------------------------------------------------------------------
