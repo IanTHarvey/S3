@@ -227,11 +227,17 @@ int S3RxSetActiveTx(char Rx, char Tx)
 			// Ensure Tx updates selected input and gain
 			if (pRx->m_Tx[Tx].m_ActiveInput < S3_PENDING)
 				pRx->m_Tx[Tx].m_ActiveInput += S3_PENDING;
+
+			// TODO: This protection should not be required
+			// ASSERT(pRx->m_Tx[Tx].m_ActiveInput >= 0);
+			if (pRx->m_Tx[Tx].m_ActiveInput < 0)
+			{
+				pRx->m_Tx[Tx].m_ActiveInput = 0;
+				S3EventLogAdd("Attempt to switch to -ve active input", 1, Rx, Tx, -1);
+			}
 			
 			if (pRx->m_ActiveTx < S3_PENDING)
 				pRx->m_ActiveTx = Tx + S3_PENDING; // Updated request
-
-			ASSERT(pRx->m_Tx[Tx].m_ActiveInput >= 0);
 		}
 	}
 	else
@@ -272,8 +278,13 @@ bool S3RxIsActiveTx(char Rx, char Tx)
 	if (pRx->m_Type == S3_Rx6)
 	{
 		if (pRx->m_ActiveTx >= S3_PENDING)
-			return false;
-			
+		{
+			if (Tx == (pRx->m_ActiveTx - S3_PENDING))
+				return true;
+			else
+				return false;
+		}
+
 		char T = pRx->m_ActiveTx;
 		return T == Tx;
 	}
