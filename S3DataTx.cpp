@@ -368,13 +368,9 @@ int S3TxSetUnconnected(pS3TxData Tx)
 		S3IPCancelAlarm(Tx->m_ParentId, Tx->m_Id, IP, S3_ALARMS_ALL);
 	}
 
-	// Tx->m_PowerStat = S3_TX_NOT_CONNECTED;
 	Tx->m_SoC = 0;
-	// Tx->m_Alarms = 0x00;
 	Tx->m_BattAlarms = 0x00;
 	Tx->m_OptAlarms[0] = Tx->m_OptAlarms[1] = Tx->m_OptAlarms[2] = 0x00;
-
-	// S3RxSetActiveTx(Tx->m_ParentId, Tx->m_Id);
 
 	return 0;
 }
@@ -387,22 +383,11 @@ int S3TxSetConnected(pS3TxData pTx)
 	S3EventLogAdd("Transmitter connected",
 		1, pTx->m_ParentId, pTx->m_Id, -1);
 
-	// i2c Set parameters for slot
-	//pTx->m_BattValidated = S3BattValidate(pTx->m_BattSN) == true;
-
-	//if (pTx->m_BattValidated)
-	//	S3TxSetAlarm(pTx->m_ParentId, pTx->m_Id, S3_CH_BATT_INVALID);
-	//else
-	//	S3TxCancelAlarm(pTx->m_ParentId, pTx->m_Id, S3_CH_BATT_INVALID);
-
-	// TODO: I2C
-	// pTx->m_PowerStat = S3_TX_ON;
 	pTx->m_SoC = 0;
 	pTx->m_Alarms = 0x00;
 	pTx->m_BattAlarms = 0x00;
 	pTx->m_OptAlarms[0] = pTx->m_OptAlarms[1] = pTx->m_OptAlarms[2] = 0x00;
 
-	// S3RxSetActiveTx(Tx->m_ParentId, Tx->m_Id);
 
 	return 0;
 }
@@ -1170,7 +1155,7 @@ bool S3TxFOLLive(char Rx, char Tx)
 	if (S3RxGetType(Rx) == S3_Rx6)
 	{
 		Tx = S3RxGetActiveTx(Rx);
-		if (Tx >= 100)
+		if (Tx >= S3_PENDING)
 			return false;
 	}
 
