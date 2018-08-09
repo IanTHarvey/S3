@@ -247,7 +247,8 @@ int S3ProcessGPIBCommand(const char *cmd)
 	else if (Initial == 'G')
 	{
 		if		(!STRCMP(Cmd,	"GAIN"))		err = CmdGAIN();
-		else if	(!STRCMP(Cmd,	"GET"))			err = CmdGET(); 
+		else if	(!STRCMP(Cmd,	"GET"))			err = CmdGET();
+		else if	(!STRCMP(Cmd,	"GETRLL"))		err = CmdGETRLL(); 
 		else
 			err = S3_GPIB_CMD_UNRECOGNISED;
 	}

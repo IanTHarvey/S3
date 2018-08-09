@@ -862,6 +862,54 @@ int CmdGET()
 
 // ----------------------------------------------------------------------------
 
+int CmdGETRLL()
+{
+	char	all, Rx, Tx, IP;
+
+	if (GPIBNArgs == 3)
+	{
+		int		res = GetAddress2NoArg(&all, &Rx, &Tx, &IP);
+			
+		if (res < 0)
+		{
+			if (res == -1 || res == -2)
+				return S3_GPIB_MALFORMED_ADDRESS;
+			if (res == -3)
+				return S3_GPIB_INVALID_ADDRESS;
+			if (res == -4)
+				return S3_GPIB_OUT_RANGE_ADDRESS;
+		}
+		else
+		{
+			if (res > 2000)
+				return res;
+
+			// We need the full Tx (RLL source) address
+			if (res != 2)
+				return S3_GPIB_INVALID_ADDRESS;
+		}
+	}
+	else if (GPIBNArgs == 1)
+	{
+		int err = S3TxExistQ(GPIBRx, GPIBTx);
+		if (err)
+			return S3_GPIB_TX_NOT_EXIST;
+		
+		Rx = GPIBRx;
+		Tx = GPIBTx;
+		IP = GPIBIP;
+	}
+	else return S3_GPIB_ERR_NUMBER_PARAS;
+
+	short RLL = S3RxGetRLL(Rx, Tx);
+
+	sprintf_s(GPIBRetBuf, S3_MAX_GPIB_RET_LEN, "I: %d", RLL); 
+
+	return 0;
+}
+
+// ----------------------------------------------------------------------------
+
 int CmdGPIB()
 {
 	return 0;

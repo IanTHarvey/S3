@@ -52,6 +52,7 @@ int GetAddress2NoArg(char *all, char *Rx, char *Tx, char *IP,
 int CmdMAXIP();
 int CmdGAIN();
 int CmdGET();
+int CmdGETRLL();
 int CmdITAU();
 int CmdLOCAL();
 int CmdREMOTE();
