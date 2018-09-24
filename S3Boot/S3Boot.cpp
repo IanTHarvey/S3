@@ -12,6 +12,8 @@
 #include "stdafx.h"
 #include "stdlib.h"
 
+#include "SHA256.h"
+
 #define S3_MAX_FILENAME_LEN		128
 
 #define	S3_ROOT_DIR		"\\FlashDisk\\S3"
@@ -47,6 +49,10 @@ int _tmain(int argc, _TCHAR* argv[])
 	errno_t		err, ret_err = 0;
 	BOOL		berr;
 	DWORD	fileAtt;
+
+	char s[] = {"Sentinel 3"};
+	char buf[2 * SHA256::DIGEST_SIZE + 1];
+	sha256(buf, s, 10);
 
 	// ---------------------------------------------------------------------------
 	// FIRST USE INSTALLATION
@@ -263,10 +269,14 @@ int _tmain(int argc, _TCHAR* argv[])
 
 	// Signal completed for dependents (S3Controller.exe)
 	// See /HKLM/init
+
+#ifdef _WIN32_WCE
 	DWORD LaunchNo = _wtoi(argv[1]);
 	SignalStarted(LaunchNo);
 
 	fprintf(logfid, "SignalStarted (%d)\nFinishing S3Boot.\n", LaunchNo);
+#endif
+
 	fclose(logfid);
 
 	return ret_err;
@@ -324,4 +334,47 @@ int S3BootCopy2Flash(const wchar_t *file, const wchar_t *destdir)
 	return 0;
 }
 
-// ----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
+
+#define HEADER_SIZE		4096
+
+int CheckExtractBinary()
+{
+	FILE *fid;
+	
+	errno_t err = fopen_s(&fid, S3_UPDATE_FILENAME, "rb");
+
+	if (err)
+	{
+		fprintf(logfid, "Failed to open update file: %s\n", S3_UPDATE_FILENAME);
+		return 1;
+	}
+	
+	char Header[HEADER_SIZE];
+
+	fread(Header, sizeof(char), HEADER_SIZE, fid);	
+
+	int FileVersion[3];
+	int HeaderSize;
+	int PayloadSize;
+	int	Hash[32];
+	
+	for(int i = 0; i < 3; i++)
+	{
+		FileVersion[i] = *((int *)Header + i * sizeof(int));
+	}
+
+	if (1)
+	{
+		HeaderSize = *((int *)Header + 3 * sizeof(int));
+		PayloadSize = *((int *)Header + 4 * sizeof(int));
+
+		memcpy(Hash, ((int *)Header + 5 * sizeof(int)), 32 * sizeof(int));
+	}
+	
+	fclose(fid);
+
+	return 0;
+}
+
+// -----------------------------------------------------------------------------

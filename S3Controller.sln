@@ -5,6 +5,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "S3Controller", "S3Controlle
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "S3Boot", "S3Boot\S3Boot.vcproj", "{881935EE-87D7-4AAA-B33E-D9AE83ABC97B}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "S3UpdateBuilder", "S3UpdateBuilder\S3UpdateBuilder.vcproj", "{BC4C1D15-6F1A-4C4C-8E93-D42F90051BFD}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|SDK_TrizepsVII_armv4i_2016Q3 (ARMv4I) = Debug|SDK_TrizepsVII_armv4i_2016Q3 (ARMv4I)
@@ -33,6 +35,12 @@ Global
 		{881935EE-87D7-4AAA-B33E-D9AE83ABC97B}.Release|SDK_TrizepsVII_armv4i_2016Q3 (ARMv4I).Deploy.0 = Release|SDK_TrizepsVII_armv4i_2016Q3 (ARMv4I)
 		{881935EE-87D7-4AAA-B33E-D9AE83ABC97B}.Release|Win32.ActiveCfg = Release|Win32
 		{881935EE-87D7-4AAA-B33E-D9AE83ABC97B}.Release|Win32.Build.0 = Release|Win32
+		{BC4C1D15-6F1A-4C4C-8E93-D42F90051BFD}.Debug|SDK_TrizepsVII_armv4i_2016Q3 (ARMv4I).ActiveCfg = Debug|Win32
+		{BC4C1D15-6F1A-4C4C-8E93-D42F90051BFD}.Debug|Win32.ActiveCfg = Debug|Win32
+		{BC4C1D15-6F1A-4C4C-8E93-D42F90051BFD}.Debug|Win32.Build.0 = Debug|Win32
+		{BC4C1D15-6F1A-4C4C-8E93-D42F90051BFD}.Release|SDK_TrizepsVII_armv4i_2016Q3 (ARMv4I).ActiveCfg = Release|Win32
+		{BC4C1D15-6F1A-4C4C-8E93-D42F90051BFD}.Release|Win32.ActiveCfg = Release|Win32
+		{BC4C1D15-6F1A-4C4C-8E93-D42F90051BFD}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
