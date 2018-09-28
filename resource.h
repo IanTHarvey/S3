@@ -135,6 +135,10 @@
 #define IDC_BATTERY_SN_STATIC           1682
 #define IDC_RX2_CAL_SET_BUTTON          1683
 #define IDC_TX8_SOAK_TEST_BUTTON        1685
+#define IDC_CHECK1                      1686
+#define IDC_CHECK2                      1687
+#define IDC_CHECK3                      1688
+#define IDC_CHECK4                      1689
 
 // Next default values for new objects
 // 
@@ -142,7 +146,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        258
 #define _APS_NEXT_COMMAND_VALUE         32778
-#define _APS_NEXT_CONTROL_VALUE         1686
+#define _APS_NEXT_CONTROL_VALUE         1690
 #define _APS_NEXT_SYMED_VALUE           107
 #endif
 #endif

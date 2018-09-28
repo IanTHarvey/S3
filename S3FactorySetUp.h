@@ -88,12 +88,21 @@ public:
 
 	void UpdateRxTxCombos();
 	void UpdateInfoStatic();
+	void UpdateChargerEnables();
 
 	CStatic m_RxTxInfoStatic;
 	afx_msg void OnBnClickedFactTestButton();
 	CButton m_DumpDiagsButton;
 	afx_msg void OnCbnDropdownRxCombo();
 	afx_msg void OnBnClickedTx8SoakTestButton();
+	afx_msg void OnBnClickedCheck1();
+	afx_msg void OnBnClickedCheck2();
+	afx_msg void OnBnClickedCheck3();
+	afx_msg void OnBnClickedCheck4();
+	CButton Check1;
+	CButton Check2;
+	CButton Check3;
+	CButton Check4;
 };
 
 

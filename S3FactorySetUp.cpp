@@ -10,6 +10,10 @@
 #include "S3ControllerDlg.h"
 #include "S3FactorySetUp.h"
 
+#ifdef TRIZEPS
+#include "drvLib_app.h"
+#endif
+
 extern int S3I2CTxGetRFCalGain(char Rx, char Tx);
 
 extern unsigned char	Dbg_RF1_DSA;
@@ -71,6 +75,10 @@ void CS3FactorySetUp::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_SELF_TEST_BUTTON, m_TxSelfTestButton);
 	DDX_Control(pDX, IDC_TX8_SOAK_TEST_BUTTON, m_Tx8SoakTestButton);
 	DDX_Control(pDX, IDC_DUMP_DIAG_BUTTON, m_DumpDiagsButton);
+	DDX_Control(pDX, IDC_CHECK1, Check1);
+	DDX_Control(pDX, IDC_CHECK2, Check2);
+	DDX_Control(pDX, IDC_CHECK3, Check3);
+	DDX_Control(pDX, IDC_CHECK4, Check4);
 }
 
 BEGIN_MESSAGE_MAP(CS3FactorySetUp, CDialog)
@@ -91,6 +99,10 @@ BEGIN_MESSAGE_MAP(CS3FactorySetUp, CDialog)
 	ON_BN_CLICKED(IDC_PEAK_THR_BUTTON, &CS3FactorySetUp::OnBnClickedPeakThrButton)
 	ON_CBN_DROPDOWN(IDC_RX_COMBO, &CS3FactorySetUp::OnCbnDropdownRxCombo)
 	ON_BN_CLICKED(IDC_TX8_SOAK_TEST_BUTTON, &CS3FactorySetUp::OnBnClickedTx8SoakTestButton)
+	ON_BN_CLICKED(IDC_CHECK1, &CS3FactorySetUp::OnBnClickedCheck1)
+	ON_BN_CLICKED(IDC_CHECK2, &CS3FactorySetUp::OnBnClickedCheck2)
+	ON_BN_CLICKED(IDC_CHECK3, &CS3FactorySetUp::OnBnClickedCheck3)
+	ON_BN_CLICKED(IDC_CHECK4, &CS3FactorySetUp::OnBnClickedCheck4)
 END_MESSAGE_MAP()
 
 // ----------------------------------------------------------------------------
@@ -217,6 +229,7 @@ void CS3FactorySetUp::Update()
 
 	UpdateRxTxCombos();
 	UpdateInfoStatic();
+	UpdateChargerEnables();
 
 	Enable(TRUE);
 }
@@ -907,5 +920,51 @@ void CS3FactorySetUp::OnBnClickedTx8SoakTestButton()
 	m_StatusMsgStatic.SetWindowText(tmp);
 }
 
-// ----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 
+void CS3FactorySetUp::OnBnClickedCheck1()
+{
+	if (Check1.GetCheck() == BST_CHECKED)
+		S3I2CChEn(0, true);
+	else
+		S3I2CChEn(0, false);
+}
+
+void CS3FactorySetUp::OnBnClickedCheck2()
+{
+	if (Check2.GetCheck() == BST_CHECKED)
+		S3I2CChEn(1, true);
+	else
+		S3I2CChEn(1, false);
+}
+
+void CS3FactorySetUp::OnBnClickedCheck3()
+{
+	if (Check3.GetCheck() == BST_CHECKED)
+		S3I2CChEn(2, true);
+	else
+		S3I2CChEn(2, false);
+}
+
+void CS3FactorySetUp::OnBnClickedCheck4()
+{
+	if (Check4.GetCheck() == BST_CHECKED)
+		S3I2CChEn(3, true);
+	else
+		S3I2CChEn(3, false);
+}
+
+// -----------------------------------------------------------------------------
+
+void CS3FactorySetUp::UpdateChargerEnables()
+{
+	// Lo is enabled
+	int pins = I2C_ReadRandom(S3I2C_EXPANDER_ADDR, 0x04);
+
+	Check1.SetCheck((pins & EN_BAT_4) ? 0 : 1);
+	Check2.SetCheck((pins & EN_BAT_3) ? 0 : 1);
+	Check3.SetCheck((pins & EN_BAT_2) ? 0 : 1);
+	Check4.SetCheck((pins & EN_BAT_1) ? 0 : 1);
+}
+
+// -----------------------------------------------------------------------------
