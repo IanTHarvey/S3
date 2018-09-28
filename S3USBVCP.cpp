@@ -132,9 +132,13 @@ int CS3USBVCP::Write(const char *msg)
 	if (iCount >= S3_MAX_GPIB_RET_LEN) 
 		iCount = S3_MAX_GPIB_RET_LEN - 1;
 
+	// Terminator setting irrelevant here, as must be terminated with '\n'
+	// anyway.
 	strcpy_s(sWriteBuffer.cBuf, S3_MAX_GPIB_RET_LEN, msg);
 	sWriteBuffer.cBuf[iCount++] = '\n';
-	// sWriteBuffer.cBuf[iCount++] = '\0'; // No, terminated on .size
+	
+	if (S3GetTerminator() == 1)
+		sWriteBuffer.cBuf[iCount++] = '\0'; // No, terminated on .size
 
 	sWriteBuffer.size = iCount;
 
@@ -150,7 +154,7 @@ int CS3USBVCP::Write(const char *msg)
 // ----------------------------------------------------------------------------
 //	Purpose: Signal from a read will send characters to the serial port
 
-UINT SendThread (LPVOID pArg) 
+UINT SendThread(LPVOID pArg) 
 {
     DWORD dwBytes, dwGoCode;
 	CS3USBVCP *pMyHndl = (CS3USBVCP *)pArg;

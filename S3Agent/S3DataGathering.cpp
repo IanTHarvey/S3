@@ -554,6 +554,12 @@ void DecodeSystemDetails(CString Response)
                 S3Data->m_SWVersionD = temp;
             }
             break;
+		case TERMINATOR:
+            {
+                unsigned char temp = _ttoi(Line);
+                S3Data->m_Terminator = temp;
+            }
+            break;
         case IMAGEID:
             {
                 CT2A ascii(Line);

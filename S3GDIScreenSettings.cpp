@@ -19,6 +19,7 @@ CRect	m_RectSettingsScreen,
 				m_RectRemoteHeader,
 				m_RectEthernet,
 				m_RectUSB,
+				m_RectOther,
 			m_RectSysParas,
 				m_RectParasHeader,
 				m_RectSettingsSysWide,
@@ -122,7 +123,8 @@ void CS3GDIScreenMain::S3InitSettingsScreen(void)
 
 	m_RectUSB = m_RectEthernet;
 	m_RectUSB.top = m_RectEthernet.bottom;
-	m_RectUSB.bottom = m_RectScreen.bottom;
+	m_RectUSB.bottom = m_RectUSB.top + SUBHEAD_ROW + 2 * PARA_ROW + BMARGIN;
+
 
 	m_SettingsUSBPort = new CS3NameValue(	m_Parent, m_RectUSB.left, 
 						m_RectUSB.top + SUBHEAD_ROW + 0 * PARA_ROW, WCol,
@@ -132,6 +134,14 @@ void CS3GDIScreenMain::S3InitSettingsScreen(void)
 						m_RectUSB.top + SUBHEAD_ROW + 1 * PARA_ROW, WCol,
 						_T("Driver type"), _T("UnknownX"), false);
 	m_SettingsUSBDriver->RectEdit(m_HDC, m_hFontS);
+
+	m_RectOther = m_RectUSB;
+	m_RectOther.top = m_RectUSB.bottom;
+	m_RectOther.bottom = m_RectSettingsScreen.bottom;
+
+	m_SettingsTerminator = new CS3NameValue(	m_Parent, m_RectOther.left, 
+								m_RectOther.top + SUBHEAD_ROW + 0 * PARA_ROW, WCol,
+								_T("Terminator"), _T("None"), true, S3_TERMINATOR);
 
 	// ---- System parameters ------------
 	m_RectSysParas = m_RectSettingsScreen;
@@ -346,6 +356,8 @@ void CS3GDIScreenMain::S3CloseSettingsScreen(void)
 	delete m_SettingsUSBPort;
 	delete m_SettingsUSBDriver;
 
+	delete m_SettingsTerminator;
+
 	delete m_SettingsContTComp;
 	delete m_SettingsRxAGC;
 
@@ -447,6 +459,14 @@ void CS3GDIScreenMain::S3DrawGDISettingsRemote(void)
 	fntRc.left += LHMARGIN;
 	DrawText(m_HDC, _T("USB Serial"), -1, &fntRc, DT_LEFT);
 
+	fntRc = m_RectOther;
+	fntRc.bottom = fntRc.top + SUBHEAD_ROW;
+
+	S3_RECT(m_HDC, fntRc);
+	
+	fntRc.left += LHMARGIN;
+	DrawText(m_HDC, _T("Other"), -1, &fntRc, DT_LEFT);
+
 	SelectObject(m_HDC, m_hFontS);
 	SelectObject(m_HDC, m_hBrushBG1);
 
@@ -486,6 +506,9 @@ void CS3GDIScreenMain::S3DrawGDISettingsRemote(void)
 
 	m_SettingsMAC->SetValue(str);
 	m_SettingsMAC->Draw(m_HDC, m_hFontS, m_hFontSB);
+
+	m_SettingsTerminator->SetValue(CString(S3GetTerminatorStr()));
+	m_SettingsTerminator->Draw(m_HDC, m_hFontS, m_hFontSB);
 
 	SelectObject(m_HDC, m_hBrushBG4);
 
@@ -992,6 +1015,10 @@ int CS3GDIScreenMain::S3FindSettingsScreen(POINT p)
 			S3Set3PCLinearity(menu_item == 1);
 		}
 #endif
+		else if (Para == S3_TERMINATOR)
+		{	// TODO: Assumes the ordering
+			S3SetTerminator(menu_item);
+		}
 
 		return 0;
 	}
@@ -1306,9 +1333,25 @@ int CS3GDIScreenMain::S3FindSettingsScreen(POINT p)
 
 			return S3SetSelectedPara(-1, -1, -1, S3_3PC_LINEARITY);
 		}
-
 #endif // S3_SHOW_P1DB_MODES
+		else if (s == S3_TERMINATOR) // Remote command response terminator
+		{
+			m_ParaMenu->Init(m_HDC, p.x, p.y);
+			m_ParaMenu->AddItem(_T("\\n"));
+			m_ParaMenu->AddItem(_T("\\0"));
+			m_ParaMenu->AddItem(_T("None"));
 		
+			switch(S3GetTerminator())
+			{
+				case 0: m_ParaMenu->SelectItem(0); break;
+				case 1: m_ParaMenu->SelectItem(1); break;
+				case 2: m_ParaMenu->SelectItem(2); break;
+			}
+
+			m_ParaMenu->Activate();
+
+			return S3SetSelectedPara(-1, -1, -1, S3_TERMINATOR);
+		}
 		else if (s == S3_IP_ADDRESS) // Ethernet address edit
 		{
 #ifndef S3_AGENT

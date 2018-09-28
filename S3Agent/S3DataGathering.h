@@ -60,41 +60,45 @@ UINT AutoUpdateSentinelDataBundleThread(LPVOID pParam);
 #define RXDMSG 8
 
 //Parameter order for S3GETSYSI reply
-#define SYSNAME 0
-#define SYSSN 1
-#define SYSPN 2
-#define SYSHW 3
-#define SYSSW 4
-#define IMAGEDATE 5
-#define BUILDNO 6
-#define MODELID 7
-#define DATE 8
-#define TIME 9
-#define ACCESSMODE 10
-#define CONFIGFILENAME 11
-#define CONFIGFILEVER 12
-#define CONFIGFILELOC 13
-#define LOGFILENAME 14
-#define LOGFILELOC 15
-#define TESTNAME 16
-#define APPDATETIME 17
-#define S3TYPE 18
-#define TCOMPGAINOPT 19
-#define WINTRACKOPT 20
-#define LOWNOISEOPT 21
-#define SOFTSHUTDOWNOPT 22
-#define SYSAGC 23
-#define TXSSTARTSTATE 24
-#define SELFTEST 25
-#define SWVERSIOND 26
-#define IMAGEID 27
-#define IMAGEOS 28
-#define IMAGETIME 29
-#define OSUPDATEFAIL 30
-#define POWERDOWNPENDING 31
-#define POWERDOWNFAIL 32
-#define SLEEPALL 33
-#define SYSTEM_LOCKED 34
+#define SYSNAME				0
+#define SYSSN				1
+#define SYSPN				2
+#define SYSHW				3
+#define SYSSW				4
+#define IMAGEDATE			5
+#define BUILDNO				6
+#define MODELID				7
+#define DATE				8
+#define TIME				9
+
+#define ACCESSMODE			10
+#define CONFIGFILENAME		11
+#define CONFIGFILEVER		12
+#define CONFIGFILELOC		13
+#define LOGFILENAME			14
+#define LOGFILELOC			15
+#define TESTNAME			16
+
+#define APPDATETIME			17
+#define S3TYPE				18
+#define TCOMPGAINOPT		19
+#define WINTRACKOPT			20
+#define LOWNOISEOPT			21
+#define SOFTSHUTDOWNOPT		22
+#define SYSAGC				23
+#define TXSSTARTSTATE		24
+#define SELFTEST			25
+#define SWVERSIOND			26
+#define TERMINATOR			27
+
+#define IMAGEID				28
+#define IMAGEOS				29
+#define IMAGETIME			30
+#define OSUPDATEFAIL		31
+#define POWERDOWNPENDING	32
+#define POWERDOWNFAIL		33
+#define SLEEPALL			34
+#define SYSTEM_LOCKED		35
 
 //Parameter order for S3GETINIT reply
 #define GAIN 0

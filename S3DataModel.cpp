@@ -184,6 +184,8 @@ int S3DataModelInit(pS3DataModel dm, bool DemoMode)
 	dm->m_AGC = S3_AGC_GAIN;
 	dm->m_TxStartState = S3_TXSTART_SLEEP;
 
+	dm->m_Terminator = 0; // '\n'
+
 	dm->m_TCompGainOption = true;
 
 	dm->m_LowNoiseOption = false;
@@ -1767,6 +1769,51 @@ const char *S3SysGetBuildNum()
 unsigned char S3GetAGC()
 {
 	return S3Data->m_AGC;
+}
+
+// ---------------------------------------------------------------------------
+
+unsigned char S3GetTerminator()
+{
+	return S3Data->m_Terminator;
+}
+
+// ---------------------------------------------------------------------------
+
+const char *S3GetTerminatorStr()
+{
+	switch(S3Data->m_Terminator)
+	{
+		case 0: return "\\n";
+		case 1: return "\\0";
+		case 2: return "None";
+		default:  return "\\n";
+	}
+}
+
+// ---------------------------------------------------------------------------
+
+int S3SetTerminator(unsigned char t)
+{
+#ifdef S3_AGENT
+    CString Command, Args, Response, InZ;
+    Command = L"TERMINATOR";
+
+    if (t == 0)
+        Args = L" NL";
+	else if (t == 1)
+        Args = L" ZERO";
+	else if (t == 2)
+        Args = L" NONE";
+
+    Command.Append(Args);
+
+    Response = SendSentinel3Message(Command);
+#endif
+
+	S3Data->m_Terminator = t;
+
+	return 0;
 }
 
 // ---------------------------------------------------------------------------

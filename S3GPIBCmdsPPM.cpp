@@ -353,3 +353,28 @@ int CmdPPMSYSID()
 
 // ----------------------------------------------------------------------------
 
+int CmdPPMTERMINATOR()
+{
+	if (GPIBNArgs != 2)
+		return S3_GPIB_ERR_NUMBER_PARAS;
+
+	if (!STRNCMP(GPIBCmdArgs[1], "NL", 2))
+	{
+		S3SetTerminator(0);
+	}
+	else if (!STRNCMP(GPIBCmdArgs[1], "ZERO", 4))
+	{
+		S3SetTerminator(1);
+	}
+	else if (!STRNCMP(GPIBCmdArgs[1], "NONE", 4))
+	{
+		S3SetTerminator(2);
+	}
+	else
+		return S3_GPIB_INVALID_PARAMETER;
+
+	return 0;
+}
+
+// ----------------------------------------------------------------------------
+

@@ -230,9 +230,9 @@ int CmdGetSysI(char *Inbuf)
     sprintf_s(Inbuf, S3_MAX_GPIB_RET_LEN,
         " %s\037 %s\037 %s\037 %s\037 %s\037 %s\037 %s\037 %s\037 %02d-%02d-%02d\037 %02d:%02d:%02d\037"
 		" %i\037 %s\037 %f\037 %s\037 %s\037 %s\037 %s\037"
-        " %s\037 %i\037 %i\037 %i\037 %i\037 %i\037 %i\037 %i\037 %i\037 %f\037"
+        " %s\037 %i\037 %i\037 %i\037 %i\037 %i\037 %i\037 %i\037 %i\037 %f\037 %i\037"
 		" %s\037 %s\037 %s\037 %i\037 %i\037 %i\037 %i\037 %i",
-        S3Data->m_NodeName,
+        S3Data->m_NodeName,	// 0
         S3Data->m_SN,
         S3Data->m_PN,
         S3Data->m_HW,
@@ -240,8 +240,8 @@ int CmdGetSysI(char *Inbuf)
         S3Data->m_ImageDate,
         S3Data->m_BuildNum,
         S3Data->m_ModelId,
-        CurrentTime.GetYear(), CurrentTime.GetMonth(), CurrentTime.GetDay(),		// 11
-        CurrentTime.GetHour(), CurrentTime.GetMinute(), CurrentTime.GetSecond(),
+        CurrentTime.GetYear(), CurrentTime.GetMonth(), CurrentTime.GetDay(),
+        CurrentTime.GetHour(), CurrentTime.GetMinute(), CurrentTime.GetSecond(),	// 9
 
         S3GetRemote(),
         S3Data->m_ConfigName,
@@ -249,7 +249,7 @@ int CmdGetSysI(char *Inbuf)
         S3Data->m_ConfigPath,
         S3Data->m_EventLogName,
         S3Data->m_EventLogPath,
-        S3Data->m_TestName,			// 21
+        S3Data->m_TestName,			// 16
         
         S3Data->m_AppDateTime,
         S3Data->m_Type,
@@ -260,7 +260,8 @@ int CmdGetSysI(char *Inbuf)
         S3Data->m_AGC,
         S3Data->m_TxStartState,
         S3Data->m_TxSelfTest,
-        S3Data->m_SWVersionD,		// 31
+        S3Data->m_SWVersionD,
+		S3Data->m_Terminator,		// 27
 
         S3Data->m_ImageID,
         S3Data->m_ImageOS,
@@ -269,7 +270,7 @@ int CmdGetSysI(char *Inbuf)
         S3Data->m_PowerDownPending,
         S3Data->m_PowerDownFailed,
         S3Data->m_SleepAll,
-		S3Data->m_Locked);		// 39
+		S3Data->m_Locked);			// 35
     return 0;
 }
 

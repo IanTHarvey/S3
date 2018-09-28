@@ -491,7 +491,11 @@ int SendMessageOpenSocketSC3(const char *TxBuf)
 
     if (iResult > 0 && retries < S3_RECV_RETRIES)
     {
-        RxBuf[iResult] = '\0';
+		// If already terminated by S3, replace with NULL terminator
+        if (RxBuf[iResult - 1] == '\n' || RxBuf[iResult - 1] == '\0')
+			RxBuf[iResult - 1] = '\0';
+		else
+			RxBuf[iResult] = '\0';
 
 		SaveValidIPAddr();
     }

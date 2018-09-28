@@ -4,6 +4,7 @@
 // OVER-WRITES THE MAIN BLOCK (AND ANY CHANGES MADE USING THE STANDARD
 // ACCESSORS)
 
+#include <math.h>
 #include "stdafx.h"
 #include "S3DataModel.h"
 
@@ -196,8 +197,11 @@ int S3Save2(const char *Filename)
 
 	double Vfile = S3_FILE_VERSION;
 
-	// fwrite(&(pSys->m_FileVersion), sizeof(double), 1, fid);
+	if (!MATCH_VERSION(Vfile, pSys->m_FileVersion))
+		S3EventLogAdd("Updating to new config file version", 3, -1, -1, -1);
+
 	fwrite(&Vfile, sizeof(double), 1, fid);
+	pSys->m_FileVersion = Vfile;
 
 	fwrite(pSys->m_NodeName, sizeof(char), S3_MAX_NODE_NAME_LEN, fid);
 	S3SaveConfig(fid, &(pSys->m_Config));
@@ -259,6 +263,9 @@ int S3Read2(const char *Filename)
 
 	// TODO: Move to version-independent read function
 	fread(&(pSys->m_FileVersion), sizeof(double), 1, fid);
+
+	if (!MATCH_VERSION(pSys->m_FileVersion, S3_FILE_VERSION))
+		S3EventLogAdd("Reading old config file version", 3, -1, -1, -1);
 
 	//if (pSys->m_FileVersion != S3_FILE_VERSION)
 	//{
@@ -381,6 +388,11 @@ int S3SysSave(FILE *fid, pS3DataModel Sys)
 		fwrite(&Sys->m_TxSelfTest, sizeof(bool), 1, fid);
 	}
 
+	if (LATER_VERSION(S3_FILE_VERSION, 2.1))
+	{
+		fwrite(&(Sys->m_Terminator), sizeof(unsigned char), 1, fid);
+	}
+
 	return 0;
 }
 
@@ -419,6 +431,11 @@ int S3SysRead(FILE *fid, pS3DataModel pSys)
 	if (LATER_VERSION(readModel.m_FileVersion, 1.8))
 	{
 		fread(&pSys->m_TxSelfTest, sizeof(bool), 1, fid);
+	}
+
+	if (LATER_VERSION(readModel.m_FileVersion, 2.1))
+	{
+		fread(&pSys->m_Terminator, sizeof(unsigned char), 1, fid);
 	}
 	
 	return 0;

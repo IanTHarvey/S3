@@ -668,6 +668,8 @@ protected:
 	CS3NameValue	*m_SettingsUSBPort;
 	CS3NameValue	*m_SettingsUSBDriver;
 
+	CS3NameValue	*m_SettingsTerminator;
+
 	CS3NameValue	*m_SettingsContTComp;
 	CS3NameValue	*m_SettingsRxAGC;
 
