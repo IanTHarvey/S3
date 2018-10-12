@@ -226,13 +226,13 @@ int S3ProcessGPIBCommand(const char *cmd)
 
 	if (Initial == '*')
 	{
-		if		(!STRCMP(Cmd,	"*IDN?"))		err = CmdIDNQ();
+		if		(!STRCMP(Cmd,	"*IDN?"))			err = CmdIDNQ();
 		else
 			err = S3_GPIB_CMD_UNRECOGNISED;
 	}
 	else if (Initial == 'A')
 	{
-		if		(!STRCMP(Cmd,	"AGC"))			err = CmdAGC();
+		if		(!STRCMP(Cmd,	"AGC"))				err = CmdAGC();
 		else
 			err = S3_GPIB_CMD_UNRECOGNISED;
 	}
@@ -246,108 +246,114 @@ int S3ProcessGPIBCommand(const char *cmd)
 	}
 	else if (Initial == 'G')
 	{
-		if		(!STRCMP(Cmd,	"GAIN"))		err = CmdGAIN();
-		else if	(!STRCMP(Cmd,	"GET"))			err = CmdGET();
-		else if	(!STRCMP(Cmd,	"GETRLL"))		err = CmdGETRLL(); 
+		if		(!STRCMP(Cmd,	"GAIN"))			err = CmdGAIN();
+		else if	(!STRCMP(Cmd,	"GET"))				err = CmdGET();
+		else if	(!STRCMP(Cmd,	"GETRLL"))			err = CmdGETRLL();
+		else if	(!STRCMP(Cmd,	"GETTXSN"))			err = CmdGETTXSN(); 
+		else if	(!STRCMP(Cmd,	"GETTXSTABLE"))		err = CmdGETTXSTABLE();
+		else if	(!STRCMP(Cmd,	"GETTXBATTLIFE"))	err = CmdGETTXBATTLIFE();
+		else if	(!STRCMP(Cmd,	"GETTXPOWER"))		err = CmdGETTXPOWER();
+		else if	(!STRCMP(Cmd,	"GETTXSETTINGS"))	err = CmdGETTXSETTINGS();
+		else if	(!STRCMP(Cmd,	"GETTXCHARGE"))		err = CmdTXCHARGE();
 		else
 			err = S3_GPIB_CMD_UNRECOGNISED;
 	}
 	else if (Initial == 'I')
 	{
-		if		(!STRCMP(Cmd,	"IP"))			err = CmdIP();
-		else if (!STRCMP(Cmd,	"IPZ"))			err = CmdIMP();
-		else if (!STRCMP(Cmd,	"IPTESTSIG"))	err = CmdIPTESTSIG();
-		else if (!STRCMP(Cmd,	"ITAU"))		err = CmdITAU();
+		if		(!STRCMP(Cmd,	"IP"))				err = CmdIP();
+		else if (!STRCMP(Cmd,	"IPZ"))				err = CmdIMP();
+		else if (!STRCMP(Cmd,	"IPTESTSIG"))		err = CmdIPTESTSIG();
+		else if (!STRCMP(Cmd,	"ITAU"))			err = CmdITAU();
 		else
 			err = S3_GPIB_CMD_UNRECOGNISED;
 	}
 	else if (Initial == 'L')
 	{
-		if		(!STRCMP(Cmd,	"LOAD"))		err = CmdLOAD();
-		else if (!STRCMP(Cmd,	"LOWNOISE"))	err = CmdLOWNOISE();
-		else if (!STRCMP(Cmd,	"LOCAL"))		err = CmdLOCAL();
-		else if (!STRCMP(Cmd,	"LOGF"))		err = CmdLOGF();
-        else if (!STRCMP(Cmd,	"LOGFCOPY"))    err = CmdLOGFCOPY();
+		if		(!STRCMP(Cmd,	"LOAD"))			err = CmdLOAD();
+		else if (!STRCMP(Cmd,	"LOWNOISE"))		err = CmdLOWNOISE();
+		else if (!STRCMP(Cmd,	"LOCAL"))			err = CmdLOCAL();
+		else if (!STRCMP(Cmd,	"LOGF"))			err = CmdLOGF();
+        else if (!STRCMP(Cmd,	"LOGFCOPY"))		err = CmdLOGFCOPY();
 		else
 			err = S3_GPIB_CMD_UNRECOGNISED;
 	}
 	else if (Initial == 'M')
 	{
-		if		(!STRCMP(Cmd,	"MAXIP"))		err = CmdMAXIP(); 
+		if		(!STRCMP(Cmd,	"MAXIP"))			err = CmdMAXIP(); 
 		else
 			err = S3_GPIB_CMD_UNRECOGNISED;
 	}
     else if (Initial == 'N')
     {
-    	if		(!STRCMP(Cmd,	"NAME"))	err = CmdNAME();
+    	if		(!STRCMP(Cmd,	"NAME"))			err = CmdNAME();
 		else
 			err = S3_GPIB_CMD_UNRECOGNISED;
     }
 	else if (Initial == 'P')
 	{
-		if		(!STRCMP(Cmd,	"PPMCALRX"))	err = CmdPPMCALRX(); 
-		else if (!STRCMP(Cmd,	"PPMCALTXRF"))	err = CmdPPMCALTXRF();
-		else if (!STRCMP(Cmd,	"PPMCALTXOPT"))	err = CmdPPMCALTXOPT();
-		else if (!STRCMP(Cmd,	"PPMBATTAUTH"))	err = CmdPPMBATTAUTH();
-		else if (!STRCMP(Cmd,	"PPMBATTID"))	err = CmdPPMBATTID();
-		else if (!STRCMP(Cmd,	"PPMTXID"))		err = CmdPPMTXID();
-		else if (!STRCMP(Cmd,	"PPMRXID"))		err = CmdPPMRXID();
-		else if (!STRCMP(Cmd,	"PPMSYSID"))	err = CmdPPMSYSID();
-		// else if (!STRCMP(Cmd,	"PPMTXTYPE"))	err = CmdPPMTXTYPE(); 
+		if		(!STRCMP(Cmd,	"PPMCALRX"))		err = CmdPPMCALRX(); 
+		else if (!STRCMP(Cmd,	"PPMCALTXRF"))		err = CmdPPMCALTXRF();
+		else if (!STRCMP(Cmd,	"PPMCALTXOPT"))		err = CmdPPMCALTXOPT();
+		else if (!STRCMP(Cmd,	"PPMBATTAUTH"))		err = CmdPPMBATTAUTH();
+		else if (!STRCMP(Cmd,	"PPMBATTID"))		err = CmdPPMBATTID();
+		else if (!STRCMP(Cmd,	"PPMTXID"))			err = CmdPPMTXID();
+		else if (!STRCMP(Cmd,	"PPMRXID"))			err = CmdPPMRXID();
+		else if (!STRCMP(Cmd,	"PPMSYSID"))		err = CmdPPMSYSID();
+		else if	(!STRCMP(Cmd,	"PPMTERMINATOR"))	err = CmdPPMTERMINATOR();
 		else
 			err = S3_GPIB_CMD_UNRECOGNISED;
 	}
 	else if (Initial == 'R')
 	{
-		if		(!STRCMP(Cmd,	"REMOTE"))		err = CmdREMOTE();
-		else if (!STRCMP(Cmd,	"RX"))			err = CmdRX();
-		else if (!STRCMP(Cmd,	"REPORTF"))		err = CmdREPORTF();
-		else if (!STRCMP(Cmd,	"REPORT"))		err = CmdREPORT();
-        else if (!STRCMP(Cmd,	"RESTART"))		err = CmdRESTART();
+		if		(!STRCMP(Cmd,	"REMOTE"))			err = CmdREMOTE();
+		else if (!STRCMP(Cmd,	"RX"))				err = CmdRX();
+		else if (!STRCMP(Cmd,	"REPORTF"))			err = CmdREPORTF();
+		else if (!STRCMP(Cmd,	"REPORT"))			err = CmdREPORT();
+        else if (!STRCMP(Cmd,	"RESTART"))			err = CmdRESTART();
 		else
 			err = S3_GPIB_CMD_UNRECOGNISED;
 	}
 	else if (Initial == 'S')
 	{
-		if		(!STRCMP(Cmd,	"SAVE"))		err = CmdSAVE();
-		else if (!STRCMP(Cmd,	"SELECTIP"))	err = CmdSELECTIP();
-		else if (!STRCMP(Cmd,	"SET"))			err = CmdSET();
-		else if (!STRCMP(Cmd,	"SELECTTX"))	err = CmdSELECTTX();
-		else if (!STRCMP(Cmd,	"SYSRESET"))	err = CmdSYSRESET();
-		else if (!STRCMP(Cmd,	"SYSSETTIME"))	err = CmdSYSSETTIME();
-        else if (!STRCMP(Cmd,   "SHUTDOWN"))    err = CmdSHUTDOWN();
-        else if (!STRCMP(Cmd,   "SLEEPALL"))    err = CmdSLEEPALL();
-        else if (!STRCMP(Cmd,   "SWUPDATE"))    err = CmdSWUPDATE();
-		else if (!STRCMP(Cmd,   "SCALE"))	    err = CmdSCALE();
-		else if (!STRCMP(Cmd,   "SIGTYPE"))	    err = CmdSIGTYPE();
-		else if (!STRCMP(Cmd,   "SHOW3PC"))	    err = CmdSHOW3PC();
+		if		(!STRCMP(Cmd,	"SAVE"))			err = CmdSAVE();
+		else if (!STRCMP(Cmd,	"SELECTIP"))		err = CmdSELECTIP();
+		else if (!STRCMP(Cmd,	"SET"))				err = CmdSET();
+		else if (!STRCMP(Cmd,	"SELECTTX"))		err = CmdSELECTTX();
+		else if (!STRCMP(Cmd,	"SYSRESET"))		err = CmdSYSRESET();
+		else if (!STRCMP(Cmd,	"SYSSETTIME"))		err = CmdSYSSETTIME();
+        else if (!STRCMP(Cmd,   "SHUTDOWN"))		err = CmdSHUTDOWN();
+        else if (!STRCMP(Cmd,   "SLEEPALL"))		err = CmdSLEEPALL();
+        else if (!STRCMP(Cmd,   "SWUPDATE"))		err = CmdSWUPDATE();
+		else if (!STRCMP(Cmd,   "SCALE"))			err = CmdSCALE();
+		else if (!STRCMP(Cmd,   "SIGTYPE"))			err = CmdSIGTYPE();
+		else if (!STRCMP(Cmd,   "SHOW3PC"))			err = CmdSHOW3PC();
 		else
 			err = S3_GPIB_CMD_UNRECOGNISED;
 	}
 	else if (Initial == 'T')
 	{
-		if		(!STRCMP(Cmd,	"TXCHARGE"))	err = CmdTXCHARGE();
-		else if (!STRCMP(Cmd,	"TXPOWER"))		err = CmdTXSLEEP();
-        else if (!STRCMP(Cmd,	"TXSTARTSTATE"))err = CmdTXSTARTSTATE();
-		else if (!STRCMP(Cmd,	"TXSELFTEST"))	err = CmdTXSELFTEST();
-		else if (!STRCMP(Cmd,	"TX"))			err = CmdTX();
-		else if (!STRCMP(Cmd,	"TESTNAME"))	err = CmdTESTNAME();
-		else if (!STRCMP(Cmd,	"TCOMPMODE"))	err = CmdTCOMPMODE();
-		else if (!STRCMP(Cmd,	"TCOMP"))		err = CmdTCOMP();
-		else if	(!STRCMP(Cmd,	"TONE"))		err = CmdCAL();
+		if		(!STRCMP(Cmd,	"TXCHARGE"))		err = CmdTXCHARGE();
+		else if (!STRCMP(Cmd,	"TXPOWER"))			err = CmdTXSLEEP();
+        else if (!STRCMP(Cmd,	"TXSTARTSTATE"))	err = CmdTXSTARTSTATE();
+		else if (!STRCMP(Cmd,	"TXSELFTEST"))		err = CmdTXSELFTEST();
+		else if (!STRCMP(Cmd,	"TX"))				err = CmdTX();
+		else if (!STRCMP(Cmd,	"TESTNAME"))		err = CmdTESTNAME();
+		else if (!STRCMP(Cmd,	"TCOMPMODE"))		err = CmdTCOMPMODE();
+		else if (!STRCMP(Cmd,	"TCOMP"))			err = CmdTCOMP();
+		else if	(!STRCMP(Cmd,	"TONE"))			err = CmdCAL();
 		else
 			err = S3_GPIB_CMD_UNRECOGNISED;
 	}
 	else if (Initial == 'U')
 	{
-		if		(!STRCMP(Cmd,	"UNITS"))		err = CmdUNITS();
+		if		(!STRCMP(Cmd,	"UNITS"))			err = CmdUNITS();
 		else
 			err = S3_GPIB_CMD_UNRECOGNISED;
 	}
 	else if (Initial == 'W')
 	{
-		if		(!STRCMP(Cmd,	"WINTRACK"))	err = CmdWINTRACK();
-        else if (!STRCMP(Cmd,	"WAKEALL"))     err = CmdWAKEALL();
+		if		(!STRCMP(Cmd,	"WINTRACK"))		err = CmdWINTRACK();
+        else if (!STRCMP(Cmd,	"WAKEALL"))			err = CmdWAKEALL();
 		else
 			err = S3_GPIB_CMD_UNRECOGNISED;
 	}
@@ -356,8 +362,7 @@ int S3ProcessGPIBCommand(const char *cmd)
 		err = S3_GPIB_CMD_UNRECOGNISED;
 	}
 
-	// If nothing specific added to return buffer by individual command,
-	// add generic error
+	// If nothing command-specific added to return buffer, add generic error
 	if (strlen(GPIBRetBuf) == 0)
 	{
 		S3LookUpError(GPIBRetBuf, err);
@@ -422,6 +427,8 @@ int S3LookUpError(char *buf, int err)
 		strcpy_s(buf, S3_MAX_GPIB_RET_LEN, "E: Invalid transmitter power mode");
 	else if (err == S3_GPIB_INVALID_TX)
 		strcpy_s(buf, S3_MAX_GPIB_RET_LEN, "E: No current transmitter set");
+	else if (err == S3_GPIB_INVALID_RX)
+		strcpy_s(buf, S3_MAX_GPIB_RET_LEN, "E: No current receiver set");
 	else if (err == S3_GPIB_TX_NOT_EXIST)
 		strcpy_s(buf, S3_MAX_GPIB_RET_LEN, "E: Specified transmitter not available");
 	else if (err == S3_GPIB_RX_NOT_EXIST)
@@ -453,7 +460,11 @@ int S3LookUpError(char *buf, int err)
 	else if (err == S3_GPIB_COMMAND_LOCKED)
 		strcpy_s(buf, S3_MAX_GPIB_RET_LEN, "E: Factory-only command");
 	else if (err == S3_GPIB_BATTERY_SEALED)
-		strcpy_s(buf, S3_MAX_GPIB_RET_LEN, "E: Battery sealed");	
+		strcpy_s(buf, S3_MAX_GPIB_RET_LEN, "E: Battery sealed");
+	else if (err == S3_GPIB_MAX_IP_IGNORED)
+		strcpy_s(buf, S3_MAX_GPIB_RET_LEN, "W: Maximum input parameter deprecated");
+	else if (err == S3_GPIB_COMMAND_FAILED)
+		strcpy_s(buf, S3_MAX_GPIB_RET_LEN, "E: Command failed");
 	else
 	{
 		strcpy_s(buf, S3_MAX_GPIB_RET_LEN, "E: Unknown error");
@@ -542,8 +553,16 @@ int GetAddress2(char *all, char *Rx, char *Tx, char *IP, bool mustExist)
 	if (GPIBNArgs >= 5 && IP)
 	{
 		ipl = strtol(GPIBCmdArgs[3], &eptr, 10);
+		if (eptr == GPIBCmdArgs[3])
+			return S3_GPIB_MALFORMED_ADDRESS;
+
 		txl = strtol(GPIBCmdArgs[2], &eptr, 10);
+		if (eptr == GPIBCmdArgs[2])
+			return S3_GPIB_MALFORMED_ADDRESS;
+		
 		rxl = strtol(GPIBCmdArgs[1], &eptr, 10);
+		if (eptr == GPIBCmdArgs[1])
+			return S3_GPIB_MALFORMED_ADDRESS;
 
 		// TODO: Check valid range
 		*IP = (char)ipl - 1;
