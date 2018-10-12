@@ -387,6 +387,7 @@ typedef enum SigmaT				{TauNone, TauLo, TauMd, TauHi, TauUnknown, TauError};
 #define S3_DEF_LOW_NOISE		112
 #define S3_IP_ADDRESS			113
 #define S3_IP_SUBNET			114
+#define S3_TERMINATOR			115
 
 // See S3GDIScreenRx.cpp
 #define S3_ACTIVE_TX			30
@@ -778,6 +779,10 @@ typedef struct sS3DataModel
 									// 1: Continuous RLL compensation
 									// 2: Compensation only performed on gain
 									// changes (including start-up). 
+
+	unsigned char	m_Terminator;	// 0: \n
+									// 1: \0
+									// 2: None
 
 	unsigned char	m_TxStartState; // 0: User set
 									// 1: Always sleep
@@ -1353,6 +1358,10 @@ int			S3SysSetPN(	const char *s);
 int			S3SysSetSN(	const char *s);
 int			S3SysSetHW(	const char *s);
 int			S3SysSetSW(	const char *s);
+
+int				S3SetTerminator(unsigned char t);
+unsigned char	S3GetTerminator();
+const char		*S3GetTerminatorStr();
 
 const char	*S3SysGetModel();
 int			S3SysSetModel(const char *s);
