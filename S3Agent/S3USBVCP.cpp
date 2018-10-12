@@ -220,7 +220,7 @@ UINT SendThread (LPVOID pArg)
         if (dwGoCode == WAIT_OBJECT_0)
 		{
 			// Write size worth of data to the port
-            WriteFile(
+            int err = WriteFile(
 				pMyHndl->m_hPort,
 				pMyHndl->sWriteBuffer.cBuf, 
 				pMyHndl->sWriteBuffer.size,
@@ -245,7 +245,8 @@ UINT ReadThreadMaster(LPVOID pArg)
     DWORD dwBytes;
     BYTE szText[TEXTSIZE], *pPtr;
 	CS3USBVCP *pMyHndl = (CS3USBVCP *)pArg;
-	CString	str;
+	CString str(_T(""));
+
     char buf[DEFAULT_BUFLEN];
 
 	// Infinite loop to read from port until close
@@ -263,30 +264,22 @@ UINT ReadThreadMaster(LPVOID pArg)
 			&dwBytes, 
 			NULL);
 
-        if (buf[0] == S3_CMD_TERMINATOR)
-        {
-            pMyHndl->m_RecvBuf = str;
+		if(dwBytes)
+		{
+			if (buf[0] == S3_CMD_TERMINATOR)
+			{
+				pMyHndl->m_RecvBuf = str;
 
-            str = _T("");
-            pMyHndl->sReadBuffer.size = 0;
+				str = _T("");
+				pMyHndl->sReadBuffer.size = 0;
 
-            pMyHndl->m_WaitingAck = false;
-        }
-        else if(dwBytes)
-        {
-            str += buf;
-        }
-
-
-
-
-
-
-
-
-
-
-
+				pMyHndl->m_WaitingAck = false;
+			}
+			else 
+		    {
+				str += *buf;
+			}
+		}
 
 		/*if (dwBytes)
 		{
