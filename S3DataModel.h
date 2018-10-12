@@ -443,16 +443,14 @@ typedef enum SigmaT				{TauNone, TauLo, TauMd, TauHi, TauUnknown, TauError};
 #define S3_CH_NO_CHARGE_VOLTAGE	0x20
 #define S3_CH_CHARGE_FAULT		0x40
 
-// TODO: Arbitrary percentages currently - need tying to battery
-// icon colouring flashing etc
 // SoC levels
 #define S3_SOC_WARN				10
 #define S3_SOC_ALARM			5
 #define S3_SOC_MIN				3
 
 // Ambient temperatures
-#define S3_BATT_CHARGE_MIN_T	-100	// 0.1 degC
-#define S3_BATT_CHARGE_MAX_T	400		// 0.1 degC
+#define S3_BATT_CHARGE_MIN_T	100		// 0.1 degC
+#define S3_BATT_CHARGE_MAX_T	450		// 0.1 degC
 
 #define S3_BATT_DISCHG_MIN_T	-200	// 0.1 degC
 #define S3_BATT_DISCHG_MAX_T	600		// 0.1 degC
