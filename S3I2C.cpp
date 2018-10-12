@@ -358,7 +358,7 @@ int S3I2CIOInit()
 	// Set Port 0 outputs to zero before assigning as outputs - otherwise outputs
 	// default of 1's long enough to switch off rack.
 	I2C_WriteRandom(S3I2C_EXPANDER_ADDR, 0x04, 0x00); // Zero MS_BAT_3 & MS_BAT_4
-	I2C_WriteRandom(S3I2C_EXPANDER_ADDR, 0x06, 0x80);
+	I2C_WriteRandom(S3I2C_EXPANDER_ADDR, 0x06, CTRL_SHTDN); // Set CTRL_SHTDN hi 
 
 	// Configure pins as inputs
 	I2C_WriteRandom(S3I2C_EXPANDER_ADDR, 0x0C, 0xC0);	// Port 0
@@ -367,7 +367,7 @@ int S3I2CIOInit()
 
 	S3EventLogAdd("Configured expander", 1, -1, -1, -1);
 
-	//unsigned char p1 = I2C_ReadRandom(S3I2C_EXPANDER_ADDR, 0x04);
+	unsigned char p1 = I2C_ReadRandom(S3I2C_EXPANDER_ADDR, 0x02);
 	//unsigned char pins[3];
 	//S3I2CIORead(pins);
 	
@@ -456,6 +456,8 @@ int S3I2CTxSetOptCalibration(char Rx, char Tx, double val)
 // Interrogate TCA6424A I2C expander I/O pin P2:7. Once latched, stays latched
 // until I/F board power-cycled.
 
+int Debounce = 0;
+
 bool S3I2CGetPowerSwitch()
 {
 #ifdef TRIZEPS
@@ -464,9 +466,14 @@ bool S3I2CGetPowerSwitch()
 		if (S3GetPowerDownPending())
 			return true;
 
-		char Port2 = I2C_ReadRandom(S3I2C_EXPANDER_ADDR, 0x02);
+		unsigned char Port2 = (unsigned char)I2C_ReadRandom(S3I2C_EXPANDER_ADDR, 0x02);
+
+		if (!(Port2 & CTRL_SHTDN))
+			Debounce++;
+		else
+			Debounce = 0;
 	
-		if (!(Port2 & 0x80))
+		if (Debounce > 3)
 		{
 			S3SetPowerDownPending(true);
 			S3SetSleepAll(true);

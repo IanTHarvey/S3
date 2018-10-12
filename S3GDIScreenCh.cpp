@@ -14,6 +14,8 @@
 #include "S3ControllerDlg.h"
 #endif
 
+extern pS3DataModel S3Data;
+
 // Control status bits
 #define BQ_RES7		0x80
 #define BQ_FAS		0x40
@@ -61,7 +63,7 @@ void CS3GDIScreenMain::S3InitGDIChScreen(void)
 
 		row++; // Separator
 
-		str.Format(_T("\u03F4 (%d - %+d%cC)"),
+		str.Format(_T("\u03F4 (%+d - %+d%cC)"),
 					S3_BATT_CHARGE_MIN_T / 10, S3_BATT_CHARGE_MAX_T / 10, 0x00b0);
 
 		m_ChBattT[Ch] = new CS3NameValue(	m_RectCh[Ch].left, 
@@ -168,6 +170,15 @@ void CS3GDIScreenMain::S3DrawGDIChScreen(void)
 		{
 			str.Format(_T("No battery"));
 		}
+		else if (GetLockoutTime(Ch))
+		{
+			int tremain = (int)(GetLockoutTime(Ch) -
+											S3Data->m_GUI->GetPosixTime());
+			if (tremain < 0)
+				tremain = 0;
+			
+			str.Format(_T("Locked: %d\n"), tremain);
+		}
 		else if (!S3ChBattValidated(Ch))
 		{
 			str.Format(_T("Not validated"));
@@ -214,7 +225,11 @@ void CS3GDIScreenMain::S3DrawGDIChScreen(void)
 			m_ChTimeRemain[Ch]->SetValue(str);
 			m_ChTimeRemain[Ch]->Draw(m_HDC, m_hFontS, m_hFontSB);
 			
-			str.Format(_T("%+d"), S3ChGetBattTemp(Ch) / 10);
+			if (S3ChGetBattTemp(Ch) == -2740)
+				str = "-";
+			else
+				str.Format(_T("%+d"), S3ChGetBattTemp(Ch) / 10);
+			
 			m_ChBattT[Ch]->SetValue(str);
 			m_ChBattT[Ch]->Draw(m_HDC, m_hFontS, m_hFontSB);
 

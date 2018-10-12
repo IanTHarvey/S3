@@ -91,7 +91,8 @@ extern const char		*TxTypeStrings[];
 // #define	S3_FILE_VERSION		1.8 // Save Rx active Tx 03-03-17
 // #define	S3_FILE_VERSION		1.9 // Save Tx self test 18-04-17
 // #define	S3_FILE_VERSION		2.0 // Save units scale and signal type 16-06-17
-#define	S3_FILE_VERSION			2.1 // Save 3% linearity setting 16-06-17
+// #define	S3_FILE_VERSION		2.1 // Save 3% linearity setting 16-06-17
+#define	S3_FILE_VERSION			2.2 // Save terminator setting 27-09-17
 
 
 // TODO: Move all 'common' configurables to this section
@@ -425,15 +426,6 @@ typedef enum SigmaT				{TauNone, TauLo, TauMd, TauHi, TauUnknown, TauError};
 #define S3_TEXT					3
 #define S3_TOGGLE				4
 
-//S3_GAIN, S3_INT, 0, 0, -55, 55
-//S3_MAX_INPUT, S3_FP, 0, 0, -55 * 10.0, 55 * 10.0 
-//S3_SIGMA_TAU, S3_MULT_CHOICE, 3, {0.1, 1.0, 10}, 0
-//S3_INPUT_IMP, S3_TOGGLE, 2, {50, 1000000}, 0
-//S3_LOW_NOISE, S3_TOGGLE, 0, 0, 0
-//S3_WIN_TRACK, S3_TOGGLE, 0, 0, 0
-//S3_PASSIVE_INT, S3_TOGGLE, 0, 0, 0
-
-
 // Charger battery alarms bits (re-use Tx's?)
 #define S3_CH_BATT_WARN			0x01
 #define S3_CH_BATT_ALARM		0x02
@@ -713,6 +705,9 @@ typedef struct sS3Charger
 								// current use is to distinguish between real
 								// and fake batteries in Demo Mode.
 	bool			m_Occupied;
+	bool			m_Disabled;
+
+	__time64_t		m_LockOutTime;
 
 	unsigned char	stat_h, stat_l;
 
@@ -723,6 +718,9 @@ typedef struct sS3Charger
 	unsigned short	m_ATTF;		// Average time to full
 
 	double			m_V;		// Charge/discharge (mV)
+
+	short			m_Flags;
+	short			m_FlagsB;
 	short			m_I;		// Charge/discharge current (mA, +ve = charging)
 
 	// Battery pack info TODO: Ditto
@@ -881,6 +879,8 @@ typedef struct sS3DataModel
 
 #ifndef S3_AGENT
 	CS3ControllerDlg	*m_GUI;
+#else
+	CS3AgentDlg			*m_GUI;
 #endif
 
 } *pS3DataModel, S3DataModel;
@@ -1226,6 +1226,8 @@ int S3TxReport(			char *Buf, char Rx, char Tx);
 int S3IPReport(			char *Buf, char Rx, char Tx, char IP);
 int S3CfgReport(		char *Buf, char Rx, char Tx, char IP);
 
+int S3TxReportShort(	char *Buf, char Rx, char Tx);
+
 int S3SetSelectedPara(	char Rx, char Tx, char IP, char Para);
 char S3GetSelectedPara(	char Rx, char Tx, char IP);
 int S3SetParaValue(		char Rx, char Tx, char IP, char Para, char MenuItem);
@@ -1465,6 +1467,7 @@ void S3TxGetCoords(char Rx, char Tx, int *x, int *y);
 // ----------------------------------------------------------------------------
 // Charger parameters
 bool			S3ChOccupied(		char Ch);
+__time64_t		GetLockoutTime(		char Ch);
 bool			S3ChFullyCharged(	char Ch);
 char			S3ChGetSoC(			char Ch);
 char			S3ChSetSoC(			char Ch, char ChLevel);
@@ -1505,6 +1508,9 @@ double			S3ChGetBattV(	char Ch);
 
 int				S3ChSetBattI(	char Ch, short i);
 short			S3ChGetBattI(	char Ch);
+
+int				S3ChSetBattFlags(	char Ch,	unsigned short flags,
+												unsigned short flagsb);
 
 const char		*S3ChGetBattMfr(char Ch);
 int				S3ChSetBattMfr(	char Ch, const char *MfrData);

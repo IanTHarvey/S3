@@ -959,12 +959,14 @@ void CS3FactorySetUp::OnBnClickedCheck4()
 void CS3FactorySetUp::UpdateChargerEnables()
 {
 	// Lo is enabled
+#ifdef TRIZEPS
 	int pins = I2C_ReadRandom(S3I2C_EXPANDER_ADDR, 0x04);
 
 	Check1.SetCheck((pins & EN_BAT_4) ? 0 : 1);
 	Check2.SetCheck((pins & EN_BAT_3) ? 0 : 1);
 	Check3.SetCheck((pins & EN_BAT_2) ? 0 : 1);
 	Check4.SetCheck((pins & EN_BAT_1) ? 0 : 1);
+#endif
 }
 
 // -----------------------------------------------------------------------------

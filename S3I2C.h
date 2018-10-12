@@ -131,17 +131,35 @@ class CS3ControllerDlg;
 
 #define S3_SERIAL_FIFO_LEN	64
 
+// -----------------------------------------------------------------------------
+// Confusingly reversed on rear panel
+
 // Charger master-selects
-#define MS_BAT_1	2
-#define MS_BAT_2	1
-#define MS_BAT_3	1
-#define MS_BAT_4	2
+
+// Port 0
+#define MS_BAT_1		0x02	// Rear panel 4
+#define MS_BAT_2		0x01	// Rear panel 3
+// GPIO 
+#define MS_BAT_3		0x01	// Rear panel 2
+#define MS_BAT_4		0x02	// Rear panel 1
 
 // Charger enables (0-enabled)
-#define EN_BAT_4	4
-#define EN_BAT_3	8
-#define EN_BAT_2	16
-#define EN_BAT_1	32
+// P02-P05
+#define EN_BAT_1		0x20	// Rear panel 4
+#define EN_BAT_2		0x10	// Rear panel 3
+#define EN_BAT_3		0x08	// Rear panel 2
+#define EN_BAT_4		0x04	// Rear panel 1
+
+// Battery fault pins
+// P10-P11
+#define BAT_FAULT_1		0x02	// Rear panel 4
+#define BAT_FAULT_2		0x01	// Rear panel 3
+// P06-P07
+#define BAT_FAULT_3		0x80	// Rear panel 2
+#define BAT_FAULT_4		0x40	// Rear panel 1
+
+// P27
+#define CTRL_SHTDN		0x80	// Soft shutdown
 
 // Control status bits
 #define BQ_RES7		0x80

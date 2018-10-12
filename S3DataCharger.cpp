@@ -24,13 +24,16 @@ int S3ChInitAll()
 
 int S3ChInit(unsigned char Ch)
 {
-	// S3Data->m_Chargers[Ch].m_Type = S3_BattUnknown;
-	S3Data->m_Chargers[Ch].m_Type = S3_Batt2S1P;
+	S3Data->m_Chargers[Ch].m_Type = S3_BattUnknown;
+	// S3Data->m_Chargers[Ch].m_Type = S3_Batt2S1P;
 
 	S3Data->m_Chargers[Ch].m_MfrData[0] = '\0';
 
+	S3Data->m_Chargers[Ch].m_LockOutTime = 0;
+
 	S3Data->m_Chargers[Ch].m_Occupied = false;
 	S3Data->m_Chargers[Ch].m_Detected = false;
+	S3Data->m_Chargers[Ch].m_Disabled = false;
 
 	S3Data->m_Chargers[Ch].m_BattSN[0] = '\0';
 	S3Data->m_Chargers[Ch].m_BattPN[0] = '\0';
@@ -40,15 +43,25 @@ int S3ChInit(unsigned char Ch)
 	
 	S3Data->m_Chargers[Ch].m_Alarms = 0;
 
-	S3Data->m_Chargers[Ch].m_BattTemp = 0;
+	S3Data->m_Chargers[Ch].m_BattTemp = -2740;
 	S3Data->m_Chargers[Ch].m_SoC = 0;
 	S3Data->m_Chargers[Ch].m_Charged = false;
+
+	S3Data->m_Chargers[Ch].m_V = 0.0;
+	S3Data->m_Chargers[Ch].m_I = 0;
 
 	S3Data->m_Chargers[Ch].m_BattValidated = false;
 
 	S3Data->m_Chargers[Ch].m_ATTF = 0;
 
 	return 0;
+}
+
+// ----------------------------------------------------------------------------
+
+__time64_t GetLockoutTime(char Ch)
+{
+	return S3Data->m_Chargers[Ch].m_LockOutTime;
 }
 
 // ----------------------------------------------------------------------------
@@ -553,3 +566,13 @@ int S3ChSetBattI(char Ch, short i)
 }
 
 // ---------------------------------------------------------------------------
+
+int S3ChSetBattFlags(char Ch, unsigned short flags, unsigned short flagsb)
+{
+	S3Data->m_Chargers[Ch].m_Flags = flags;
+	S3Data->m_Chargers[Ch].m_FlagsB = flagsb;
+
+	return 0;
+}
+
+// -----------------------------------------------------------------------------

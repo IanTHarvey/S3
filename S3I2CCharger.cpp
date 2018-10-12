@@ -5,6 +5,10 @@
 // addresses. However making battery and and Rx MSs exclusive seems to make it
 // more robust.
 //
+// REMINDER: Rear panel port numbering is arse-about compared to the various
+// pin numbering, which is derived from the schematics. So Ch[0] = 1, ch[3] = 4
+// despite wiring of ports backwards (J12->Port4, J13->Port3 etc).
+//
 // TTL IO
 // 0 MS_BAT_2
 // 1 MS_BAT_1
@@ -30,6 +34,7 @@
 #include "stdafx.h"
 
 #include "S3DataModel.h"
+#include "S3ControllerDlg.h"
 
 extern pS3DataModel S3Data;
 
@@ -55,6 +60,8 @@ int S3I2CChGetFault();
 #define S3_ALARM_RX3		0x04
 #define S3_ALARM_RX4		0x02
 #define S3_ALARM_RX5		0x01
+
+#define S3_CH_LOCKOUT_TIME	20
 
 // ----------------------------------------------------------------------------
 // TODO: Use GPIO for chargers 0 & 1
@@ -82,7 +89,7 @@ int S3I2CChMS(unsigned char Ch)
 	if (Ch == 0xFF)
 	{
 		// Deselect all chargers
-		// return 0;
+		return 0;
 
 		// Zero bits 0 & 1 of expander port 0
 		pins = I2C_ReadRandom(S3I2C_EXPANDER_ADDR, 0x04);
@@ -108,7 +115,7 @@ int S3I2CChMS(unsigned char Ch)
 
 		I2C_WriteRandom(S3I2C_EXPANDER_ADDR, 0x04, pins);
 
-		// Set pin 0/1 on TTL port and clear Rx MS pins
+		// Set pin 0/1 on TTL port and clear all Rx MS pins on TTL port
 		pins = 0;
 		
 		if (Ch == 3)
@@ -126,7 +133,7 @@ int S3I2CChMS(unsigned char Ch)
 	{
 		// MS on expander port 0: pins 0 & 1
 
-		// Clear all Rx MS pins on TTL port
+		// Clear all charger and Rx MS pins on TTL port
 		pins = 0;
 		Set_TTLPort(pins, 0);
 
@@ -202,23 +209,15 @@ int S3I2CChGetFault()
 	unsigned char pins1 = I2C_ReadRandom(S3I2C_EXPANDER_ADDR, 0x01);
 
 	unsigned char fault[4] = {0, 0, 0, 0};
-	if (!(pins0 & 0x40))
+	if (!(pins0 & BAT_FAULT_4))
 	{
-		S3ChSetAlarm(3, S3_CH_CHARGE_FAULT);
-		fault[3] = 1;
+		S3ChSetAlarm(0, S3_CH_CHARGE_FAULT);
+		fault[0] = 1;
 	}
 	else
-		S3ChCancelAlarm(3, S3_CH_CHARGE_FAULT);
+		S3ChCancelAlarm(0, S3_CH_CHARGE_FAULT);
 
-	if (!(pins0 & 0x80))
-	{
-		S3ChSetAlarm(2, S3_CH_CHARGE_FAULT);
-		fault[2] = 1;
-	}
-	else
-		S3ChCancelAlarm(2, S3_CH_CHARGE_FAULT);
-
-	if (!(pins1 & 0x01))
+	if (!(pins0 & BAT_FAULT_3))
 	{
 		S3ChSetAlarm(1, S3_CH_CHARGE_FAULT);
 		fault[1] = 1;
@@ -226,13 +225,21 @@ int S3I2CChGetFault()
 	else
 		S3ChCancelAlarm(1, S3_CH_CHARGE_FAULT);
 
-	if (!(pins1 & 0x02))
+	if (!(pins1 & BAT_FAULT_2))
 	{
-		S3ChSetAlarm(0, S3_CH_CHARGE_FAULT);
-		fault[0] = 1;
+		S3ChSetAlarm(2, S3_CH_CHARGE_FAULT);
+		fault[2] = 1;
 	}
 	else
-		S3ChCancelAlarm(0, S3_CH_CHARGE_FAULT);
+		S3ChCancelAlarm(2, S3_CH_CHARGE_FAULT);
+
+	if (!(pins1 & BAT_FAULT_1))
+	{
+		S3ChSetAlarm(3, S3_CH_CHARGE_FAULT);
+		fault[3] = 1;
+	}
+	else
+		S3ChCancelAlarm(3, S3_CH_CHARGE_FAULT);
 
 	// char Msg[S3_EVENTS_LINE_LEN];
 
@@ -253,24 +260,25 @@ int S3I2CChEn(unsigned char Ch, bool enable)
 	int pins = I2C_ReadRandom(S3I2C_EXPANDER_ADDR, 0x04);
 
 	// enable = false;
+	
 	// Zero pin to enable
 	if (enable)
 	{
 		if (Ch == 0)
 		{
-			pins &= ~EN_BAT_1;
+			pins &= ~EN_BAT_4;
 		}
 		else if (Ch == 1)
 		{
-			pins &= ~EN_BAT_2;
-		}
-		if (Ch == 2)
-		{
 			pins &= ~EN_BAT_3;
+		}
+		else if (Ch == 2)
+		{
+			pins &= ~EN_BAT_2;
 		}
 		else if (Ch == 3)
 		{
-			pins &= ~EN_BAT_4;
+			pins &= ~EN_BAT_1;
 		}
 	}
 	else
@@ -278,29 +286,23 @@ int S3I2CChEn(unsigned char Ch, bool enable)
 		// One to disable
 		if (Ch == 0)
 		{
-			pins |= EN_BAT_1;
+			pins |= EN_BAT_4;
 		}
 		else if (Ch == 1)
 		{
-			pins |= EN_BAT_2;
-		}
-		if (Ch == 2)
-		{
 			pins |= EN_BAT_3;
+		}
+		else if (Ch == 2)
+		{
+			pins |= EN_BAT_2;
 		}
 		else if (Ch == 3)
 		{
-			pins |= EN_BAT_4;
+			pins |= EN_BAT_1;
 		}
 	}
 
 	I2C_WriteRandom(S3I2C_EXPANDER_ADDR, 0x04, pins);
-
-	/*if (CountPins(pins) > 1)
-		return 0;*/
-
-	//int pins0 = I2C_ReadRandom(S3I2C_EXPANDER_ADDR, 0x00);
-	//int pins1 = I2C_ReadRandom(S3I2C_EXPANDER_ADDR, 0x01);
 
 #endif // TRIZEPS
 	return 0;
@@ -356,18 +358,45 @@ int S2I2CChFactoryPN();
 
 int S3I2CChGetStatus(unsigned char Ch)
 {
+	//S3I2CChMS(Ch);
+
+	//S3I2CChEn(Ch, false);
+	//Sleep(1000);
+	//S3I2CChEn(Ch, true);
+	//
+	//return 0;
+
 #ifdef TRIZEPS
 	S3TimerStart(1);
 
 	S3I2CChMS(Ch);
-	S3I2CChEn(Ch, true);
+	Sleep(10);
 	
+	if (!S3Data->m_Chargers[Ch].m_Disabled)
+	{
+		S3I2CChEn(Ch, true);
+	}
+	else
+	{
+		if (S3Data->m_Chargers[Ch].m_LockOutTime &&
+				(S3Data->m_GUI->GetPosixTime() > S3Data->m_Chargers[Ch].m_LockOutTime))
+		{
+			S3EventLogAdd("Unlocking charger port", 1, Ch, -1, -1);
+
+			S3I2CChEn(Ch, true);
+			S3ChInit(Ch);
+		}
+		else
+			return 0;
+	}
+
 	unsigned char i2cStartAddr = 0x00;
 	unsigned char i2cStdBufRead[32];
 	unsigned char i2cCmdBufRead[2];
 
 	// Try talking...
-	BOOL ok = I2C_WriteRead(S3I2C_CH_BATT_ADDR, &i2cStartAddr, 1, i2cStdBufRead, 20);
+	BOOL ok = I2C_WriteRead(S3I2C_CH_BATT_ADDR, &i2cStartAddr, 1,
+		i2cStdBufRead, 20);
 
 	if (!ok)
 	{
@@ -378,9 +407,12 @@ int S3I2CChGetStatus(unsigned char Ch)
 			return 0;
 
 		// Somebody's just left the building
-		S3Data->m_Chargers[Ch].m_Occupied = false;
-		S3Data->m_Chargers[Ch].m_Detected = false;
+		//S3Data->m_Chargers[Ch].m_Occupied = false;
+		//S3Data->m_Chargers[Ch].m_Detected = false;
 		S3ChInit(Ch);
+
+		if (!S3Data->m_Chargers[Ch].m_Disabled)
+			S3I2CChEn(Ch, true);
 			
 		return 1; // Indicate change
 	}
@@ -404,11 +436,9 @@ int S3I2CChGetStatus(unsigned char Ch)
 	t  = *((unsigned short *)(i2cStdBufRead + 0x10));
 	S3ChSetBattI(Ch, t);
 
-	// TODO: This is a specific H/W fault condition
-	//if (t == 0 && S3ChGetSoC(Ch) != 100)
-	//	S3ChSetAlarm(Ch, S3_CH_NO_CHARGE_VOLTAGE);
-	//else
-	//	S3ChCancelAlarm(Ch, S3_CH_NO_CHARGE_VOLTAGE);
+	unsigned short flags = *((unsigned short *)(i2cStdBufRead + 0x0E));
+	unsigned short flagsb = *((unsigned short *)(i2cStdBufRead + 0x12));
+	S3ChSetBattFlags(Ch, flags, flagsb);
 
 	i2cStartAddr = 0x1A; // 'Command' Average time to full
 	ok = I2C_WriteRead(S3I2C_CH_BATT_ADDR, &i2cStartAddr, 1, i2cCmdBufRead, 2);
@@ -424,28 +454,45 @@ int S3I2CChGetStatus(unsigned char Ch)
 		// Attempt to clear tripped charger
 		if ((S3ChGetAlarms(Ch) & S3_CH_CHARGE_FAULT) && S3ChBattValidated(Ch))
 		{
-			S3I2CChEn(Ch, false);
-			Sleep(10);
-			S3I2CChEn(Ch, true);
+			//S3I2CChEn(Ch, false);
+			//Sleep(10);
+			//S3I2CChEn(Ch, true);
 		}
 
-		// Enable 12V supply if good
-		if (!(S3ChGetAlarms(Ch) & S3_CH_BATT_HOT) && S3ChBattValidated(Ch))
-			S3I2CChEn(Ch, true);
-		// else
-			// S3I2CChEn(Ch, false);
+		// Enable 12V supply if validated and Goldilocks
+		if (!(S3ChGetAlarms(Ch) & S3_CH_BATT_HOT) && 
+			!(S3ChGetAlarms(Ch) & S3_CH_BATT_COLD) && 
+			S3ChBattValidated(Ch))
+		{
+			S3Data->m_Chargers[Ch].m_LockOutTime = 0;
 
-		// If we disable the charge current, we also lose comms (why?)
-		// so invalidated battery comes and goes as supply is enabled
-		// disabled - which is not ideal.
-		// if (!S3ChBattValidated(Ch) && tmin < 60)
-		//	S3I2CChEn(Ch, false);
+			S3I2CChEn(Ch, true);
+		}
+		else
+		{
+			if (S3Data->m_Chargers[Ch].m_LockOutTime == 0)	
+			{
+				S3EventLogAdd("Charger error: Locking charger port", 3, Ch, -1, -1);
+
+				S3ChInit(Ch);
+
+				S3Data->m_Chargers[Ch].m_LockOutTime =
+					S3Data->m_GUI->GetPosixTime() + S3_CH_LOCKOUT_TIME;
+
+				S3Data->m_Chargers[Ch].m_Disabled = true;
+				S3Data->m_Chargers[Ch].m_Occupied = true;
+				
+				Sleep(10);
+				
+				S3I2CChEn(Ch, false);
+
+				Sleep(10);
+			}
+		}
 
  		S3I2CChMS(0xFF);
 		return 0;
 	}
-
-	S3I2CChEn(Ch, true);
 
 	i2cStartAddr = 0x00;
 
@@ -490,12 +537,6 @@ int S3I2CChGetStatus(unsigned char Ch)
 	// Keep aligned with Tx battery functions (S3TxSetBattInfo())
 	S3ChSetBattSN(Ch, SN);
 	S3ChSetBattPN(Ch, PN);
-
-	// Enable 12V supply if good
-	if (S3ChBattValidated(Ch))
-		S3I2CChEn(Ch, true);
-	// else
-	//	S3I2CChEn(Ch, false);
 
 	S3I2CChMS(0xFF);
 
