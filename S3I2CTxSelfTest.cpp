@@ -76,7 +76,6 @@ int S3I2CTxSelfTest(short *v1, short *v2, char Rx, char Tx)
 
 	// Double calls to set and ack to update display
 	S3TxSetActiveIP(Rx, Tx, IP);
-	S3TxSetActiveIP(Rx, Tx, IP);
 	
 	S3IPSetTestToneEnable(Rx, Tx, IP, 1);
 
@@ -251,8 +250,12 @@ int S3I2CTxSelfTest(short *v1, short *v2, char Rx, char Tx)
 		{ err = 94;  goto ENDTEST; }
 
 	if (S3TxGetType(Rx, Tx) == S3_Tx8)
+	{
 		if (err = select_RF_input((unsigned char)S3Tx8IPMap[0], true))
 			{ err = 13;  goto ENDTEST; }
+
+		S3TxSetActiveIPPending(Rx, Tx, false);
+	}
 
 	if (S3I2CSwitchTestTone(true))
 		{ err = 15;  goto ENDTEST; }
@@ -331,6 +334,7 @@ ENDTEST:
 
 	// Restore saved active IP
 	S3TxSetActiveIP(Rx, Tx, ActiveIP);
+	S3TxSetActiveIPPending(Rx, Tx, true);
 
 	return err;
 }
@@ -368,8 +372,6 @@ int S3I2CTx8SelfTest(short *v1, short *v2, char Rx, char Tx)
 	for(char IP = 0; IP < S3TxGetNIP(Rx, Tx); IP++)
 	{
 		S3TxSetActiveIP(Rx, Tx, IP);
-		S3TxSetActiveIP(Rx, Tx, IP);
-
 		S3TxSetTestToneEnableAll(Rx, Tx, 1);
 
 		// Test all Tx8 input select relays
@@ -518,7 +520,9 @@ int S3I2CTxSelfTest2(char Rx, char Tx)
 	for(char IP = 0; IP < S3TxGetNIP(Rx, Tx); IP++)
 	{
 		// Test all Tx8 input select relays
-		if (S3I2CTxSwitchInput(Rx, Tx, IP))
+		S3TxSetActiveIP(Rx, Tx, IP);
+
+		if (S3I2CTxSwitchInput(Rx, Tx))
 			return 13;
 
 		RxRFLevel1 = S3I2CRxGetRFLevel();
@@ -693,14 +697,13 @@ int S3I2CTx8SoakTest(FILE *fid, short *v1, short *v2, char Rx, char Tx)
 	for(char IP = 0; IP < S3TxGetNIP(Rx, Tx); IP++)
 	{
 		S3TxSetActiveIP(Rx, Tx, randIP[IP]);
-		S3TxSetActiveIP(Rx, Tx, randIP[IP]);
-
 		S3TxSetTestToneEnableAll(Rx, Tx, 1);
 
 		// Test all Tx8 input select relays
-		// if (IP)
-			if (err = select_RF_input((unsigned char)S3Tx8IPMap[randIP[IP]], true))
-				{ err = 13;  goto ENDTEST; }
+		if (err = select_RF_input((unsigned char)S3Tx8IPMap[randIP[IP]], true))
+			{ err = 13;  goto ENDTEST; }
+
+		S3TxSetActiveIPPending(Rx, Tx, false);
 
 		if (S3I2CSwitchTestTone(false))
 			{ err = 15;  goto ENDTEST; }
