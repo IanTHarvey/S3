@@ -120,6 +120,7 @@ UINT ScriptProcessThread(LPVOID pParam)
                 RespStr.Append(CMDMsg);
                 RespStr.Append(L"\t");
                 RespStr.Append(MsgResponse);
+				RespStr.Append(L"\r\n");
 
                 int nLength = pObject->m_CommandEdit.GetWindowTextLength();
                 pObject->m_CommandEdit.SetSel(nLength, nLength);
