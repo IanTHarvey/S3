@@ -604,7 +604,8 @@ int GetAddress2(char *all, char *Rx, char *Tx, char *IP, bool mustExist)
 
 SigmaT S3Str2SigmaT(const char *str)
 {
-	SigmaT	Tau; 
+	SigmaT	Tau;
+
 	if (!STRCMP(str, "OFF"))
 		Tau = TauNone;
 	else if (!STRCMP(str, "LO"))
@@ -613,8 +614,10 @@ SigmaT S3Str2SigmaT(const char *str)
 		Tau = TauMd;
 	else if (!STRCMP(str, "HI"))
 		Tau = TauHi;
-	else 
+	else if (!STRCMP(str, "-"))
 		Tau = TauUnknown;
+	else
+		Tau = TauError;
 
 	return Tau;
 }
@@ -623,16 +626,18 @@ SigmaT S3Str2SigmaT(const char *str)
 
 InputZ S3Str2InputZ(const char *str)
 {
+	InputZ Z;
+
 	if (!STRCMP(str, "50"))	
-	{
-		return W50;
-	}
+		Z = W50;
 	else if (!STRCMP(str, "HIZ") || !STRCMP(str, "1M"))
-	{
-		return W1M;
-	}
+		Z = W1M;
+	else if (!STRCMP(str, "-"))
+		Z = ZUnknown;
 	else
-		return ZUnknown;
+		Z = ZError;
+
+	return Z;
 }
 
 // ----------------------------------------------------------------------------
