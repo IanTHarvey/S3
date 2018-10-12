@@ -910,10 +910,17 @@ int S3I2CTxGetStatus(char Rx, char Tx)
 	if (err)
 		S3TxBattSetAlarm(Rx, Tx, S3_TX_BATT_COMM_FAIL);
 	else
+	{
 		S3TxBattCancelAlarm(Rx, Tx, S3_TX_BATT_COMM_FAIL);
 
-		// TODO: Move to after battery if JB can enable I2C battery comms in
-	// partial sleep mode
+		if (S3TxBattGetAlarms(Rx, Tx) && S3_TX_BATT_HOT || 
+			S3TxBattGetAlarms(Rx, Tx) && S3_TX_BATT_COLD)
+		{
+			S3TxSetPowerStat(Rx, Tx, S3_TX_SLEEP);
+			goto RETERR;
+		}
+	}
+
 	if (S3TxGetPowerStat(Rx, Tx) != S3_TX_ON)
 		goto RETERR;
 
@@ -932,9 +939,6 @@ int S3I2CTxGetStatus(char Rx, char Tx)
 		S3TxSetAlarm(Rx, Tx, S3_TX_COMM_FAIL);
 	else
 		S3TxCancelAlarm(Rx, Tx, S3_TX_COMM_FAIL);
-
-	// TODO: Is this redundant? Yes
-	// S3I2CTxSetOptCtrlBits(Rx, Tx);
 
 	// Catch-all for Kludge above
 	S3TxCancelAlarm(Rx, Tx, S3_TX_INIT_FAIL);
@@ -1746,8 +1750,6 @@ int set_RF_inp_board(unsigned char  path, unsigned char attenuation, char Rx, ch
 
 	return err;
 }
-
-
 
 // ----------------------------------------------------------------------------
 
