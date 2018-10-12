@@ -284,7 +284,7 @@ UINT ListenThreadProc(LPVOID pParam)
 		{
 			int err = WSAGetLastError();
 			
-			// If accept() interuppted by external closesocket(), we won't worry
+			// If accept() interrupted by external closesocket(), we won't worry
 			if (err != WSAEINTR)
 			{
 				debug_print("ListenThreadProc: Accept failed: %S\n", S3GetWSAErrString());
@@ -321,10 +321,13 @@ UINT ListenThreadProc(LPVOID pParam)
 					strcpy_s(TxBuf, S3_MAX_GPIB_RET_LEN, S3GPIBGetRetBuf());
 
 					int len = strlen(TxBuf);
-					TxBuf[len] = '\0'; // For safety - NOT added to buffer!
+					// TxBuf[len + 1] = '\0'; // For safety - NOT added to buffer!
 
 					// Do NOT send '\0' terminator
-					iSendResult = send(ClientSocket, TxBuf, len, 0);
+					if (S3GetTerminator() == 1)
+						iSendResult = send(ClientSocket, TxBuf, len + 1, 0);
+					else
+						iSendResult = send(ClientSocket, TxBuf, len, 0);
 					
 					if (iSendResult == SOCKET_ERROR)
 					{
@@ -406,21 +409,26 @@ int CS3ControllerDlg::ParseMsg(const char *pMsg, char MsgSrc)
 	{
 		// TODO: Verify valid and conformant IP address here
 		char *tmp = S3GPIBGetRetBuf();
-		strcpy_s(tmp, 3, "OK");
+		strcpy_s(tmp, 3, "OK:");
 	}
 	else
 	{
 		// Pass on S3-only messages
 		err = S3ProcessGPIBCommand(Msg);
-
 		m_GDIStatic.S3GDIRemoteCmd();
+	}
 
-		if (err)
-		{
-			CString tmp, tmp1;
+	char *tmp = S3GPIBGetRetBuf();
+	int len = strlen(tmp);
 
-			tmp = S3GPIBGetRetBuf();
-		}
+	if (S3GetTerminator() == 0)
+	{
+		tmp[len] = '\n';
+		tmp[len + 1] = '\0';
+	}
+	else if (S3GetTerminator() == 1)
+	{
+		tmp[len + 1] = '\0';
 	}
 
 	return err;
