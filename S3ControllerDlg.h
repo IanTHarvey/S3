@@ -70,6 +70,7 @@ class CS3ControllerDlg : public CDialog
 	CS3USBVCP		m_COMPort;
 
 	SYSTEMTIME		m_SysTime;
+	__time64_t		m_PosixTime;
 
 	void	UpdateDateTime(void);
 	void	UpdateCtrlTemps(void);
@@ -140,6 +141,8 @@ public:
 	void	GetDateTimeStr(	CString &str);
 	void	GetTimeStr(		CString &str);
 	void	GetDateStr(		CString &str);
+
+	__time64_t GetPosixTime();
 
 	void	GetDateTimeStrA(char *str);
 	void	GetTimeStrA(	char *str);

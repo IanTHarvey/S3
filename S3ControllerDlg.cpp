@@ -661,9 +661,16 @@ void CS3ControllerDlg::UpdateDateTime(void)
 	m_SysTime.wMonth = CurrentTime.GetMonth();
 	m_SysTime.wDay = CurrentTime.GetDay();
 
+	m_PosixTime = CurrentTime.GetTime();
+
 	S3SetDateTime(m_SysTime.wHour, m_SysTime.wMinute, m_SysTime.wSecond,
 		m_SysTime.wYear, m_SysTime.wMonth, m_SysTime.wDay);
 
+}
+
+__time64_t CS3ControllerDlg::GetPosixTime()
+{
+	return m_PosixTime;
 }
 
 // ----------------------------------------------------------------------------
