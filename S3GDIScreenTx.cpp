@@ -1027,7 +1027,7 @@ void CS3GDIScreenMain::S3DrawGDITxIP(char Rx, char Tx, char IP,
 		cr = SetTextColor(m_HDC, m_crWhite);
 
 		// Contrast
-		if (IP == ActiveIP)
+		if (IP == ActiveIP && !S3TxGetActiveIPPending(Rx, Tx))
 		{
 			if ((Alarms & S3_IP_OVERDRIVE) && m_Parent->m_AnimateState)
 			{
@@ -1084,9 +1084,6 @@ void CS3GDIScreenMain::S3DrawGDITxIP(char Rx, char Tx, char IP,
 		// Sleeping
 		cr = SetTextColor(m_HDC, m_crTextNorm);
 
-		if (ActiveIP >= S3_PENDING)
-			ActiveIP -= S3_PENDING;
-		
 		if (IP == ActiveIP)
 		{
 			vertex_grey[0].x     = xref; // + 1;
