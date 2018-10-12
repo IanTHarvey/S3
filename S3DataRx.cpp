@@ -225,8 +225,7 @@ int S3RxSetActiveTx(char Rx, char Tx)
 		else
 		{
 			// Ensure Tx updates selected input and gain
-			if (pRx->m_Tx[Tx].m_ActiveInput < S3_PENDING)
-				pRx->m_Tx[Tx].m_ActiveInput += S3_PENDING;
+			pRx->m_Tx[Tx].m_ActiveInputPending = true;
 
 			// TODO: This protection should not be required
 			// ASSERT(pRx->m_Tx[Tx].m_ActiveInput >= 0);
