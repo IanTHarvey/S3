@@ -133,6 +133,9 @@ public:
 	HDC		GetDrawable()	{return m_GDIStatic.GetDrawable(); };
 	HFONT	GetDefFont()	{return m_GDIStatic.GetDefFont(); };
 
+	__time64_t		m_PosixTime;
+	__time64_t GetPosixTime();
+
 // For use by the Sentinel 3 GUI emulation
     char	m_AnimateState; // Toggled by timer
     pS3DataModel	m_S3Data; // THE model

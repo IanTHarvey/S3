@@ -627,6 +627,7 @@ UINT SendMessageThread(LPVOID pParam)
 
 		if (MsgResponse.Left(2) != _T("E:") &&
 			MsgResponse.Left(2) != _T("I:") &&
+			MsgResponse.Left(2) != _T("W:") &&
 			MsgResponse.Left(3) != _T("OK:"))
 		{
 			MsgResponse = _T("Invalid Response");
@@ -1054,4 +1055,7 @@ int CS3AgentDlg::EnumCOMPorts()
 	return NewDevCnt;
 }
 
-
+__time64_t CS3AgentDlg::GetPosixTime()
+{
+	return m_PosixTime;
+}
