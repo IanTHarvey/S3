@@ -519,9 +519,12 @@ int S3TxRead(FILE *fid, pS3TxData pTx)
 
 	fread(&pTx->m_ActiveInput, sizeof(char), 1, fid);
 
+	// Legacy
+	if (pTx->m_ActiveInput >= S3_PENDING)
+		pTx->m_ActiveInput -= S3_PENDING;
+
 	if (pTx->m_ActiveInput < 0)
 		pTx->m_ActiveInput = 0;
-
 
 	fread(pTx->m_SN, sizeof(char), S3_MAX_SN_LEN, fid);
 	fread(pTx->m_PN, sizeof(char), S3_MAX_PN_LEN, fid);
