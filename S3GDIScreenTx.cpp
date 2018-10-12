@@ -1391,7 +1391,8 @@ void CS3GDIScreenMain::S3DrawGDITxIP(char Rx, char Tx, char IP,
 	{
 	case W50:		str = "50"; break;
 	case W1M:		str = "1M"; break;
-	case ZUnknown:	str = "Error"; break;
+	case ZUnknown:	str = "Unknown"; break;
+	case ZError:	str = "Error"; break;
 	default:		// Temporary in case of old file misread 
 					str = "50*";
 					S3IPSetImpedance(Rx, Tx, IP, W50);
