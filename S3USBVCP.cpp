@@ -175,16 +175,6 @@ UINT SendThread(LPVOID pArg)
 				pMyHndl->sWriteBuffer.size,
                 &dwBytes, 
 				NULL);
-
-			for(int i = 0; i < pMyHndl->sWriteBuffer.size; i++)
-				debug_print("%d: 0x%02x; %d\n", i,
-					pMyHndl->sWriteBuffer.cBuf[i], pMyHndl->sWriteBuffer.cBuf[i]);
-
-
-			if (dwBytes != pMyHndl->sWriteBuffer.size)
-			{
-				debug_print("Err: %d; %d != %d\n", err, dwBytes, pMyHndl->sWriteBuffer.size);
-			}
         } 
 		else
 			return 1;
