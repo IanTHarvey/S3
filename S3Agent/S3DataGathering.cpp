@@ -660,6 +660,7 @@ void DecodeConnectionDetails(CString Response)
                 unsigned char temp = _ttoi(Line);
 				S3Data->m_DHCPEnabled = (temp != 0);
             }
+			break;
         case USBPORT:
             {
                 CT2A ascii(Line);
