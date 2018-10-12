@@ -164,17 +164,27 @@ UINT SendThread(LPVOID pArg)
         if (dwGoCode == WAIT_OBJECT_0 && pMyHndl->fContinue)
 		{
 			*(pMyHndl->sWriteBuffer.cBuf + pMyHndl->sWriteBuffer.size - 1) = 0x03; // EOM 
-
-			*(pMyHndl->sWriteBuffer.cBuf + pMyHndl->sWriteBuffer.size) = 0x0A; // NL 
-			pMyHndl->sWriteBuffer.size++;
-
+			// pMyHndl->sWriteBuffer.size++;
+			
+			*(pMyHndl->sWriteBuffer.cBuf + pMyHndl->sWriteBuffer.size) = 0x00; // NL 
+			
 			// Write size worth of data to the port
-            WriteFile(
+            int err = WriteFile(
 				pMyHndl->m_hPort,
 				pMyHndl->sWriteBuffer.cBuf, 
 				pMyHndl->sWriteBuffer.size,
                 &dwBytes, 
 				NULL);
+
+			for(int i = 0; i < pMyHndl->sWriteBuffer.size; i++)
+				debug_print("%d: 0x%02x; %d\n", i,
+					pMyHndl->sWriteBuffer.cBuf[i], pMyHndl->sWriteBuffer.cBuf[i]);
+
+
+			if (dwBytes != pMyHndl->sWriteBuffer.size)
+			{
+				debug_print("Err: %d; %d != %d\n", err, dwBytes, pMyHndl->sWriteBuffer.size);
+			}
         } 
 		else
 			return 1;
@@ -224,7 +234,7 @@ UINT ReadThreadSlave(LPVOID pArg)
 			cStr[idx] = '\0';
 			
 			// if (pMyHndl->sReadBuffer.cBuf[0] == '\0')
-			if (pMyHndl->sReadBuffer.cBuf[0] == S3_CMD_TERMINATOR) // !!! GPIB TEST ONLY !!!
+			if (pMyHndl->sReadBuffer.cBuf[0] == S3_CMD_TERMINATOR)
 			{
 				cStr[idx - 1] = '\0';  // Replace S3_CMD_TERMINATOR
 
