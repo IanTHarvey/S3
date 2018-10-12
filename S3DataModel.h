@@ -220,10 +220,10 @@ typedef unsigned char			S3TxPwrMode;
 #define S3_TXSTART_SLEEP		1
 #define S3_TXSTART_ON			2
 
-typedef enum InputZ				{W50, W1M, ZUnknown};	
+typedef enum InputZ				{W50, W1M, ZUnknown, ZError};	
 
 // These are now run-time values, 0-4
-typedef enum SigmaT				{TauNone, TauLo, TauMd, TauHi, TauUnknown};
+typedef enum SigmaT				{TauNone, TauLo, TauMd, TauHi, TauUnknown, TauError};
 #define S3_MAX_TAU_UNITS_LEN	16
 
 // User-settable gain limits (inclusive)
@@ -630,8 +630,8 @@ typedef struct sS3TxData
 
 	unsigned char	m_CompMode;
 
-	wchar_t			m_TauUnits[4][S3_MAX_TAU_UNITS_LEN];
-	double			m_Tau_ns[4];
+	wchar_t			m_TauUnits[6][S3_MAX_TAU_UNITS_LEN];
+	double			m_Tau_ns[6];
 	
 	// Links to GUI
 	int				m_Xref, m_Yref;		// Used to find on main screen

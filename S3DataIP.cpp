@@ -1047,11 +1047,12 @@ int S3IPGetSigmaTauS(char *str, char Rx, char Tx, char IP)
 	
 	switch(tau)
 	{
-	case TauNone:	strcpy_s(str, S3_PARA_NAME_LEN, "OFF"); break;
-	case TauLo:		strcpy_s(str, S3_PARA_NAME_LEN, "LO"); break;
-	case TauMd:		strcpy_s(str, S3_PARA_NAME_LEN, "MED"); break;
-	case TauHi:		strcpy_s(str, S3_PARA_NAME_LEN, "HI"); break;
-	default:		strcpy_s(str, S3_PARA_NAME_LEN, "UNKNOWN"); break;
+	case TauNone:		strcpy_s(str, S3_PARA_NAME_LEN, "OFF"); break;
+	case TauLo:			strcpy_s(str, S3_PARA_NAME_LEN, "LO"); break;
+	case TauMd:			strcpy_s(str, S3_PARA_NAME_LEN, "MED"); break;
+	case TauHi:			strcpy_s(str, S3_PARA_NAME_LEN, "HI"); break;
+	case TauUnknown:	strcpy_s(str, S3_PARA_NAME_LEN, "UNKNOWN"); break;
+	default:			strcpy_s(str, S3_PARA_NAME_LEN, "ERROR"); break;
 	}
 
 	return 0;
