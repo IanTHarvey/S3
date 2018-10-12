@@ -848,9 +848,14 @@ void CS3GDIScreenMain::S3DrawGDITxTx(char Rx, char Tx)
 	if (!S3TxGetBattValidated(Rx, Tx))
 	{
 		m_TxInfoPopup->Disable(true);
-		m_TxBattInfoPopup->Disable(false);
 		m_TxTempComp->SetEditable(false);
 		m_TxPowerMode->SetEditable(false);
+	}
+	else
+	{
+		m_TxInfoPopup->Disable(false);
+		m_TxTempComp->SetEditable(true);
+		m_TxPowerMode->SetEditable(true);
 	}
 
 	if (S3TxGetTCompMode(Rx, Tx) == S3_TCOMP_GAIN)
@@ -901,6 +906,8 @@ void CS3GDIScreenMain::S3DrawGDITxTx(char Rx, char Tx)
 		case S3_TX_SLEEP:			str = _T("Sleep"); break;
 		default:					str = _T("Unknown");
 		}
+
+		m_TxPowerMode->SetEditable(true);
 	}
 
 	m_TxPowerMode->SetValue(str);
