@@ -2,6 +2,9 @@
 // Reporting functions
 
 #include "stdafx.h"
+#include "stdio.h"
+#include "stdlib.h"
+#include "string.h"
 
 #include "S3DataModel.h"
 #include "S3GPIB.h"
@@ -188,6 +191,51 @@ int S3TxReport(char *Buf, char Rx, char Tx)
 }
 
 // ----------------------------------------------------------------------------
+// One-liner, fixed length summary
+
+int S3TxReportShort(char *Buf, char Rx, char Tx)
+{
+	if (Rx == -1 || Tx == -1)
+		return 0;
+	
+	pS3TxData pTx = &S3Data->m_Rx[Rx].m_Tx[Tx];
+
+	sprintf_s(Buf, S3_MAX_GPIB_CMD_LEN,
+		"%d,%d,",
+		S3TxGetActiveIP(Rx, Tx) + 1,
+		pTx->m_SoC);
+
+	int len = strlen(Buf);
+		
+	for(char IP = 0; IP < S3_MAX_IPS; IP++)
+	{
+		sprintf_s(Buf + len, S3_MAX_GPIB_CMD_LEN - len, "%d,",
+			pTx->m_Input[IP].m_Config.m_Gain);
+		len = strlen(Buf);
+
+		if (pTx->m_Input[IP].m_Config.m_InputZ == W50)
+			sprintf_s(Buf + len, S3_MAX_GPIB_CMD_LEN - len, "50,");
+		else
+			sprintf_s(Buf + len, S3_MAX_GPIB_CMD_LEN - len, "1M,");
+
+		len = strlen(Buf);
+
+		if (pTx->m_Input[IP].m_TestToneEnable)
+		{
+			sprintf_s(Buf + len, S3_MAX_GPIB_CMD_LEN - len, "ON,");
+		}
+		else
+		{
+			sprintf_s(Buf + len, S3_MAX_GPIB_CMD_LEN - len, "OFF,");
+		}
+
+		len = strlen(Buf);
+	}
+
+	return 0;
+}
+
+// ----------------------------------------------------------------------------
 
 int S3IPReport(char *Buf, char Rx, char Tx, char IP)
 {
@@ -263,7 +311,7 @@ int S3CfgReport(char *Buf, char Rx, char Tx, char IP)
 
 	len = strlen(Buf);
 
-	if (cfg->m_Tau == W50)
+	if (cfg->m_InputZ == W50)
 		strcat_s(Buf, S3_MAX_GPIB_RET_LEN - len, "Inp Z (Ohms):\t50\n");
 	else
 		strcat_s(Buf, S3_MAX_GPIB_RET_LEN - len, "Inp Z (Ohms):\t1M\n");
