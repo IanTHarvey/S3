@@ -55,23 +55,24 @@ int CmdAGC()
 	if (GPIBNArgs != 2)
 		return S3_GPIB_ERR_NUMBER_PARAS;
 
-		if (!STRNCMP(GPIBCmdArgs[1], "OFF", 2))
-		{
-			S3SetAGC(S3_AGC_OFF + S3_PENDING);
-		}
-		else if (!STRNCMP(GPIBCmdArgs[1], "CONT", 4))
-		{
-			S3SetAGC(S3_AGC_CONT + S3_PENDING);
-		}
-		else if (!STRNCMP(GPIBCmdArgs[1], "GAIN", 4))
-		{
-			S3SetAGC(S3_AGC_GAIN + S3_PENDING);
-		}
-		else
-			return S3_GPIB_INVALID_PARAMETER;
+	if (!STRNCMP(GPIBCmdArgs[1], "OFF", 3))
+	{
+		S3SetAGC(S3_AGC_OFF + S3_PENDING);
+	}
+	else if (!STRNCMP(GPIBCmdArgs[1], "CONT", 4))
+	{
+		S3SetAGC(S3_AGC_CONT + S3_PENDING);
+	}
+	else if (!STRNCMP(GPIBCmdArgs[1], "GAIN", 4))
+	{
+		S3SetAGC(S3_AGC_GAIN + S3_PENDING);
+	}
+	else
+		return S3_GPIB_INVALID_PARAMETER;
 
-		return 0;
+	return 0;
 }
+
 // ----------------------------------------------------------------------------
 
 int CmdTESTNAME()
@@ -387,7 +388,7 @@ int CmdIMP()
 			return S3_GPIB_INVALID_ADDRESS;
 
 		InputZ IPz = S3Str2InputZ(GPIBCmdArgs[1]);
-		if (IPz == ZUnknown)
+		if (IPz == ZUnknown || IPz == ZError)
 			return S3_GPIB_INVALID_PARAMETER;
 		
 		int update = S3SetImpedance(GPIBRx, GPIBTx, GPIBIP, IPz);
@@ -419,7 +420,7 @@ int CmdIMP()
 		else
 			IPz = S3Str2InputZ(GPIBCmdArgs[4]);
 		
-		if (IPz == ZUnknown)
+		if (IPz == ZUnknown || IPz == ZError)
 			return S3_GPIB_INVALID_PARAMETER;
 		
 		int update = S3SetImpedance(Rx, Tx, IP, IPz);
@@ -704,6 +705,8 @@ int CmdSET()
 	char	startarg;
 	char	all, Rx, Tx, IP;
 
+	bool	All = false;
+
 	if (GPIBNArgs == 8)
 	{
 		int		res = GetAddress2(&all, &Rx, &Tx, &IP);
@@ -734,70 +737,94 @@ int CmdSET()
 
 		startarg = 1;
 	}
+	else if (GPIBNArgs == 6)
+	{
+		if (!STRCMP(GPIBCmdArgs[1], "ALL"))
+			All = true;
+		else
+			return S3_GPIB_ERR_NUMBER_PARAS;
+
+		startarg = 2;
+	}
 	else return S3_GPIB_ERR_NUMBER_PARAS;
 
-	if (S3IPGetAlarms(Rx, Tx, IP) & S3_IP_OVERDRIVE)
+	if (!All && S3IPGetAlarms(Rx, Tx, IP) & S3_IP_OVERDRIVE)
 		return S3_GPIB_TX_PROT_MODE;
-
-	// if (!S3IPValidQ(GPIBRx, GPIBTx, GPIBIP))
-	//	return S3_GPIB_INVALID_ADDRESS;
-
-	// int err = S3IPInvalidQ(Rx, Tx, IP);
-	// if (err)
-	//	return err;
 
 	int err = 0;
 
 	// TODO: Contradictory settings need to be resolved before applying
+	short Gain = GetShortArg(GPIBCmdArgs[startarg]);
+	SigmaT Tau = S3Str2SigmaT(GPIBCmdArgs[startarg + 2]);
+	InputZ IPz = S3Str2InputZ(GPIBCmdArgs[startarg + 3]);
 
+	// Unknown is OK
+	if (Tau == TauError || IPz == ZError)
+		return S3_GPIB_INVALID_PARAMETER;
+	
 	// SET [rx tx ip] G M T Z
 	if (STRCMP(GPIBCmdArgs[startarg], "-"))
 	{
-		short val = GetShortArg(GPIBCmdArgs[startarg]);
-		if (val == SHRT_MIN)
+		if (Gain == SHRT_MIN)
 			return S3_GPIB_INVALID_PARAMETER;
 
-		if (S3SetGain(Rx, Tx, IP, (char)val) == 1)
-			err = S3_GPIB_GAIN_LIMITED;
+		if (All)
+		{
+			if (S3SetGainAll((char)Gain))
+				return S3_GPIB_GAIN_LIMITED;
+		}
+		else
+		{
+			if (S3SetGain(Rx, Tx, IP, (char)Gain) == 1)
+				err = S3_GPIB_GAIN_LIMITED;
+		}
 	}
 
 	startarg++;
 
+	int MaxIPNotSupported = 0;
 	if (STRCMP(GPIBCmdArgs[startarg], "-"))
 	{
-		double vald = GetDoubleArg(GPIBCmdArgs[startarg]);
-		if (vald == DBL_MIN)
-			return S3_GPIB_INVALID_PARAMETER;
-
-		if (S3IPSetMaxInput(Rx, Tx, IP, vald))
-			return S3_GPIB_INVALID_PARAMETER;
+		MaxIPNotSupported = 1;
 	}
 
 	startarg++;
 
-	if (STRCMP(GPIBCmdArgs[startarg], "-"))
+	if (Tau != TauUnknown)
 	{
-		SigmaT Tau = S3Str2SigmaT(GPIBCmdArgs[startarg]);
-		if (Tau == TauUnknown)
-			return S3_GPIB_INVALID_PARAMETER;
-
-		if (S3SetSigmaTau(Rx, Tx, IP, Tau) == 1)
-			err = S3_GPIB_GAIN_LIMITED;
+		if (All)
+		{
+			if (S3SetSigmaTauAll(Tau) == 1)
+				err = S3_GPIB_GAIN_CHANGED;
+		}
+		else
+		{
+			if (S3SetSigmaTau(Rx, Tx, IP, Tau) == 1)
+				err = S3_GPIB_GAIN_CHANGED;
+		}
 	}
 
 	startarg++;
 
-	if (STRCMP(GPIBCmdArgs[startarg], "-"))
+	if (IPz != ZUnknown)
 	{
-		InputZ IPz = S3Str2InputZ(GPIBCmdArgs[startarg]);
-		if (IPz == ZUnknown)
-			return S3_GPIB_INVALID_PARAMETER;
 
-		if (S3SetImpedance(Rx, Tx, IP, IPz) == 1)
-			err = S3_GPIB_GAIN_CHANGED;
+		if (All)
+		{
+			if (S3SetImpedanceAll(IPz) == 1)
+				return S3_GPIB_GAIN_CHANGED;
+		}
+		else
+		{
+			if (S3SetImpedance(Rx, Tx, IP, IPz) == 1)
+				err = S3_GPIB_GAIN_CHANGED;
+		}
 	}
 
 	startarg++;
+
+	if (MaxIPNotSupported)
+		err = S3_GPIB_MAX_IP_IGNORED;
 
 	return err;
 }
@@ -910,6 +937,246 @@ int CmdGETRLL()
 
 // ----------------------------------------------------------------------------
 
+int CmdGETTXSTABLE()
+{
+	char	all, Rx, Tx, IP;
+
+	if (GPIBNArgs == 3)
+	{
+		int		res = GetAddress2NoArg(&all, &Rx, &Tx, &IP);
+			
+		if (res < 0)
+		{
+			if (res == -1 || res == -2)
+				return S3_GPIB_MALFORMED_ADDRESS;
+			if (res == -3)
+				return S3_GPIB_INVALID_ADDRESS;
+			if (res == -4)
+				return S3_GPIB_OUT_RANGE_ADDRESS;
+		}
+		else
+		{
+			if (res > 2000)
+				return res;
+
+			// We need the full Tx (RLL source) address
+			if (res != 2)
+				return S3_GPIB_INVALID_ADDRESS;
+		}
+	}
+	else if (GPIBNArgs == 1)
+	{
+		int err = S3TxExistQ(GPIBRx, GPIBTx);
+		if (err)
+			return S3_GPIB_TX_NOT_EXIST;
+		
+		Rx = GPIBRx;
+		Tx = GPIBTx;
+		IP = GPIBIP;
+	}
+	else return S3_GPIB_ERR_NUMBER_PARAS;
+
+	if (S3TxRLLStable(Rx, Tx))
+		sprintf_s(GPIBRetBuf, S3_MAX_GPIB_RET_LEN, "I: %d", 1);
+	else
+		sprintf_s(GPIBRetBuf, S3_MAX_GPIB_RET_LEN, "I: %d", 0); 
+
+	return 0;
+}
+
+// ----------------------------------------------------------------------------
+
+int CmdGETTXBATTLIFE()
+{
+	char	all, Rx, Tx, IP;
+
+	if (GPIBNArgs == 3)
+	{
+		int		res = GetAddress2NoArg(&all, &Rx, &Tx, &IP);
+			
+		if (res < 0)
+		{
+			if (res == -1 || res == -2)
+				return S3_GPIB_MALFORMED_ADDRESS;
+			if (res == -3)
+				return S3_GPIB_INVALID_ADDRESS;
+			if (res == -4)
+				return S3_GPIB_OUT_RANGE_ADDRESS;
+		}
+		else
+		{
+			if (res > 2000)
+				return res;
+
+			// We need the full Tx (RLL source) address
+			if (res != 2)
+				return S3_GPIB_INVALID_ADDRESS;
+		}
+	}
+	else if (GPIBNArgs == 1)
+	{
+		int err = S3TxExistQ(GPIBRx, GPIBTx);
+		if (err)
+			return S3_GPIB_TX_NOT_EXIST;
+		
+		Rx = GPIBRx;
+		Tx = GPIBTx;
+		IP = GPIBIP;
+	}
+	else return S3_GPIB_ERR_NUMBER_PARAS;
+
+	sprintf_s(GPIBRetBuf, S3_MAX_GPIB_RET_LEN, "I: %d", S3TxGetATTE(Rx, Tx));
+
+	return 0;
+}
+
+// ----------------------------------------------------------------------------
+
+int CmdGETTXPOWER()
+{
+	char	all, Rx, Tx, IP;
+
+	if (GPIBNArgs == 3)
+	{
+		int		res = GetAddress2NoArg(&all, &Rx, &Tx, &IP);
+			
+		if (res < 0)
+		{
+			if (res == -1 || res == -2)
+				return S3_GPIB_MALFORMED_ADDRESS;
+			if (res == -3)
+				return S3_GPIB_INVALID_ADDRESS;
+			if (res == -4)
+				return S3_GPIB_OUT_RANGE_ADDRESS;
+		}
+		else
+		{
+			if (res > 2000)
+				return res;
+
+			// We need the full Tx (RLL source) address
+			if (res != 2)
+				return S3_GPIB_INVALID_ADDRESS;
+		}
+	}
+	else if (GPIBNArgs == 1)
+	{
+		int err = S3TxExistQ(GPIBRx, GPIBTx);
+		if (err)
+			return S3_GPIB_TX_NOT_EXIST;
+		
+		Rx = GPIBRx;
+		Tx = GPIBTx;
+		IP = GPIBIP;
+	}
+	else return S3_GPIB_ERR_NUMBER_PARAS;
+
+	// If on pending or sleep pending, report as SLEEP
+	if (S3TxGetPowerStat(Rx, Tx) == S3_TX_ON)
+		strcpy_s(GPIBRetBuf, S3_MAX_GPIB_RET_LEN, "I: ON");
+	else
+		strcpy_s(GPIBRetBuf, S3_MAX_GPIB_RET_LEN, "I: SLEEP");
+
+	return 0;
+}
+
+// ----------------------------------------------------------------------------
+
+int CmdGETTXSN()
+{
+	char	all, Rx, Tx, IP;
+
+	if (GPIBNArgs == 3)
+	{
+		int		res = GetAddress2NoArg(&all, &Rx, &Tx, &IP);
+			
+		if (res < 0)
+		{
+			if (res == -1 || res == -2)
+				return S3_GPIB_MALFORMED_ADDRESS;
+			if (res == -3)
+				return S3_GPIB_INVALID_ADDRESS;
+			if (res == -4)
+				return S3_GPIB_OUT_RANGE_ADDRESS;
+		}
+		else
+		{
+			if (res > 2000)
+				return res;
+
+			// We need the full Tx (RLL source) address
+			if (res != 2)
+				return S3_GPIB_INVALID_ADDRESS;
+		}
+	}
+	else if (GPIBNArgs == 1)
+	{
+		int err = S3TxExistQ(GPIBRx, GPIBTx);
+		if (err)
+			return S3_GPIB_TX_NOT_EXIST;
+		
+		Rx = GPIBRx;
+		Tx = GPIBTx;
+		IP = GPIBIP;
+	}
+	else return S3_GPIB_ERR_NUMBER_PARAS;
+
+	sprintf_s(GPIBRetBuf, S3_MAX_GPIB_RET_LEN, "I: %s", S3TxGetSN(Rx, Tx));
+
+	return 0;
+}
+
+// -----------------------------------------------------------------------------
+
+int CmdGETTXSETTINGS()
+{
+		char	all, Rx, Tx, IP;
+
+	if (GPIBNArgs == 3)
+	{
+		int		res = GetAddress2NoArg(&all, &Rx, &Tx, &IP);
+			
+		if (res < 0)
+		{
+			if (res == -1 || res == -2)
+				return S3_GPIB_MALFORMED_ADDRESS;
+			if (res == -3)
+				return S3_GPIB_INVALID_ADDRESS;
+			if (res == -4)
+				return S3_GPIB_OUT_RANGE_ADDRESS;
+		}
+		else
+		{
+			if (res > 2000)
+				return res;
+
+			// We need the full Tx (RLL source) address
+			if (res != 2)
+				return S3_GPIB_INVALID_ADDRESS;
+		}
+	}
+	else if (GPIBNArgs == 1)
+	{
+		int err = S3TxExistQ(GPIBRx, GPIBTx);
+		if (err)
+			return S3_GPIB_TX_NOT_EXIST;
+		
+		Rx = GPIBRx;
+		Tx = GPIBTx;
+		IP = GPIBIP;
+	}
+	else return S3_GPIB_ERR_NUMBER_PARAS;
+
+	char RetString[S3_MAX_GPIB_CMD_LEN];
+	S3TxReportShort(RetString, Rx, Tx);
+
+	sprintf_s(GPIBRetBuf, S3_MAX_GPIB_RET_LEN, "I: %s", RetString);
+
+	return 0;
+}
+
+// ----------------------------------------------------------------------------
+
 int CmdGPIB()
 {
 	return 0;
@@ -997,7 +1264,7 @@ int CmdITAU()
 			return S3_GPIB_TX_PROT_MODE;
 
 		SigmaT	Tau = S3Str2SigmaT(GPIBCmdArgs[1]);
-		if (Tau == TauUnknown)
+		if (Tau == TauUnknown || Tau == TauUnknown)
 			return S3_GPIB_INVALID_PARAMETER;
 
 		if (S3SetSigmaTau(GPIBRx, GPIBTx, GPIBIP, Tau))
@@ -1025,7 +1292,7 @@ int CmdITAU()
 			return res;
 
 		SigmaT	Tau = S3Str2SigmaT(GPIBCmdArgs[4]);
-		if (Tau == TauUnknown)
+		if (Tau == TauUnknown || Tau == TauError)
 			return S3_GPIB_INVALID_PARAMETER;
 
 		if (S3SetSigmaTau(Rx, Tx, IP, Tau))
@@ -1253,7 +1520,7 @@ int CmdSELECTTX()
 		Tx = GetAddArg(GPIBCmdArgs[1]);
 
 		if (Tx < 0 || !S3TxValidQ(GPIBRx, Tx))
-			return S3_GPIB_INVALID_IP;
+			return S3_GPIB_INVALID_RX;
 
 		S3RxSetActiveTx(GPIBRx,Tx);
 	}
@@ -1333,8 +1600,6 @@ int CmdTXCHARGE()
 		
 	SoC = S3TxGetBattSoC(Rx, Tx);
 
-	// TODO: Use this format for all returns, use "Err:" in front of all
-	// error returns?
 	sprintf_s(GPIBRetBuf, S3_MAX_GPIB_RET_LEN, "I: %d", SoC);
 	
 	return 0;

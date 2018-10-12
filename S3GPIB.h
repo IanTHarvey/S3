@@ -23,7 +23,7 @@ int S3ProcessGPIBCommand(const char *cmd);
 int S3LookUpError(char *buf, int err);
 
 /*
-The follwoing functions reference these defined in S3GPIB.cpp:
+The following functions reference these defined in S3GPIB.cpp:
 
 #define S3_MAX_GPIB_CMD_LEN	256
 #define S3_MAX_GPIB_RET_LEN	1024	// TODO: What's sensible?
@@ -53,6 +53,11 @@ int CmdMAXIP();
 int CmdGAIN();
 int CmdGET();
 int CmdGETRLL();
+int CmdGETTXSN();
+int CmdGETTXSTABLE();
+int CmdGETTXBATTLIFE();
+int CmdGETTXPOWER();
+int CmdGETTXSETTINGS();
 int CmdITAU();
 int CmdLOCAL();
 int CmdREMOTE();
@@ -98,6 +103,7 @@ int CmdSTAT();
 int CmdSETQ();
 int CmdSET();
 int CmdGPIB();
+int CmdPPMTERMINATOR();
 
 int CmdRX();
 int CmdTX();
@@ -111,14 +117,9 @@ int CmdRESTART();
 int CmdNAME();
 int CmdLOGFCOPY();
 int CmdSWUPDATE();
+
 // Need sorting (get rid of os, use GetAddress2() where applicable)
 // int CmdINP(		int os);
-
-
-
-// int CmdTXACTIVE(int os);
-
-
 
 // ----------------------------------------------------------------------------
 // Methods to insert test data - maybe useful for demo mode
@@ -191,6 +192,8 @@ int CmdGetInput(char *Inbuf, int Rx, int Tx, int IP);
 #define S3_GPIB_INVALID_SNPN		2227
 #define S3_GPIB_INVALID_TYPE		2228
 #define S3_GPIB_BATTERY_SEALED		2229
+#define S3_GPIB_MAX_IP_IGNORED		2230
+#define S3_GPIB_COMMAND_FAILED		2231
 
 #define S3_GPIB_CH_VALIDATED		2250
 #define S3_GPIB_CH_NOT_EXIST		2251
@@ -209,7 +212,7 @@ int CmdGetInput(char *Inbuf, int Rx, int Tx, int IP);
 
 #define S3_MAX_ID_LEN				64
 
-// #define CmdRX_OUT_OF_RANGE			10000
+// #define CmdRX_OUT_OF_RANGE		10000
 
 // ----------------------------------------------------------------------------
 // Event simulator structs
@@ -267,6 +270,5 @@ struct DbgPollSysStruct {
 	DbgPollRxStruct	Rx[S3_MAX_RXS];
 	DbgPollChStruct	Ch[S3_N_CHARGERS];
 };
-
 
 // ----------------------------------------------------------------------------
