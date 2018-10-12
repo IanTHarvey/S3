@@ -3,6 +3,8 @@ Microsoft Visual Studio Solution File, Format Version 10.00
 # Visual Studio 2008
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "S3Agent", "S3Agent.vcproj", "{3CF89CC4-8316-43A3-A5C0-280C74E2B096}"
 EndProject
+Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "Setup", "Setup\Setup.vdproj", "{FA23D5AF-E3DC-48D8-9739-B260F02DF237}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -17,6 +19,10 @@ Global
 		{3CF89CC4-8316-43A3-A5C0-280C74E2B096}.Release|Win32.ActiveCfg = Release|Win32
 		{3CF89CC4-8316-43A3-A5C0-280C74E2B096}.Release|Win32.Build.0 = Release|Win32
 		{3CF89CC4-8316-43A3-A5C0-280C74E2B096}.Release|x64.ActiveCfg = Release|Win32
+		{FA23D5AF-E3DC-48D8-9739-B260F02DF237}.Debug|Win32.ActiveCfg = Debug
+		{FA23D5AF-E3DC-48D8-9739-B260F02DF237}.Debug|x64.ActiveCfg = Debug
+		{FA23D5AF-E3DC-48D8-9739-B260F02DF237}.Release|Win32.ActiveCfg = Release
+		{FA23D5AF-E3DC-48D8-9739-B260F02DF237}.Release|x64.ActiveCfg = Release
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
