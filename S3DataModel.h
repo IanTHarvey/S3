@@ -1090,6 +1090,10 @@ unsigned char S3TxGetTCompMode(	char Rx, char Tx);
 
 int S3SetGain(			char Rx, char Tx, char IP, char		val);
 
+int S3SetGainAll(		char	gain);
+int S3SetImpedanceAll(	InputZ	z);
+int S3SetSigmaTauAll(	SigmaT	Tau);
+
 // TODO: Deprecate:
 int S3SetGainPush(		char Rx, char Tx, char IP, char		val);
 

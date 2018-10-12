@@ -866,6 +866,94 @@ int S3SetGainPush(char cRx, char cTx, char cIP, char gain)
 }
 
 // ----------------------------------------------------------------------------
+// int S3SetImpedance(char Rx, char Tx, char IP, InputZ z)
+// int S3SetSigmaTau(char Rx, char Tx, char IP, SigmaT Tau)
+
+int S3SetGainAll(char gain)
+{
+	char Rx, Tx, IP;
+	int	GainLimited = 0;
+
+	for (Rx = 0; Rx < S3_MAX_RXS; Rx++)
+	{
+		S3Data->m_Rx[Rx].m_Config.m_Gain = gain;
+
+		for (Tx = 0; Tx < S3_MAX_TXS; Tx++)
+		{
+			S3Data->m_Rx[Rx].m_Tx[Tx].m_Config.m_Gain = gain;
+
+			for (IP = 0; IP < S3_MAX_IPS; IP++)
+			{
+				GainLimited += S3SetGain(Rx, Tx, IP, gain);
+			}
+		}
+	}
+
+	if (GainLimited)
+		return 1;
+
+	return 0;
+}
+
+// -----------------------------------------------------------------------------
+
+int S3SetImpedanceAll( InputZ z)
+{
+	char Rx, Tx, IP;
+	int GainChanged = 0;
+
+	for (Rx = 0; Rx < S3_MAX_RXS; Rx++)
+	{
+		S3Data->m_Rx[Rx].m_Config.m_InputZ = z;
+
+		for (Tx = 0; Tx < S3_MAX_TXS; Tx++)
+		{
+			S3Data->m_Rx[Rx].m_Tx[Tx].m_Config.m_InputZ = z;
+
+			for (IP = 0; IP < S3_MAX_IPS; IP++)
+			{
+				if (S3SetImpedance(Rx, Tx, IP, z) == 1)
+					GainChanged++;
+			}
+		}
+	}
+
+	if (GainChanged)
+		return 1;
+
+	return 0;
+}
+
+// -----------------------------------------------------------------------------
+
+int S3SetSigmaTauAll(SigmaT Tau)
+{
+	char Rx, Tx, IP;
+	int GainChanged = 0;
+
+	for (Rx = 0; Rx < S3_MAX_RXS; Rx++)
+	{
+		S3Data->m_Rx[Rx].m_Config.m_Tau = Tau;
+
+		for (Tx = 0; Tx < S3_MAX_TXS; Tx++)
+		{
+			S3Data->m_Rx[Rx].m_Tx[Tx].m_Config.m_Tau = Tau;
+
+			for (IP = 0; IP < S3_MAX_IPS; IP++)
+			{
+				if (S3IPSetSigmaTau(Rx, Tx, IP, Tau) == 1)
+					GainChanged++;
+			}
+		}
+	}
+
+	if (GainChanged)
+		return 1;
+
+	return 0;
+}
+
+// ----------------------------------------------------------------------------
 
 int S3SetGain(char Rx, char Tx, char IP, char gain)
 {
@@ -1797,7 +1885,7 @@ int S3SetTerminator(unsigned char t)
 {
 #ifdef S3_AGENT
     CString Command, Args, Response, InZ;
-    Command = L"TERMINATOR";
+    Command = L"PPMTERMINATOR";
 
     if (t == 0)
         Args = L" NL";
@@ -1998,7 +2086,7 @@ int S3SetFactoryMode(char Rx, char Tx, bool mode)
 
 			// Force switch to active IP and update to gain
 			S3TxSetActiveIP(Rx, Tx, 0);
-			S3I2CTxSwitchInput(Rx, Tx, 0);
+			S3I2CTxSwitchInput(Rx, Tx);
 
 			S3IPSetGainSent(Rx, Tx, 0, SCHAR_MIN);
 			S3I2CSetIPGain(Rx, Tx, 0);
