@@ -135,11 +135,6 @@ int CS3USBVCP::Write(const char *msg)
 	// Terminator setting irrelevant here, as must be terminated with '\n'
 	// anyway.
 	strcpy_s(sWriteBuffer.cBuf, S3_MAX_GPIB_RET_LEN, msg);
-	sWriteBuffer.cBuf[iCount++] = '\n';
-	
-	if (S3GetTerminator() == 1)
-		sWriteBuffer.cBuf[iCount++] = '\0'; // No, terminated on .size
-
 	sWriteBuffer.size = iCount;
 
 	// Allow the write thread to write to the USB stream
