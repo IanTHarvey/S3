@@ -521,7 +521,7 @@ void CS3GDIScreenMain::S3DrawGDISettingsRemote(void)
 	m_SettingsUSBDriver->Draw(m_HDC, m_hFontS, m_hFontSB);
 #else
 	m_SettingsUSBPort->SetEditable(!S3GetRemote());
-	// m_SettingsUSBPort->SetValue(m_Parent->GetUSBPortName());
+	m_SettingsUSBPort->SetValue(CString(S3Data->m_DisplayedUSBPort));
 	m_SettingsUSBPort->Draw(m_HDC, m_hFontS, m_hFontSB);
 
 	m_SettingsUSBDriver->SetValue(CString(S3Data->m_DisplayedUSBDriver));
