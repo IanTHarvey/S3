@@ -220,7 +220,7 @@ short S3I2CRxGetRFLevel();
 
 extern int S3GetCtrlTemps(double Ta[]);
 extern int S3I2CSwitchTestTone(bool on);
-extern int S3I2CTxSwitchInput(			char Rx, char Tx, char IP);
+extern int S3I2CTxSwitchInput(			char Rx, char Tx);
 
 // ----------------------------------------------------------------------------
 // bq34z100-G1

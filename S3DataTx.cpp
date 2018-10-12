@@ -25,7 +25,15 @@ int S3TxInit(pS3TxData node)
 	node->m_PowerStat = S3_TX_ON;	// Unknown status
 	node->m_UserSleep = false;
 	node->m_EmergencySleep = false;
-	node->m_ActiveInput = 0;
+	node->m_ActiveInput = -1;
+	
+	// No need to force this, as S3Agent should just reflect S3 on start-up
+#ifndef S3_AGENT
+	node->m_ActiveInputPending = true;
+#else
+	node->m_ActiveInputPending = false;
+#endif
+
 	node->m_TestSigInput = -1; // Off
 
 	node->m_SelfTestPending = false;
@@ -94,11 +102,15 @@ int S3TxInit(pS3TxData node)
 	node->m_Tau_ns[1] = 100.0;		// 0.1us
 	node->m_Tau_ns[2] = 1000.0;		// 1.0us
 	node->m_Tau_ns[3] = 10000.0;	// 10.0us
+	node->m_Tau_ns[4] = 0.0;		// 10.0us
+	node->m_Tau_ns[5] = 0.0;		// 10.0us
 
 	_tcscpy_s(node->m_TauUnits[0], S3_MAX_TAU_UNITS_LEN, _T("None"));
 	_tcscpy_s(node->m_TauUnits[1], S3_MAX_TAU_UNITS_LEN, _T("0.1\u03BC"));
 	_tcscpy_s(node->m_TauUnits[2], S3_MAX_TAU_UNITS_LEN, _T("1.0\u03BC"));
 	_tcscpy_s(node->m_TauUnits[3], S3_MAX_TAU_UNITS_LEN, _T("10.0\u03BC"));
+	_tcscpy_s(node->m_TauUnits[4], S3_MAX_TAU_UNITS_LEN, _T("Unknown"));
+	_tcscpy_s(node->m_TauUnits[5], S3_MAX_TAU_UNITS_LEN, _T("Error"));
 
 	return 0;
 }
@@ -220,9 +232,6 @@ int S3TxInserted(char Rx, char Tx, S3TxType type)
 
 	// In case 'sleeped' when live
 	// pTx->m_PowerStat = S3_TX_ON;
-
-	if (pTx->m_ActiveInput < S3_PENDING)
-		pTx->m_ActiveInput += S3_PENDING;
 
 	return 0;
 }
@@ -602,7 +611,23 @@ char S3TxGetTestToneIP(char Rx, char Tx)
 	return S3Data->m_Rx[Rx].m_Tx[Tx].m_TestSigInput;
 }
 
-// ---------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
+
+int S3TxSetActiveIPPending(char Rx, char Tx, bool pending)
+{
+	S3Data->m_Rx[Rx].m_Tx[Tx].m_ActiveInputPending = pending;
+
+	return 0;
+}
+
+// -----------------------------------------------------------------------------
+
+bool S3TxGetActiveIPPending(char Rx, char Tx)
+{
+	return S3Data->m_Rx[Rx].m_Tx[Tx].m_ActiveInputPending;
+}
+
+// -----------------------------------------------------------------------------
 
 int S3TxSetActiveIP(char Rx, char Tx, char IP)
 {
@@ -615,37 +640,31 @@ int S3TxSetActiveIP(char Rx, char Tx, char IP)
     Command.Append(Args);
     Response = SendSentinel3Message(Command);
 
+	S3Data->m_Rx[Rx].m_Tx[Tx].m_ActiveInputPending = false;
+
 	return 0;
 #else
 	pS3TxData	pTx = &S3Data->m_Rx[Rx].m_Tx[Tx];
 
+	if (pTx->m_ActiveInputPending)
+		return 0;
+
 	char curIP = pTx->m_ActiveInput;
-
-	if (curIP >= S3_PENDING)
-		curIP -= S3_PENDING;
-
-	ASSERT(curIP >= 0);
 
 	if (S3IPGetAlarms(Rx, Tx, curIP) & S3_IP_OVERDRIVE)
 		return 1;
 
+			// Nothing to do
+	if (pTx->m_ActiveInput >= 0 && pTx->m_ActiveInput == IP)
+		return 0;
+
 	if (pTx->m_Type == S3_Tx8)
 	{
-		// Nothing to do
-		if (pTx->m_ActiveInput == IP)
-			return 0;
-
-		if (pTx->m_ActiveInput == IP + S3_PENDING)
-			pTx->m_ActiveInput -= S3_PENDING;	// Ack
-		else
-		{
-			pTx->m_ActiveInput = IP + S3_PENDING; // Updated request
-		}
+		pTx->m_ActiveInput = IP;
+		pTx->m_ActiveInputPending = true;
 	}
 	else
 		pTx->m_ActiveInput = 0;
-
-	ASSERT(curIP >= 0);
 
 	return 0;
 #endif

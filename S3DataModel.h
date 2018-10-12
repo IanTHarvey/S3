@@ -602,6 +602,7 @@ typedef struct sS3TxData
 
 	S3IPData		m_Input[S3_MAX_IPS];
 	char			m_ActiveInput;		// Selected RF input
+	bool			m_ActiveInputPending;	// RF input change pending
 	char			m_TestSigInput;		// -1 for no test signal	
 
 	char			m_CurAlarmSrc;		// -1:	No alarm;
@@ -1198,8 +1199,11 @@ unsigned char	S3GetSigSize();
 bool			S3Get3PCLinearity();
 int				S3Set3PCLinearity(bool show3PC);
 
-int S3TxSetActiveIP(	char Rx, char Tx, char IP);
-char S3TxGetActiveIP(	char Rx, char Tx);
+int S3TxSetActiveIP(		char Rx, char Tx, char IP);
+char S3TxGetActiveIP(		char Rx, char Tx);
+int S3TxSetActiveIPPending(	char Rx, char Tx, bool pending);
+bool S3TxGetActiveIPPending(char Rx, char Tx);
+
 int S3RxSetActiveTx(	char Rx, char Tx);
 char S3RxGetActiveTx(	char Rx);
 bool S3RxIsActiveTx(	char Rx, char Tx);

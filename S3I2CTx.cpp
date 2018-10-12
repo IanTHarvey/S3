@@ -38,7 +38,7 @@ int S3I2CTxDisableRFLevelAlarm(	char Rx, char Tx);
 extern int S3I2CTxOptAlarmMask();
 
 int	S3I2CSwitchTestTone(		bool on);
-int S3I2CTxSwitchInput(			char Rx, char Tx, char IP);
+int S3I2CTxSwitchInput(			char Rx, char Tx);
 
 extern int S3I2CTxOptSetPassword(const char *rPW);
 
@@ -749,16 +749,15 @@ int S3I2CTxSetStatus(char Rx, char Tx)
 	if (S3TxGetPowerStat(Rx, Tx) == S3_TX_SLEEP)
 		return 0;
 
-	char IP = S3TxGetActiveIP(Rx, Tx);
-
-	if (IP >= S3_PENDING)
+	if (S3TxGetActiveIPPending(Rx, Tx))
 	{
-		IP -= S3_PENDING;
-		err = S3I2CTxSwitchInput(Rx, Tx, IP);
+		err = S3I2CTxSwitchInput(Rx, Tx);
 
 		if (err)
 			S3EventLogAdd("S3I2CTxSwitchInput: RF input switch failed", 3, Rx, Tx, -1);
 	}
+
+	char IP = S3TxGetActiveIP(Rx, Tx);
 
 	// Ensure AGC correction is performed on stable RLL
 	// if (S3Data->m_Rx[Rx].m_Tx[Tx].m_Uptime == S3_RLL_WARMUP_POLLS && S3GetAGC() == S3_AGC_GAIN)
@@ -1319,10 +1318,12 @@ int S3I2CTxSetTestTone(char Rx, char Tx, char IP)
 // ----------------------------------------------------------------------------
 // For Tx1, mostly dummy except when called in Startup for all Tx types, which
 // may switch test tone on/off depending on saved state.
-int S3I2CTxSwitchInput(char Rx, char Tx, char NewIP)
+int S3I2CTxSwitchInput(char Rx, char Tx)
 {
 	int err = 0;
 #ifdef TRIZEPS
+
+	char NewIP = S3TxGetActiveIP(Rx, Tx);
 
 	char ToneEnabled = S3IPGetTestToneEnable(Rx, Tx, NewIP);
 	
@@ -1342,7 +1343,7 @@ int S3I2CTxSwitchInput(char Rx, char Tx, char NewIP)
 			return err;
 	}
 
-	S3TxSetActiveIP(Rx, Tx, NewIP); // Ack
+	S3TxSetActiveIPPending(Rx, Tx, false); // Ack
 	S3IPSetGainSent(Rx, Tx, NewIP, SCHAR_MIN);
 
 #endif // TRIZEPS
