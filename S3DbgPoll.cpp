@@ -273,8 +273,7 @@ int	S3DbgPollRx(char Rx)
 				if (pTx->m_PowerStat > S3_PENDING)
 					pTx->m_PowerStat -= S3_PENDING;
 
-				if (pTx->m_ActiveInput >= S3_PENDING)
-					pTx->m_ActiveInput -= S3_PENDING;
+				pTx->m_ActiveInputPending = false;
 
 				pTx->m_BattValidated = true;
 			}
@@ -352,7 +351,7 @@ int S3PollSetDummyData()
 		DbgPollSysData.Ch[Ch].PN[0] = '\0';
 		strcpy_s(DbgPollSysData.Ch[Ch].HW, S3_MAX_SW_VER_LEN, "1.0.2");
 		strcpy_s(DbgPollSysData.Ch[Ch].FW, S3_MAX_SW_VER_LEN, "1.1.2");
-		DbgPollSysData.Ch[Ch].BattTemp = 26 + (char)(10.0 * ((double)rand() / RAND_MAX - 0.5));;
+		DbgPollSysData.Ch[Ch].BattTemp = 200 + (char)(10.0 * 10.0 * ((double)rand() / RAND_MAX - 0.5));;
 	}
 
 	// Initialise
