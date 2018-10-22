@@ -26,7 +26,7 @@
 //			Added remote commands
 //			USB response terminator changed (temporary)
 
-#define S3_SYS_SW			"1.05.000c"
+#define S3_SYS_SW			"1.05.000"
 
 #define S3_SYS_MODEL		"Sentinel 3"
 
