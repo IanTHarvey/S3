@@ -405,6 +405,7 @@ int S3I2CTxGetCalGain2(char Rx, char Tx, char IP)
 
 // ----------------------------------------------------------------------------
 // Main polling loop Tx temp and compensation function
+// Sets compensation temperature only if in continuous mode.
 
 int S3I2CTxUpdateTemp(char Rx, char Tx)
 {
@@ -441,6 +442,7 @@ int S3I2CTxUpdateTemp(char Rx, char Tx)
 
 // ----------------------------------------------------------------------------
 // Called only on change to RF path or compensation mode or to force update...
+// Sets compensation slope (per path) and temperature.
 
 int S3I2CTxUpdateTempPath(char Rx, char Tx)
 {
@@ -1137,12 +1139,10 @@ int S3I2CTxPeakHoldLatchClear(char Rx, char Tx)
 // Set in max attenuation
 int S3I2CTxSetSafeMode(char Rx, char Tx)
 {	
-	return 0;
-	
 	char IP = S3TxGetActiveIP(Rx, Tx);
 
 	// Set gain to minimum and force immediate update
-	S3SetGain(Rx, Tx, IP, S3_MIN_GAIN);
+	S3SetGain(Rx, Tx, IP, S3GetMinGain(Rx, Tx));
 	S3IPSetGainSent(Rx, Tx, IP, SCHAR_MIN);
 	int err = S3I2CSetIPGain(Rx, Tx, IP);
 
