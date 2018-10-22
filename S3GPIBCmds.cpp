@@ -447,9 +447,9 @@ int CmdCAL()
 			return S3_GPIB_INVALID_ADDRESS;
 
 		if (!STRCMP(GPIBCmdArgs[1], "ON"))
-			S3TxSetTestToneIP(GPIBRx, GPIBTx, GPIBIP);
+			S3IPSetTestToneEnable(GPIBRx, GPIBTx, GPIBIP, 1);
 		else if (!STRCMP(GPIBCmdArgs[1], "OFF"))
-			S3TxSetTestToneIP(GPIBRx, GPIBTx, -1);
+			S3IPSetTestToneEnable(GPIBRx, GPIBTx, GPIBIP, 0);
 		else
 			return S3_GPIB_INVALID_PARAMETER;
 	}
