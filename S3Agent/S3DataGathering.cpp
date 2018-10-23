@@ -1285,12 +1285,6 @@ void DecodeTxModuleDetails(CString Response, int Rx, int Tx)
                 S3Data->m_Rx[Rx].m_Tx[Tx].m_ActiveInput = temp;
             }
             break;
-        case TXTESTSIGINPUT:
-            {
-                char temp = _ttoi(Line);
-                S3Data->m_Rx[Rx].m_Tx[Tx].m_TestSigInput = temp;
-            }
-            break;
         case TXTEMP:
             {
                 char temp = _ttoi(Line);
@@ -1460,12 +1454,6 @@ void DecodeTxModuleDetails(CString Response, int Rx, int Tx)
                 S3Data->m_Rx[Rx].m_Tx[Tx].m_TempTEC = temp;
             }
             break;
-        //case TXPEAKPOWER:
-        //    {
-        //        short temp = _ttoi(Line);
-        //        S3Data->m_Rx[Rx].m_Tx[Tx].m_PeakPower = temp;
-        //    }
-        //    break;
         case TXPEAKHOLD:
             {
                 short temp = _ttoi(Line);
