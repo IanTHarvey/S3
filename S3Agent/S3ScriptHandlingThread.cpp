@@ -126,7 +126,8 @@ UINT ScriptProcessThread(LPVOID pParam)
                 pObject->m_CommandEdit.SetSel(nLength, nLength);
                 pObject->m_CommandEdit.ReplaceSel(RespStr);
 
-                if ((MsgResponse.Mid(0, 6).CompareNoCase(L"ERROR:") == 0)) //If there is a connection error, stop script running
+				//If there is a connection error, stop script running
+                if ((MsgResponse.Mid(0, 6).CompareNoCase(L"ERROR:") == 0))
                 {
                     err = 1;
                     AfxGetMainWnd()->PostMessage(S3_DISCONNECT, 0, 0);

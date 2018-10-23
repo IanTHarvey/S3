@@ -1969,7 +1969,7 @@ int S3SetTCompMode(unsigned char ContMode)
 
     Response = SendSentinel3Message(Command);	
 #else
-	if (ContMode < 100)
+	if (ContMode < S3_PENDING)
 	{
 		// Make pending
 		if (ContMode != S3Data->m_ContTComp)

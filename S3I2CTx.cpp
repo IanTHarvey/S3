@@ -33,7 +33,7 @@ extern int S3I2CTxSelfTest2(	char Rx, char Tx);
 int S3I2CTxGetRFCalGain(		char Rx, char Tx);
 int S3I2CTxWriteFactoryCal(		char Rx, char Tx); // short *CalPath);
 
-// int S3I2CTxDisablePeakDet(		char Rx, char Tx);
+// int S3I2CTxDisablePeakDet(	char Rx, char Tx);
 int S3I2CTxDisableRFLevelAlarm(	char Rx, char Tx);
 extern int S3I2CTxOptAlarmMask();
 

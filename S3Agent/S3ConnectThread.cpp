@@ -46,7 +46,10 @@ UINT AttemptConnectToSentinel3(LPVOID pParam)
             break;
         default:
             //Connection method not set. Show error to user
-            AfxMessageBox(_T("Connection Failed: \r\nNo connection method chosen. Please ensure the connection details are correct before retrying."));
+            AfxMessageBox(
+				_T("Connection Failed: \r\nNo connection method ")
+				_T("chosen. Please ensure the connection details are ")
+				_T("correct before retrying."));
             Sentinel3.isConnected = false;
             if(pObject->ManualCommandEntryVisible)
             {
