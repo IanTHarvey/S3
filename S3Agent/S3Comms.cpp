@@ -374,11 +374,6 @@ CString SendSentinel3Message(CString message)
                 {
                     RetString.Format(_T("ERROR: COM: Timed out\r\n"));
                 }
-
-
-
-                //Read response from COM port
-                //RetString = m_COMPort->Read();
             }
             break;
         case GPIB:
@@ -434,14 +429,13 @@ CString SendSentinel3Message(CString message)
     return RetString;
 }
 
-
 // ----------------------------------------------------------------------------
 // Open a socket, then send message over ethernet
 int SendMessageSC3_2(const char *TxBuf)
 {
     int err = 0;
 
-    err = SendMessageOpenSocketSC3(TxBuf);
+    err = SendMessageOpenSocketSC3NoReply(TxBuf);
 
     return err; // Thread completed successfully
 }
@@ -503,6 +497,58 @@ int SendMessageOpenSocketSC3(const char *TxBuf)
     return 0;
 }
 
+// ----------------------------------------------------------------------------
+
+int SendMessageOpenSocketSC3NoReply(const char *TxBuf)
+{
+    size_t len = strlen(TxBuf);
+    int iResult; //, ClientErr;
+
+	*RxBuf = '\0';
+	int cnt = 0;
+	// If running with remote view enabled, buffer may be full of data from
+	// S3 update, so read and clear before sending command
+	//while((iResult = recv(ConnectSocket, RxBuf, DEFAULT_BUFLEN, 0))!= SOCKET_ERROR)
+	//	cnt++;
+
+    *RxBuf = '\0';
+    // Send an initial buffer - NOT terminator
+	S3TimerStart(1);
+    iResult = send(ConnectSocket, TxBuf, (int)len, 0);
+
+    CString tmp;
+
+    if (iResult == SOCKET_ERROR)
+    {
+        tmp.Format(_T("Response: %s"), _T("Send error"));
+        printf("Send failed with error: %d\n", WSAGetLastError());
+        closesocket(ConnectSocket);
+        WSACleanup();
+
+        return 1;
+    }
+
+	int retries = 0;
+	while((iResult = recv(ConnectSocket, RxBuf, DEFAULT_BUFLEN, 0)) == SOCKET_ERROR &&
+			retries < S3_RECV_RETRIES)
+		retries++;
+
+	S3TimerStop(1);
+	// strcpy_s(RxBuf, 4, "OK:");
+
+    if (iResult > 0 && retries < S3_RECV_RETRIES)
+    {
+		// If already terminated by S3, replace with NULL terminator
+        if (RxBuf[iResult - 1] == '\n' || RxBuf[iResult - 1] == '\0')
+			RxBuf[iResult - 1] = '\0';
+		else
+			RxBuf[iResult] = '\0';
+
+		SaveValidIPAddr();
+    }
+
+    return 0;
+}
 
 // ----------------------------------------------------------------------------
 // (Limited) Validation of the IPv4 address
