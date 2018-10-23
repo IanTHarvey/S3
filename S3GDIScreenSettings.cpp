@@ -507,6 +507,7 @@ void CS3GDIScreenMain::S3DrawGDISettingsRemote(void)
 	m_SettingsMAC->SetValue(str);
 	m_SettingsMAC->Draw(m_HDC, m_hFontS, m_hFontSB);
 
+	m_SettingsTerminator->SetEditable(!S3GetRemote());
 	m_SettingsTerminator->SetValue(CString(S3GetTerminatorStr()));
 	m_SettingsTerminator->Draw(m_HDC, m_hFontS, m_hFontSB);
 
@@ -1336,6 +1337,9 @@ int CS3GDIScreenMain::S3FindSettingsScreen(POINT p)
 #endif // S3_SHOW_P1DB_MODES
 		else if (s == S3_TERMINATOR) // Remote command response terminator
 		{
+			if (S3GetRemote())
+				return 0;
+
 			m_ParaMenu->Init(m_HDC, p.x, p.y);
 			m_ParaMenu->AddItem(_T("\\n"));
 			m_ParaMenu->AddItem(_T("\\0"));
