@@ -1353,6 +1353,10 @@
 			RelativePath=".\ReadMe.txt"
 			>
 		</File>
+		<File
+			RelativePath=".\TempCompensation.txt"
+			>
+		</File>
 	</Files>
 	<Globals>
 		<Global
