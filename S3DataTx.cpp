@@ -34,8 +34,6 @@ int S3TxInit(pS3TxData node)
 	node->m_ActiveInputPending = false;
 #endif
 
-	node->m_TestSigInput = -1; // Off
-
 	node->m_SelfTestPending = false;
 	node->m_SelfTestRetries = 0;
 	node->m_SelfTestErr = 0;
@@ -248,7 +246,6 @@ int S3TxRemoved(char Rx, char Tx)
 	S3TxSetType(Rx, Tx, S3_TxUnconnected);
 
 	pTx->m_Detected = false;
-	pTx->m_TestSigInput = -1;
 	pTx->m_Uptime = 0;
 	pTx->m_PeakHoldCap = false;
 
@@ -505,110 +502,6 @@ S3TxType S3TxGetType(char Rx, char Tx)
 		return S3Shadow->m_Rx[Rx].m_Tx[Tx].m_Type;*/
 
 	return pTx->m_Type;
-}
-
-// ----------------------------------------------------------------------------
-
-int S3TxSetTestToneIP(char Rx, char Tx, char IP) // , unsigned char SigOn)
-{
-#ifdef S3_AGENT
-	CString Command, Args, Response;
-
-    Command = "RX";
-    Args.Format(_T(" %d"), (Rx + 1));
-    Command.Append(Args);
-    Response = SendSentinel3Message(Command);
-
-    Command = "Tx";
-    Args.Format(_T(" %d"), (Tx + 1));
-    Command.Append(Args);
-    Response = SendSentinel3Message(Command);
-
-    if(IP != -1)
-    {
-        Command = "IP";
-        Args.Format(_T(" %d"), (IP + 1));
-        Command.Append(Args);
-        Response = SendSentinel3Message(Command);
-
-        Command = L"IPTESTSIG";
-        Args.Format(_T(" ON"));
-        Command.Append(Args);
-        Response = SendSentinel3Message(Command);
-
-    }
-    else
-    {
-        Command = L"IPTESTSIG";
-        Args.Format(_T(" OFF"));
-        Command.Append(Args);
-        Response = SendSentinel3Message(Command);
-    }
-	return 0;
-#else
-	
-	if (S3Data->m_Rx[Rx].m_Tx[Tx].m_TestSigInput >= 99)
-	{
-		S3Data->m_Rx[Rx].m_Tx[Tx].m_TestSigInput = IP;
-	}
-	else
-	{
-		if (S3Data->m_Rx[Rx].m_Tx[Tx].m_TestSigInput != IP)
-		{
-			S3Data->m_Rx[Rx].m_Tx[Tx].m_TestSigInput = IP + S3_PENDING;
-		}
-	}
-	
-	// else
-	//	S3Data->m_Rx[Rx].m_Tx[Tx].m_TestSigInput = -1;
-
-	/*
-	// No. Must specifiy individual input....
-	if (Tx == -1)
-	{
-	if (Rx == -1)
-	{
-	for (char i = 0; i < S3_MAX_RXS; i++)
-	{
-	for (char j = 0; j < S3_MAX_TXS; j++)
-	{
-	if (S3Data->m_Rx[i].m_Input[j].m_Type == S3_Tx1 ||
-	S3Data->m_Rx[i].m_Input[j].m_Type == S3_Tx8)
-	{
-	S3Data->m_Rx[i].m_Input[j].m_TestSig = (SigOn != 0);
-	}
-	}
-	}
-	}
-	else
-	{
-	for (char j = 0; j < S3_MAX_TXS; j++)
-	{
-	if (S3Data->m_Rx[Rx].m_Input[j].m_Type == S3_Tx1 ||
-	S3Data->m_Rx[Rx].m_Input[j].m_Type == S3_Tx8)
-	{
-	S3Data->m_Rx[Rx].m_Input[j].m_TestSig = (SigOn != 0);
-	}
-	}
-	}
-	}
-	else
-	{
-	S3Data->m_Rx[Rx].m_Tx[Tx].m_TestSig = (SigOn != 0);
-
-	// I2C Set
-	}
-	*/
-
-	return 0;
-#endif
-}
-
-// ---------------------------------------------------------------------------
-// Obsolete - although test tone is mutually exclusive, not to _user_ 
-char S3TxGetTestToneIP(char Rx, char Tx)
-{
-	return S3Data->m_Rx[Rx].m_Tx[Tx].m_TestSigInput;
 }
 
 // -----------------------------------------------------------------------------
@@ -1216,8 +1109,8 @@ int S3TxSetTemp(char Rx, char Tx, char t)
 	pS3TxData	pTx = &S3Data->m_Rx[Rx].m_Tx[Tx];
 	pTx->m_TempChange = 0;
 
-	// Assumes fairly regular update interval for m_TempStableCnt to be
-	// meaningful time-wise
+	// De-noise temperature reading. Assumes fairly regular update interval
+	// for m_TempStableCnt to be meaningful time-wise
 	if (t == pTx->m_TempTx)
 	{
 		pTx->m_TempStableCnt++;
@@ -1255,7 +1148,6 @@ int S3TxSetTemp(char Rx, char Tx, char t)
 	else
 	{
 		S3TxCancelAlarm(Rx, Tx, S3_TX_OVER_TEMP);
-
 	}
 
 	if (S3GetTCompMode() != S3_TCOMP_GAIN)

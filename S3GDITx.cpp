@@ -20,10 +20,9 @@ void CS3GDIScreenMain::S3DrawGDITxSel(char Rx, char Tx,
 	int xref, int yref)
 {
 	S3TxType	TxType;
-	char		ActiveIP, TestIP, ActiveTx;
+	char		ActiveIP, ActiveTx;
 
 	ActiveIP = S3TxGetActiveIP(Rx, Tx);
-	TestIP = S3TxGetTestToneIP(Rx, Tx);
 	TxType = S3TxGetType(Rx, Tx);
 	S3TxPwrMode PowerState = S3TxGetPowerStat(Rx, Tx);
 	ActiveTx = S3RxGetActiveTx(Rx);
@@ -59,7 +58,8 @@ void CS3GDIScreenMain::S3DrawGDITxSel(char Rx, char Tx,
 							SelectObject(m_HDC, m_hPenAlarm);
 					}
 
-					if (S3IPGetTestToneEnable(Rx, Tx, IP) != 1)
+					if (S3IPGetTestToneEnable(Rx, Tx, IP) == 0 || 
+						S3IPGetTestToneEnable(Rx, Tx, IP) == 0 + S3_PENDING)
 					{	
 						S3DrawGDIIP(m_hbmpTxSelIPAct, m_hbmpTxSelIPActAlrm, Rx, Tx, IP,
 							xref - (int)xrad, yref + (int)yrad, m_radTxSelIPAct);
@@ -83,7 +83,8 @@ void CS3GDIScreenMain::S3DrawGDITxSel(char Rx, char Tx,
 							SelectObject(m_HDC, m_hPenAlarm);
 					}
 
-					if (S3IPGetTestToneEnable(Rx, Tx, IP) != 1)
+					if (S3IPGetTestToneEnable(Rx, Tx, IP) == 0 || 
+						S3IPGetTestToneEnable(Rx, Tx, IP) == 0 + S3_PENDING)
 					{
 						S3DrawGDIIP(m_hbmpTxSelIPInact, m_hbmpTxSelIPInactAlrm, Rx, Tx, IP,
 							xref - (int)xrad, yref + (int)yrad, m_radTxSelIP);
@@ -106,8 +107,8 @@ void CS3GDIScreenMain::S3DrawGDITxSel(char Rx, char Tx,
 					SelectObject(m_HDC, m_hPenAlarm);
 			}
 			
-
-			if (0 != TestIP)
+			if (S3IPGetTestToneEnable(Rx, Tx, 0) == 0 || 
+						S3IPGetTestToneEnable(Rx, Tx, 0) == 0 + S3_PENDING)
 			{
 				S3DrawGDIIP(m_hbmpTxSelIPAct, m_hbmpTxSelIPActAlrm, Rx, Tx, 0,
 					xref, yref + (int)(m_radRatioPosActIP * m_radTxSel), m_radTxSelIPAct);
@@ -250,7 +251,6 @@ void CS3GDIScreenMain::S3DrawGDITxUnsel(char Rx, char Tx,
 	char		IsLeft = 0;
 
 	char		ActiveIP = S3TxGetActiveIP(Rx, Tx);
-	char		TestIP = S3TxGetTestToneIP(Rx, Tx);
 	S3TxType	TxType = S3TxGetType(Rx, Tx);
 	S3TxPwrMode	PowerState = S3TxGetPowerStat(Rx, Tx);
 	char		ActiveTx = S3RxGetActiveTx(Rx);
@@ -297,7 +297,8 @@ void CS3GDIScreenMain::S3DrawGDITxUnsel(char Rx, char Tx,
 					// Use primitives to draw alarmed inputs for now. All bitmapped
 					// eventually
 					
-					if (IP != TestIP)
+					if (S3IPGetTestToneEnable(Rx, Tx, IP) == 0 || 
+						S3IPGetTestToneEnable(Rx, Tx, IP) == 0 + S3_PENDING)
 					{
 						S3DrawGDIIP(m_hbmpTxUnselIPAct, m_hbmpTxUnselIPActAlrm, Rx, Tx, IP,
 							xref - (int)xrad, yref + (int)yrad, m_radTxUnselIPAct);
@@ -332,7 +333,8 @@ void CS3GDIScreenMain::S3DrawGDITxUnsel(char Rx, char Tx,
 							SelectObject(m_HDC, m_hPenAlarm);
 					}
 
-					if (IP != TestIP)
+					if (S3IPGetTestToneEnable(Rx, Tx, IP) == 0 || 
+						S3IPGetTestToneEnable(Rx, Tx, IP) == 0 + S3_PENDING)
 					{
 						S3DrawGDIIP(m_hbmpTxUnselIPInact, m_hbmpTxUnselIPInactAlrm, Rx, Tx, IP,
 							xref - (int)xrad, yref + (int)yrad, m_radTxUnselIP);
@@ -358,7 +360,8 @@ void CS3GDIScreenMain::S3DrawGDITxUnsel(char Rx, char Tx,
 					SelectObject(m_HDC, m_hPenAlarm);
 			}
 
-			if (0 != TestIP)
+			if (S3IPGetTestToneEnable(Rx, Tx, 0) == 0 || 
+						S3IPGetTestToneEnable(Rx, Tx, 0) == 0 + S3_PENDING)
 			{
 				S3DrawGDIIP(m_hbmpTxUnselIPAct, m_hbmpTxUnselIPActAlrm, Rx, Tx, 0, 
 					xref, yref + (int)(m_radRatioPosActIP * m_radTxUnsel), m_radTxUnselIPAct);
@@ -496,7 +499,7 @@ void CS3GDIScreenMain::S3DrawGDITxUnsel(char Rx, char Tx,
 }
 
 // ----------------------------------------------------------------------------
-// Draw 1:5 icoceles triangle with point at rad from xref, yref, pointing to
+// Draw 1:5 isoceles triangle with point at rad from xref, yref, pointing to
 // xref, yref.
 // ----------------------------------------------------------------------------
 

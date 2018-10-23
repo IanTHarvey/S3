@@ -1115,13 +1115,13 @@ int S3IPSetTestToneEnable(char Rx, char Tx, char IP, char Enable)
 	if (Enable >= 2 * S3_PENDING) // ASSERT:
 		Enable -= S3_PENDING;
 	
-	if (Enable >= S3_PENDING)
+	if (Enable >= S3_PENDING) // REQ
 	{
 		S3Data->m_Rx[Rx].m_Tx[Tx].m_Input[IP].m_TestToneEnable = Enable;
 		return 0;
 	}
 	
-	if (S3Data->m_Rx[Rx].m_Tx[Tx].m_Input[IP].m_TestToneEnable >= S3_PENDING)
+	if (S3Data->m_Rx[Rx].m_Tx[Tx].m_Input[IP].m_TestToneEnable >= S3_PENDING) // ACK
 	{
 		S3Data->m_Rx[Rx].m_Tx[Tx].m_Input[IP].m_TestToneEnable = Enable;
 		return 0;

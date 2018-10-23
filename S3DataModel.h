@@ -594,7 +594,6 @@ typedef struct sS3TxData
 	S3IPData		m_Input[S3_MAX_IPS];
 	char			m_ActiveInput;		// Selected RF input
 	bool			m_ActiveInputPending;	// RF input change pending
-	char			m_TestSigInput;		// -1 for no test signal	
 
 	char			m_CurAlarmSrc;		// -1:	No alarm;
 										// 0:	S3Ctrl;
@@ -1253,10 +1252,6 @@ bool S3GetRemote();
 
 void S3SetUSBOpen(bool open);
 bool S3GetUSBOpen();
-
-// Better to use IP = -1 to turn off
-int		S3TxSetTestToneIP(	char Rx, char Tx, char IP); //, unsigned char SigOn);
-char	S3TxGetTestToneIP(	char Rx, char Tx);
 
 int S3CancelAlarms();
 
