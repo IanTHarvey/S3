@@ -15,38 +15,14 @@
     {
         "Entry"
         {
-        "MsmKey" = "8:_03C7AFF18EB640109D2EB0E2F1B542E8"
-        "OwnerKey" = "8:_4B78FD0BD1BA43A5B95350296AE33288"
+        "MsmKey" = "8:_0AF6820D3DD54376BB993FC47C696A0A"
+        "OwnerKey" = "8:_A85A5C8818A941E486223AF7E4F5B72D"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_03C7AFF18EB640109D2EB0E2F1B542E8"
-        "OwnerKey" = "8:_E9BFA4763B3F47409B3596E8744FDF5A"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_03C7AFF18EB640109D2EB0E2F1B542E8"
-        "OwnerKey" = "8:_FEF585D9B00D4179952AC9683FB33689"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_31A46EC685B2422BA45980E40AFB805F"
-        "OwnerKey" = "8:_4B78FD0BD1BA43A5B95350296AE33288"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_31A46EC685B2422BA45980E40AFB805F"
-        "OwnerKey" = "8:_E9BFA4763B3F47409B3596E8744FDF5A"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_31A46EC685B2422BA45980E40AFB805F"
-        "OwnerKey" = "8:_FEF585D9B00D4179952AC9683FB33689"
+        "MsmKey" = "8:_36441E681B4C4011AD767C1E08304566"
+        "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -57,14 +33,14 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_732342B57CD0248AE12B78DA80CC5E4A"
-        "OwnerKey" = "8:_4B78FD0BD1BA43A5B95350296AE33288"
+        "MsmKey" = "8:_4D6E31306E2A410BB0D939F85C16DC0E"
+        "OwnerKey" = "8:_A155E3D52E274CE79F4F2FDC58C4A4B7"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
         "MsmKey" = "8:_732342B57CD0248AE12B78DA80CC5E4A"
-        "OwnerKey" = "8:_E9BFA4763B3F47409B3596E8744FDF5A"
+        "OwnerKey" = "8:_4B78FD0BD1BA43A5B95350296AE33288"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -75,20 +51,50 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_A14D3B857740425FBB670B2781D98C22"
-        "OwnerKey" = "8:_03C7AFF18EB640109D2EB0E2F1B542E8"
+        "MsmKey" = "8:_732342B57CD0248AE12B78DA80CC5E4A"
+        "OwnerKey" = "8:_E9BFA4763B3F47409B3596E8744FDF5A"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_A155E3D52E274CE79F4F2FDC58C4A4B7"
+        "OwnerKey" = "8:_4B78FD0BD1BA43A5B95350296AE33288"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_A155E3D52E274CE79F4F2FDC58C4A4B7"
+        "OwnerKey" = "8:_FEF585D9B00D4179952AC9683FB33689"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_A155E3D52E274CE79F4F2FDC58C4A4B7"
+        "OwnerKey" = "8:_E9BFA4763B3F47409B3596E8744FDF5A"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_A85A5C8818A941E486223AF7E4F5B72D"
+        "OwnerKey" = "8:_4B78FD0BD1BA43A5B95350296AE33288"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_A85A5C8818A941E486223AF7E4F5B72D"
+        "OwnerKey" = "8:_FEF585D9B00D4179952AC9683FB33689"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_A85A5C8818A941E486223AF7E4F5B72D"
+        "OwnerKey" = "8:_E9BFA4763B3F47409B3596E8744FDF5A"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
         "MsmKey" = "8:_E9BFA4763B3F47409B3596E8744FDF5A"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_F569CDBC32EF4A17B30C0717E4FC5F5F"
-        "OwnerKey" = "8:_31A46EC685B2422BA45980E40AFB805F"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -115,6 +121,27 @@
         "PrivateKeyFile" = "8:"
         "TimeStampServer" = "8:"
         "InstallerBootstrapper" = "3:2"
+            "BootstrapperCfg:{63ACBE69-63AA-4F98-B2B6-99F9E24495F2}"
+            {
+            "Enabled" = "11:TRUE"
+            "PromptEnabled" = "11:TRUE"
+            "PrerequisitesLocation" = "2:1"
+            "Url" = "8:"
+            "ComponentsUrl" = "8:"
+                "Items"
+                {
+                    "{EDC2488A-8267-493A-A98E-7D9C3B36CDF3}:Microsoft.Net.Framework.3.5.SP1"
+                    {
+                    "Name" = "8:.NET Framework 3.5 SP1"
+                    "ProductCode" = "8:Microsoft.Net.Framework.3.5.SP1"
+                    }
+                    "{EDC2488A-8267-493A-A98E-7D9C3B36CDF3}:Microsoft.Windows.Installer.3.1"
+                    {
+                    "Name" = "8:Windows Installer 3.1"
+                    "ProductCode" = "8:Microsoft.Windows.Installer.3.1"
+                    }
+                }
+            }
         }
         "Release"
         {
@@ -131,6 +158,27 @@
         "PrivateKeyFile" = "8:"
         "TimeStampServer" = "8:"
         "InstallerBootstrapper" = "3:2"
+            "BootstrapperCfg:{63ACBE69-63AA-4F98-B2B6-99F9E24495F2}"
+            {
+            "Enabled" = "11:TRUE"
+            "PromptEnabled" = "11:TRUE"
+            "PrerequisitesLocation" = "2:1"
+            "Url" = "8:"
+            "ComponentsUrl" = "8:"
+                "Items"
+                {
+                    "{EDC2488A-8267-493A-A98E-7D9C3B36CDF3}:Microsoft.Net.Framework.3.5.SP1"
+                    {
+                    "Name" = "8:.NET Framework 3.5 SP1"
+                    "ProductCode" = "8:Microsoft.Net.Framework.3.5.SP1"
+                    }
+                    "{EDC2488A-8267-493A-A98E-7D9C3B36CDF3}:Microsoft.Windows.Installer.3.1"
+                    {
+                    "Name" = "8:Windows Installer 3.1"
+                    "ProductCode" = "8:Microsoft.Windows.Installer.3.1"
+                    }
+                }
+            }
         }
     }
     "Deployable"
@@ -152,6 +200,26 @@
         }
         "File"
         {
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_36441E681B4C4011AD767C1E08304566"
+            {
+            "SourcePath" = "8:segoeui.ttf"
+            "TargetName" = "8:segoeui.ttf"
+            "Tag" = "8:"
+            "Folder" = "8:_DDE71D1307DB4AA2BEA67650DF8980DE"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:5"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_732342B57CD0248AE12B78DA80CC5E4A"
             {
             "SourcePath" = "8:MSIMG32.dll"
@@ -212,6 +280,17 @@
                 {
                 }
             }
+            "{1525181F-901A-416C-8A58-119130FE478E}:_DDE71D1307DB4AA2BEA67650DF8980DE"
+            {
+            "Name" = "8:#1911"
+            "AlwaysCreate" = "11:FALSE"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Property" = "8:FontsFolder"
+                "Folders"
+                {
+                }
+            }
         }
         "LaunchCondition"
         {
@@ -229,7 +308,7 @@
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:Sentinel 3 Remote Agent"
         "ProductCode" = "8:{5D5CFD2C-5423-4130-8E40-144AA60AE750}"
-        "PackageCode" = "8:{4FFE2BE9-AB28-4980-A8BE-CF5B555514B8}"
+        "PackageCode" = "8:{EC3FDD5F-1EBA-497D-8714-CFC78319B438}"
         "UpgradeCode" = "8:{518CA163-0D09-49C6-90F2-5BD47951D1BB}"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:FALSE"
@@ -237,16 +316,16 @@
         "InstallAllUsers" = "11:FALSE"
         "ProductVersion" = "8:1.0.0"
         "Manufacturer" = "8:PPM Test"
-        "ARPHELPTELEPHONE" = "8:"
-        "ARPHELPLINK" = "8:"
+        "ARPHELPTELEPHONE" = "8:+44 (0) 1793 784389"
+        "ARPHELPLINK" = "8:https://ppmtest.com/support/"
         "Title" = "8:Sentinel 3 Remote Agent Setup"
-        "Subject" = "8:"
+        "Subject" = "8:Sentinel 3 Remote Agent"
         "ARPCONTACT" = "8:PPM Test"
         "Keywords" = "8:"
-        "ARPCOMMENTS" = "8:"
+        "ARPCOMMENTS" = "8:Sentinel 3 Remote Agent"
         "ARPURLINFOABOUT" = "8:www.ppm.co.uk"
-        "ARPPRODUCTICON" = "8:"
-        "ARPIconIndex" = "3:0"
+        "ARPPRODUCTICON" = "8:_4B78FD0BD1BA43A5B95350296AE33288"
+        "ARPIconIndex" = "3:127"
         "SearchPath" = "8:"
         "UseSystemSearchPath" = "11:TRUE"
         "TargetPlatform" = "3:0"
@@ -744,11 +823,11 @@
         }
         "MergeModule"
         {
-            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_03C7AFF18EB640109D2EB0E2F1B542E8"
+            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_0AF6820D3DD54376BB993FC47C696A0A"
             {
             "UseDynamicProperties" = "11:TRUE"
             "IsDependency" = "11:TRUE"
-            "SourcePath" = "8:policy_9_0_Microsoft_VC90_MFC_x86.msm"
+            "SourcePath" = "8:microsoft_vc90_debugmfc_x86.msm"
                 "Properties"
                 {
                 }
@@ -758,11 +837,11 @@
             "Feature" = "8:"
             "IsolateTo" = "8:"
             }
-            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_31A46EC685B2422BA45980E40AFB805F"
+            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_4D6E31306E2A410BB0D939F85C16DC0E"
             {
             "UseDynamicProperties" = "11:TRUE"
             "IsDependency" = "11:TRUE"
-            "SourcePath" = "8:policy_9_0_Microsoft_VC90_CRT_x86.msm"
+            "SourcePath" = "8:microsoft_vc90_debugcrt_x86.msm"
                 "Properties"
                 {
                 }
@@ -772,11 +851,11 @@
             "Feature" = "8:"
             "IsolateTo" = "8:"
             }
-            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_A14D3B857740425FBB670B2781D98C22"
+            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_A155E3D52E274CE79F4F2FDC58C4A4B7"
             {
             "UseDynamicProperties" = "11:TRUE"
             "IsDependency" = "11:TRUE"
-            "SourcePath" = "8:microsoft_vc90_mfc_x86.msm"
+            "SourcePath" = "8:policy_9_0_Microsoft_VC90_DebugCRT_x86.msm"
                 "Properties"
                 {
                 }
@@ -786,11 +865,11 @@
             "Feature" = "8:"
             "IsolateTo" = "8:"
             }
-            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_F569CDBC32EF4A17B30C0717E4FC5F5F"
+            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_A85A5C8818A941E486223AF7E4F5B72D"
             {
             "UseDynamicProperties" = "11:TRUE"
             "IsDependency" = "11:TRUE"
-            "SourcePath" = "8:microsoft_vc90_crt_x86.msm"
+            "SourcePath" = "8:policy_9_0_Microsoft_VC90_DebugMFC_x86.msm"
                 "Properties"
                 {
                 }
@@ -805,7 +884,7 @@
         {
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_4B78FD0BD1BA43A5B95350296AE33288"
             {
-            "SourcePath" = "8:..\\S3Agent\\Win32\\Release\\S3Agent.exe"
+            "SourcePath" = "8:..\\Win32\\Debug\\S3Agent.exe"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_BA9EA20A86E34C4291FA2B9F8F1F25CC"
@@ -833,7 +912,7 @@
             }
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_E9BFA4763B3F47409B3596E8744FDF5A"
             {
-            "SourcePath" = "8:..\\S3Agent\\Win32\\Release\\S3Agent.exe"
+            "SourcePath" = "8:..\\Win32\\Debug\\S3Agent.exe"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_AB092D36AA354E5881BC0A42888AD143"
@@ -861,7 +940,7 @@
             }
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_FEF585D9B00D4179952AC9683FB33689"
             {
-            "SourcePath" = "8:..\\S3Agent\\Win32\\Release\\S3Agent.exe"
+            "SourcePath" = "8:..\\Win32\\Debug\\S3Agent.exe"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_A07473AD6BC0454DA8279B7510C81F9A"
