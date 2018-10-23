@@ -476,7 +476,7 @@ bool S3I2CGetPowerSwitch()
 		if (Debounce > 3)
 		{
 			S3SetPowerDownPending(true);
-			S3SetSleepAll(true);
+			S3SetSleepAll();
 
 			return true;
 		}

@@ -80,19 +80,6 @@ int S3PollTxSetType(pS3TxData pTx)
 }
 
 // ---------------------------------------------------------------------------
-// TODO: Remove - an unnecessary layer
-/*
-int	S3PollOld()
-{
-	int		Update = 0;
-
-	Update += S3PollSys();
-
-	return Update;
-}
-*/
-
-// ---------------------------------------------------------------------------
 // Was S3PollSys()
 
 int	S3Poll(CS3ControllerDlg *parent)
@@ -103,6 +90,9 @@ int	S3Poll(CS3ControllerDlg *parent)
 		return Update;
 
 	Update = S3I2CPoll(parent);
+
+	S3AllAwake();
+	S3AllAsleep();
 
 	if (Update == -1)
 		return 0;

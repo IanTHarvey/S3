@@ -599,7 +599,13 @@ void DecodeSystemDetails(CString Response)
         case SLEEPALL:
             {
                 unsigned char temp = _ttoi(Line);
-                S3Data->m_SleepAll = (temp != 0);
+                S3Data->m_SleepAllPending = (temp != 0);
+            }
+            break;
+		case WAKEALL:
+            {
+                unsigned char temp = _ttoi(Line);
+                S3Data->m_WakeAllPending = (temp != 0);
             }
             break;
 		case SYSTEM_LOCKED:

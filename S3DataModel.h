@@ -859,8 +859,8 @@ typedef struct sS3DataModel
 	char			m_Para;
 	char			m_SelectedTx, m_SelectedRx, m_SelectedIP;
 
-	bool			m_SleepAll;
-	bool			m_WakeAll;
+	bool			m_SleepAllPending;
+	bool			m_WakeAllPending;
 
     char         m_DisplayedUSBPort[S3_MAX_USB_PORT_LEN];
     char         m_DisplayedUSBDriver[S3_MAX_USB_DRIVER_LEN];
@@ -978,10 +978,10 @@ unsigned short	S3GetIPPort();
 int				S3SetIPPort(	unsigned short port);
 int				S3GetMACAddrStr(char *addr);
 
-int				S3SetSleepAll(bool sleep);
-int				S3SetWakeAll(bool wake);
-bool			S3GetSleepAll();
-bool			S3GetWakeAll();
+int				S3SetSleepAll();
+int				S3SetWakeAll();
+bool			S3GetSleepAllPending();
+bool			S3GetWakeAllPending();
 bool			S3AllAsleep(); // Query whether all Txs asleep
 bool			S3AllAwake();
 

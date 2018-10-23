@@ -155,7 +155,7 @@ int CS3GDIScreenMain::S3FindFactoryScreen(POINT p)
 		{
 			S3EventLogAdd("System shutdown requested by user", 1, -1, -1, -1);
 			S3SetPowerDownPending(true);
-			S3SetSleepAll(true);
+			S3SetSleepAll();
 			// m_Parent->SysShutdown();
 
 			return 1;
@@ -177,7 +177,7 @@ int CS3GDIScreenMain::S3FindFactoryScreen(POINT p)
 	{
 		S3EventLogAdd("Application close requested by user", 1, -1, -1, -1);
 		S3SetCloseAppPending(true);
-		S3SetSleepAll(true);
+		S3SetSleepAll();
 		
 		return 1;
 	}

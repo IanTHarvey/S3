@@ -15,9 +15,11 @@ class CS3Button
 	CRect	r;
 	HDC		b;
 	CS3GDIScreenMain	*p;
+	bool	m_Enabled;
 
 public:
 	CS3Button(CS3GDIScreenMain *parent, HDC bitmap, CString txt, CRect rect);
+	void	Enable(bool enable) { m_Enabled = enable;} ;
 	void	Draw(HDC *bitmap, const wchar_t *str);
 	int		Find(POINT p);
 	CRect	*Rect(void) { return &r; };
@@ -25,7 +27,7 @@ public:
 
 int CS3Button::Find(POINT p)
 {
-	if (r.PtInRect(p))
+	if (m_Enabled && r.PtInRect(p))
 		return 1;
 
 	return 0;
@@ -37,11 +39,16 @@ CS3Button::CS3Button(CS3GDIScreenMain *parent, HDC bitmap, CString txt, CRect re
 	b = bitmap;
 	t = txt;
 	r = rect;
+	m_Enabled = true;
 }
 
 void CS3Button::Draw(HDC *bitmap = NULL, const wchar_t *str = NULL)
 {
-	if (bitmap)
+	if (!m_Enabled)
+		TransparentBlt(
+			p->GetDrawable(), r.left, r.top, r.Width(), r.Height(),
+			p->m_hbmpGreyButton, 0, 0, r.Width(), r.Height(), p->m_crWhite);
+	else if (bitmap)
 		TransparentBlt(
 			p->GetDrawable(), r.left, r.top, r.Width(), r.Height(),
 			*bitmap, 0, 0, r.Width(), r.Height(), p->m_crWhite);
@@ -52,7 +59,9 @@ void CS3Button::Draw(HDC *bitmap = NULL, const wchar_t *str = NULL)
 
 	COLORREF cref = SetTextColor(p->GetDrawable(), p->m_crWhite);
 
-	if (str)
+	if (!m_Enabled)
+		DrawText(p->GetDrawable(), _T("Wait"), -1, &r, S3_BTN_CENTRE);
+	else if (str)
 		DrawText(p->GetDrawable(), str, -1, &r, S3_BTN_CENTRE);
 	else
 		DrawText(p->GetDrawable(), t, -1, &r, S3_BTN_CENTRE);
@@ -133,28 +142,25 @@ void CS3GDIScreenMain::S3DrawGDIShutdownScreen(void)
 	bool AllAsleep = S3AllAsleep();
 	bool AllAwake = S3AllAwake();
 
-	if (!(AllAsleep && AllAwake))
+	if (!AllAsleep)
 	{
-		if (!AllAsleep)
-		{
-			if (!S3GetSleepAll())
-				m_ButtonTxSleepAll->Draw();
-			else
-				m_ButtonTxSleepAll->Draw(&m_hbmpGreyButton, _T("Sleeping"));
-		}
+		if (!S3GetSleepAllPending())
+			m_ButtonTxSleepAll->Draw();
 		else
-			m_ButtonTxSleepAll->Draw(&m_hbmpGreyButton, _T("All Asleep"));
-
-		if (!AllAwake)
-		{
-			if (!S3GetWakeAll())
-				m_ButtonTxWakeAll->Draw();
-			else
-				m_ButtonTxWakeAll->Draw(&m_hbmpGreyButton, _T("Waking"));
-		}
-		else
-			m_ButtonTxWakeAll->Draw(&m_hbmpGreyButton, _T("All Awake"));
+			m_ButtonTxSleepAll->Draw(&m_hbmpGreyButton, _T("Sleeping"));
 	}
+	else
+		m_ButtonTxSleepAll->Draw(&m_hbmpGreyButton, _T("All Asleep"));
+
+	if (!AllAwake)
+	{
+		if (!S3GetWakeAllPending())
+			m_ButtonTxWakeAll->Draw();
+		else
+			m_ButtonTxWakeAll->Draw(&m_hbmpGreyButton, _T("Waking"));
+	}
+	else
+		m_ButtonTxWakeAll->Draw(&m_hbmpGreyButton, _T("All Awake"));
 
 	CRect RectTxt = m_RectShutdownScreen;
 
@@ -167,13 +173,27 @@ void CS3GDIScreenMain::S3DrawGDIShutdownScreen(void)
 		
 		RectTxt.top = m_ButtonTxSleepAll->Rect()->bottom + 40;
 
-		if (S3GetWakeAll())
-			DrawText(m_HDC, _T("Waking up all transmitters\nPlease wait"),
+		if (S3GetWakeAllPending())
+		{
+			DrawText(m_HDC, _T("Waking up all transmitters.\nPlease wait"),
+					-1, &RectTxt, DT_CENTER);
+			
+			m_ButtonTxWakeAll->Enable(false);
+			m_ButtonTxSleepAll->Enable(false);
+		}
+		else if (S3GetSleepAllPending())
+		{
+			DrawText(m_HDC, _T("Shutting down transmitters.\nPlease wait"),
 					-1, &RectTxt, DT_CENTER);
 
-		else if (!AllAsleep && S3GetSleepAll())
-			DrawText(m_HDC, _T("Shutting down transmitters\nPlease wait"),
-					-1, &RectTxt, DT_CENTER);
+			m_ButtonTxWakeAll->Enable(false);
+			m_ButtonTxSleepAll->Enable(false);
+		}
+		else
+		{
+			m_ButtonTxWakeAll->Enable(true);
+			m_ButtonTxSleepAll->Enable(true);
+		}
 	}
 	else
 	{
@@ -188,11 +208,11 @@ void CS3GDIScreenMain::S3DrawGDIShutdownScreen(void)
 		}
 		else
 		{
-			if (S3GetWakeAll())
+			if (S3GetWakeAllPending())
 				DrawText(m_HDC,
 					_T("Waking up all transmitters\nPlease wait"),
 					-1, &RectTxt, DT_CENTER);
-			else if (!S3GetSleepAll())
+			else if (!S3GetSleepAllPending())
 				DrawText(m_HDC,
 					_T("Use Sleep All button to shut down transmitters\n")
 					_T("then use front-panel switch to shutdown Sentinel 3"),
@@ -224,17 +244,17 @@ int CS3GDIScreenMain::S3FindShutdownScreen(POINT p)
 	if (S3GetRemote())
 		return 0;
 
-	if (!S3AllAsleep() && m_ButtonTxSleepAll->Find(p))
+	if (m_ButtonTxSleepAll->Find(p))
 	{
 		S3EventLogAdd("Sleep-all requested by user", 1, -1, -1, -1);
-		S3SetSleepAll(true);
+		S3SetSleepAll();
 
 		return 1;
 	}
-	else if (!S3AllAwake() && m_ButtonTxWakeAll->Find(p))
+	else if (m_ButtonTxWakeAll->Find(p))
 	{
 		S3EventLogAdd("Wake-all requested by user", 1, -1, -1, -1);
-		S3SetWakeAll(true);
+		S3SetWakeAll();
 
 		return 1;
 	}
@@ -245,7 +265,7 @@ int CS3GDIScreenMain::S3FindShutdownScreen(POINT p)
 			S3EventLogAdd("System shutdown requested by user", 1, -1, -1, -1);
 
 			S3SetPowerDownPending(true);
-			S3SetSleepAll(true);
+			S3SetSleepAll();
 
 			return 1;
 		}

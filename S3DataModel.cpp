@@ -606,8 +606,8 @@ int S3SysInit(pS3DataModel node)
 
 	node->m_IPPort = S3_DEFAULT_IP_PORT;
 
-	node->m_SleepAll = false;
-	node->m_WakeAll = false;
+	node->m_SleepAllPending = false;
+	node->m_WakeAllPending = false;
 
 	node->m_USBOpen = false;
 
@@ -1688,38 +1688,24 @@ int S3SoftwareUpdate()
 // ---------------------------------------------------------------------------
 // Mark all Txs for sleep or waking
 
-int	S3SetSleepAll(bool sleep)
+int	S3SetSleepAll()
 {
 #ifdef S3_AGENT
-	if (S3Data->m_SleepAll == sleep)
-		return 0;
-	
-	S3Data->m_SleepAll = sleep;
-	
-	if (sleep)
-	{
-		CString Response = SendSentinel3Message(L"SLEEPALL");
-	}
-	else
-	{
-		CString Response = SendSentinel3Message(L"WAKEALL");
-	}
+	//if (S3Data->m_SleepAll == sleep)
+	//	return 0;
+	//
+	//S3Data->m_SleepAll = sleep;
+
+	CString Response = SendSentinel3Message(L"SLEEPALL");
 
 	return 0;
 #else
-	if (S3Data->m_SleepAll == sleep)
+	if (S3Data->m_SleepAllPending)
 		return 0;
-	
-	S3Data->m_SleepAll = sleep;
-	
-	if (sleep)
-	{
-		S3TxSetPowerStat(-1, -1, S3_TX_SLEEP);
-	}
-	else
-	{
-		S3TxSetPowerStat(-1, -1, S3_TX_ON);
-	}
+
+	S3Data->m_SleepAllPending = true;
+
+	S3TxSetPowerStat(-1, -1, S3_TX_SLEEP);
 
 	return 0;
 
@@ -1728,38 +1714,24 @@ int	S3SetSleepAll(bool sleep)
 
 // ---------------------------------------------------------------------------
 
-int	S3SetWakeAll(bool wake)
+int	S3SetWakeAll()
 {
 #ifdef S3_AGENT
-	if (S3Data->m_WakeAll == wake)
-		return 0;
+	//if (S3Data->m_WakeAll == wake)
+	//	return 0;
+	//
+	//S3Data->m_WakeAll = wake;
 	
-	S3Data->m_WakeAll = wake;
-	
-	if (wake)
-	{
-		CString Response = SendSentinel3Message(L"WAKEALL");
-	}
-	else
-	{
-		CString Response = SendSentinel3Message(L"SLEEPALL");
-	}
+	CString Response = SendSentinel3Message(L"WAKEALL");
 
 	return 0;
 #else
-	if (S3Data->m_WakeAll == wake)
+	if (S3Data->m_WakeAllPending)
 		return 0;
+
+	S3Data->m_WakeAllPending = true;
 	
-	S3Data->m_WakeAll = wake;
-	
-	if (wake)
-	{
-		S3TxSetPowerStat(-1, -1, S3_TX_ON);
-	}
-	else
-	{
-		S3TxSetPowerStat(-1, -1, S3_TX_SLEEP);
-	}
+	S3TxSetPowerStat(-1, -1, S3_TX_ON);
 
 	return 0;
 #endif
@@ -1767,16 +1739,16 @@ int	S3SetWakeAll(bool wake)
 
 // ---------------------------------------------------------------------------
 
-bool S3GetSleepAll()
+bool S3GetSleepAllPending()
 {
-	return S3Data->m_SleepAll;
+	return S3Data->m_SleepAllPending;
 }
 
 // ---------------------------------------------------------------------------
 
-bool S3GetWakeAll()
+bool S3GetWakeAllPending()
 {
-	return S3Data->m_WakeAll;
+	return S3Data->m_WakeAllPending;
 }
 
 // ---------------------------------------------------------------------------
@@ -1805,7 +1777,7 @@ bool S3AllAsleep()
 		}
 	}
 
-	S3Data->m_SleepAll = false;
+	S3Data->m_SleepAllPending = false;
 
 	return true;
 }
@@ -1831,7 +1803,7 @@ bool S3AllAwake()
 		}
 	}
 
-	S3Data->m_WakeAll = false;
+	S3Data->m_WakeAllPending = false;
 
 	return true;
 }

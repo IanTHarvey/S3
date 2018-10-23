@@ -231,7 +231,7 @@ int CmdGetSysI(char *Inbuf)
         " %s\037 %s\037 %s\037 %s\037 %s\037 %s\037 %s\037 %s\037 %02d-%02d-%02d\037 %02d:%02d:%02d\037"
 		" %i\037 %s\037 %f\037 %s\037 %s\037 %s\037 %s\037"
         " %s\037 %i\037 %i\037 %i\037 %i\037 %i\037 %i\037 %i\037 %i\037 %f\037 %i\037"
-		" %s\037 %s\037 %s\037 %i\037 %i\037 %i\037 %i\037 %i",
+		" %s\037 %s\037 %s\037 %i\037 %i\037 %i\037 %i\037 %i\037 %i",
         S3Data->m_NodeName,	// 0
         S3Data->m_SN,
         S3Data->m_PN,
@@ -269,8 +269,9 @@ int CmdGetSysI(char *Inbuf)
         S3Data->m_OSUpdateFail,
         S3Data->m_PowerDownPending,
         S3Data->m_PowerDownFailed,
-        S3Data->m_SleepAll,
-		S3Data->m_Locked);			// 35
+        S3Data->m_SleepAllPending,
+		S3Data->m_WakeAllPending,
+		S3Data->m_Locked);			// 36
     return 0;
 }
 

@@ -1736,7 +1736,7 @@ int CmdRESTART()
 
 int CmdSLEEPALL()
 {
-    S3SetSleepAll(true);
+	S3SetSleepAll();
     return 0;
 }
 
@@ -1744,7 +1744,7 @@ int CmdSLEEPALL()
 
 int CmdWAKEALL()
 {
-    S3SetWakeAll(true);
+	S3SetWakeAll();
     return 0;
 }
 

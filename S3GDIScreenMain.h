@@ -79,6 +79,8 @@ class CS3GDIScreenMain : public CStatic
 {
 	DECLARE_DYNAMIC(CS3GDIScreenMain)
 
+	friend CS3Button;
+
 private:
 	CParameterMenu	*m_ParaMenu;
 	CS3NumberPad	*m_NumericPad;

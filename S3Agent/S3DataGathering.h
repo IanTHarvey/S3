@@ -98,7 +98,8 @@ UINT AutoUpdateSentinelDataBundleThread(LPVOID pParam);
 #define POWERDOWNPENDING	32
 #define POWERDOWNFAIL		33
 #define SLEEPALL			34
-#define SYSTEM_LOCKED		35
+#define WAKEALL				35
+#define SYSTEM_LOCKED		36
 
 //Parameter order for S3GETINIT reply
 #define GAIN 0
