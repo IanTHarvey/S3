@@ -831,41 +831,31 @@ void CS3GDIScreenMain::S3DrawGDITxTx(char Rx, char Tx)
 		return;
 	}
 
-	// As sleep state is now partial, Tx and battery comms remain available
-	if (m_TxPowerState < S3_TX_SLEEP)
-	{
-		m_TxInfoPopup->Disable(false);
-		m_TxBattInfoPopup->Disable(false);
-		m_TxTempComp->SetEditable(true);
-	}
+	if (!S3GetRemote())
+		m_TxNodeName->SetEditable(true);
 	else
-	{
-		m_TxInfoPopup->Disable(false);
-		m_TxBattInfoPopup->Disable(false);
-		m_TxTempComp->SetEditable(false);
-	}
+		m_TxNodeName->SetEditable(false);
+
+	if (!S3GetRemote() && S3TxGetBattValidated(Rx, Tx))
+		m_TxPowerMode->SetEditable(true);
+	else
+		m_TxPowerMode->SetEditable(false);
 
 	if (!S3TxGetBattValidated(Rx, Tx))
 	{
 		m_TxInfoPopup->Disable(true);
-		m_TxTempComp->SetEditable(false);
-		m_TxPowerMode->SetEditable(false);
 	}
 	else
 	{
 		m_TxInfoPopup->Disable(false);
-		m_TxTempComp->SetEditable(true);
-		m_TxPowerMode->SetEditable(true);
 	}
 
-	if (S3TxGetTCompMode(Rx, Tx) == S3_TCOMP_GAIN)
-	{
+	if (S3TxGetTCompMode(Rx, Tx) == S3_TCOMP_GAIN && !S3GetRemote() &&
+		S3TxGetBattValidated(Rx, Tx) && m_TxPowerState < S3_TX_SLEEP)
 		m_TxTempComp->SetEditable(true);
-	}
 	else
-	{
 		m_TxTempComp->SetEditable(false);
-	}
+
 
 	SelectObject(m_HDC, m_hPenNone);
 	SelectObject(m_HDC, m_hBrushBG2);
@@ -906,8 +896,6 @@ void CS3GDIScreenMain::S3DrawGDITxTx(char Rx, char Tx)
 		case S3_TX_SLEEP:			str = _T("Sleep"); break;
 		default:					str = _T("Unknown");
 		}
-
-		m_TxPowerMode->SetEditable(true);
 	}
 
 	m_TxPowerMode->SetValue(str);
