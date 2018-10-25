@@ -170,10 +170,6 @@ int S3ReadConfig(FILE *fid, S3Config *src)
 {
 	fread((void *)src, sizeof(S3Config), 1, fid);
 
-	// TODO: OBSOLETE test
-	if (src->m_Gain > S3_MAX_GAIN || src->m_Gain < S3_MIN_GAIN)
-		src->m_Gain = 0;
-
 	return 0;
 }
 

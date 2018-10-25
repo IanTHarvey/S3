@@ -861,15 +861,34 @@ short S3RxGetRFLevel(char Rx, char Tx)
 }
 
 // ---------------------------------------------------------------------------
+// Sort out Rx from Rx+ series
 
 int S3RxSetExtraGainCap(char Rx, const char *FWPartNum)
 {
+	S3RxData *pRx = &S3Data->m_Rx[Rx];
+
 	if (!strcmp(FWPartNum, "82044"))
-		S3Data->m_Rx[Rx].m_ExtraGainCap = 0;
+	{
+		pRx->m_ExtraGainCap = 0;
+	}
 	else // 82060 onwards
 	{
 		S3Data->m_Rx[Rx].m_ExtraGainCap = 15;
 		strcat_s(S3Data->m_Rx[Rx].m_ModelName, S3_MAX_MODEL_ID_LEN, "+");
+	}
+
+	// Limit the stored gains in case Rx of different type inserted
+	for(char Tx = 0; Tx < S3_MAX_TXS; Tx++)
+	{
+		S3TxData *pTx = &pRx->m_Tx[Tx];
+		for(char IP = 0; IP < S3_MAX_IPS; IP++)
+		{
+			if (pTx->m_Input[IP].m_Config.m_Gain < S3_MIN_GAIN + pRx->m_ExtraGainCap)
+				pTx->m_Input[IP].m_Config.m_Gain = S3_MIN_GAIN + pRx->m_ExtraGainCap;
+
+			if (pTx->m_Input[IP].m_Config.m_Gain > S3_MAX_GAIN + pRx->m_ExtraGainCap)
+				pTx->m_Input[IP].m_Config.m_Gain = S3_MAX_GAIN + pRx->m_ExtraGainCap;
+		}
 	}
 
 	return 0;
