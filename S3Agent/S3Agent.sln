@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 10.00
 # Visual Studio 2008
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "S3Agent", "S3Agent.vcproj", "{3CF89CC4-8316-43A3-A5C0-280C74E2B096}"
 EndProject
-Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "Setup", "Setup\Setup.vdproj", "{FA23D5AF-E3DC-48D8-9739-B260F02DF237}"
+Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "S3AgentSetup", "S3AgentSetup\S3AgentSetup.vdproj", "{FA23D5AF-E3DC-48D8-9739-B260F02DF237}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
