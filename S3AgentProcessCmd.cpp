@@ -312,7 +312,7 @@ int CmdGetRXMod(char *Inbuf, int Rx)
 			" %i\037 %i\037 %i\037"								// RxCtrl alarms
             " %i\037 %i\037 %i\037 %i\037 %i\037 %i\037"		// Tx alarms
             " %i\037 %i\037 %i\037 %i\037 %i\037 %s\037"
-            " %i\037 %i\037 %i\037 %i\037 %i\037 %i"
+            " %i\037 %i\037 %i\037 %i\037 %i\037 %i\037"
 			" %i\037",											// Extra gain,
             S3Data->m_Rx[Rx].m_Type,
             S3Data->m_Rx[Rx].m_Detected,
@@ -376,7 +376,7 @@ int CmdGetRXMod(char *Inbuf, int Rx)
             S3Data->m_Rx[Rx].m_RFLevel[4],
             S3Data->m_Rx[Rx].m_RFLevel[5],
 
-			S3Data->m_Rx[Rx].m_ExtraGainCap);
+			S3Data->m_Rx[Rx].m_ExtraGainCap);	// 41
     }
     else
     {
