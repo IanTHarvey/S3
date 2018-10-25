@@ -112,9 +112,9 @@ int S3RxReport(char *Buf, char Rx)
 	int len = strlen(Buf);
 
 	sprintf_s(Buf + len, S3_MAX_GPIB_RET_LEN - len,
-		"\nReceiver Report\n-------------------\nName:\t%s\nType:\tRx%d\n",
+		"\nReceiver Report\n-------------------\nName:\t%s\nType:\t%s\n",
 		rx->m_NodeName,
-		rx->m_Type);
+		rx->m_ModelName);
 
 	len = strlen(Buf);
 
