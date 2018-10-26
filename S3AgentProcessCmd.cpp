@@ -222,17 +222,16 @@ int CmdGetSysI(char *Inbuf)
 {
     CTime CurrentTime = CTime::GetCurrentTime();
     CString str1, str2;
-    //GetDateStr(str1);
-    	str1.Format(_T("%02d-%02d-%02d"), CurrentTime.GetYear(), CurrentTime.GetMonth(), CurrentTime.GetDay());
-    	str2.Format(_T("%02d:%02d:%02d"), CurrentTime.GetHour(), CurrentTime.GetMinute(), CurrentTime.GetSecond());
-    //GetTimeStr(str2);
+
+   	str1.Format(_T("%02d-%02d-%02d"), CurrentTime.GetYear(), CurrentTime.GetMonth(), CurrentTime.GetDay());
+   	str2.Format(_T("%02d:%02d:%02d"), CurrentTime.GetHour(), CurrentTime.GetMinute(), CurrentTime.GetSecond());
 
     sprintf_s(Inbuf, S3_MAX_GPIB_RET_LEN,
         " %s\037 %s\037 %s\037 %s\037 %s\037 %s\037 %s\037 %s\037 %02d-%02d-%02d\037 %02d:%02d:%02d\037"
 		" %i\037 %s\037 %f\037 %s\037 %s\037 %s\037 %s\037"
         " %s\037 %i\037 %i\037 %i\037 %i\037 %i\037 %i\037 %i\037 %i\037 %f\037 %i\037"
 		" %s\037 %s\037 %s\037 %i\037 %i\037 %i\037 %i\037 %i\037 %i",
-        S3Data->m_NodeName,	// 0
+        S3Data->m_NodeName,			// 0
         S3Data->m_SN,
         S3Data->m_PN,
         S3Data->m_HW,
@@ -260,7 +259,7 @@ int CmdGetSysI(char *Inbuf)
         S3Data->m_AGC,
         S3Data->m_TxStartState,
         S3Data->m_TxSelfTest,
-        S3Data->m_SWVersionD,
+        0.0,						// Obsolete S3Data->m_SWVersionD,
 		S3Data->m_Terminator,		// 27
 
         S3Data->m_ImageID,
@@ -486,6 +485,15 @@ int CmdGetInput(char *Inbuf, int Rx, int Tx, int IP)
     //If it is a valid address
     if (!S3IPInvalidQ(Rx, Tx, IP))
 	{
+		char TestTone;
+
+		if (S3Data->m_Rx[Rx].m_Tx[Tx].m_Input[IP].m_TestTonePending)
+			TestTone = S3_PENDING;
+		else if (S3Data->m_Rx[Rx].m_Tx[Tx].m_Input[IP].m_TestToneEnable)
+			TestTone = 1;
+		else
+			TestTone = 0;
+
         sprintf_s(Inbuf, S3_MAX_GPIB_RET_LEN,
             " %s\037 %f\037 %f\037 %i\037"
             " %i\037 %f\037 %i\037 %i\037 %i\037 %i\037"
@@ -505,7 +513,7 @@ int CmdGetInput(char *Inbuf, int Rx, int Tx, int IP)
 
             S3Data->m_Rx[Rx].m_Tx[Tx].m_Input[IP].m_RFLevel,
             S3Data->m_Rx[Rx].m_Tx[Tx].m_Input[IP].m_RFGain,
-            S3Data->m_Rx[Rx].m_Tx[Tx].m_Input[IP].m_TestToneEnable);
+            TestTone);
     }
     else
     {

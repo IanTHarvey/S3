@@ -1666,7 +1666,7 @@ int S3TxGetNIP(char Rx, char Tx)
 
 // ----------------------------------------------------------------------------
 
-int S3TxSetTestToneEnableAll(char Rx, char Tx, char Enable)
+int S3TxSetTestToneEnableAll(char Rx, char Tx, bool Enable)
 {
 	char IP;
 

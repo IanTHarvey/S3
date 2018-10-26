@@ -174,10 +174,6 @@ int S3DataModelInit(pS3DataModel dm, bool DemoMode)
 {
 	memset(dm, 0, sizeof(S3DataModel));
 
-	// TODO: Need this?
-	sprintf_s(dm->m_SW, S3_MAX_SW_VER_LEN, "%f", S3_CONTROLLER_VERSION);
-	
-	dm->m_SWVersionD = S3_CONTROLLER_VERSION;
 	dm->m_FileVersion = S3_FILE_VERSION;
 
 	dm->m_ContTComp = S3_TCOMP_CONT; // Continuous by default
@@ -1403,7 +1399,7 @@ wchar_t *S3GetUnitStrings(unsigned char i)
 
 // ----------------------------------------------------------------------------
 
-int S3TestToneAll(unsigned char On)
+int S3TestToneAll(bool Enable)
 {
 	// Initialise
 	for (char Rx = 0; Rx < S3_MAX_RXS; Rx++)
@@ -1421,7 +1417,7 @@ int S3TestToneAll(unsigned char On)
 						if (S3IPExistQ(Rx, Tx, IP))
 						{
 							// S3CalSignal(Rx, Tx, IP, On != 0);
-							S3IPSetTestToneEnable(Rx, Tx, IP, On);
+							S3IPSetTestToneEnable(Rx, Tx, IP, Enable);
 						}
 					}
 				}

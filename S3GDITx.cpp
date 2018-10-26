@@ -58,8 +58,8 @@ void CS3GDIScreenMain::S3DrawGDITxSel(char Rx, char Tx,
 							SelectObject(m_HDC, m_hPenAlarm);
 					}
 
-					if (S3IPGetTestToneEnable(Rx, Tx, IP) == 0 || 
-						S3IPGetTestToneEnable(Rx, Tx, IP) == 0 + S3_PENDING)
+					if (!S3IPGetTestToneEnable(Rx, Tx, IP) || 
+						S3IPGetTestTonePending(Rx, Tx, IP))
 					{	
 						S3DrawGDIIP(m_hbmpTxSelIPAct, m_hbmpTxSelIPActAlrm, Rx, Tx, IP,
 							xref - (int)xrad, yref + (int)yrad, m_radTxSelIPAct);
@@ -83,8 +83,8 @@ void CS3GDIScreenMain::S3DrawGDITxSel(char Rx, char Tx,
 							SelectObject(m_HDC, m_hPenAlarm);
 					}
 
-					if (S3IPGetTestToneEnable(Rx, Tx, IP) == 0 || 
-						S3IPGetTestToneEnable(Rx, Tx, IP) == 0 + S3_PENDING)
+					if (!S3IPGetTestToneEnable(Rx, Tx, IP) || 
+						S3IPGetTestTonePending(Rx, Tx, IP))
 					{
 						S3DrawGDIIP(m_hbmpTxSelIPInact, m_hbmpTxSelIPInactAlrm, Rx, Tx, IP,
 							xref - (int)xrad, yref + (int)yrad, m_radTxSelIP);
@@ -107,8 +107,8 @@ void CS3GDIScreenMain::S3DrawGDITxSel(char Rx, char Tx,
 					SelectObject(m_HDC, m_hPenAlarm);
 			}
 			
-			if (S3IPGetTestToneEnable(Rx, Tx, 0) == 0 || 
-						S3IPGetTestToneEnable(Rx, Tx, 0) == 0 + S3_PENDING)
+			if (!S3IPGetTestToneEnable(Rx, Tx, 0) || 
+						S3IPGetTestTonePending(Rx, Tx, 0))
 			{
 				S3DrawGDIIP(m_hbmpTxSelIPAct, m_hbmpTxSelIPActAlrm, Rx, Tx, 0,
 					xref, yref + (int)(m_radRatioPosActIP * m_radTxSel), m_radTxSelIPAct);
@@ -297,8 +297,8 @@ void CS3GDIScreenMain::S3DrawGDITxUnsel(char Rx, char Tx,
 					// Use primitives to draw alarmed inputs for now. All bitmapped
 					// eventually
 					
-					if (S3IPGetTestToneEnable(Rx, Tx, IP) == 0 || 
-						S3IPGetTestToneEnable(Rx, Tx, IP) == 0 + S3_PENDING)
+					if (!S3IPGetTestToneEnable(Rx, Tx, IP) || 
+						S3IPGetTestTonePending(Rx, Tx, IP))
 					{
 						S3DrawGDIIP(m_hbmpTxUnselIPAct, m_hbmpTxUnselIPActAlrm, Rx, Tx, IP,
 							xref - (int)xrad, yref + (int)yrad, m_radTxUnselIPAct);
@@ -333,8 +333,8 @@ void CS3GDIScreenMain::S3DrawGDITxUnsel(char Rx, char Tx,
 							SelectObject(m_HDC, m_hPenAlarm);
 					}
 
-					if (S3IPGetTestToneEnable(Rx, Tx, IP) == 0 || 
-						S3IPGetTestToneEnable(Rx, Tx, IP) == 0 + S3_PENDING)
+					if (!S3IPGetTestToneEnable(Rx, Tx, IP) || 
+						S3IPGetTestTonePending(Rx, Tx, IP))
 					{
 						S3DrawGDIIP(m_hbmpTxUnselIPInact, m_hbmpTxUnselIPInactAlrm, Rx, Tx, IP,
 							xref - (int)xrad, yref + (int)yrad, m_radTxUnselIP);
@@ -360,8 +360,8 @@ void CS3GDIScreenMain::S3DrawGDITxUnsel(char Rx, char Tx,
 					SelectObject(m_HDC, m_hPenAlarm);
 			}
 
-			if (S3IPGetTestToneEnable(Rx, Tx, 0) == 0 || 
-						S3IPGetTestToneEnable(Rx, Tx, 0) == 0 + S3_PENDING)
+			if (!S3IPGetTestToneEnable(Rx, Tx, 0) || 
+						S3IPGetTestTonePending(Rx, Tx, 0))
 			{
 				S3DrawGDIIP(m_hbmpTxUnselIPAct, m_hbmpTxUnselIPActAlrm, Rx, Tx, 0, 
 					xref, yref + (int)(m_radRatioPosActIP * m_radTxUnsel), m_radTxUnselIPAct);

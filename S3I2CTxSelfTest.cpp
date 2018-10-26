@@ -77,7 +77,7 @@ int S3I2CTxSelfTest(short *v1, short *v2, char Rx, char Tx)
 	// Double calls to set and ack to update display
 	S3TxSetActiveIP(Rx, Tx, IP);
 	
-	S3IPSetTestToneEnable(Rx, Tx, IP, 1);
+	S3IPSetTestToneEnable(Rx, Tx, IP, true);
 
 	// ------------------------------------------------------------------------
 	//  Path 1

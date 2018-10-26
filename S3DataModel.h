@@ -527,7 +527,8 @@ typedef struct sS3IPData
 	InputZ			m_PrevZ;	// Reset to this previous value on disabling
 								// passive integrator
 
-	char			m_TestToneEnable;
+	bool			m_TestToneEnable;
+	bool			m_TestTonePending;
 
 	unsigned char	m_Alarms;
 	char			m_Para;		// Used to mark selected parameter on GDI
@@ -810,7 +811,6 @@ typedef struct sS3DataModel
 	char			m_ModelId[S3_MAX_MODEL_ID_LEN];		// PPM model id
 
 	double			m_FileVersion;
-	double			m_SWVersionD;
 
 	char			m_ReportFileName[S3_MAX_FILENAME_LEN];
 	char			m_TestName[S3_MAX_FILENAME_LEN]; // For display only
@@ -1175,9 +1175,11 @@ unsigned char	S3IPGetWindowTrack(	char Rx, char Tx, char IP);
 InputZ			S3IPGetPrevZ(		char Rx, char Tx, char IP);
 int				S3IPSetPrevZ(		char Rx, char Tx, char IP, InputZ z);
 
-int		S3IPSetTestToneEnable(		char Rx, char Tx, char IP, char Enable);
-int		S3TxSetTestToneEnableAll(	char Rx, char Tx, char Enable);
-char	S3IPGetTestToneEnable(		char Rx, char Tx, char IP);
+int		S3IPSetTestToneEnable(		char Rx, char Tx, char IP, bool Enable);
+int		S3TxSetTestToneEnableAll(	char Rx, char Tx, bool Enable);
+bool	S3IPGetTestToneEnable(		char Rx, char Tx, char IP);
+bool	S3IPGetTestTonePending(		char Rx, char Tx, char IP);
+void	S3IPSetTestTonePending(		char Rx, char Tx, char IP, bool pending);
 
 double	S3CalcP1dB(int gain);
 double	S3CalcMaxIP(int gain);
@@ -1233,7 +1235,7 @@ int S3SetParaValue(		char Rx, char Tx, char IP, char Para, char MenuItem);
 
 int S3ReportToFile(char *Buf);
 
-int S3TestToneAll(	unsigned char On);
+int S3TestToneAll(	bool Enable);
 int S3TxPowerAll(	unsigned char On);
 
 int S3GetSelPathStr(	char **str);

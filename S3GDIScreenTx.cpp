@@ -1397,11 +1397,9 @@ void CS3GDIScreenMain::S3DrawGDITxIP(char Rx, char Tx, char IP,
 
 	// ------------------------------------------------------------------------
 	
-	char ToneEnabled = S3IPGetTestToneEnable(Rx, Tx, IP);
-
-	if (ToneEnabled >= S3_PENDING)
+	if (S3IPGetTestTonePending(Rx, Tx, IP))
 		str = "Wait";
-	else if (ToneEnabled == 1)
+	else if (S3IPGetTestToneEnable(Rx, Tx, IP))
 		str = "On";
 	else
 		str = "Off";

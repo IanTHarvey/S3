@@ -274,10 +274,7 @@ int S3I2CGetTxWakeUp(char Rx, char Tx)
 	// S3TxSetActiveIP(Rx, Tx, IP + S3_PENDING);
 	S3IPSetGainSent(Rx, Tx, IP, SCHAR_MIN); // Force update
 
-	char ToneEnabled = S3IPGetTestToneEnable(Rx, Tx, IP);
-	
-	if (ToneEnabled)
-		S3IPSetTestToneEnable(Rx, Tx, IP, ToneEnabled + S3_PENDING);
+	S3IPSetTestTonePending(Rx, Tx, IP, true);
 
 	S3TxSetTCompMode(Rx, Tx, S3TxGetTCompMode(Rx, Tx) + S3_PENDING);
 
@@ -1292,11 +1289,8 @@ int S3I2CTxSetTestTone(char Rx, char Tx, char IP)
 
 	int err = 0;
 #ifdef TRIZEPS
-	char ToneEnabled = S3IPGetTestToneEnable(Rx, Tx, IP);
-
-	if (ToneEnabled >= S3_PENDING) // Update pending?
-		ToneEnabled -= S3_PENDING;
-	else
+	
+	if (!S3IPGetTestTonePending(Rx, Tx, IP))
 		return 0;
 		
 	// Switching of routing to RF1 input or RF8 board done by hardware mod
@@ -1307,13 +1301,12 @@ int S3I2CTxSetTestTone(char Rx, char Tx, char IP)
 	}
 	else
 	{
-		err = select_RF_input(IP, ToneEnabled == 1);
+		err = select_RF_input(IP, S3IPGetTestToneEnable(Rx, Tx, IP));
 	}
 
-	err = S3I2CSwitchTestTone(ToneEnabled == 1);
+	err = S3I2CSwitchTestTone(S3IPGetTestToneEnable(Rx, Tx, IP));
 
-	if (!err)
-		S3IPSetTestToneEnable(Rx, Tx, IP, ToneEnabled); // Reset to ack
+	S3IPSetTestTonePending(Rx, Tx, IP, false); // Reset to ack
 
 #endif			
 	return err;
@@ -1329,11 +1322,7 @@ int S3I2CTxSwitchInput(char Rx, char Tx)
 
 	char NewIP = S3TxGetActiveIP(Rx, Tx);
 
-	char ToneEnabled = S3IPGetTestToneEnable(Rx, Tx, NewIP);
-	
-	// If not already pending
-	if (ToneEnabled < S3_PENDING)
-		S3IPSetTestToneEnable(Rx, Tx, NewIP, ToneEnabled + S3_PENDING);
+	S3IPSetTestTonePending(Rx, Tx, NewIP, true);
 
 	if (S3TxGetType(Rx, Tx) != S3_Tx8)
 	{
@@ -1341,7 +1330,7 @@ int S3I2CTxSwitchInput(char Rx, char Tx)
 	else
 	{
 		err = select_RF_input((unsigned char)S3Tx8IPMap[NewIP],
-			ToneEnabled == 1);
+			S3IPGetTestToneEnable(Rx, Tx, NewIP));
 
 		if (err)
 			return err;

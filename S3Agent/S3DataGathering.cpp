@@ -548,10 +548,9 @@ void DecodeSystemDetails(CString Response)
                 S3Data->m_TxSelfTest = (temp != 0);
             }
             break;
-        case SWVERSIOND:
+        case SWVERSIOND: // Obsolete
             {
                 double temp = _tstof(Line);
-                S3Data->m_SWVersionD = temp;
             }
             break;
 		case TERMINATOR:
@@ -1569,7 +1568,17 @@ void DecodeIPModuleDetails(CString Response, int Rx, int Tx, int Ip)
         case IPTESTTONE:
             {
                 char temp = _ttoi(Line);
-                S3Data->m_Rx[Rx].m_Tx[Tx].m_Input[Ip].m_TestToneEnable = temp;
+                if (temp != S3_PENDING)
+				{
+					S3Data->m_Rx[Rx].m_Tx[Tx].m_Input[Ip].m_TestToneEnable = temp == 1;
+					S3Data->m_Rx[Rx].m_Tx[Tx].m_Input[Ip].m_TestTonePending = false;
+				}
+				else
+				{
+					S3Data->m_Rx[Rx].m_Tx[Tx].m_Input[Ip].m_TestToneEnable = false;
+					S3Data->m_Rx[Rx].m_Tx[Tx].m_Input[Ip].m_TestTonePending = true;
+				}
+
             }
             break;
             

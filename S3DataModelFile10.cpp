@@ -585,7 +585,7 @@ int S3IPSave(FILE *fid, pS3IPData IP)
 {
 	if (LATER_VERSION(S3_FILE_VERSION, 1.4))
 	{
-		fwrite(&(IP->m_TestToneEnable), sizeof(char), 1, fid);
+		fwrite(&(IP->m_TestToneEnable), sizeof(bool), 1, fid);
 	}
 
 	return 0;
@@ -597,10 +597,10 @@ int S3IPRead(FILE *fid, pS3IPData IP)
 {
 	if (LATER_VERSION(readModel.m_FileVersion, 1.4))
 	{
-		fread(&(IP->m_TestToneEnable), sizeof(char), 1, fid);
+		fread(&(IP->m_TestToneEnable), sizeof(bool), 1, fid);
 
-		if (IP->m_TestToneEnable < 0 || IP->m_TestToneEnable > 1)
-			IP->m_TestToneEnable = 0;
+		//if (IP->m_TestToneEnable < 0 || IP->m_TestToneEnable > 1)
+		//	IP->m_TestToneEnable = 0;
 	}
 
 	// TODO: += S3_PENDING to schedule for update?

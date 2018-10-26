@@ -44,6 +44,9 @@ int S3IPInit(pS3IPData node)
 	node->m_RFLevel = SHRT_MIN;
 	node->m_RFGain = SHRT_MIN;
 
+	node->m_TestToneEnable = false;
+	node->m_TestTonePending = false;
+
 	return 0;
 }
 
@@ -166,12 +169,12 @@ int S3SetParaValue(	char Rx, char Tx, char IP, char Para, char MenuItem)
 		case S3_TEST_TONE:
 			if (MenuItem == 0)
 			{
-				S3IPSetTestToneEnable(Rx, Tx, IP, 0);
+				S3IPSetTestToneEnable(Rx, Tx, IP, false);
 				break;
 			}
 			else if (MenuItem == 1)
 			{
-				S3IPSetTestToneEnable(Rx, Tx, IP, 1);
+				S3IPSetTestToneEnable(Rx, Tx, IP, true);
 				break;
 			}
 			break;
@@ -1088,7 +1091,7 @@ int S3IPWindowTrack(char Rx, char Tx, char IP, unsigned char On)
 
 // ----------------------------------------------------------------------------
 
-int S3IPSetTestToneEnable(char Rx, char Tx, char IP, char Enable)
+int S3IPSetTestToneEnable(char Rx, char Tx, char IP, bool Enable)
 {
 #ifdef S3_AGENT
 	CString Command, Args, Response, InZ;
@@ -1107,41 +1110,37 @@ int S3IPSetTestToneEnable(char Rx, char Tx, char IP, char Enable)
 
     Response = SendSentinel3Message(Command);
 
-	return 0;
 #else
-	if (S3IPGetAlarms(Rx, Tx, IP) & S3_IP_OVERDRIVE)
-	 	return 2;
-
-	if (Enable >= 2 * S3_PENDING) // ASSERT:
-		Enable -= S3_PENDING;
-	
-	if (Enable >= S3_PENDING) // REQ
+	// if (S3Data->m_Rx[Rx].m_Tx[Tx].m_Input[IP].m_TestToneEnable != Enable) // Req
 	{
-		S3Data->m_Rx[Rx].m_Tx[Tx].m_Input[IP].m_TestToneEnable = Enable;
-		return 0;
-	}
-	
-	if (S3Data->m_Rx[Rx].m_Tx[Tx].m_Input[IP].m_TestToneEnable >= S3_PENDING) // ACK
-	{
+		S3Data->m_Rx[Rx].m_Tx[Tx].m_Input[IP].m_TestTonePending = true;
 		S3Data->m_Rx[Rx].m_Tx[Tx].m_Input[IP].m_TestToneEnable = Enable;
 		return 0;
 	}
 
-	if (S3Data->m_Rx[Rx].m_Tx[Tx].m_Input[IP].m_TestToneEnable != Enable)
-	{
-		S3Data->m_Rx[Rx].m_Tx[Tx].m_Input[IP].m_TestToneEnable = Enable + S3_PENDING;
-		return 0;
-	}
+#endif
+
+	S3Data->m_Rx[Rx].m_Tx[Tx].m_Input[IP].m_TestTonePending = true;
+	S3Data->m_Rx[Rx].m_Tx[Tx].m_Input[IP].m_TestToneEnable = Enable;
 
 	return 0;
-#endif
 }
 
 // ----------------------------------------------------------------------------
 
-char S3IPGetTestToneEnable(char Rx, char Tx, char IP)
+bool S3IPGetTestToneEnable(char Rx, char Tx, char IP)
 {
 	return S3Data->m_Rx[Rx].m_Tx[Tx].m_Input[IP].m_TestToneEnable;
+}
+
+bool S3IPGetTestTonePending(char Rx, char Tx, char IP)
+{
+	return S3Data->m_Rx[Rx].m_Tx[Tx].m_Input[IP].m_TestTonePending;
+}
+
+void S3IPSetTestTonePending(char Rx, char Tx, char IP, bool pending)
+{
+	S3Data->m_Rx[Rx].m_Tx[Tx].m_Input[IP].m_TestTonePending = pending;
 }
 
 // ----------------------------------------------------------------------------

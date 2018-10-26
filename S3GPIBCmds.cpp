@@ -102,12 +102,12 @@ int CmdIPTESTSIG()
 
 		if (!STRNCMP(GPIBCmdArgs[1], "ON", 2))
 		{
-			if (S3IPSetTestToneEnable(GPIBRx, GPIBTx, GPIBIP, 1) == 2)
+			if (S3IPSetTestToneEnable(GPIBRx, GPIBTx, GPIBIP, true) == 2)
 				return S3_GPIB_TX_PROT_MODE;
 		}
 		else if (!STRNCMP(GPIBCmdArgs[1], "OFF", 3))
 		{
-			if (S3IPSetTestToneEnable(GPIBRx, GPIBTx, GPIBIP, 0) == 2)
+			if (S3IPSetTestToneEnable(GPIBRx, GPIBTx, GPIBIP, false) == 2)
 				return S3_GPIB_TX_PROT_MODE;
 		}
 		else
@@ -133,12 +133,12 @@ int CmdIPTESTSIG()
 
 		if (!STRCMP(GPIBCmdArgs[4], "ON"))
 		{
-			if (S3IPSetTestToneEnable(Rx, Tx, IP, 1) == 2)
+			if (S3IPSetTestToneEnable(Rx, Tx, IP, true) == 2)
 				return S3_GPIB_TX_PROT_MODE;
 		}
 		else if (!STRCMP(GPIBCmdArgs[4], "OFF"))
 		{
-			if (S3IPSetTestToneEnable(Rx, Tx, IP, 0) == 2)
+			if (S3IPSetTestToneEnable(Rx, Tx, IP, false) == 2)
 				return S3_GPIB_TX_PROT_MODE;
 		}
 		else
@@ -447,9 +447,9 @@ int CmdCAL()
 			return S3_GPIB_INVALID_ADDRESS;
 
 		if (!STRCMP(GPIBCmdArgs[1], "ON"))
-			S3IPSetTestToneEnable(GPIBRx, GPIBTx, GPIBIP, 1);
+			S3IPSetTestToneEnable(GPIBRx, GPIBTx, GPIBIP, true);
 		else if (!STRCMP(GPIBCmdArgs[1], "OFF"))
-			S3IPSetTestToneEnable(GPIBRx, GPIBTx, GPIBIP, 0);
+			S3IPSetTestToneEnable(GPIBRx, GPIBTx, GPIBIP, false);
 		else
 			return S3_GPIB_INVALID_PARAMETER;
 	}
@@ -472,9 +472,9 @@ int CmdCAL()
 			return res;
 
 		if (!STRCMP(GPIBCmdArgs[4], "ON"))
-			S3IPSetTestToneEnable(Rx, Tx, IP, 1);
+			S3IPSetTestToneEnable(Rx, Tx, IP, true);
 		else if (!STRCMP(GPIBCmdArgs[4], "OFF"))
-			S3IPSetTestToneEnable(Rx, Tx, IP, 0);
+			S3IPSetTestToneEnable(Rx, Tx, IP, false);
 		else
 			return S3_GPIB_INVALID_PARAMETER;
 	}
@@ -1908,6 +1908,18 @@ int CmdTXSELFTEST()
 		S3SetTxSelfTest(false);
 	else
 		return S3_GPIB_INVALID_MODE;
+	return 0;
+}
+
+// ----------------------------------------------------------------------------
+
+int CmdVERSIONSW()
+{
+	if (GPIBNArgs != 1)
+		return S3_GPIB_ERR_NUMBER_PARAS;
+
+	sprintf_s(GPIBRetBuf, S3_MAX_GPIB_RET_LEN, "OK: %s", S3Data->m_SW);
+
 	return 0;
 }
 
