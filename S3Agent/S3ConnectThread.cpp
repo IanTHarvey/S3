@@ -4,6 +4,7 @@
 
 #include "stdafx.h"
 #include "S3ConnectThread.h"
+#include "../S3SystemDetails.h"
 
 
 UINT AttemptConnectToSentinel3(LPVOID pParam)
@@ -13,6 +14,7 @@ UINT AttemptConnectToSentinel3(LPVOID pParam)
 
     int connectionresult = COMMPASS;
     int modelidx;
+	bool	Incompatible = true;
     CString Response;
     CString startupQuery = L"REPORT SYS";
     CString responsecode = L"Sentinel 3";
@@ -70,6 +72,8 @@ UINT AttemptConnectToSentinel3(LPVOID pParam)
             return 10;
     }
 
+	CString versionsw;
+
     if (connectionresult == COMMPASS)
     {
         //Request ID from the Sentinel 3
@@ -99,6 +103,16 @@ UINT AttemptConnectToSentinel3(LPVOID pParam)
         {
             connectionresult = CONNPASS;
         }
+
+		int versionidx = Response.Find(L"SW v:\t");
+
+		if (versionidx != -1)
+		{
+			versionsw = Response.Mid(versionidx + 6, 8);
+
+			if (versionsw == CString(S3_SYS_SW))
+				Incompatible = false;
+		}
     }
 
     if (connectionresult == COMMPASS)
@@ -123,6 +137,20 @@ UINT AttemptConnectToSentinel3(LPVOID pParam)
         Sentinel3.isConnected = true;
         pObject->m_RemoteLocalCheck.EnableWindow(true);
 
+		if (Incompatible)
+		{
+			// Warning only
+			CString ErrorString;
+			
+			ErrorString = "Sentinel 3 Remote Agent and Controller have "
+					"different versions (";
+			ErrorString += CString(S3_SYS_SW);
+			ErrorString += " vs ";
+			ErrorString += versionsw;
+			ErrorString += "). It is recommended to install the latest Remote Agent ";
+			ErrorString += "and Sentinel 3 updates as incompatibilities may cause undesired behaviour.";
+            AfxMessageBox(ErrorString);
+		}
     }
     else
     {

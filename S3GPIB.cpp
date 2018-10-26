@@ -350,6 +350,12 @@ int S3ProcessGPIBCommand(const char *cmd)
 		else
 			err = S3_GPIB_CMD_UNRECOGNISED;
 	}
+	else if (Initial == 'V')
+	{
+		if		(!STRCMP(Cmd,	"VERSIONSW"))		err = CmdVERSIONSW();
+		else
+			err = S3_GPIB_CMD_UNRECOGNISED;
+	}
 	else if (Initial == 'W')
 	{
 		if		(!STRCMP(Cmd,	"WINTRACK"))		err = CmdWINTRACK();
