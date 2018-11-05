@@ -5,6 +5,9 @@
 #include "afxwin.h"
 #include "S3Comms.h"
 #include "defines.h"
+
+char LastTerm;
+
 extern void ReadFromSerialPort();
 
 extern int S3TimerInit();
@@ -493,9 +496,15 @@ int SendMessageOpenSocketSC3(const char *TxBuf)
     {
 		// If already terminated by S3, replace with NULL terminator
         if (RxBuf[iResult - 1] == '\n' || RxBuf[iResult - 1] == '\0')
+		{
+			LastTerm = RxBuf[iResult - 1];
 			RxBuf[iResult - 1] = '\0';
+		}
 		else
+		{
+			LastTerm = '-';
 			RxBuf[iResult] = '\0';
+		}
 
 		SaveValidIPAddr();
     }

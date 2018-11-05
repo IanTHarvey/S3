@@ -7,6 +7,8 @@
 #include "S3AgentDlg.h"
 #include "S3Comms.h"
 
+extern char LastTerm;
+
 // ----------------------------------------------------------------------------
 // Script handling thread
 // Disables the Connect/Disconnect button, and the manual command button during script execution.
@@ -51,6 +53,8 @@ UINT ScriptProcessThread(LPVOID pParam)
     char line[256];
     size_t len;
 
+	bool ShowTerm = false;
+
     CString MsgResponse;
 
     // Run each line of the script individually
@@ -81,6 +85,14 @@ UINT ScriptProcessThread(LPVOID pParam)
                     line_no = 0;
                     rewind(fid);
                 }
+				else if ((Line.Mid(0, 15).CompareNoCase(L"$showterminator") == 0))
+                {
+					ShowTerm = true;
+				}
+				else if ((Line.Mid(0, 15).CompareNoCase(L"$hideterminator") == 0))
+                {
+					ShowTerm = false;
+				}
                 else if ((Line.Mid(0, 6).CompareNoCase(L"$pause") == 0))
                 {
                     CString msg;
@@ -95,7 +107,7 @@ UINT ScriptProcessThread(LPVOID pParam)
                         msg = line + 6;
 
                         char *pEnd;
-                        int t = (short)strtol(line + 6, &pEnd, 10);
+                        int t = (int)strtol(line + 6, &pEnd, 10);
 
                         if (*pEnd != '\0')
                             AfxMessageBox(msg);
@@ -120,6 +132,18 @@ UINT ScriptProcessThread(LPVOID pParam)
                 RespStr.Append(CMDMsg);
                 RespStr.Append(L"\t");
                 RespStr.Append(MsgResponse);
+
+				if (ShowTerm)
+				{
+					CString tmp;
+
+					if (LastTerm != '-')
+						tmp.Format(_T(" (\\%02x)"), (int)LastTerm);
+					else
+						tmp = _T(" (-)");
+					RespStr.Append(tmp);
+				}
+
 				RespStr.Append(L"\r\n");
 
                 int nLength = pObject->m_CommandEdit.GetWindowTextLength();
