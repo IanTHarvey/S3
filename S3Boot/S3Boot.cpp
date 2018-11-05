@@ -172,7 +172,7 @@ int _tmain(int argc, _TCHAR* argv[])
 			}
 		}
 		else
-			fprintf(logfid, "OS update file not found.");
+			fprintf(logfid, "OS update file not found.\n");
 	}
 
 	if (ret_err)
