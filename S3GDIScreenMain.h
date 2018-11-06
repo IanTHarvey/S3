@@ -189,10 +189,12 @@ private:
 		// m_RectSysRestart, m_RectAppClose;
 
 	// OS update screen
-	CRect	m_RectSWUpdateScreen, m_RectSWUpdateInstr, m_RectYes, m_RectNo;
+	CRect	m_RectSWUpdateScreen, m_RectSWUpdateInstr, 
+			m_RectSWUpdateYes, m_RectSWUpdateNo;
 
 	// App update screen
-	CRect	m_RectAppUpdateScreen, m_RectAppUpdateInstr;
+	CRect	m_RectAppUpdateScreen, m_RectAppUpdateInstr,
+			m_RectAppUpdateYes, m_RectAppUpdateNo;
 
 	// Log copy screen
 	CRect	m_RectLogCopyScreen, m_RectLogCopyInstr,

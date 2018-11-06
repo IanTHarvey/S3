@@ -3,13 +3,20 @@
 
 #include "stdafx.h"
 
+#include "S3SystemDetails.h"
 #include "S3DataModel.h"
+#include "S3Update.h"
+
+extern S3DataModel *S3Data;
 
 #ifdef S3_AGENT
 #include "S3Agent/S3AgentDlg.h"
 #else
 #include "S3ControllerDlg.h"
 #endif
+
+wchar_t	spinner[5] = {_T("|/-\\")};
+char	spincnt = 0;
 
 // ----------------------------------------------------------------------------
 
@@ -22,25 +29,25 @@ void CS3GDIScreenMain::S3InitGDISWUpdateScreen(void)
 	m_RectSWUpdateInstr.left += 40;
 	m_RectSWUpdateInstr.top = m_RectSWUpdateScreen.top;
 	m_RectSWUpdateInstr.right -= 40;
-	m_RectSWUpdateInstr.bottom = m_RectSWUpdateInstr.top + 120;
+	m_RectSWUpdateInstr.bottom = m_RectSWUpdateInstr.top + 240;
 
-	m_RectYes.left = m_RectSWUpdateScreen.left;
-	m_RectYes.top = m_RectSWUpdateInstr.bottom;
-	m_RectYes.right = m_RectYes.left + 150;
-	m_RectYes.bottom = m_RectYes.top + 50;
+	m_RectSWUpdateYes.left = m_RectSWUpdateScreen.left;
+	m_RectSWUpdateYes.top = m_RectSWUpdateInstr.bottom;
+	m_RectSWUpdateYes.right = m_RectSWUpdateYes.left + 150;
+	m_RectSWUpdateYes.bottom = m_RectSWUpdateYes.top + 50;
 
-	m_RectNo = m_RectYes;
-	m_RectNo.left = m_RectYes.right;
-	m_RectNo.right = m_RectNo.left + 150;
+	m_RectSWUpdateNo = m_RectSWUpdateYes;
+	m_RectSWUpdateNo.left = m_RectSWUpdateYes.right;
+	m_RectSWUpdateNo.right = m_RectSWUpdateNo.left + 150;
 
 	// Distribute horizontally
-	m_RectYes.MoveToXY(
-		(m_RectScreen.Width() / 2 - m_RectYes.Width()) / 2,
-		m_RectYes.top + 50);
+	m_RectSWUpdateYes.MoveToXY(
+		(m_RectScreen.Width() / 2 - m_RectSWUpdateYes.Width()) / 2,
+		m_RectSWUpdateYes.top + 50);
 
-	m_RectNo.MoveToXY(
-		1 * m_RectScreen.Width() / 2 + (m_RectScreen.Width() / 2 - m_RectNo.Width()) / 2,
-		m_RectNo.top + 50);
+	m_RectSWUpdateNo.MoveToXY(
+		1 * m_RectScreen.Width() / 2 + (m_RectScreen.Width() / 2 - m_RectSWUpdateNo.Width()) / 2,
+		m_RectSWUpdateNo.top + 50);
 }
 
 // ----------------------------------------------------------------------------
@@ -66,7 +73,7 @@ const wchar_t SWUpdateProcessFail[] = {
 
 // Layout 2
 const wchar_t SWUpdateDoUpdate[] = {
-	_T("Sentinel 3 will update and restart, configuration data will be retained.")
+	_T("Sentinel 3 will update and restart, configuration data will be retained. ")
 	_T("Ensure that power is not interrupted during the update.")};
 
 // Layout 3
@@ -104,16 +111,15 @@ void CS3GDIScreenMain::S3DrawGDISWUpdateScreen()
 
 		SetTextColor(m_HDC, m_crWhite);
 		SelectObject(m_HDC, m_hBrushSleep);
-		// SelectObject(m_HDC, m_hFontL);
 	
-		S3BLT(m_hbmpBlueButton, m_RectYes.left, m_RectYes.top, 150, 50);
+		S3BLT(m_hbmpBlueButton, m_RectSWUpdateYes.left, m_RectSWUpdateYes.top, 150, 50);
 		
-		DrawText(m_HDC, _T("Update"), -1, &m_RectYes,
+		DrawText(m_HDC, _T("Update"), -1, &m_RectSWUpdateYes,
 			S3_BTN_CENTRE);
 
-		S3BLT(m_hbmpBlueButton, m_RectNo.left, m_RectNo.top, 150, 50);
+		S3BLT(m_hbmpBlueButton, m_RectSWUpdateNo.left, m_RectSWUpdateNo.top, 150, 50);
 		
-		DrawText(m_HDC, _T("Cancel"), -1, &m_RectNo,
+		DrawText(m_HDC, _T("Cancel"), -1, &m_RectSWUpdateNo,
 			S3_BTN_CENTRE);
 	}
 	else if (m_Layout == 1)
@@ -125,7 +131,13 @@ void CS3GDIScreenMain::S3DrawGDISWUpdateScreen()
 		wchar_t tmp[S3GDI_MAX_SCREEN_MSG];
 
 		// Give a reason
-		if (m_UpdateMsg == 1)
+		if (S3Data->m_ImgUpdate->GetError() == 2001)
+			swprintf_s(tmp, S3GDI_MAX_SCREEN_MSG, _T("%s: %s"),
+				SWUpdateNoImage, _T("Update file not found"));
+		else if (S3Data->m_ImgUpdate->GetError())
+			swprintf_s(tmp, S3GDI_MAX_SCREEN_MSG, _T("%s: %s"),
+				SWUpdateNoImage, S3Data->m_ImgUpdate->GetErrorStr());
+		else if (m_UpdateMsg == 1)
 			swprintf_s(tmp, S3GDI_MAX_SCREEN_MSG, _T("%s: %s"),
 				SWUpdateNoImage, SWUpdateNoImageHDD);
 		else  if (m_UpdateMsg == 2)
@@ -142,14 +154,13 @@ void CS3GDIScreenMain::S3DrawGDISWUpdateScreen()
 
 		SetTextColor(m_HDC, m_crWhite);
 		SelectObject(m_HDC, m_hBrushSleep);
-		// SelectObject(m_HDC, m_hFontL);
 		
-		S3BLT(m_hbmpBlueButton, m_RectYes.left, m_RectYes.top, 150, 50);
-		DrawText(m_HDC, _T("Try again"), -1, &m_RectYes,
+		S3BLT(m_hbmpBlueButton, m_RectSWUpdateYes.left, m_RectSWUpdateYes.top, 150, 50);
+		DrawText(m_HDC, _T("Try again"), -1, &m_RectSWUpdateYes,
 			S3_BTN_CENTRE);
 
-		S3BLT(m_hbmpBlueButton, m_RectNo.left, m_RectNo.top, 150, 50);
-		DrawText(m_HDC, _T("Cancel"), -1, &m_RectNo,
+		S3BLT(m_hbmpBlueButton, m_RectSWUpdateNo.left, m_RectSWUpdateNo.top, 150, 50);
+		DrawText(m_HDC, _T("Cancel"), -1, &m_RectSWUpdateNo,
 			S3_BTN_CENTRE);
 	}
 	else if (m_Layout == 2)
@@ -158,19 +169,54 @@ void CS3GDIScreenMain::S3DrawGDISWUpdateScreen()
 		SelectObject(m_HDC, m_hBrushBG4);
 		SelectObject(m_HDC, m_hFontL);
 
-		DrawText(m_HDC, SWUpdateDoUpdate, -1, &m_RectSWUpdateInstr, DT_WORDBREAK);
+		CString SWUpdateMsg = SWUpdateDoUpdate;
+
+		if (!S3Data->m_ImgUpdate->GetError())
+		{
+			if (!S3Data->m_ImgUpdate->Unwrapping)
+			{
+				SWUpdateMsg.Format(_T("Valid OS image update file found: ")
+					_T("v%s (%s), current is v%s. ")
+					_T("Check new version is correct.\n"), 
+					S3Data->m_ImgUpdate->GetVersion(),
+					S3Data->m_ImgUpdate->GetDateTime(),
+					_T(S3_SYS_SW));
+
+				SWUpdateMsg += SWUpdateDoUpdate;
+			}
+			else
+			{
+				SWUpdateMsg.Format(_T("Unpacking update file Please wait %c\n"),
+					spinner[spincnt++]);
+
+				if (spincnt == 4)
+					spincnt = 0;
+			}
+		}
+		else
+		{
+			SWUpdateMsg.Format(_T("Update file invalid: %s\n"),
+									S3Data->m_ImgUpdate->GetErrorStr());
+		}
+
+		DrawText(m_HDC, SWUpdateMsg, -1, &m_RectSWUpdateInstr, DT_WORDBREAK);
 
 		SetTextColor(m_HDC, m_crWhite);
 		SelectObject(m_HDC, m_hBrushSleep);
-		// SelectObject(m_HDC, m_hFontL);
 		
-		S3BLT(m_hbmpBlueButton, m_RectYes.left, m_RectYes.top, 150, 50);
-		DrawText(m_HDC, _T("Update"), -1, &m_RectYes,
-			S3_BTN_CENTRE);
+		if (!S3Data->m_ImgUpdate->Unwrapping)
+		{
+			if (!S3Data->m_ImgUpdate->GetError())
+			{
+				S3BLT(m_hbmpBlueButton, m_RectSWUpdateYes.left, m_RectSWUpdateYes.top, 150, 50);
+				DrawText(m_HDC, _T("Update"), -1, &m_RectSWUpdateYes,
+					S3_BTN_CENTRE);
+			}
 
-		S3BLT(m_hbmpBlueButton, m_RectNo.left, m_RectNo.top, 150, 50);
-		DrawText(m_HDC, _T("Cancel"), -1, &m_RectNo,
-			S3_BTN_CENTRE);
+			S3BLT(m_hbmpBlueButton, m_RectSWUpdateNo.left, m_RectSWUpdateNo.top, 150, 50);
+			DrawText(m_HDC, _T("Cancel"), -1, &m_RectSWUpdateNo,
+				S3_BTN_CENTRE);
+		}
 	}
 	else if (m_Layout == 3)
 	{
@@ -191,10 +237,11 @@ void CS3GDIScreenMain::S3DrawGDISWUpdateScreen()
 // ----------------------------------------------------------------------------
 // TODO: Garbage?
 
-
 int CS3GDIScreenMain::S3FindSWUpdateScreen(POINT p)
 {
 	// m_UpdateMsg = 0;
+	if (S3Data->m_ImgUpdate->Unwrapping)
+		return 0;
 
 	if (m_Layout == 3)
 		return 0;
@@ -208,14 +255,14 @@ int CS3GDIScreenMain::S3FindSWUpdateScreen(POINT p)
 		return 1;
 	}
 
-	if (m_RectYes.PtInRect(p))
+	if (m_RectSWUpdateYes.PtInRect(p))
 	{
-		// S3GDIChangeScreen(S3_OVERVIEW_SCREEN);
 		S3EventLogAdd("OS image update requested by user", 1, -1, -1, -1);
 
 		if (m_Layout == 0)
 		{
-			if (m_UpdateMsg = S3OSSWUpdateRequest())
+			if (m_UpdateMsg = S3OSSWUpdateRequest() || 
+				S3Data->m_ImgUpdate->GetError())
 			{
 				m_Layout = 1;
 			}
@@ -230,6 +277,9 @@ int CS3GDIScreenMain::S3FindSWUpdateScreen(POINT p)
 		}
 		else if (m_Layout == 2)
 		{
+			if (S3Data->m_ImgUpdate->GetError())
+				return 0;
+
 			m_Layout = 3;
 			m_Parent->m_SWUpdateScheduled = true;
 		}
@@ -237,7 +287,7 @@ int CS3GDIScreenMain::S3FindSWUpdateScreen(POINT p)
 		// Go to confirm screen
 		return 1;
 	}
-	else if (m_RectNo.PtInRect(p))
+	else if (m_RectSWUpdateNo.PtInRect(p))
 	{
 		S3EventLogAdd("OS image update cancelled by user", 1, -1, -1, -1); 
 		if (m_Layout == 0)

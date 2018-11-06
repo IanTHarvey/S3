@@ -2,9 +2,9 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="9.00"
-	Name="S3UpdateBuilder"
-	ProjectGUID="{BC4C1D15-6F1A-4C4C-8E93-D42F90051BFD}"
-	RootNamespace="S3UpdateBuilder"
+	Name="S3ImgUpdateBuilder"
+	ProjectGUID="{525F5CFC-9EDF-445F-AA51-D5E70E78F052}"
+	RootNamespace="S3ImgUpdateBuilder"
 	Keyword="Win32Proj"
 	TargetFrameworkVersion="196613"
 	>
@@ -174,11 +174,11 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath="..\S3Update.cpp"
+				RelativePath=".\S3ImgUpdateBuilder.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\S3UpdateBuilder.cpp"
+				RelativePath="..\S3Update.cpp"
 				>
 			</File>
 			<File

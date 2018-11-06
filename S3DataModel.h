@@ -25,6 +25,7 @@ class CS3ControllerDlg;
 // #include "S3ControllerDlg.h"
 #endif
 
+class S3Update;
 
 #ifdef TRIZEPS
 #define	S3_ROOT_DIR					"\\FlashDisk\\S3"
@@ -78,6 +79,12 @@ extern const char		*TxTypeStrings[];
 #define S3_SCREEN_OFFSET_FILENAME	"S3ScreenOffset"
 #define S3_OSDATE_FILENAME			"S3OSDate"
 
+#define S3_UPDATE_WRAP_FILENAME		"\\Hard disk\\S3Update.upd"
+#define S3_DEST_FILENAME			"\\Flashdisk\\S3CUpdate.upd"
+
+#define S3_IMG_UPDATE_WRAP_FILENAME	"\\Hard disk\\S3ImageUpdate.upd"
+#define S3_IMG_DEST_FILENAME		"\\Flashdisk\\S3TestOS.nb0"
+
 // All REVERSE byte order
 #define S3_BATT_UNSEAL_KEY			"67D8FF9A"	// Unseal code
 #define S3_BATT_FAS_KEY				"1DD34FF2"	// Full access
@@ -115,7 +122,6 @@ extern const char		*TxTypeStrings[];
 
 #define S3_CMD_TERMINATOR		'\n' // Line feed/0xA/10
 
-#define S3_PENDING_FG			0x80	// Use to flag/clear pending updates
 #define S3_PENDING				0x64	// Use to flag/clear pending updates
 
 // Message sources
@@ -566,7 +572,7 @@ typedef struct sS3TxData
 	char			m_SN[S3_MAX_SN_LEN];				// PPM serial no.
 	char			m_PN[S3_MAX_PN_LEN];
 	char			m_FW[S3_MAX_SW_VER_LEN];
-	char			m_FWDate[S3_MAX_FW_DATE_LEN];	// Ctrl board
+	char			m_FWDate[S3_MAX_FW_DATE_LEN];		// Ctrl board
 	char			m_HW[S3_MAX_SW_VER_LEN];
 	char			m_ModelName[S3_MAX_MODEL_ID_LEN];	// PPM model name
 
@@ -621,6 +627,7 @@ typedef struct sS3TxData
 	unsigned char	m_ClearPeakHold;
 
 	unsigned char	m_CompMode;
+	bool			m_CompModePending;
 
 	wchar_t			m_TauUnits[6][S3_MAX_TAU_UNITS_LEN];
 	double			m_Tau_ns[6];
@@ -876,6 +883,9 @@ typedef struct sS3DataModel
 	unsigned short	wMonth;
 	unsigned short	wDay;
 
+	S3Update		*m_AppUpdate;
+	S3Update		*m_ImgUpdate;
+
 #ifndef S3_AGENT
 	CS3ControllerDlg	*m_GUI;
 #else
@@ -1090,6 +1100,9 @@ bool S3TxGetEmergency(	char Rx, char Tx);
 
 int S3TxSetTCompMode(			char Rx, char Tx, unsigned char mode);
 unsigned char S3TxGetTCompMode(	char Rx, char Tx);
+
+void S3TxSetTCompModePending(	char Rx, char Tx, bool pending);
+bool S3TxGetTCompModePending(	char Rx, char Tx);
 
 int S3SetGain(			char Rx, char Tx, char IP, char		val);
 

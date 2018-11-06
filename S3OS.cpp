@@ -9,6 +9,7 @@
 #include <errno.h>
 
 #include "S3DataModel.h"
+#include "S3Update.h"
 
 extern pS3DataModel S3Data;
 
@@ -38,17 +39,17 @@ extern pS3DataModel S3Data;
 #define S3_RUN_DIR		"\\Flashdisk\\S3Controller"
 #define S3_HOME_DIR		"\\Flashdisk\\S3"
 
-#define S3_IMAGE_UPDATE		"S3TestOS.nb0"
-#define S3_UPDATE_FILENAME	"S3CUpdate.upd"
-#define S3_EXE_NAME			"S3Controller.exe"
-#define S3_EXE_BAK_NAME		"S3Controller.bak"
+#define S3_IMAGE_UPDATE			"S3TestOS.nb0"
+#define S3_UPDATE_FILENAME		"S3CUpdate.upd"
+#define S3_EXE_NAME				"S3Controller.exe"
+#define S3_EXE_BAK_NAME			"S3Controller.bak"
 
 // #ifdef TRIZEPS
 wchar_t OSHDDDirectory[] =	{_T("\\Hard Disk")};
 wchar_t OSFDDDirectory[] =	{_T("\\Flashdisk")};
 
 wchar_t OSImageUpdateFilename[] =	{_T(S3_IMAGE_UPDATE)};
-wchar_t OSAppUpdateFilename[] =		{_T(S3_UPDATE_FILENAME)};
+// wchar_t OSAppUpdateFilename[] =		{_T(S3_UPDATE_WRAP_FILENAME)};
 wchar_t OSImageUpdateFilePath[MAX_PATH];
 wchar_t OSAppUpdateFilePath[MAX_PATH];
 wchar_t OSImageNB0FilePath[MAX_PATH];
@@ -70,8 +71,8 @@ int S3OSInit()
 	swprintf_s(OSImageNB0FilePath, MAX_PATH, _T("%s\\%s"),
 		OSFDDDirectory, OSImageUpdateFilename);
 
-	swprintf_s(OSAppUpdateFilePath, MAX_PATH, _T("%s\\%s"),
-		OSHDDDirectory, OSAppUpdateFilename);
+	//swprintf_s(OSAppUpdateFilePath, MAX_PATH, _T("%s\\%s"),
+	//	OSHDDDirectory, OSAppUpdateFilename);
 
 	S3Data->m_OSUpdateFail = false;
 
@@ -245,41 +246,15 @@ int S3OSImageUpdate()
 	S3EventLogAdd("Image update", 1, -1, -1, -1);
 #ifdef TRIZEPS
 
-	FILE *f;
-	errno_t	err;
-
-	err = _wfopen_s(&f, OSImageUpdateFilePath, _T("rb"));
-
-	if (err)
-	{
-		S3EventLogAdd("Image file not found", 1, -1, -1, -1);
-		return 1;
-	}
-
-	fclose(f);
-
-	BOOL verified = TRUE; // VerifyImage(OSImageUpdateFilePath);
+	int err = S3Data->m_ImgUpdate->WriteExecutable();
 	
-	if (!verified)
-	{
-		S3EventLogAdd("Image file verification failed", 1, -1, -1, -1);
-		return 2;
-	}
-
-	// TODO: Don't just copy here
-	// Check and strip header, unencrypt binary...
-	// TODO: Consider moving to S3Boot
-
-	if (!CopyFile(OSImageUpdateFilePath, OSImageNB0FilePath, false))
+	if (err)
 	{
 		S3EventLogAdd("Failed to copy image file from HDD to Flashdisk", 1, -1, -1, -1);
 		return 5;
 	}
 
-	BOOL updated = UpdateImage(OSImageNB0FilePath);
-
-	// TODO: Revisit...
-	// int syserr = CreateProcess("dir");
+	BOOL updated = UpdateImage(S3Data->m_ImgUpdate->PayloadDest);
 
 	if (!updated)
 	{
@@ -328,21 +303,9 @@ int S3OSAppUpdate()
 	S3EventLogAdd("App update", 1, -1, -1, -1);
 #ifdef TRIZEPS
 
-	if (!S3FileExist(OSAppUpdateFilePath))
-	{
-		S3EventLogAdd("App exe file not found", 1, -1, -1, -1);
-		return 1;
-	}
+	int err = S3Data->m_AppUpdate->WritePayload();
 
-	// BOOL updated = UpdateImage(OSImageUpdateFilePath);
-	// Copy image from "\Hard drive" to "Flashdisk"
-
-	// wchar_t src[S3_MAX_FILENAME_LEN];
-	wchar_t dest[S3_MAX_FILENAME_LEN];
-
-	swprintf_s(dest, MAX_PATH, _T("%s\\%S"), OSFDDDirectory, S3_UPDATE_FILENAME);
-
-	if (!CopyFile(OSAppUpdateFilePath, dest, false))
+	if (err)
 	{
 		S3EventLogAdd("Copy of exe file failed", 3, -1, -1, -1);
 		return 1;
@@ -355,10 +318,6 @@ int S3OSAppUpdate()
 	// of the correct name is written.
 
 	S3OSRestart();
-	// SystemShutdown();
-
-	// S3SetPowerDownPending(true);
-	// S3SetSleepAll(true);
 
 #endif
 
@@ -488,13 +447,16 @@ int S3OSSWUpdateRequest()
 		return 1;
 	}
 
-	BOOL exist = S3FileExist(OSImageUpdateFilePath);
+	//BOOL exist = S3FileExist(OSImageUpdateFilePath);
 	
-	if (!exist)
-	{
-		S3EventLogAdd("No OS image found", 1, -1, -1, -1);
-		return 2;
-	}
+	//if (!exist)
+	//{
+	//	S3EventLogAdd("No OS image found", 1, -1, -1, -1);
+	//	return 2;
+	//}
+
+	S3Data->m_ImgUpdate->Clear();
+	int err = S3Data->m_ImgUpdate->Unwrap();
 
 	S3EventLogAdd("OS image update request OK", 1, -1, -1, -1);
 
@@ -506,14 +468,13 @@ int S3OSSWUpdateRequest()
 		return 2;
 */
 	return 0;
-
 }
 
 // ----------------------------------------------------------------------------
 
 int S3OSAppUpdateRequest()
 {
-	S3EventLogAdd("Exe update requested", 1, -1, -1, -1);
+	S3EventLogAdd("Application update requested", 1, -1, -1, -1);
 
 	DWORD fileAtt = GetFileAttributes(OSHDDDirectory);
 
@@ -526,11 +487,14 @@ int S3OSAppUpdateRequest()
 
 	if (!S3FileExist(OSAppUpdateFilePath))
 	{
-		S3EventLogAdd("No exe found", 1, -1, -1, -1);
+		S3EventLogAdd("Application update file not found", 1, -1, -1, -1);
 		return 2;
 	}
 
-	S3EventLogAdd("Exe update request OK", 1, -1, -1, -1);
+	S3Data->m_AppUpdate->Clear();
+	int err = S3Data->m_AppUpdate->Unwrap();
+
+	S3EventLogAdd("Application update request OK", 1, -1, -1, -1);
 
 	return 0;
 }

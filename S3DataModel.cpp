@@ -13,6 +13,8 @@
 #include "S3I2C.h"
 #include "S3Gain.h"
 
+#include "S3Update.h"
+
 #ifndef S3_AGENT
 #include "S3ControllerDlg.h"
 #endif
@@ -290,6 +292,12 @@ int S3DataModelInit(pS3DataModel dm, bool DemoMode)
 		}
 	}
 
+	S3Data->m_AppUpdate = new S3Update(_T(""), _T(S3_DEST_FILENAME),
+		_T(S3_UPDATE_WRAP_FILENAME));
+
+	S3Data->m_ImgUpdate = new S3Update(_T(""), _T(S3_IMG_DEST_FILENAME),
+		_T(S3_IMG_UPDATE_WRAP_FILENAME));
+
 #ifndef S3_AGENT
 	S3Data->m_GUI = NULL;
 #endif
@@ -311,6 +319,8 @@ int S3Reset()
 int S3End(void)
 {
 	// S3Save2(S3_DEFAULT_CONFIG_FILENAME);
+
+	delete S3Data->m_AppUpdate;
 
 	S3EventLogAdd("S3End invoked", 1, -1, -1, -1);
 
