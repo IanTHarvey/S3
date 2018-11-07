@@ -7,6 +7,7 @@
 #include <errno.h>
 
 #include "S3SystemDetails.h"
+#include "S3Datamodel.h"
 #include "S3Update.h"
 
 S3Update::~S3Update(void)
@@ -21,13 +22,15 @@ S3Update::S3Update(void)
 	Clear();
 }
 
-S3Update::S3Update(CString _PayloadSrc, CString _PayloadDest, CString _UpdFilename)
+S3Update::S3Update(CString _PayloadSrc, CString _PayloadDest,
+				   CString _UpdFilename, CString _UpdLocation)
 {
 	Clear();
 
 	PayloadSrc = _PayloadSrc;
 	PayloadDest = _PayloadDest;
 	UpdFilename = _UpdFilename;
+	UpdRoot = _UpdLocation; 
 }
 
 // -----------------------------------------------------------------------------
@@ -50,7 +53,7 @@ int S3Update::Wrap()
 	char *data;
 	size_t len;
 
-	if (!readExeFile(&data, &len)) 
+	if (!readPayloadFile(&data, &len)) 
 	{
 		char buf[2 * SHA256::DIGEST_SIZE + 1];
 		sha256(buf, data, len);
@@ -72,7 +75,6 @@ UINT __cdecl UnwrapThread( LPVOID pParam )
 {
 	S3Update *pObject = (S3Update *)pParam;
 
-	pObject->Unwrapping = true;
 	pObject->readUpdFile();
 	pObject->Unwrapping = false;
 
@@ -83,6 +85,7 @@ UINT __cdecl UnwrapThread( LPVOID pParam )
 
 int S3Update::Unwrap()
 {
+	Unwrapping = true;
 	CWinThread *m_UnwrapThread = AfxBeginThread(UnwrapThread, this);
 
 	return err;
@@ -151,10 +154,16 @@ CString S3Update::GetErrorStr()
 	
 	if (err)
 	{
-		if (err == 3000)
-			ret = _T("Incorrect length");
+		if (err == 2010)
+			ret = _T("No USB HDD drive found");
+		else if (err == 2001)
+			ret = _T("Update file not found");
+		else if (err == 2002 || err == 2003 || err == 2004 || err == 2005)
+			ret = _T("Failed to open update file");
+		else if (err == 3000)
+			ret = _T("Payload incorrect length");
 		else if (err = 3001)
-			ret = _T("Hash fail\n");
+			ret = _T("SHA-256 test failed\n");
 		else
 			ret = _T("Failed to unpack update file");
 	}
@@ -169,6 +178,15 @@ CString S3Update::GetErrorStr()
 int S3Update::readUpdFile()
 {
 	err = 0;
+
+	DWORD fileAtt = GetFileAttributes(UpdRoot);
+
+	if (fileAtt == INVALID_FILE_ATTRIBUTES ||
+								(fileAtt & FILE_ATTRIBUTE_DIRECTORY) == 0)
+	{
+		err = 2010;
+		return err;
+	}
 
 	FILE *fid;
 	errno_t ferr = _wfopen_s(&fid, UpdFilename, _T("rb"));
@@ -257,7 +275,7 @@ FILEFAIL:
 // -----------------------------------------------------------------------------
 // Allocate buffer and read executable file. Caller must delete.
 
-int S3Update::readExeFile(char **source, size_t *len)
+int S3Update::readPayloadFile(char **source, size_t *len)
 {
 	*len = 0;
 	*source = NULL;
@@ -297,10 +315,8 @@ FILEFAIL:
 
 int S3Update::writeUpdFile(char *source, size_t data_len,
 						   const char *sha256hash)
-{
-	int DateTime[5];
-	
-	if (GetLastBuild(DateTime))
+{	
+	if (GetLastBuild(datetime))
 		return -5;
 
 	size_t newLen = 0;
@@ -322,7 +338,7 @@ int S3Update::writeUpdFile(char *source, size_t data_len,
 	int cnt = 0;
 	while (!strToken.IsEmpty())
 	{
-		*(header + S3_VERSION_POS + cnt++) = (char)_ttoi(strToken);
+		ver[cnt] = *(header + S3_VERSION_POS + cnt++) = (char)_ttoi(strToken);
 		strToken = v.Tokenize(_T("."), nTokenPos);
 	}
 
@@ -331,7 +347,7 @@ int S3Update::writeUpdFile(char *source, size_t data_len,
 
 	memcpy(header + S3_FILE_TYPE_POS, type, sizeof(type));
 
-	memcpy(header + S3_DATETIME_POS, DateTime, sizeof(datetime));
+	memcpy(header + S3_DATETIME_POS, datetime, sizeof(datetime));
 	strcpy_s((header + S3_HASH_POS), 2 * SHA256::DIGEST_SIZE + 1, sha256hash);
 
 	size_t n;

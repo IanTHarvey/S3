@@ -14,7 +14,8 @@ extern S3DataModel *S3Data;
 #include "S3ControllerDlg.h"
 #endif
 
-// bool m_AppUpdateScheduled = false;
+extern wchar_t	spinner[];
+extern char	spincnt;
 
 // Layout 0
 const wchar_t AppUpdateInstr[] = {
@@ -29,7 +30,7 @@ const wchar_t AppUpdateNoImageHDD[] = {
 	_T("No USB Mass Storage device found.")};
 
 const wchar_t AppUpdateNoImageFile[] = {
-	_T("No image file found on root of USB storage device.")};
+	_T("No update file found on root of USB storage device.")};
 
 const wchar_t AppUpdateProcessFail[] = {
 	_T("An error occurred during the update process.")};
@@ -90,10 +91,6 @@ void CS3GDIScreenMain::S3InitGDIAppUpdateScreen(void)
 
 // ----------------------------------------------------------------------------
 
-
-
-// ----------------------------------------------------------------------------
-
 void CS3GDIScreenMain::S3DrawGDIAppUpdateScreen()
 {
 	S3DrawGDIBackButton();
@@ -142,38 +139,44 @@ void CS3GDIScreenMain::S3DrawGDIAppUpdateScreen()
 		wchar_t tmp[S3GDI_MAX_SCREEN_MSG];
 
 		// Give a reason
-		if (S3Data->m_AppUpdate->GetError() == 2001)
-			swprintf_s(tmp, S3GDI_MAX_SCREEN_MSG, _T("%s: %s"),
-				AppUpdateNoImage, _T("Update file not found"));
-		else if (S3Data->m_AppUpdate->GetError())
-			swprintf_s(tmp, S3GDI_MAX_SCREEN_MSG, _T("%s: %s"),
-				AppUpdateNoImage, S3Data->m_AppUpdate->GetErrorStr());
-		else if (m_AppUpdateMsg == 1)
-			swprintf_s(tmp, S3GDI_MAX_SCREEN_MSG, _T("%s: %s"),
-				AppUpdateNoImage, AppUpdateNoImageHDD);
-		else  if (m_AppUpdateMsg == 2)
-			swprintf_s(tmp, S3GDI_MAX_SCREEN_MSG, _T("%s: %s"),
-				AppUpdateNoImage, AppUpdateNoImageFile);
-		else  if (m_AppUpdateMsg == 3)
-			swprintf_s(tmp, S3GDI_MAX_SCREEN_MSG, _T("%s: %s"),
-				AppUpdateNoImage, AppUpdateProcessFail);
-		else
-			swprintf_s(tmp, S3GDI_MAX_SCREEN_MSG,
-				_T("%s: Unknown error (%d)"), AppUpdateNoImage, m_AppUpdateMsg);
+		if (!S3Data->m_AppUpdate->Unwrapping)
+		{
+			if (S3Data->m_AppUpdate->GetError())
+				swprintf_s(tmp, S3GDI_MAX_SCREEN_MSG, _T("%s: %s"),
+					AppUpdateNoImage, S3Data->m_AppUpdate->GetErrorStr());
+			else if (m_AppUpdateMsg == 3)
+				swprintf_s(tmp, S3GDI_MAX_SCREEN_MSG, _T("%s: %s"),
+					AppUpdateNoImage, AppUpdateProcessFail);
+			else
+			{
+				m_AppLayout = 2;
+				return;
+			}
+				
+			DrawText(m_HDC, tmp, -1, &m_RectAppUpdateInstr, DT_WORDBREAK);
+
+			SetTextColor(m_HDC, m_crWhite);
+			SelectObject(m_HDC, m_hBrushSleep);
 			
-		DrawText(m_HDC, tmp, -1, &m_RectAppUpdateInstr, DT_WORDBREAK);
+			S3BLT(m_hbmpBlueButton, m_RectAppUpdateYes.left, m_RectAppUpdateYes.top, 150, 50);
+			DrawText(m_HDC, _T("Try again"), -1, &m_RectAppUpdateYes,
+				S3_BTN_CENTRE);
 
-		SetTextColor(m_HDC, m_crWhite);
-		SelectObject(m_HDC, m_hBrushSleep);
-		// SelectObject(m_HDC, m_hFontL);
-		
-		S3BLT(m_hbmpBlueButton, m_RectAppUpdateYes.left, m_RectAppUpdateYes.top, 150, 50);
-		DrawText(m_HDC, _T("Try again"), -1, &m_RectAppUpdateYes,
-			S3_BTN_CENTRE);
+			S3BLT(m_hbmpBlueButton, m_RectAppUpdateNo.left, m_RectAppUpdateNo.top, 150, 50);
+			DrawText(m_HDC, _T("Cancel"), -1, &m_RectAppUpdateNo,
+				S3_BTN_CENTRE);
+		}
+		else
+		{
+			CString AppUpdateMsg;
+			AppUpdateMsg.Format(_T("Unpacking update file. Please wait %c\n"),
+					spinner[spincnt++]);
 
-		S3BLT(m_hbmpBlueButton, m_RectAppUpdateNo.left, m_RectAppUpdateNo.top, 150, 50);
-		DrawText(m_HDC, _T("Cancel"), -1, &m_RectAppUpdateNo,
-			S3_BTN_CENTRE);
+			if (spincnt == 4)
+				spincnt = 0;
+
+			DrawText(m_HDC, AppUpdateMsg, -1, &m_RectAppUpdateInstr, DT_WORDBREAK);
+		}
 	}
 	else if (m_AppLayout == 2)
 	{
@@ -185,30 +188,23 @@ void CS3GDIScreenMain::S3DrawGDIAppUpdateScreen()
 
 		if (!S3Data->m_AppUpdate->GetError())
 		{
-			if (!S3Data->m_AppUpdate->Unwrapping)
-			{
-				AppUpdateMsg.Format(_T("Valid update file found: v%s (%s), current is v%s. ")
-					_T("Check new version is correct.\n"), 
-					S3Data->m_AppUpdate->GetVersion(),
-					S3Data->m_AppUpdate->GetDateTime(),
-					_T(S3_SYS_SW));
+			AppUpdateMsg.Format(
+				_T("Valid update file found: v%s (%s), current is v%s. ")
+				_T("Check new version is correct.\n\n"), 
+				S3Data->m_AppUpdate->GetVersion(),
+				S3Data->m_AppUpdate->GetDateTime(),
+				_T(S3_SYS_SW));
 
-				AppUpdateMsg += AppUpdateDoUpdate;
-			}
-			else
-				AppUpdateMsg.Format(_T("Unpacking update file Please wait...\n"));
+			AppUpdateMsg += AppUpdateDoUpdate;
 		}
 		else
-		{
 			AppUpdateMsg.Format(_T("Update file invalid: %s\n"),
-									S3Data->m_AppUpdate->GetErrorStr());
-		}
+								S3Data->m_AppUpdate->GetErrorStr());
 
 		DrawText(m_HDC, AppUpdateMsg, -1, &m_RectAppUpdateInstr, DT_WORDBREAK);
 
 		SetTextColor(m_HDC, m_crWhite);
 		SelectObject(m_HDC, m_hBrushSleep);
-		// SelectObject(m_HDC, m_hFontL);
 		
 		if (!S3Data->m_AppUpdate->Unwrapping)
 		{
@@ -244,7 +240,6 @@ void CS3GDIScreenMain::S3DrawGDIAppUpdateScreen()
 
 int CS3GDIScreenMain::S3FindAppUpdateScreen(POINT p)
 {
-	// m_AppUpdateMsg = 0;
 	if (S3Data->m_AppUpdate->Unwrapping)
 		return 0;
 
@@ -266,15 +261,8 @@ int CS3GDIScreenMain::S3FindAppUpdateScreen(POINT p)
 
 		if (m_AppLayout == 0)
 		{
-			if (m_AppUpdateMsg = S3OSAppUpdateRequest() || 
-				S3Data->m_AppUpdate->GetError())
-			{
-				m_AppLayout = 1;
-			}
-			else
-			{
-				m_AppLayout = 2;
-			}
+			S3OSAppUpdateRequest();
+			m_AppLayout = 1;
 		}
 		else if (m_AppLayout == 1)
 		{

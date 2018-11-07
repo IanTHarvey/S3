@@ -1,6 +1,5 @@
 // OS image update screens
 
-
 #include "stdafx.h"
 
 #include "S3SystemDetails.h"
@@ -17,6 +16,38 @@ extern S3DataModel *S3Data;
 
 wchar_t	spinner[5] = {_T("|/-\\")};
 char	spincnt = 0;
+
+// Layout 0
+const wchar_t SWUpdateInstr[] = {
+	_T("Only attempt update if you have a Sentinel 3 image file provided by PPM")
+	_T("and located in the root folder of a USB Mass Storage class device.")};
+
+// Layout 1
+const wchar_t SWUpdateNoImage[] = {
+	_T("Sentinel 3 Image update failed")};
+
+// Layout 1 Errors
+const wchar_t SWUpdateNoImageHDD[] = {
+	_T("No USB Mass Storage device found.")};
+
+const wchar_t SWUpdateNoImageFile[] = {
+	_T("No image file found on root of USB storage device.")};
+
+const wchar_t SWUpdateProcessFail[] = {
+	_T("An error occurred during the update process.")};
+
+// Layout 2
+const wchar_t SWUpdateDoUpdate[] = {
+	_T("Sentinel 3 will update and restart, configuration data will be retained. ")
+	_T("Ensure that power is not interrupted during the update.")};
+
+// Layout 3
+const wchar_t SWUpdateUpdating[] = {
+	_T("Updating will take 1-2 minutes.\nDo not switch off mains power.\n")
+	_T("Please wait until Sentinel 3 restarts fully.")};
+
+unsigned char m_Layout = 0;
+unsigned char m_UpdateMsg = 0;
 
 // ----------------------------------------------------------------------------
 
@@ -51,38 +82,6 @@ void CS3GDIScreenMain::S3InitGDISWUpdateScreen(void)
 }
 
 // ----------------------------------------------------------------------------
-
-// Layout 0
-const wchar_t SWUpdateInstr[] = {
-	_T("Only attempt update if you have a Sentinel 3 image file provided by PPM")
-	_T("and located in the root folder of a USB Mass Storage class device.")};
-
-// Layout 1
-const wchar_t SWUpdateNoImage[] = {
-	_T("Sentinel 3 Image update failed")};
-
-// Layout 1 Errors
-const wchar_t SWUpdateNoImageHDD[] = {
-	_T("No USB Mass Storage device found.")};
-
-const wchar_t SWUpdateNoImageFile[] = {
-	_T("No image file found on root of USB storage device.")};
-
-const wchar_t SWUpdateProcessFail[] = {
-	_T("An error occurred during the update process.")};
-
-// Layout 2
-const wchar_t SWUpdateDoUpdate[] = {
-	_T("Sentinel 3 will update and restart, configuration data will be retained. ")
-	_T("Ensure that power is not interrupted during the update.")};
-
-// Layout 3
-const wchar_t SWUpdateUpdating[] = {
-	_T("Updating will take 1-2 minutes.\nDo not switch off mains power.\n")
-	_T("Please wait until Sentinel 3 restarts fully.")};
-
-unsigned char m_Layout = 0;
-unsigned char m_UpdateMsg = 0;
 
 void CS3GDIScreenMain::S3DrawGDISWUpdateScreen()
 {
@@ -131,37 +130,44 @@ void CS3GDIScreenMain::S3DrawGDISWUpdateScreen()
 		wchar_t tmp[S3GDI_MAX_SCREEN_MSG];
 
 		// Give a reason
-		if (S3Data->m_ImgUpdate->GetError() == 2001)
-			swprintf_s(tmp, S3GDI_MAX_SCREEN_MSG, _T("%s: %s"),
-				SWUpdateNoImage, _T("Update file not found"));
-		else if (S3Data->m_ImgUpdate->GetError())
-			swprintf_s(tmp, S3GDI_MAX_SCREEN_MSG, _T("%s: %s"),
-				SWUpdateNoImage, S3Data->m_ImgUpdate->GetErrorStr());
-		else if (m_UpdateMsg == 1)
-			swprintf_s(tmp, S3GDI_MAX_SCREEN_MSG, _T("%s: %s"),
-				SWUpdateNoImage, SWUpdateNoImageHDD);
-		else  if (m_UpdateMsg == 2)
-			swprintf_s(tmp, S3GDI_MAX_SCREEN_MSG, _T("%s: %s"),
-				SWUpdateNoImage, SWUpdateNoImageFile);
-		else  if (m_UpdateMsg == 3)
-			swprintf_s(tmp, S3GDI_MAX_SCREEN_MSG, _T("%s: %s"),
-				SWUpdateNoImage, SWUpdateProcessFail);
-		else
-			swprintf_s(tmp, S3GDI_MAX_SCREEN_MSG,
-				_T("%s: Unknown error (%d)"), SWUpdateNoImage, m_UpdateMsg);
+		if (!S3Data->m_ImgUpdate->Unwrapping)
+		{
+			if (S3Data->m_ImgUpdate->GetError() == 2001)
+				swprintf_s(tmp, S3GDI_MAX_SCREEN_MSG, _T("%s: %s"),
+					SWUpdateNoImage, _T("Update file not found"));
+			else  if (m_UpdateMsg == 3)
+				swprintf_s(tmp, S3GDI_MAX_SCREEN_MSG, _T("%s: %s"),
+					SWUpdateNoImage, SWUpdateProcessFail);
+			else
+			{
+				m_Layout = 2;
+				return;
+			}
+
+			DrawText(m_HDC, tmp, -1, &m_RectSWUpdateInstr, DT_WORDBREAK);
+
+			SetTextColor(m_HDC, m_crWhite);
+			SelectObject(m_HDC, m_hBrushSleep);
 			
-		DrawText(m_HDC, tmp, -1, &m_RectSWUpdateInstr, DT_WORDBREAK);
+			S3BLT(m_hbmpBlueButton, m_RectSWUpdateYes.left, m_RectSWUpdateYes.top, 150, 50);
+			DrawText(m_HDC, _T("Try again"), -1, &m_RectSWUpdateYes,
+				S3_BTN_CENTRE);
 
-		SetTextColor(m_HDC, m_crWhite);
-		SelectObject(m_HDC, m_hBrushSleep);
-		
-		S3BLT(m_hbmpBlueButton, m_RectSWUpdateYes.left, m_RectSWUpdateYes.top, 150, 50);
-		DrawText(m_HDC, _T("Try again"), -1, &m_RectSWUpdateYes,
-			S3_BTN_CENTRE);
+			S3BLT(m_hbmpBlueButton, m_RectSWUpdateNo.left, m_RectSWUpdateNo.top, 150, 50);
+			DrawText(m_HDC, _T("Cancel"), -1, &m_RectSWUpdateNo,
+				S3_BTN_CENTRE);
+		}
+		else
+		{
+			CString SWUpdateMsg;
+			SWUpdateMsg.Format(_T("Unpacking update file. Please wait %c\n"),
+				spinner[spincnt++]);
 
-		S3BLT(m_hbmpBlueButton, m_RectSWUpdateNo.left, m_RectSWUpdateNo.top, 150, 50);
-		DrawText(m_HDC, _T("Cancel"), -1, &m_RectSWUpdateNo,
-			S3_BTN_CENTRE);
+			if (spincnt == 4)
+				spincnt = 0;
+
+			DrawText(m_HDC, SWUpdateMsg, -1, &m_RectSWUpdateInstr, DT_WORDBREAK);
+		}
 	}
 	else if (m_Layout == 2)
 	{
@@ -173,31 +179,18 @@ void CS3GDIScreenMain::S3DrawGDISWUpdateScreen()
 
 		if (!S3Data->m_ImgUpdate->GetError())
 		{
-			if (!S3Data->m_ImgUpdate->Unwrapping)
-			{
-				SWUpdateMsg.Format(_T("Valid OS image update file found: ")
-					_T("v%s (%s), current is v%s. ")
-					_T("Check new version is correct.\n"), 
-					S3Data->m_ImgUpdate->GetVersion(),
-					S3Data->m_ImgUpdate->GetDateTime(),
-					_T(S3_SYS_SW));
+			SWUpdateMsg.Format(_T("Valid OS image update file found: ")
+				_T("v%s (%s), current is v%s. ")
+				_T("Check new version is correct.\n\n"), 
+				S3Data->m_ImgUpdate->GetVersion(),
+				S3Data->m_ImgUpdate->GetDateTime(),
+				_T(S3_SYS_SW));
 
-				SWUpdateMsg += SWUpdateDoUpdate;
-			}
-			else
-			{
-				SWUpdateMsg.Format(_T("Unpacking update file Please wait %c\n"),
-					spinner[spincnt++]);
-
-				if (spincnt == 4)
-					spincnt = 0;
-			}
+			SWUpdateMsg += SWUpdateDoUpdate;
 		}
 		else
-		{
 			SWUpdateMsg.Format(_T("Update file invalid: %s\n"),
 									S3Data->m_ImgUpdate->GetErrorStr());
-		}
 
 		DrawText(m_HDC, SWUpdateMsg, -1, &m_RectSWUpdateInstr, DT_WORDBREAK);
 
@@ -235,11 +228,9 @@ void CS3GDIScreenMain::S3DrawGDISWUpdateScreen()
 }
 
 // ----------------------------------------------------------------------------
-// TODO: Garbage?
 
 int CS3GDIScreenMain::S3FindSWUpdateScreen(POINT p)
 {
-	// m_UpdateMsg = 0;
 	if (S3Data->m_ImgUpdate->Unwrapping)
 		return 0;
 
@@ -261,15 +252,8 @@ int CS3GDIScreenMain::S3FindSWUpdateScreen(POINT p)
 
 		if (m_Layout == 0)
 		{
-			if (m_UpdateMsg = S3OSSWUpdateRequest() || 
-				S3Data->m_ImgUpdate->GetError())
-			{
-				m_Layout = 1;
-			}
-			else
-			{
-				m_Layout = 2;
-			}
+			S3OSSWUpdateRequest();
+			m_Layout = 1;
 		}
 		else if (m_Layout == 1)
 		{
@@ -309,8 +293,6 @@ int CS3GDIScreenMain::S3FindSWUpdateScreen(POINT p)
 	}
 	else
 	{
-		// S3GDIChangeScreen(S3_OVERVIEW_SCREEN);
-
 		return 1;
 	}
 

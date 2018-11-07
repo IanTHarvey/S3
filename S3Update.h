@@ -17,7 +17,8 @@ class S3Update
 {
 public:
 	S3Update(void);
-	S3Update(CString _PayloadSrc, CString _PayloadDest, CString _UpdFilename);
+	S3Update(CString _PayloadSrc, CString _PayloadDest, CString _UpdFilename,
+		CString _UpdLocation);
 	~S3Update(void);
 
 	int Unwrap();
@@ -41,6 +42,7 @@ public:
 	CString	PayloadSrc;
 	CString	PayloadDest;
 	CString	UpdFilename;
+	CString	UpdRoot;
 
 private:
 	char	*exe;
@@ -50,7 +52,7 @@ private:
 	int		datetime[5];
 	char	type[32];
 
-	int readExeFile(char **source, size_t *len);
+	int readPayloadFile(char **source, size_t *len);
 
 	int writeUpdFile(char *source, size_t data_len, const char *sha256hash);
 

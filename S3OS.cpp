@@ -34,10 +34,8 @@ extern pS3DataModel S3Data;
 
 // ----------------------------------------------------------------------------
 
-// #define RUNTIME_DIRECTORY
-
-#define S3_RUN_DIR		"\\Flashdisk\\S3Controller"
-#define S3_HOME_DIR		"\\Flashdisk\\S3"
+#define S3_RUN_DIR				"\\Flashdisk\\S3Controller"
+#define S3_HOME_DIR				"\\Flashdisk\\S3"
 
 #define S3_IMAGE_UPDATE			"S3TestOS.nb0"
 #define S3_UPDATE_FILENAME		"S3CUpdate.upd"
@@ -45,15 +43,8 @@ extern pS3DataModel S3Data;
 #define S3_EXE_BAK_NAME			"S3Controller.bak"
 
 // #ifdef TRIZEPS
-wchar_t OSHDDDirectory[] =	{_T("\\Hard Disk")};
-wchar_t OSFDDDirectory[] =	{_T("\\Flashdisk")};
-
-wchar_t OSImageUpdateFilename[] =	{_T(S3_IMAGE_UPDATE)};
-// wchar_t OSAppUpdateFilename[] =		{_T(S3_UPDATE_WRAP_FILENAME)};
-wchar_t OSImageUpdateFilePath[MAX_PATH];
-wchar_t OSAppUpdateFilePath[MAX_PATH];
-wchar_t OSImageNB0FilePath[MAX_PATH];
-// #endif
+wchar_t OSHDDDirectory[] =	{_T(S3_HDD_ROOT)};
+wchar_t OSFDDDirectory[] =	{_T(S3_FDD_ROOT)};
 
 int S3SetTelnetDEnableRegKey(bool enable);
 int S3SetTelnetDAuthRegKey(bool locked);
@@ -65,11 +56,11 @@ int S3SetFTPDAuthRegKey(bool locked);
 
 int S3OSInit()
 {
-	swprintf_s(OSImageUpdateFilePath, MAX_PATH, _T("%s\\%s"),
-		OSHDDDirectory, OSImageUpdateFilename);
+	/*swprintf_s(OSImageUpdateFilePath, MAX_PATH, _T("%s\\%s"),
+		OSHDDDirectory, OSImageUpdateFilename);*/
 
-	swprintf_s(OSImageNB0FilePath, MAX_PATH, _T("%s\\%s"),
-		OSFDDDirectory, OSImageUpdateFilename);
+	//swprintf_s(OSImageNB0FilePath, MAX_PATH, _T("%s\\%s"),
+	//	OSFDDDirectory, OSImageUpdateFilename);
 
 	//swprintf_s(OSAppUpdateFilePath, MAX_PATH, _T("%s\\%s"),
 	//	OSHDDDirectory, OSAppUpdateFilename);
@@ -246,7 +237,7 @@ int S3OSImageUpdate()
 	S3EventLogAdd("Image update", 1, -1, -1, -1);
 #ifdef TRIZEPS
 
-	int err = S3Data->m_ImgUpdate->WriteExecutable();
+	int err = S3Data->m_ImgUpdate->WritePayload();
 	
 	if (err)
 	{
@@ -438,35 +429,11 @@ int S3OSSWUpdateRequest()
 {
 	S3EventLogAdd("OS image update requested", 1, -1, -1, -1);
 
-	DWORD fileAtt = GetFileAttributes(OSHDDDirectory);
-
-	if (fileAtt == INVALID_FILE_ATTRIBUTES ||
-								(fileAtt & FILE_ATTRIBUTE_DIRECTORY) == 0)
-	{
-		S3EventLogAdd("No USB HDD found", 1, -1, -1, -1);
-		return 1;
-	}
-
-	//BOOL exist = S3FileExist(OSImageUpdateFilePath);
-	
-	//if (!exist)
-	//{
-	//	S3EventLogAdd("No OS image found", 1, -1, -1, -1);
-	//	return 2;
-	//}
-
 	S3Data->m_ImgUpdate->Clear();
 	int err = S3Data->m_ImgUpdate->Unwrap();
 
 	S3EventLogAdd("OS image update request OK", 1, -1, -1, -1);
 
-/*
-	// TODO: What does this actually check... and why doesn't it work?
-	BOOL verified = VerifyImage(OSImageUpdateFilename);
-	
-	if (!verified)
-		return 2;
-*/
 	return 0;
 }
 
@@ -475,21 +442,6 @@ int S3OSSWUpdateRequest()
 int S3OSAppUpdateRequest()
 {
 	S3EventLogAdd("Application update requested", 1, -1, -1, -1);
-
-	DWORD fileAtt = GetFileAttributes(OSHDDDirectory);
-
-	if (fileAtt == INVALID_FILE_ATTRIBUTES ||
-								(fileAtt & FILE_ATTRIBUTE_DIRECTORY) == 0)
-	{
-		S3EventLogAdd("No USB HDD found", 1, -1, -1, -1);
-		return 1;
-	}
-
-	if (!S3FileExist(OSAppUpdateFilePath))
-	{
-		S3EventLogAdd("Application update file not found", 1, -1, -1, -1);
-		return 2;
-	}
 
 	S3Data->m_AppUpdate->Clear();
 	int err = S3Data->m_AppUpdate->Unwrap();
