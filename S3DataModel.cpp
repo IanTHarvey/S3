@@ -235,9 +235,7 @@ int S3DataModelInit(pS3DataModel dm, bool DemoMode)
 			S3_ROOT_DIR, S3_LOCK_FILENAME);
 
 	sprintf_s(dm->m_UnlockFileName, S3_MAX_FILENAME_LEN, "%s\\%s.s3k",
-			"Hard Disk", S3_UNLOCK_FILENAME);
-
-	// S3GetLockFile();
+			S3_HDD_ROOT, S3_UNLOCK_FILENAME);
 
 	sprintf_s(dm->m_SNFileName, S3_MAX_FILENAME_LEN, "%s\\%s.s3n",
 			S3_ROOT_DIR, S3_SN_FILENAME);
@@ -293,10 +291,10 @@ int S3DataModelInit(pS3DataModel dm, bool DemoMode)
 	}
 
 	S3Data->m_AppUpdate = new S3Update(_T(""), _T(S3_DEST_FILENAME),
-		_T(S3_UPDATE_WRAP_FILENAME));
+			_T(S3_UPDATE_WRAP_FILENAME), _T(S3_HDD_ROOT));
 
 	S3Data->m_ImgUpdate = new S3Update(_T(""), _T(S3_IMG_DEST_FILENAME),
-		_T(S3_IMG_UPDATE_WRAP_FILENAME));
+			_T(S3_IMG_UPDATE_WRAP_FILENAME), _T(S3_HDD_ROOT));
 
 #ifndef S3_AGENT
 	S3Data->m_GUI = NULL;
@@ -321,6 +319,7 @@ int S3End(void)
 	// S3Save2(S3_DEFAULT_CONFIG_FILENAME);
 
 	delete S3Data->m_AppUpdate;
+	delete S3Data->m_ImgUpdate;
 
 	S3EventLogAdd("S3End invoked", 1, -1, -1, -1);
 
@@ -1674,13 +1673,10 @@ int S3RxGetInfoStr(char *info, char Rx)
 	return 0;
 }
 
-
 // ---------------------------------------------------------------------------
 
 int S3SoftwareUpdate()
 {
-	// S3OSImageUpdate();
-	
 	char *eptr;
 	double d = strtod(S3Data->m_SW, &eptr);
 
@@ -2012,7 +2008,6 @@ int S3DoComp(char Rx, char Tx)
 	}
 
 	return 0;
-
 }
 
 // ---------------------------------------------------------------------------
@@ -2206,7 +2201,6 @@ int S3SetTxSelfTest(bool on)
 
 	return 0;
 }
-
 
 // ---------------------------------------------------------------------------
 

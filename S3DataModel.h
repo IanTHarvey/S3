@@ -37,6 +37,9 @@ class S3Update;
 #define S3_CFG_FILE_SUFF			".s3c"
 #define S3_SCR_FILE_SUFF			".s3s"
 
+#define S3_HDD_ROOT					"\\Hard Disk"
+#define S3_FDD_ROOT					"\\Flashdisk"
+
 // ----------------------------------------------------------------------------
 
 #ifdef _DEBUG
