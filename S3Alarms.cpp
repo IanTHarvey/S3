@@ -1473,17 +1473,23 @@ int S3RxCtrlSetAlarm(char Rx, const unsigned char *alarms)
 
 	for(unsigned char i = 0; i < S3_RX_CTRL_ALARM_BYTES; i++)
 	{
-		if (alarms[i] != pRx->m_RxAlarms[i])
+		// TODO: Rx[1] TX1-6 (b:1-6) alarms masked until F/W fix to stop them
+		// popping up randomly
+		unsigned char a = alarms[i];
+		if (i == 1)
+			a &= 0x81;
+
+		if (a != pRx->m_RxAlarms[i])
 		{
 			char Msg[S3_EVENTS_LINE_LEN];
 
 			sprintf_s(Msg, S3_EVENTS_LINE_LEN,
 				"RxCtrl[%d]: Alarm status change: 0x%02x to 0x%02x",
-					i, pRx->m_RxAlarms[i], alarms[i]);
+					i, pRx->m_RxAlarms[i], a);
 
 			S3EventLogAdd(Msg, 3, Rx, -1, -1);
 
-			pRx->m_RxAlarms[i] = alarms[i];
+			pRx->m_RxAlarms[i] = a;
 		}
 	}
 
