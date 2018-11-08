@@ -429,7 +429,15 @@
 				>
 			</File>
 			<File
+				RelativePath="..\S3Update.h"
+				>
+			</File>
+			<File
 				RelativePath=".\S3USBVCP.h"
+				>
+			</File>
+			<File
+				RelativePath="..\S3Boot\SHA256.h"
 				>
 			</File>
 			<File
@@ -1133,11 +1141,19 @@
 				>
 			</File>
 			<File
+				RelativePath="..\S3Update.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\S3USBVCP.cpp"
 				>
 			</File>
 			<File
 				RelativePath="..\S3Utility.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\S3Boot\SHA256.cpp"
 				>
 			</File>
 			<File
