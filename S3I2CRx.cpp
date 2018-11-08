@@ -467,14 +467,8 @@ int S3I2CRxSetActiveTx(char Rx)
 
 	Tx -= S3_PENDING; // Clear pending bit
 
-	// TEST: RX6
-	// Sleep(1000);
-	
 	if (S3I2CRxSwitchTx(Rx, Tx))
 		return 1;
-
-	// TEST: RX6
-	// Sleep(1000);
 
 	return 0;
 }
