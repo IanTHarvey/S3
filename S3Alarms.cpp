@@ -1451,12 +1451,23 @@ int S3RxCtrlSetAlarm(char Rx, const unsigned char *alarms)
 {
 	int StateChange = 0;
 
+	// TODO: Rx[1] TX1-6 (b:1-6) alarms masked until F/W fix to stop them
+	// popping up randomly.
+	// Also mask Rx[0] & Rx[2] (b:0-6) as RX[1-6] and major alarms flagged
+	// continuously. F/W needs revisiting.
+	unsigned char a[S3_RX_CTRL_ALARM_BYTES];
+	memcpy(a, alarms, S3_RX_CTRL_ALARM_BYTES);
+
+	a[0] &= ~0xC0;
+	a[1] &= ~0x7F; // No fan alarm anyway
+	a[2] &= ~0xFF;
+
 	pS3RxData pRx = &S3Data->m_Rx[Rx];
 
-	if (alarms[0] & S3_TX_OPT_MAJOR)
+	if (a[0] & S3_RX_CTRL_MAJOR)
 	{
 		// Alarm already raised?
-		if (!(pRx->m_RxAlarms[0] & S3_TX_OPT_MAJOR))
+		if (!(pRx->m_RxAlarms[0] & S3_RX_CTRL_MAJOR))
 		{
 			S3EventLogAdd("RxCtrl: Major alarm raised", 3, Rx, -1, -1);
 			StateChange = 1;
@@ -1464,7 +1475,7 @@ int S3RxCtrlSetAlarm(char Rx, const unsigned char *alarms)
 	}
 	else
 	{
-		if (pRx->m_RxAlarms[0] & S3_TX_OPT_MAJOR)
+		if (pRx->m_RxAlarms[0] & S3_RX_CTRL_MAJOR)
 		{
 			S3EventLogAdd("RxCtrl: Major alarm cleared", 1, Rx, -1, -1);
 			StateChange = 1;
@@ -1473,23 +1484,17 @@ int S3RxCtrlSetAlarm(char Rx, const unsigned char *alarms)
 
 	for(unsigned char i = 0; i < S3_RX_CTRL_ALARM_BYTES; i++)
 	{
-		// TODO: Rx[1] TX1-6 (b:1-6) alarms masked until F/W fix to stop them
-		// popping up randomly
-		unsigned char a = alarms[i];
-		if (i == 1)
-			a &= 0x81;
-
-		if (a != pRx->m_RxAlarms[i])
+		if (a[i] != pRx->m_RxAlarms[i])
 		{
 			char Msg[S3_EVENTS_LINE_LEN];
 
 			sprintf_s(Msg, S3_EVENTS_LINE_LEN,
 				"RxCtrl[%d]: Alarm status change: 0x%02x to 0x%02x",
-					i, pRx->m_RxAlarms[i], a);
+					i, pRx->m_RxAlarms[i], a[i]);
 
 			S3EventLogAdd(Msg, 3, Rx, -1, -1);
 
-			pRx->m_RxAlarms[i] = a;
+			pRx->m_RxAlarms[i] = a[i];
 		}
 	}
 

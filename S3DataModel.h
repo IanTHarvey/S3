@@ -355,14 +355,35 @@ typedef enum SigmaT				{TauNone, TauLo, TauMd, TauHi, TauUnknown, TauError};
 #define S3_RX_TX_06				0x40
 #define S3_RX_TX_07				0x80
 
-#define S3_RX_CTRL_FAN_FAIL		0x01
+// Rx Ctrl alarms [3] 0xF8-A
+#define S3_RX_CTRL_00			0x01
 #define S3_RX_CTRL_01			0x02
 #define S3_RX_CTRL_02			0x04
 #define S3_RX_CTRL_03			0x08
 #define S3_RX_CTRL_04			0x10
 #define S3_RX_CTRL_05			0x20
-#define S3_RX_CTRL_06			0x40
-#define S3_RX_CTRL_07			0x80
+#define S3_RX_CTRL_MINOR		0x40
+#define S3_RX_CTRL_MAJOR		0x80
+
+#define S3_RX_CTRL_VCC_OOR		0x01
+#define S3_RX_CTRL_TX1			0x02
+#define S3_RX_CTRL_TX2			0x04
+#define S3_RX_CTRL_TX3			0x08
+#define S3_RX_CTRL_TX4			0x10
+#define S3_RX_CTRL_TX5			0x20
+#define S3_RX_CTRL_TX6			0x40
+#define S3_RX_CTRL_FAN_FAIL		0x80
+
+#define S3_RX_CTRL_00			0x01
+#define S3_RX_CTRL_RX1			0x02
+#define S3_RX_CTRL_RX2			0x04
+#define S3_RX_CTRL_RX3			0x08
+#define S3_RX_CTRL_RX4			0x10
+#define S3_RX_CTRL_RX5			0x20
+#define S3_RX_CTRL_RX6			0x40
+#define S3_RX_CTRL_OPT_SW		0x80
+
+
 
 // ----------------------------------------------------------------------------
 // Parameter to be edited (see S3GDIScreenTx.cpp)
