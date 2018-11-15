@@ -224,19 +224,10 @@ BOOL CS3ControllerDlg::OnInitDialog()
 	ShowWindow(SW_SHOWMAXIMIZED);
 #endif
 
-	// char Filename[S3_MAX_FILENAME_LEN];
-
-	// sprintf_s(Filename, S3_MAX_FILENAME_LEN, "%s\\%s",
-	//	S3_ROOT_DIR, S3_DEF_CONFIG_FILENAME);
-
 	// ...now kick everything off
 	SetTimer(IDT_S3_GUI_UPDATE_TIMER,	S3_GUI_UPDATE_INTERVAL,	NULL);
 	SetTimer(IDT_S3_RX_POLL_TIMER,		S3_RX_POLL_INTERVAL,	NULL);
 	SetTimer(IDT_S3_COMM_POLL_TIMER,	S3_COMM_POLL_INTERVAL,	NULL);
-
-    //StartCounter();
-    //Sleep(1000);
-    //double t = GetCounter();
 
 	return TRUE;  // return TRUE  unless you set the focus to a control
 } // OnInitDialog
