@@ -1272,7 +1272,7 @@ int S3RxAlarmGetString(char Rx, char *S3AlarmString, int len)
 	{
 			strcpy_s(S3AlarmString, len, "W:Fan failed");
 			pRx->m_CurAlarmSrc = 1;
-			pRx->m_CurAlarm = S3_RX_RLL_LOW;
+			pRx->m_CurAlarm = S3_RX_CTRL_FAN_FAIL;
 			return 1;
 	}
 
