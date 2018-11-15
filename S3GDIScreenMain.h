@@ -12,8 +12,8 @@
 #define S3_TX_SCREEN			2
 #define S3_CH_SCREEN			3
 #define S3_SETTINGS_SCREEN		4
-#define S3_SHUTDOWN_SCREEN		5 // Obs: not a screen
-#define S3_SLEEP_SCREEN			6
+#define S3_SHUTDOWN_SCREEN		5
+#define S3_SPARE				6	// Not used
 #define S3_OS_UPDATE_SCREEN		7
 #define S3_LOG_COPY_SCREEN		8
 #define S3_CALIBRATE_SCREEN		9
@@ -548,10 +548,6 @@ public:
 	void	S3DrawGDILogCopyScreen(void);
 
 	int		S3FindLogCopyScreen(	POINT p);
-
-	// ------------------------------------------------------------------------
-	// Sleep screen
-	void	S3DrawGDISleepScreen(void);
 
 	// ------------------------------------------------------------------------
 	// Closed screen

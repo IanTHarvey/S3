@@ -212,10 +212,6 @@ void CS3GDIScreenMain::OnPaint()
 	{
 		S3DrawGDIShutdownScreen();
 	}
-	else if (m_Screen == S3_SLEEP_SCREEN)
-	{
-		S3DrawGDISleepScreen();
-	}
 	else if (m_Screen == S3_OS_UPDATE_SCREEN)
 	{
 		S3DrawGDISWUpdateScreen();
@@ -837,11 +833,6 @@ int CS3GDIScreenMain::S3Find(POINT p)
 		if (S3FindLogCopyScreen(p))
 			return 1;
 	}
-	else if (m_Screen == S3_SLEEP_SCREEN)
-	{
-		m_Screen = S3_OVERVIEW_SCREEN;
-	}
-
 
 	return 0;
 }

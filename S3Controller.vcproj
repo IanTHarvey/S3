@@ -590,10 +590,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\S3GDIScreenSleep.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\S3GDIScreenTx.cpp"
 				>
 			</File>
