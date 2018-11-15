@@ -277,6 +277,7 @@ int S3I2CGetTxWakeUp(char Rx, char Tx)
 	S3IPSetTestTonePending(Rx, Tx, IP, true);
 
 	S3TxSetTCompMode(Rx, Tx, S3TxGetTCompMode(Rx, Tx) + S3_PENDING);
+	S3TxSetTCompModePending(Rx, Tx, true);
 
 	if (0)
 	{
@@ -612,7 +613,10 @@ int S3I2CTxSetCompMode(char Rx, char Tx)
 		}
 
 		if (!err)
+		{
 			S3TxSetTCompMode(Rx, Tx, mode); // Signal completion
+			S3TxSetTCompModePending(Rx, Tx, false);
+		}
 		else
 			return 1;
 	}
@@ -712,7 +716,7 @@ int S3I2CTxSetPowerStat(char Rx, char Tx)
 		{
 			// 500ms OK except on system start up where 1000ms required otherwise
 			// 16dB PAD is in circuit for attenuation paths.
-			Sleep(1000);
+			RTSLEEP(1000);
 
 			S3TxSetPowerStat(Rx, Tx, S3_TX_ON);
 			err = S3I2CGetTxWakeUp(Rx, Tx);
@@ -1117,7 +1121,7 @@ int S3I2CTxPeakHoldLatchClear(char Rx, char Tx)
 		// If don't do this, nothing detected
 		if (1)
 		{
-			Sleep(100);
+			RTSLEEP(100);
 
 			cfg |= 0x01;
 			err  = S3I2CWriteSerialByte(S3I2C_TX_OPT_ADDR, S3I2C_TX_OPT_CFG, cfg);
@@ -1474,7 +1478,7 @@ int select_RF_input(unsigned char input, bool test_tone_on)
 	if (!err)
 	{
 		// delay_ms(30);
-		Sleep(30);
+		RTSLEEP(30);
 
 		buf[0] = 0;
 		buf[1] = 0;
@@ -1732,7 +1736,7 @@ int set_RF_inp_board(unsigned char  path, unsigned char attenuation, char Rx, ch
 	//att_cal_apply(path);
 	// delay_ms(30);
 
-	Sleep(30);
+	RTSLEEP(30);
 
 	RF_path_reset(path, attenuation, buffer, Rx, Tx);
 	err = RF_i2c(S3_RF1_EXPDR_ADDR, buffer);
