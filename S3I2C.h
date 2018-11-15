@@ -309,8 +309,7 @@ int S3I2CRxWriteCalValue(	char Rx, char Tx,						double cal);
 int S3I2CGetRxWavelength(char Rx);
 int S3I2CGetTxWavelength(char Rx, char Tx);
 
-int S3I2CRxSetActiveTx(		char Rx);
-int S3I2CRxSwitchTx(		char Rx, char Tx);
+int S3I2CRxSwitchTx(		char Rx);
 
 int S3I2CGetTxTemp(			char Rx, char Tx);
 int S3I2CGetTxBatt(			char Rx, char Tx);

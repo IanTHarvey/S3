@@ -2054,7 +2054,7 @@ int S3SetFactoryMode(char Rx, char Tx, bool mode)
 			S3I2CSetUpOptAddr(Rx, Tx);
 
 			S3RxSetActiveTx(Rx, Tx);
-			if (S3I2CRxSetActiveTx(Rx))
+			if (S3I2CRxSwitchTx(Rx))
 				return 1;
 
 			// Force switch to active IP and update to gain

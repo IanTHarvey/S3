@@ -81,9 +81,6 @@ void CS3GDIScreenMain::S3DrawGDIRx(char Rx)
 		{
 			char ActiveTx = S3RxGetActiveTx(Rx);
 
-			if (ActiveTx >= S3_PENDING)
-				ActiveTx -= S3_PENDING;
-
 			S3DrawGDIFOLSym(Rx, xref, m_RectRx.bottom + 20, ActiveTx < 4);
 
 			int	xrefTx = Rx * m_RxSep + m_RxSep / 2;

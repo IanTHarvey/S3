@@ -114,7 +114,7 @@ int S3I2CRxGetStatus(char Rx)
 	unsigned char RxType = S3RxGetType(Rx);
 
 	// Switch optical input BEFORE attempting to read Rx6's RLL
-	S3I2CRxSetActiveTx(Rx);
+	S3I2CRxSwitchTx(Rx);
 
 	// Read all Rx control data from Rx[0], even if Rx2
 	S3I2CSetUpOptAddr(Rx, 0);
@@ -161,8 +161,6 @@ int S3I2CRxGetStatus(char Rx)
 	}
 	else if (RxType == S3_Rx6)
 	{
-		// S3I2CRxSetActiveTx(Rx);
-
 		for(char Tx = 0; Tx < S3_MAX_TXS; Tx++)
 		{
 			S3I2CSetUpOptAddr(Rx, Tx);
@@ -450,47 +448,29 @@ int S3I2CGetRxStartUp(char Rx)
 	return 0;
 }
 
-
-
 // ----------------------------------------------------------------------------
-// TODO: Untested
+unsigned int SwitchCnt = 0;
+unsigned int SwitchFailCnt = 0;
 
-int S3I2CRxSetActiveTx(char Rx)
+int S3I2CRxSwitchTx(char Rx)
 {
+#ifdef TRIZEPS
+
 	char Tx = S3RxGetActiveTx(Rx);
 
 	if (Tx == -1)
 		return 0;
 
-	if (Tx < S3_PENDING)
+	if (!S3RxGetActiveTxPending(Rx))
 		return 0; // No change pending
 
-	Tx -= S3_PENDING; // Clear pending bit
-
-	if (S3I2CRxSwitchTx(Rx, Tx))
-		return 1;
-
-	return 0;
-}
-
-// ----------------------------------------------------------------------------
-// TODO: Untested
-
-int S3I2CRxSwitchTx(char Rx, char Tx)
-{
-#ifdef TRIZEPS
-
-	if (S3RxGetType(Rx) != S3_Rx6)
-		return 0;
-
-	// TEST: Rx6
-	unsigned char val = I2C_ReadRandom(S3I2C_RX_CTRL_ADDR, S3I2C_RX_CTRL_OPT_SW_POS);
+	unsigned char val; // = I2C_ReadRandom(S3I2C_RX_CTRL_ADDR, S3I2C_RX_CTRL_OPT_SW_POS);
 
 	unsigned char	wbuf[2] = {S3I2C_RX_CTRL_OPT_SW_POS, 0};
 
 	wbuf[1] = Tx + 1; // 1-based index
 
-	Sleep(1000);
+	// RTSLEEP(100);
 
 	BOOL ok = I2C_WriteRead(S3I2C_RX_CTRL_ADDR, wbuf, 2, NULL, 0);
 
@@ -499,20 +479,28 @@ int S3I2CRxSwitchTx(char Rx, char Tx)
 		return 1;
 	}
 
-	Sleep(1000);
+	RTSLEEP(1000);
 
-	// TEST: Rx6
 	val = I2C_ReadRandom(S3I2C_RX_CTRL_ADDR, S3I2C_RX_CTRL_OPT_SW_POS);
 
-	S3RxSetActiveTx(Rx, val - 1);  // Ack
+	S3RxSetActiveTxPending(Rx, false);
 
-	// TEST: Rx6
+	SwitchCnt++;
+
 	if (val != (Tx + 1))
 	{	
+		SwitchFailCnt++;
+		char msg[64];
+		sprintf_s(msg, 64, "Rx6 FOL switch failed (%d/%d)",
+			SwitchFailCnt, SwitchCnt);
+
+		S3EventLogAdd(msg, 1, Rx, Tx, -1);
 		return 1;
 	}
+
+	SwitchCnt++;
 #else
-	S3RxSetActiveTx(Rx, Tx);  // Ack
+	S3RxSetActiveTxPending(Rx, false);  // Ack
 #endif
 
 	return 0;

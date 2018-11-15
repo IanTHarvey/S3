@@ -59,6 +59,9 @@ class S3Update;
 #define debug_printw(A, ...)	TRACE(_T(A), __VA_ARGS__)
 #endif
 
+// Use to keep track of operational delays
+#define RTSLEEP(A)	Sleep((A))
+
 extern FILE *S3DbgLog;
 
 extern const unsigned char S3Tx8IPMap[];
@@ -684,7 +687,7 @@ typedef struct sS3RxData
 									// necessarily the active one).
 
 	char			m_ActiveTx; // Only valid for Rx6s, 0 by default
-	
+	bool			m_ActiveTxPending;
 	char			m_SN[S3_MAX_SN_LEN];
 	char			m_PN[S3_MAX_PN_LEN];
 	char			m_FW[S3_MAX_SW_VER_LEN];
@@ -1245,8 +1248,11 @@ char S3TxGetActiveIP(		char Rx, char Tx);
 int S3TxSetActiveIPPending(	char Rx, char Tx, bool pending);
 bool S3TxGetActiveIPPending(char Rx, char Tx);
 
-int S3RxSetActiveTx(	char Rx, char Tx);
-char S3RxGetActiveTx(	char Rx);
+int S3RxSetActiveTx(		char Rx, char Tx);
+char S3RxGetActiveTx(		char Rx);
+int S3RxSetActiveTxPending(	char Rx, bool pending);
+bool S3RxGetActiveTxPending(char Rx);
+
 bool S3RxIsActiveTx(	char Rx, char Tx);
 bool S3TxConnected(		char Rx, char Tx);
 

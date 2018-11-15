@@ -223,8 +223,7 @@ int	S3DbgPollRx(char Rx)
 		// Mark as 'done'
 		if (!pRx->m_Detected)
 		{
-			if (pRx->m_ActiveTx >= S3_PENDING)
-				pRx->m_ActiveTx -= S3_PENDING;
+			pRx->m_ActiveTxPending = false;
 		}
 	}
 	else
