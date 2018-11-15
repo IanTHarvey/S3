@@ -7,7 +7,7 @@
 //#include "S3ControllerDlg.h"
 
 #ifdef S3_DIAG_TIMING
-double PCFreq = 0.0;
+unsigned int PCFreq = 0;
 __int64 CounterStart[8] = {0, 0, 0, 0, 0, 0, 0, 0};
 unsigned int Max[8] = {0, 0, 0, 0, 0, 0, 0, 0};
 FILE	*TimerLog = NULL;
@@ -30,7 +30,7 @@ int S3TimerInit()
     if(!QueryPerformanceFrequency(&li))
 		return 1;
 
-    PCFreq = double(li.QuadPart)/1000.0;
+    PCFreq = (unsigned int)(li.QuadPart / 1000);
 
 	//// Open and clear file
 	//int err = fopen_s(&TimerLog, S3DiagTimerFileName, "w");
