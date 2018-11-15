@@ -345,8 +345,6 @@ public:
 	CS3GDIScreenMain();
 	virtual ~CS3GDIScreenMain();
 
-	virtual void OnInitialUpdate();
-
 	afx_msg		void OnPaint();
 	afx_msg		void OnStnClicked();
 	afx_msg		void OnStnDblclick();
@@ -448,8 +446,8 @@ public:
 	void		S3DrawGDIRxTxRowName(	char Row, wchar_t *cstr);
 	void		S3DrawGDIRxMessage(	char Rx);
 	void		S3DrawGDIColHeader(	char Rx, char Tx, CRect &RectItem);
-// TODO: Delete
-	void		S3DrawGDIColHeaderOld(	char Rx, char Tx, CRect &RectItem);
+
+	void		S3DrawRxNodeNameEdit(char Rx, char Tx, char IP);
 
 	// ------------------------------------------------------------------------
 	// Transmitter screen
@@ -457,6 +455,8 @@ public:
 	void	S3CloseGDITxScreen(void);
 	void	S3DrawGDITxScreen(void);
 	void		S3DrawGDITxBattSeg(	char Rx, char Tx, int xref, int yref);
+
+
 
 	void		S3DrawGDITxTx(		char Rx, char Tx);
 	void		S3DrawGDITxIP(		char Rx, char Tx, char IP,	int xref, int yref);
@@ -468,6 +468,9 @@ public:
 
 	CRect		S3RectGDITxIPRowName(		int xref, int yref, char Row,
 											int Justification = DT_RIGHT);
+
+	void		S3DrawTxNodeNameEdit(char Rx, char Tx, char IP);
+	void		S3InitGDITxGain(char Rx, char Tx, char IP, int yref);
 
 	void		S3DrawGDITxMessage(	char Rx, char Tx);
 

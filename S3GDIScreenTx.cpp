@@ -92,6 +92,8 @@ int hTxIPRows[S3_MAX_TXIP_PARAS] = {0, 35, 30, 91, 45, 30, 40, 35, 30, 30, 30};
 
 int pTxIPRows[S3_MAX_TXIP_PARAS];
 
+extern char S3GDI_ParaRowMap(char para);
+
 // ----------------------------------------------------------------------------
 // ITH: Add to initialisation
 int TxIPRowsCumSum()
@@ -128,21 +130,6 @@ int KeepInRect(CRect outer, CRect &in)
 	in.OffsetRect(r, d);
 
 	return (int)(r || d);
-}
-
-// ----------------------------------------------------------------------------
-// Find row relates to the parameter ID
-// TODO: Move out of TxScreen and rationalise naming (ie no longer IP specific)
-
-extern char S3GDI_TxParaRowMap(char para);
-
-char S3GDI_ParaRowMap(char para)
-{
-	for(char i = 0; i < S3GDI_MAX_IP_PARAS; i++)
-		if (S3GDI_RowParaMap[i] != -1 && S3GDI_RowParaMap[i] == para)
-			return i;
-
-	return -1;
 }
 
 // ----------------------------------------------------------------------------
@@ -477,6 +464,8 @@ void CS3GDIScreenMain::S3DrawGDITxScreen(void)
 
 	m_TxBattInfoPopup->Draw();
 	m_TxInfoPopup->Draw();
+
+
 }
 
 // ----------------------------------------------------------------------------
@@ -1376,7 +1365,6 @@ void CS3GDIScreenMain::S3DrawGDITxIP(char Rx, char Tx, char IP,
 	RowCnt++;
 
 	TxSigTau[IP]->SetString(S3TxGetTauUnits(Rx, Tx, IP));
-	// SigmaT Tau = S3IPGetSigmaTau(Rx, Tx, IP);
 
 	// ------------------------------------------------------------------------
 
@@ -1418,9 +1406,6 @@ void CS3GDIScreenMain::S3DrawGDITxIP(char Rx, char Tx, char IP,
 
 	TxScratch[IP]->SetString(str);
 #endif
-
-	// TODO: Decide to set or disable
-	// TxHiZ[IP]->Enable(Tau == TNone);
 
 	// ------------------------------------------------------------------------
 
@@ -1464,8 +1449,6 @@ void CS3GDIScreenMain::S3DrawGDITxGain(char Rx, char Tx, char IP,
 		xleft + m_wGainBar - S3_GAIN_BORDER_W,	yl + 1 + 1);
 
 	SelectObject(m_HDC, m_hPenNone);
-
-	// S3TxPwrMode PowerState = S3TxGetPowerStat(Rx, Tx);
 
 	if (m_TxPowerState >= S3_TX_SLEEP || S3IPGetAlarms(Rx, Tx, IP) & S3_IP_OVERDRIVE)
 		SelectObject(m_HDC, m_hBrushMediumGrey);
@@ -1668,7 +1651,6 @@ void CS3GDIScreenMain::S3DrawGDITxIPTable(char Rx, char Tx)
 		int yrefrow = yref;
 
 		SelectObject(m_HDC, m_hPenNone);
-		// SelectObject(m_HDC, m_hPenIPLive);
 
 		if (IP % 2)
 			SelectObject(m_HDC, m_hBrushBG3);
@@ -1743,279 +1725,6 @@ void CS3GDIScreenMain::S3DrawGDITxIPParaSelect(		int xref, int yref,
 	Rectangle(m_HDC,	xref,			yref + pTxIPRows[ParaRow],
 						xref + wIPCol,	yref + pTxIPRows[ParaRow + 1]);
 	SelectObject(m_HDC, p);
-}
-
-// ----------------------------------------------------------------------------
-// TODO: Menu positions must be kept aligned with S3SetParaValue
-// TODO: Move out, this is no longer Tx-specific
-
-void CS3GDIScreenMain::S3DrawGDIParaPopUp(int xref, int yref)
-{
-	char Rx, Tx, IP;
-
-	S3GetSelected(&Rx, &Tx, &IP);
-	char ParaType = S3GetSelectedPara(Rx, Tx, IP);
-
-	// char ParaType = S3GDI_RowParaMap[SelectedPara];
-
-	m_TxBattInfoPopup->PopDown();
-	m_TxInfoPopup->PopDown();
-
-	if (m_IPGainIsUp == true && ParaType != S3_GAIN)
-		m_IPGainIsUp = false;
-
-	if (ParaType == S3_SIGMA_TAU)
-	{
-		m_ParaMenu->Init(m_HDC, xref, yref);
-
-		m_ParaMenu->AddItem(S3TxGetTauLabel(Rx, Tx, TauNone));
-		m_ParaMenu->AddItem(S3TxGetTauLabel(Rx, Tx, TauLo));
-		m_ParaMenu->AddItem(S3TxGetTauLabel(Rx, Tx, TauMd));
-		m_ParaMenu->AddItem(S3TxGetTauLabel(Rx, Tx, TauHi));
-
-		switch(S3IPGetSigmaTau(Rx, Tx, IP))
-		{
-		case TauNone:	m_ParaMenu->SelectItem(0); break;
-		case TauLo:		m_ParaMenu->SelectItem(1); break;
-		case TauMd:		m_ParaMenu->SelectItem(2); break;
-		case TauHi:		m_ParaMenu->SelectItem(3); break;
-		}
-
-		m_ParaMenu->Activate();
-	}
-	else if (ParaType == S3_INPUT_IMP)
-	{	
-		m_ParaMenu->Init(m_HDC, xref, yref);
-
-		m_ParaMenu->AddItem(_T("50"));
-		m_ParaMenu->AddItem(_T("1M"));
-
-		switch(S3IPGetImpedance(Rx, Tx, IP))
-		{
-		case W50:	m_ParaMenu->SelectItem(0); break;
-		case W1M:	m_ParaMenu->SelectItem(1); break;
-		}
-
-		m_ParaMenu->Activate();
-	}
-	else if (ParaType == S3_TEST_TONE)
-	{	
-		m_ParaMenu->Init(m_HDC, xref, yref);
-
-		m_ParaMenu->AddItem(_T("Off"));
-		m_ParaMenu->AddItem(_T("On"));
-
-		char ToneEnabled = S3IPGetTestToneEnable(Rx, Tx, IP);
-
-		if (ToneEnabled < S3_PENDING)
-		{
-			if (ToneEnabled)
-				m_ParaMenu->SelectItem(1); 
-			else
-				m_ParaMenu->SelectItem(0);
-		
-			m_ParaMenu->Activate();
-		}
-	}
-#ifdef S3LOWNOISE
-	else if (ParaType == S3_LOW_NOISE)
-	{		
-		m_ParaMenu->Init(m_HDC, xref, yref);
-
-		m_ParaMenu->AddItem(_T("Off"));
-		m_ParaMenu->AddItem(_T("On"));
-
-		switch(S3IPGetLowNoiseMode(Rx, Tx, IP))
-		{
-		case 0:		m_ParaMenu->SelectItem(0); break;
-		case 1:		m_ParaMenu->SelectItem(1); break;
-		}
-
-		m_ParaMenu->Activate();
-	}
-#endif
-	else if (ParaType == S3_TXIP_NODENAME)
-	{
-		CString str;
-		str.Format(_T("%S"), S3GetNodeName(Rx, Tx, IP));
-
-		char ParaRow = S3GDI_ParaRowMap(ParaType);
-
-		// Add width to accommodate 8 characters
-		CRect RectText(
-			m_RectTxTable.left + IP * wIPCol,
-			m_RectTxTable.top + pTxIPRows[ParaRow],
-			m_RectTxTable.left + (IP + 1) * wIPCol + 50,
-			m_RectTxTable.top + pTxIPRows[ParaRow + 1] + 10);
-
-		KeepInRect(m_RectTxTable, RectText);
-
-		m_GDINodeNameEdit->Edit(RectText, str);			
-	}
-	else if (ParaType == S3_RXTX_NODENAME)
-	{
-		CString str;
-		str.Format(_T("%S"), S3GetNodeName(Rx, Tx, IP));
-
-		char ParaRow = S3GDI_RxParaRowMap(ParaType);
-
-		CRect RectText(
-			m_RectRxTable.left + Tx * m_RectRxTx.Width(),
-			m_RectRxTable.top + pRxTxRows[ParaRow],
-			m_RectRxTable.left + (Tx + 1) * m_RectRxTx.Width() + 50,
-			m_RectRxTable.top + pRxTxRows[ParaRow + 1] + 10);
-
-		KeepInRect(m_RectRxTable, RectText);
-
-		m_GDINodeNameEdit->Edit(RectText, str);			
-	}
-	else if (ParaType == S3_RXRX_NODENAME)
-	{
-		CString str;
-		str.Format(_T("%S"), S3GetNodeName(Rx, -1, -1));
-
-		m_GDINodeNameEdit->Edit(m_RectRxNodeName, str);	
-	}
-	else if (ParaType == S3_TXTX_NODENAME)
-	{
-		// This is the node name of the Tx on the transmitter screen.
-		CString str;
-		str.Format(_T("%S"), S3GetNodeName(Rx, Tx, -1));
-
-		m_GDINodeNameEdit->Edit(m_RectTxNodeName, str);	
-	}
-	else if (ParaType == S3_ACTIVE_INPUT)
-	{
-		S3TxSetActiveIP(Rx, Tx, IP);
-	}
-	else if (ParaType == S3_ACTIVE_TX)
-	{
-		S3RxSetActiveTx(Rx, Tx);
-	}
-	else if (ParaType == S3_GAIN)
-	{
-		S3InitGDIIPGain(Rx, Tx, IP, m_RectTxTable.left + IP * wIPCol, yref);
-	}
-	else if (0) // ParaType == S3_MAX_INPUT)
-	{
-		CString str;
-		str.Format(_T("%.2f"), S3IPGetMaxInput(Rx, Tx, IP));
-
-		char ParaRow = S3GDI_ParaRowMap(ParaType);
-
-		CRect rect;
-		m_GDIMaxPowerEdit->GetWindowRect(&rect);
-
-		rect.MoveToXY(m_RectTxTable.left + IP * wIPCol,
-			m_RectTxTable.top + pTxIPRows[ParaRow]);
-		KeepInRect(m_RectTxTable, rect);	
-
-		m_GDIMaxPowerEdit->Edit(rect, str);
-	}
-	else if (ParaType == S3_ALARM_LED)
-	{
-		if (S3IPGetAlarms(Rx, Tx, IP) & S3_IP_OVERDRIVE)
-		{
-			m_ParaMenu->Init(m_HDC, xref, yref);
-			m_ParaMenu->AddItem(_T("Cancel"));
-			m_ParaMenu->SelectItem(-1);
-				
-			m_ParaMenu->Activate();
-		}
-	}
-	else if (ParaType == S3_TX_POWER_MODE)
-	{
-		if (!S3TxSelfTestPending(Rx, Tx))
-		{
-			m_ParaMenu->Init(m_HDC, xref, yref);
-			m_ParaMenu->AddItem(_T("On"));
-			m_ParaMenu->AddItem(_T("Sleep"));
-			
-			if (S3GetTxSelfTest())
-				m_ParaMenu->AddItem(_T("Self test"));
-
-			switch(m_TxPowerState)
-			{
-			case S3_TX_ON:		m_ParaMenu->SelectItem(0); break;
-			case S3_TX_SLEEP_PENDING:
-			case S3_TX_SLEEP:	m_ParaMenu->SelectItem(1); break;
-			}
-
-			m_ParaMenu->Activate();
-		}
-	}
-	else if (ParaType == S3_TX_DO_COMP)
-	{
-		m_ParaMenu->Init(m_HDC, xref, yref);
-		m_ParaMenu->AddItem(_T("Compensate"));
-		m_ParaMenu->Activate();
-	}
-	else if (ParaType == S3_TX_CANCEL_ALARM || ParaType == S3_RX_CANCEL_ALARM)
-	{
-		m_ParaMenu->Init(m_HDC, xref, yref);
-		m_ParaMenu->AddItem(_T("Cancel"));
-		m_ParaMenu->Activate();
-	}
-	else  if (ParaType == S3_RXRX_AGC)
-	{
-		// Now global setting
-	}
-	else  if (ParaType == S3_TX_TESTTONE_ALL)
-	{
-		m_ParaMenu->Init(m_HDC, xref, yref);
-
-		m_ParaMenu->AddItem(_T("All On"));
-		m_ParaMenu->AddItem(_T("All Off"));
-
-		m_ParaMenu->Activate();
-	}
-	else
-	{
-	}
-}
-
-// ----------------------------------------------------------------------------
-// 'Callback' for text input pop-up
-int CS3GDIScreenMain::S3GDITextSupplied(const wchar_t *txt)
-{
-	char Rx, Tx, IP, Para;
-				
-	S3GetSelected(&Rx, &Tx, &IP);
-	Para = S3GetSelectedPara(Rx, Tx, IP);
-
-	char ctmp[S3_MAX_EDIT_LEN];
-	sprintf_s(ctmp, S3_MAX_EDIT_LEN, "%S", txt);
-
-	if (Para == S3_DATE_EDIT)
-	{
-#ifndef S3_AGENT
-		m_Parent->SetSysDateStr(txt);
-#endif
-		return 0;
-	}
-
-	if (Para == S3_TIME_EDIT)
-	{
-#ifndef S3_AGENT
-		m_Parent->SetSysTimeStr(txt);
-#endif
-		return 0;
-	}
-
-	if (S3IPSetParaTxt(Rx, Tx, IP, Para, txt))
-	{
-		// TODO: Report failure
-		return 1;
-	}
-
-	if (Para == S3_IP_PORT)
-	{
-#ifndef S3_AGENT
-		m_Parent->ResetSocket();
-#endif
-	}
-
-	return 0;
 }
 
 // ----------------------------------------------------------------------------
@@ -2180,6 +1889,34 @@ void CS3GDIScreenMain::S3DrawGDITxBattSeg(char Rx, char Tx, int xref, int yref)
 
 	DrawText(m_HDC, status, -1, &fntRc, DT_RIGHT);
 
+}
+
+// ----------------------------------------------------------------------------
+
+void CS3GDIScreenMain::S3DrawTxNodeNameEdit(char Rx, char Tx, char IP)
+{
+	CString str;
+	str.Format(_T("%S"), S3GetNodeName(Rx, Tx, IP));
+
+	char ParaRow = S3GDI_ParaRowMap(S3_TXTX_NODENAME);
+
+	// Add width to accommodate 8 characters
+	CRect RectText(
+			m_RectTxTable.left + IP * wIPCol,
+			m_RectTxTable.top + pTxIPRows[ParaRow],
+			m_RectTxTable.left + (IP + 1) * wIPCol + 50,
+			m_RectTxTable.top + pTxIPRows[ParaRow + 1] + 10);
+
+	KeepInRect(m_RectTxTable, RectText);
+
+	m_GDINodeNameEdit->Edit(RectText, str);
+}
+
+// ----------------------------------------------------------------------------
+
+void CS3GDIScreenMain::S3InitGDITxGain(char Rx, char Tx, char IP, int yref)
+{
+	S3InitGDIIPGain(Rx, Tx, IP, m_RectTxTable.left + IP * wIPCol, yref);
 }
 
 // ----------------------------------------------------------------------------

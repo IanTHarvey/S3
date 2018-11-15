@@ -32,6 +32,7 @@ int wTxCol;
 // TODO: Not used. Will be?
 extern char S3GDI_RxRowParaMap[];
 char S3GDI_RxParaRowMap(char para);
+extern int KeepInRect(CRect outer, CRect &in);
 
 extern TRIVERTEX vertex_g[2];
 extern TRIVERTEX vertex_r[2];
@@ -717,80 +718,6 @@ int CS3GDIScreenMain::S3GFill(TRIVERTEX *vertex, CRect rect)
 
 // ----------------------------------------------------------------------------
 
-void CS3GDIScreenMain::S3DrawGDIColHeaderOld(char Rx, char Tx, CRect &RectItem)
-{
-	char Alarms = 0; // S3IPGetAlarms(Rx, Tx, IP);
-
-	COLORREF cr = SetTextColor(m_HDC, m_crWhite);
-
-	// Contrast
-	if (S3RxIsActiveTx(Rx, Tx))
-	{	// Alternate green/red
-		if (Alarms && m_Parent->m_AnimateState)
-		{	// Red
-			S3GFill(vertex_r, RectItem);
-		}
-		else
-		{	// Green
-			S3GFill(vertex_g, RectItem);
-		}
-	}
-	else
-	{	// Alternate white/red
-		if (Alarms && m_Parent->m_AnimateState)
-		{	// Red
-			S3GFill(vertex_r, RectItem);
-		}
-		else if (S3TxIsDetected(Rx, Tx))
-		{
-			// Green unfilled rrectangle
-			SetTextColor(m_HDC, cr);
-		
-			if (Tx % 2)
-				SelectObject(m_HDC, m_hBrushBG2);
-			else
-				SelectObject(m_HDC, m_hBrushBG3);
-			
-			SelectObject(m_HDC, m_hPenDetected);
-			S3_RECT(m_HDC, RectItem);
-			SelectObject(m_HDC, m_hPenNone);
-		}
-		else
-		{
-			// Flat greys
-			SetTextColor(m_HDC, cr);
-		
-			if (Tx % 2)
-				SelectObject(m_HDC, m_hBrushDarkGrey);
-			else
-				SelectObject(m_HDC, m_hBrushMediumGrey);
-
-			S3_RECT(m_HDC, RectItem);
-		}
-	}
-
-	RectItem.top -= 4;
-	SelectObject(m_HDC, m_hFontL);
-	CString str;
-	str.Format(_T("%d"), Tx + 1);
-	DrawText(m_HDC, str, -1, &RectItem, DT_CENTER);
-
-	S3TxType TxType = S3TxGetType(Rx, Tx);
-	
-	if (TxType == S3_TxUnconnected)
-	{
-		return;
-	}
-
-	if (!S3RxIsActiveTx(Rx, Tx) || S3TxGetPowerStat(Rx, Tx) == S3_TX_SLEEP)
-		SetTextColor(m_HDC, m_crMenuTxtGreyed);
-	else
-		SetTextColor(m_HDC, cr);
-
-}
-
-// ----------------------------------------------------------------------------
-
 void CS3GDIScreenMain::S3DrawGDIColHeader(char Rx, char Tx, CRect &RectItem)
 {
 	char Alarms = 0; // S3IPGetAlarms(Rx, Tx, IP);
@@ -875,6 +802,26 @@ void CS3GDIScreenMain::S3DrawGDIColHeader(char Rx, char Tx, CRect &RectItem)
 	CString str;
 	str.Format(_T("%d"), Tx + 1);
 	DrawText(m_HDC, str, -1, &RectItem, DT_CENTER);
+}
+
+// ----------------------------------------------------------------------------
+
+void CS3GDIScreenMain::S3DrawRxNodeNameEdit(char Rx, char Tx, char IP)
+{
+	CString str;
+	str.Format(_T("%S"), S3GetNodeName(Rx, Tx, IP));
+
+	char ParaRow = S3GDI_RxParaRowMap(S3_RXTX_NODENAME);
+
+	CRect RectText(
+		m_RectRxTable.left + Tx * m_RectRxTx.Width(),
+		m_RectRxTable.top + pRxTxRows[ParaRow],
+		m_RectRxTable.left + (Tx + 1) * m_RectRxTx.Width() + 50,
+		m_RectRxTable.top + pRxTxRows[ParaRow + 1] + 10);
+
+	KeepInRect(m_RectRxTable, RectText);
+
+	m_GDINodeNameEdit->Edit(RectText, str);
 }
 
 // ----------------------------------------------------------------------------
