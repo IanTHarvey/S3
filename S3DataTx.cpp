@@ -45,6 +45,7 @@ int S3TxInit(pS3TxData node)
 	node->m_AttenGainOffset = 0;
 
 	node->m_CompMode = 1; // Continuous
+	node->m_CompModePending = false;
 
 	node->m_Xref = node->m_Yref = -1;
 
@@ -755,7 +756,21 @@ unsigned char S3TxGetTCompMode(char Rx, char Tx)
 	return S3Data->m_Rx[Rx].m_Tx[Tx].m_CompMode;
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+
+bool S3TxGetTCompModePending(char Rx, char Tx)
+{
+	return S3Data->m_Rx[Rx].m_Tx[Tx].m_CompModePending;
+}
+
+// ----------------------------------------------------------------------------
+
+void S3TxSetTCompModePending(char Rx, char Tx, bool pending)
+{
+	S3Data->m_Rx[Rx].m_Tx[Tx].m_CompModePending = pending;
+}
+
+// ----------------------------------------------------------------------------
 
 int S3TxFindSN(char *cRx, char *cTx, char *SN)
 {
@@ -1779,20 +1794,5 @@ int S3TxSetSelfTestPending(char Rx, char Tx, bool pending)
 
 	return 0;
 }
-
-// ---------------------------------------------------------------------------
-
-/*
-bool S3TxNotActive(char Rx, char Tx)
-{
-	if (S3Data->m_Rx[Rx].m_Type == S3_Rx6)
-	{
-		if (S3Data->m_Rx[Rx].m_ActiveTx != Tx)
-			return false;
-	}
-		
-	return true;
-}
-*/
 
 // ---------------------------------------------------------------------------
