@@ -77,7 +77,7 @@ int S3DeSpace(char *str)
 		len--;
 	}
 
-	// Multiple repeated
+	// Multiple repeated spaces
 	for(i = 0; i < len; i++)
 	{
 		if (str[i] == ' ')
@@ -183,9 +183,7 @@ int S3ProcessGPIBCommand(const char *cmd)
 
 	strcpy_s(GPIBCmdBuf, S3_MAX_GPIB_CMD_LEN, cmd);
 	GPIBBufLen = strlen(GPIBCmdBuf);
-
 	GPIBBufLen = S3DeSpace(GPIBCmdBuf);
-
 	GPIBNArgs = S3GetArgs();
 
 	if (GPIBNArgs == 0xFF)
@@ -198,54 +196,32 @@ int S3ProcessGPIBCommand(const char *cmd)
 	{
 		err = DbgProcessCmd();
 		S3LookUpError(GPIBRetBuf, err);
-
 		return err;
 	}
 
     if(!STRNCMP(GPIBCmdBuf, "S3", 2))
     {
         err = S3AgentProcessCmd();
-
         return err;
     }
 
-	// TEST: ONLY - log all remote commands
+	// Log only user commands
 	S3EventLogAdd(GPIBCmdBuf, 3, -1, -1, -1);
 
-	// In Local mode controller still responds to remote commands, in Remote
-	// mode, GUI is read-only.
-	if (0) // !S3GetRemote())
-	{
-		strcpy_s(GPIBRetBuf, S3_MAX_GPIB_RET_LEN, "LOCAL MODE: Not responding");
-		return S3_GPIB_LOCAL_MODE;
-	}
-
-	// TODO: Remove initial filtering, saves bugger-all
 	char *Cmd = GPIBCmdArgs[0];
 	char Initial = toupper(*Cmd);
 
-	if (Initial == '*')
+	switch(Initial)
 	{
+	case '*':
 		if		(!STRCMP(Cmd,	"*IDN?"))			err = CmdIDNQ();
-		else
-			err = S3_GPIB_CMD_UNRECOGNISED;
-	}
-	else if (Initial == 'A')
-	{
+		else	err = S3_GPIB_CMD_UNRECOGNISED;
+		break;
+	case 'A':
 		if		(!STRCMP(Cmd,	"AGC"))				err = CmdAGC();
-		else
-			err = S3_GPIB_CMD_UNRECOGNISED;
-	}
-	else if (Initial == 'B')
-	{
-		err = S3_GPIB_CMD_UNRECOGNISED;
-	}
-	else if (Initial == 'C')
-	{
-		err = S3_GPIB_CMD_UNRECOGNISED;
-	}
-	else if (Initial == 'G')
-	{
+		else	err = S3_GPIB_CMD_UNRECOGNISED;
+		break;
+	case 'G':
 		if		(!STRCMP(Cmd,	"GAIN"))			err = CmdGAIN();
 		else if	(!STRCMP(Cmd,	"GET"))				err = CmdGET();
 		else if	(!STRCMP(Cmd,	"GETRLL"))			err = CmdGETRLL();
@@ -255,42 +231,32 @@ int S3ProcessGPIBCommand(const char *cmd)
 		else if	(!STRCMP(Cmd,	"GETTXPOWER"))		err = CmdGETTXPOWER();
 		else if	(!STRCMP(Cmd,	"GETTXSETTINGS"))	err = CmdGETTXSETTINGS();
 		else if	(!STRCMP(Cmd,	"GETTXCHARGE"))		err = CmdTXCHARGE();
-		else
-			err = S3_GPIB_CMD_UNRECOGNISED;
-	}
-	else if (Initial == 'I')
-	{
+		else	err = S3_GPIB_CMD_UNRECOGNISED;
+		break;
+	case 'I':
 		if		(!STRCMP(Cmd,	"IP"))				err = CmdIP();
 		else if (!STRCMP(Cmd,	"IPZ"))				err = CmdIMP();
 		else if (!STRCMP(Cmd,	"IPTESTSIG"))		err = CmdIPTESTSIG();
 		else if (!STRCMP(Cmd,	"ITAU"))			err = CmdITAU();
-		else
-			err = S3_GPIB_CMD_UNRECOGNISED;
-	}
-	else if (Initial == 'L')
-	{
+		else	err = S3_GPIB_CMD_UNRECOGNISED;
+		break;
+	case 'L':
 		if		(!STRCMP(Cmd,	"LOAD"))			err = CmdLOAD();
 		else if (!STRCMP(Cmd,	"LOWNOISE"))		err = CmdLOWNOISE();
 		else if (!STRCMP(Cmd,	"LOCAL"))			err = CmdLOCAL();
 		else if (!STRCMP(Cmd,	"LOGF"))			err = CmdLOGF();
         else if (!STRCMP(Cmd,	"LOGFCOPY"))		err = CmdLOGFCOPY();
-		else
-			err = S3_GPIB_CMD_UNRECOGNISED;
-	}
-	else if (Initial == 'M')
-	{
+		else	err = S3_GPIB_CMD_UNRECOGNISED;
+		break;
+	case 'M':
 		if		(!STRCMP(Cmd,	"MAXIP"))			err = CmdMAXIP(); 
-		else
-			err = S3_GPIB_CMD_UNRECOGNISED;
-	}
-    else if (Initial == 'N')
-    {
+		else	err = S3_GPIB_CMD_UNRECOGNISED;
+		break;
+	case 'N':
     	if		(!STRCMP(Cmd,	"NAME"))			err = CmdNAME();
-		else
-			err = S3_GPIB_CMD_UNRECOGNISED;
-    }
-	else if (Initial == 'P')
-	{
+		else	err = S3_GPIB_CMD_UNRECOGNISED;
+		break;
+	case 'P':
 		if		(!STRCMP(Cmd,	"PPMCALRX"))		err = CmdPPMCALRX(); 
 		else if (!STRCMP(Cmd,	"PPMCALTXRF"))		err = CmdPPMCALTXRF();
 		else if (!STRCMP(Cmd,	"PPMCALTXOPT"))		err = CmdPPMCALTXOPT();
@@ -300,21 +266,17 @@ int S3ProcessGPIBCommand(const char *cmd)
 		else if (!STRCMP(Cmd,	"PPMRXID"))			err = CmdPPMRXID();
 		else if (!STRCMP(Cmd,	"PPMSYSID"))		err = CmdPPMSYSID();
 		else if	(!STRCMP(Cmd,	"PPMTERMINATOR"))	err = CmdPPMTERMINATOR();
-		else
-			err = S3_GPIB_CMD_UNRECOGNISED;
-	}
-	else if (Initial == 'R')
-	{
+		else	err = S3_GPIB_CMD_UNRECOGNISED;
+		break;
+	case 'R':
 		if		(!STRCMP(Cmd,	"REMOTE"))			err = CmdREMOTE();
 		else if (!STRCMP(Cmd,	"RX"))				err = CmdRX();
 		else if (!STRCMP(Cmd,	"REPORTF"))			err = CmdREPORTF();
 		else if (!STRCMP(Cmd,	"REPORT"))			err = CmdREPORT();
         else if (!STRCMP(Cmd,	"RESTART"))			err = CmdRESTART();
-		else
-			err = S3_GPIB_CMD_UNRECOGNISED;
-	}
-	else if (Initial == 'S')
-	{
+		else	err = S3_GPIB_CMD_UNRECOGNISED;
+		break;
+	case 'S':
 		if		(!STRCMP(Cmd,	"SAVE"))			err = CmdSAVE();
 		else if (!STRCMP(Cmd,	"SELECTIP"))		err = CmdSELECTIP();
 		else if (!STRCMP(Cmd,	"SET"))				err = CmdSET();
@@ -327,11 +289,9 @@ int S3ProcessGPIBCommand(const char *cmd)
 		else if (!STRCMP(Cmd,   "SCALE"))			err = CmdSCALE();
 		else if (!STRCMP(Cmd,   "SIGTYPE"))			err = CmdSIGTYPE();
 		else if (!STRCMP(Cmd,   "SHOW3PC"))			err = CmdSHOW3PC();
-		else
-			err = S3_GPIB_CMD_UNRECOGNISED;
-	}
-	else if (Initial == 'T')
-	{
+		else	err = S3_GPIB_CMD_UNRECOGNISED;
+		break;
+	case 'T':
 		if		(!STRCMP(Cmd,	"TXCHARGE"))		err = CmdTXCHARGE();
 		else if (!STRCMP(Cmd,	"TXPOWER"))			err = CmdTXSLEEP();
         else if (!STRCMP(Cmd,	"TXSTARTSTATE"))	err = CmdTXSTARTSTATE();
@@ -341,42 +301,31 @@ int S3ProcessGPIBCommand(const char *cmd)
 		else if (!STRCMP(Cmd,	"TCOMPMODE"))		err = CmdTCOMPMODE();
 		else if (!STRCMP(Cmd,	"TCOMP"))			err = CmdTCOMP();
 		else if	(!STRCMP(Cmd,	"TONE"))			err = CmdCAL();
-		else
-			err = S3_GPIB_CMD_UNRECOGNISED;
-	}
-	else if (Initial == 'U')
-	{
+		else	err = S3_GPIB_CMD_UNRECOGNISED;
+		break;
+	case 'U':
 		if		(!STRCMP(Cmd,	"UNITS"))			err = CmdUNITS();
-		else
-			err = S3_GPIB_CMD_UNRECOGNISED;
-	}
-	else if (Initial == 'V')
-	{
+		else	err = S3_GPIB_CMD_UNRECOGNISED;
+		break;
+	case 'V':
 		if		(!STRCMP(Cmd,	"VERSIONSW"))		err = CmdVERSIONSW();
-		else
-			err = S3_GPIB_CMD_UNRECOGNISED;
-	}
-	else if (Initial == 'W')
-	{
+		else	err = S3_GPIB_CMD_UNRECOGNISED;
+		break;
+	case 'W':
 		if		(!STRCMP(Cmd,	"WINTRACK"))		err = CmdWINTRACK();
         else if (!STRCMP(Cmd,	"WAKEALL"))			err = CmdWAKEALL();
-		else
-			err = S3_GPIB_CMD_UNRECOGNISED;
-	}
-	else
-	{
+		else	err = S3_GPIB_CMD_UNRECOGNISED;
+		break;
+	default:
 		err = S3_GPIB_CMD_UNRECOGNISED;
+		break;
 	}
 
 	// If nothing command-specific added to return buffer, add generic error
 	if (strlen(GPIBRetBuf) == 0)
-	{
 		S3LookUpError(GPIBRetBuf, err);
-	}
 	else if (err == 2)
-	{
 		return S3_GPIB_INVALID_SNPN;
-	}
 
 	if (err)
 		S3EventLogAdd(GPIBRetBuf, 3, -1, -1, -1);
@@ -395,84 +344,85 @@ int S3LookUpError(char *buf, int err)
 		return 0;
 	}
 
-	if (err == S3_GPIB_CMD_UNRECOGNISED)
-		strcpy_s(buf, S3_MAX_GPIB_RET_LEN, "E: Unrecognised command");
-	else if (err == S3_GPIB_INVALID_PARAMETER)
-		strcpy_s(buf, S3_MAX_GPIB_RET_LEN, "E: Invalid parameter");
-	else if (err == S3_GPIB_FILE_SAVE_FAIL)
-		strcpy_s(buf, S3_MAX_GPIB_RET_LEN, "E: Failed to save configuration file");
-	else if (err == S3_GPIB_IP_SELECT_FAIL)
-		strcpy_s(buf, S3_MAX_GPIB_RET_LEN, "E: Failed to select requested input");
-	else if (err == S3_GPIB_TOO_FEW_PARAS)
-		strcpy_s(buf, S3_MAX_GPIB_RET_LEN, "E: Too few parameters");
-	else if (err == S3_GPIB_TOO_MANY_PARAS)
-		strcpy_s(buf, S3_MAX_GPIB_RET_LEN, "E: Too many parameters");
-	else if (err == S3_GPIB_INVALID_RF_IP)
-		strcpy_s(buf, S3_MAX_GPIB_RET_LEN, "E: Invalid RF input number");
-	else if (err == S3_GPIB_NO_RX_SEL)
-		strcpy_s(buf, S3_MAX_GPIB_RET_LEN, "E: No receiver selected");
-	else if (err == S3_GPIB_NO_TX_SEL)
-		strcpy_s(buf, S3_MAX_GPIB_RET_LEN, "E: No transmitter selected");
-	else if (err == S3_GPIB_MALFORMED_ADDRESS)
-		strcpy_s(buf, S3_MAX_GPIB_RET_LEN, "E: Malformed address");
-	else if (err == S3_GPIB_INVALID_ADDRESS)
-		strcpy_s(buf, S3_MAX_GPIB_RET_LEN, "E: Invalid address");
-	else if (err == S3_GPIB_OUT_RANGE_ADDRESS)
-		strcpy_s(buf, S3_MAX_GPIB_RET_LEN, "E: Address out of range");
-	else if (err == S3_GPIB_INVALID_IP)
-		strcpy_s(buf, S3_MAX_GPIB_RET_LEN, "E: RF input address not set");
-	else if (err == S3_GPIB_ERR_NUMBER_PARAS)
-		strcpy_s(buf, S3_MAX_GPIB_RET_LEN, "E: Incorrect number of parameters");
-	else if (err == S3_GPIB_MISSING_PARAMETER)
-		strcpy_s(buf, S3_MAX_GPIB_RET_LEN, "E: No parameters supplied");
-	else if (err == S3_GPIB_LOG_INIT_FAILED)
-		strcpy_s(buf, S3_MAX_GPIB_RET_LEN, "E: Log file initialisation failed");
-	else if (err == S3_GPIB_INVALID_NUMBER)
-		strcpy_s(buf, S3_MAX_GPIB_RET_LEN, "E: Invalid numeric parameter");
-	else if (err == S3_GPIB_INVALID_MODE)
-		strcpy_s(buf, S3_MAX_GPIB_RET_LEN, "E: Invalid transmitter power mode");
-	else if (err == S3_GPIB_INVALID_TX)
-		strcpy_s(buf, S3_MAX_GPIB_RET_LEN, "E: No current transmitter set");
-	else if (err == S3_GPIB_INVALID_RX)
-		strcpy_s(buf, S3_MAX_GPIB_RET_LEN, "E: No current receiver set");
-	else if (err == S3_GPIB_TX_NOT_EXIST)
-		strcpy_s(buf, S3_MAX_GPIB_RET_LEN, "E: Specified transmitter not available");
-	else if (err == S3_GPIB_RX_NOT_EXIST)
-		strcpy_s(buf, S3_MAX_GPIB_RET_LEN, "E: Specified receiver not available");
-	else if (err == S3_GPIB_IP_NOT_EXIST)
-		strcpy_s(buf, S3_MAX_GPIB_RET_LEN, "E: Specified input not available");
-	else if (err == S3_GPIB_GAIN_LIMITED)
-		strcpy_s(buf, S3_MAX_GPIB_RET_LEN, "W: Requested gain constrained by settings");
-	else if (err == S3_GPIB_TX_PROT_MODE)
-		strcpy_s(buf, S3_MAX_GPIB_RET_LEN, "W: Tx in protection mode. Gain not changed");
-	else if (err == S3_GPIB_GAIN_CHANGED)
-		strcpy_s(buf, S3_MAX_GPIB_RET_LEN, "W: Command required gain setting to be adjusted");
-	else if (err == S3_GPIB_TIME_CHANGE_FAILED)
-		strcpy_s(buf, S3_MAX_GPIB_RET_LEN, "E: System time was not set");
-	else if (err == S3_GPIB_CALIBRATION_FAILED)
-		strcpy_s(buf, S3_MAX_GPIB_RET_LEN, "E: Calibration failed");
-	else if (err == S3_GPIB_CH_NOT_EXIST)
-		strcpy_s(buf, S3_MAX_GPIB_RET_LEN, "E: No battery on charger port");
-	else if (err == S3_GPIB_CH_VALIDATED)
-		strcpy_s(buf, S3_MAX_GPIB_RET_LEN, "W: Battery already validated");
-	else if (err == S3_GPIB_CH_AUTH_FAILED)
-		strcpy_s(buf, S3_MAX_GPIB_RET_LEN, "E: Battery validation failed");
-	else if (err == S3_GPIB_ID_WRITE_FAILED)
-		strcpy_s(buf, S3_MAX_GPIB_RET_LEN, "E: Device ID write failed");
-	else if (err == S3_GPIB_INVALID_SNPN)
-		strcpy_s(buf, S3_MAX_GPIB_RET_LEN, "E: Invalid SN/PN");
-	else if (err == S3_GPIB_INVALID_TYPE)
-		strcpy_s(buf, S3_MAX_GPIB_RET_LEN, "E: Invalid type");
-	else if (err == S3_GPIB_COMMAND_LOCKED)
-		strcpy_s(buf, S3_MAX_GPIB_RET_LEN, "E: Factory-only command");
-	else if (err == S3_GPIB_BATTERY_SEALED)
-		strcpy_s(buf, S3_MAX_GPIB_RET_LEN, "E: Battery sealed");
-	else if (err == S3_GPIB_MAX_IP_IGNORED)
-		strcpy_s(buf, S3_MAX_GPIB_RET_LEN, "W: Maximum input parameter deprecated");
-	else if (err == S3_GPIB_COMMAND_FAILED)
-		strcpy_s(buf, S3_MAX_GPIB_RET_LEN, "E: Command failed");
-	else
+	switch(err)
 	{
+	case S3_GPIB_CMD_UNRECOGNISED:
+		strcpy_s(buf, S3_MAX_GPIB_RET_LEN, "E: Unrecognised command");							break;
+	case S3_GPIB_INVALID_PARAMETER:
+		strcpy_s(buf, S3_MAX_GPIB_RET_LEN, "E: Invalid parameter");								break;
+	case S3_GPIB_FILE_SAVE_FAIL:
+		strcpy_s(buf, S3_MAX_GPIB_RET_LEN, "E: Failed to save configuration file");				break;
+	case S3_GPIB_IP_SELECT_FAIL:
+		strcpy_s(buf, S3_MAX_GPIB_RET_LEN, "E: Failed to select requested input");				break;
+	case S3_GPIB_TOO_FEW_PARAS:
+		strcpy_s(buf, S3_MAX_GPIB_RET_LEN, "E: Too few parameters");							break;
+	case S3_GPIB_TOO_MANY_PARAS:
+		strcpy_s(buf, S3_MAX_GPIB_RET_LEN, "E: Too many parameters");							break;
+	case S3_GPIB_INVALID_RF_IP:
+		strcpy_s(buf, S3_MAX_GPIB_RET_LEN, "E: Invalid RF input number");						break;
+	case S3_GPIB_NO_RX_SEL:
+		strcpy_s(buf, S3_MAX_GPIB_RET_LEN, "E: No receiver selected");							break;
+	case S3_GPIB_NO_TX_SEL:
+		strcpy_s(buf, S3_MAX_GPIB_RET_LEN, "E: No transmitter selected");						break;
+	case S3_GPIB_MALFORMED_ADDRESS:
+		strcpy_s(buf, S3_MAX_GPIB_RET_LEN, "E: Malformed address");								break;
+	case S3_GPIB_INVALID_ADDRESS:
+		strcpy_s(buf, S3_MAX_GPIB_RET_LEN, "E: Invalid address");								break;
+	case S3_GPIB_OUT_RANGE_ADDRESS:
+		strcpy_s(buf, S3_MAX_GPIB_RET_LEN, "E: Address out of range");							break;
+	case S3_GPIB_INVALID_IP:
+		strcpy_s(buf, S3_MAX_GPIB_RET_LEN, "E: RF input address not set");						break;
+	case S3_GPIB_ERR_NUMBER_PARAS:
+		strcpy_s(buf, S3_MAX_GPIB_RET_LEN, "E: Incorrect number of parameters");				break;
+	case S3_GPIB_MISSING_PARAMETER:
+		strcpy_s(buf, S3_MAX_GPIB_RET_LEN, "E: No parameters supplied");						break;
+	case S3_GPIB_LOG_INIT_FAILED:
+		strcpy_s(buf, S3_MAX_GPIB_RET_LEN, "E: Log file initialisation failed");				break;
+	case S3_GPIB_INVALID_NUMBER:
+		strcpy_s(buf, S3_MAX_GPIB_RET_LEN, "E: Invalid numeric parameter");						break;
+	case S3_GPIB_INVALID_MODE:
+		strcpy_s(buf, S3_MAX_GPIB_RET_LEN, "E: Invalid transmitter power mode");				break;
+	case S3_GPIB_INVALID_TX:
+		strcpy_s(buf, S3_MAX_GPIB_RET_LEN, "E: No current transmitter set");					break;
+	case S3_GPIB_INVALID_RX:
+		strcpy_s(buf, S3_MAX_GPIB_RET_LEN, "E: No current receiver set");						break;
+	case S3_GPIB_TX_NOT_EXIST:
+		strcpy_s(buf, S3_MAX_GPIB_RET_LEN, "E: Specified transmitter not available");			break;
+	case S3_GPIB_RX_NOT_EXIST:
+		strcpy_s(buf, S3_MAX_GPIB_RET_LEN, "E: Specified receiver not available");				break;
+	case S3_GPIB_IP_NOT_EXIST:
+		strcpy_s(buf, S3_MAX_GPIB_RET_LEN, "E: Specified input not available");					break;
+	case S3_GPIB_GAIN_LIMITED:
+		strcpy_s(buf, S3_MAX_GPIB_RET_LEN, "W: Requested gain constrained by settings");		break;
+	case S3_GPIB_TX_PROT_MODE:
+		strcpy_s(buf, S3_MAX_GPIB_RET_LEN, "W: Tx in protection mode. Gain not changed");		break;
+	case S3_GPIB_GAIN_CHANGED:
+		strcpy_s(buf, S3_MAX_GPIB_RET_LEN, "W: Command required gain setting to be adjusted");	break;
+	case S3_GPIB_TIME_CHANGE_FAILED:
+		strcpy_s(buf, S3_MAX_GPIB_RET_LEN, "E: System time was not set");						break;
+	case S3_GPIB_CALIBRATION_FAILED:
+		strcpy_s(buf, S3_MAX_GPIB_RET_LEN, "E: Calibration failed");							break;
+	case S3_GPIB_CH_NOT_EXIST:
+		strcpy_s(buf, S3_MAX_GPIB_RET_LEN, "E: No battery on charger port");					break;
+	case S3_GPIB_CH_VALIDATED:
+		strcpy_s(buf, S3_MAX_GPIB_RET_LEN, "W: Battery already validated");						break;
+	case S3_GPIB_CH_AUTH_FAILED:
+		strcpy_s(buf, S3_MAX_GPIB_RET_LEN, "E: Battery validation failed");						break;
+	case S3_GPIB_ID_WRITE_FAILED:
+		strcpy_s(buf, S3_MAX_GPIB_RET_LEN, "E: Device ID write failed");						break;
+	case S3_GPIB_INVALID_SNPN:
+		strcpy_s(buf, S3_MAX_GPIB_RET_LEN, "E: Invalid SN/PN");									break;
+	case S3_GPIB_INVALID_TYPE:
+		strcpy_s(buf, S3_MAX_GPIB_RET_LEN, "E: Invalid type");									break;
+	case S3_GPIB_COMMAND_LOCKED:
+		strcpy_s(buf, S3_MAX_GPIB_RET_LEN, "E: Factory-only command");							break;
+	case S3_GPIB_BATTERY_SEALED:
+		strcpy_s(buf, S3_MAX_GPIB_RET_LEN, "E: Battery sealed");								break;
+	case S3_GPIB_MAX_IP_IGNORED:
+		strcpy_s(buf, S3_MAX_GPIB_RET_LEN, "W: Maximum input parameter deprecated");			break;
+	case S3_GPIB_COMMAND_FAILED:
+		strcpy_s(buf, S3_MAX_GPIB_RET_LEN, "E: Command failed");								break;
+	default:
 		strcpy_s(buf, S3_MAX_GPIB_RET_LEN, "E: Unknown error");
 		return 1; // May want to handle
 	}
