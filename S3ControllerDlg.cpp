@@ -103,6 +103,11 @@ extern unsigned char S3I2CCurRxOptAddr;
 extern unsigned char S3I2CRxOptAddr[];
 extern unsigned char S3I2CTxOptAddr[];
 
+#ifndef WINCE
+extern int __argc;
+extern wchar_t **__wargv;
+#endif
+
 BOOL CS3ControllerDlg::OnInitDialog()
 {
 	CDialog::OnInitDialog();
@@ -228,6 +233,12 @@ BOOL CS3ControllerDlg::OnInitDialog()
 	SetTimer(IDT_S3_GUI_UPDATE_TIMER,	S3_GUI_UPDATE_INTERVAL,	NULL);
 	SetTimer(IDT_S3_RX_POLL_TIMER,		S3_RX_POLL_INTERVAL,	NULL);
 	SetTimer(IDT_S3_COMM_POLL_TIMER,	S3_COMM_POLL_INTERVAL,	NULL);
+
+#ifndef WINCE
+	for(int i = 1; i < __argc; i++)
+		if (!wcscmp(_T("demo"), __wargv[i]))
+			S3SetDemoMode(true);
+#endif;
 
 	return TRUE;  // return TRUE  unless you set the focus to a control
 } // OnInitDialog
