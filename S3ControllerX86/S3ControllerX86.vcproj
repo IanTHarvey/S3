@@ -707,18 +707,6 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\S3GDIScreenSleep.cpp"
-				>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="0"
-					/>
-				</FileConfiguration>
-			</File>
-			<File
 				RelativePath="..\S3GDIScreenTx.cpp"
 				>
 				<FileConfiguration
@@ -1067,6 +1055,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath="..\S3Update.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\S3USBVCP.cpp"
 				>
 				<FileConfiguration
@@ -1089,6 +1081,10 @@
 						UsePrecompiledHeader="0"
 					/>
 				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\S3Boot\SHA256.cpp"
+				>
 			</File>
 		</Filter>
 		<Filter
@@ -1181,7 +1177,15 @@
 				>
 			</File>
 			<File
+				RelativePath="..\S3Update.h"
+				>
+			</File>
+			<File
 				RelativePath="..\S3USBVCP.h"
+				>
+			</File>
+			<File
+				RelativePath="..\S3Boot\SHA256.h"
 				>
 			</File>
 			<File
