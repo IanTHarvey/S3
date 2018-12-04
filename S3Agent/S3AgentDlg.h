@@ -94,6 +94,8 @@ public:
     void ResizeWindow(char size);
     int EnumCOMPorts();
 
+	void AddResultString(const CString &RespStr);
+
     //UI Controls    
     CEdit m_IPv4AddrEdit;
     CEdit m_PortEdit;
