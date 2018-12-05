@@ -540,15 +540,17 @@ int S3TxSetActiveIP(char Rx, char Tx, char IP)
 #else
 	pS3TxData	pTx = &S3Data->m_Rx[Rx].m_Tx[Tx];
 
-	if (pTx->m_ActiveInputPending)
-		return 0;
+	// No, input change may be pending, but we want to be able supersede it if
+	// a later input change comes in.
+	//if (pTx->m_ActiveInputPending)
+	//	return 0;
 
 	char curIP = pTx->m_ActiveInput;
 
 	if (S3IPGetAlarms(Rx, Tx, curIP) & S3_IP_OVERDRIVE)
 		return 1;
 
-			// Nothing to do
+	// Nothing to do
 	if (pTx->m_ActiveInput >= 0 && pTx->m_ActiveInput == IP)
 		return 0;
 
