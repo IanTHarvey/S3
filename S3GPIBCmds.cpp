@@ -1918,7 +1918,7 @@ int CmdVERSIONSW()
 	if (GPIBNArgs != 1)
 		return S3_GPIB_ERR_NUMBER_PARAS;
 
-	sprintf_s(GPIBRetBuf, S3_MAX_GPIB_RET_LEN, "OK: %s", S3Data->m_SW);
+	sprintf_s(GPIBRetBuf, S3_MAX_GPIB_RET_LEN, "I: %s", S3Data->m_SW);
 
 	return 0;
 }
