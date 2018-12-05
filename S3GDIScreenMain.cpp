@@ -2,7 +2,6 @@
 //
 
 #include "stdafx.h"
-
 #include <math.h>
 
 #include "S3DataModel.h"
@@ -12,6 +11,9 @@
 #else
 #include "S3ControllerDlg.h"
 #endif
+
+#include "S3GDIClickText.h"
+#include "S3GDIInfoPopup.h"
 
 extern pS3DataModel S3Data;
 
@@ -138,32 +140,10 @@ void CS3GDIScreenMain::OnPaint()
 
 	if (m_Screen != S3_CALIBRATE_SCREEN && m_Screen != S3_FACTORY_SYS_SCREEN)
 	{
+		// Paint a background
+		SelectObject(m_HDC, m_hPenNone);
+		SelectObject(m_HDC, m_hBrushWhite);
 
-	// Paint a background
-	SelectObject(m_HDC, m_hPenNone);
-	SelectObject(m_HDC, m_hBrushWhite);
-	
-	if (0)
-	{
-		// Logical regions
-		S3_RECT(m_HDC, m_RectPhysicalScreen);
-
-		SelectObject(m_HDC, m_hBrushBG1);
-		Rectangle(m_HDC, m_RectScreen.left, m_RectScreen.top,
-							m_RectHeader.right, m_RectHeader.bottom + 1);
-
-		SelectObject(m_HDC, m_hBrushBG2);
-		Rectangle(m_HDC, m_RectScreen.left, m_RectRx.top, m_RectRx.right, m_RectRx.bottom + 1);
-
-		SelectObject(m_HDC, m_hBrushBG3);
-		Rectangle(m_HDC, m_RectScreen.left, m_RectFOL.top, m_RectFOL.right, m_RectFOL.bottom + 1);
-
-		SelectObject(m_HDC, m_hBrushBG4);
-		Rectangle(m_HDC, m_RectScreen.left, m_RectTx.top, m_RectTx.right, m_RectTx.bottom);
-		S3_RECT(m_HDC, m_RectCharger);
-	}
-	else
-	{
 		if (!S3GetLocked())
 			SelectObject(m_HDC, m_hBrushRed);
 		else
@@ -173,84 +153,48 @@ void CS3GDIScreenMain::OnPaint()
 
 		SelectObject(m_HDC, m_hBrushBG1);
 		S3_RECT_N(m_HDC, m_RectScreen);
-	}
 
-	S3DrawGDIHeader();
+		S3DrawGDIHeader();
 
-	// Draw the current screen
-	if (m_Screen == S3_OVERVIEW_SCREEN)
-	{
-		S3DrawGDIRack();
-	}
-	else if (m_Screen == S3_RX_SCREEN)
-	{
-		S3DrawGDIRxScreen();
-
-		m_ParaMenu->Draw();
-	}
-	else if (m_Screen == S3_TX_SCREEN)
-	{
-		S3DrawGDITxScreen();
-		
-		m_ParaMenu->Draw();
-	}
-	else if (m_Screen == S3_CH_SCREEN)
-	{
-		S3DrawGDIChScreen();
-	}
-	else if (m_Screen == S3_SETTINGS_SCREEN)
-	{
-		S3DrawGDISettingsScreen();
-	}
+		// Draw the current screen
+		if (m_Screen == S3_OVERVIEW_SCREEN)
+			S3DrawGDIRack();
+		else if (m_Screen == S3_RX_SCREEN)
+		{
+			S3DrawGDIRxScreen();
+			m_ParaMenu->Draw();
+		}
+		else if (m_Screen == S3_TX_SCREEN)
+		{
+			S3DrawGDITxScreen();
+			m_ParaMenu->Draw();
+		}
+		else if (m_Screen == S3_CH_SCREEN)
+			S3DrawGDIChScreen();
+		else if (m_Screen == S3_SETTINGS_SCREEN)
+			S3DrawGDISettingsScreen();
+		else if (m_Screen == S3_SHUTDOWN_SCREEN)
+			S3DrawGDIShutdownScreen();
+		else if (m_Screen == S3_OS_UPDATE_SCREEN)
+			S3DrawGDISWUpdateScreen();
+		else if (m_Screen == S3_LOG_COPY_SCREEN)
+			S3DrawGDILogCopyScreen();
 #ifndef S3_AGENT
-	else if (m_Screen == S3_FACTORY_SCREEN)
-	{
-		S3DrawGDIFactoryScreen();
-	}
-#endif
-	else if (m_Screen == S3_SHUTDOWN_SCREEN)
-	{
-		S3DrawGDIShutdownScreen();
-	}
-	else if (m_Screen == S3_SLEEP_SCREEN)
-	{
-		S3DrawGDISleepScreen();
-	}
-	else if (m_Screen == S3_OS_UPDATE_SCREEN)
-	{
-		S3DrawGDISWUpdateScreen();
-	}
-#ifndef S3_AGENT
-	else if (m_Screen == S3_APP_UPDATE_SCREEN)
-	{
-		S3DrawGDIAppUpdateScreen();
-	}
-#endif
-	else if (m_Screen == S3_LOG_COPY_SCREEN)
-	{
-		S3DrawGDILogCopyScreen();
-	}
-#ifndef S3_AGENT
-	else if (m_Screen == S3_CLOSED_SCREEN)
-	{
-		S3DrawGDIClosedScreen();
-	}
+		else if (m_Screen == S3_CLOSED_SCREEN)
+			S3DrawGDIClosedScreen();
+		else if (m_Screen == S3_APP_UPDATE_SCREEN)
+			S3DrawGDIAppUpdateScreen();
+		else if (m_Screen == S3_FACTORY_SCREEN)
+			S3DrawGDIFactoryScreen();
 #endif
 
-	// Blt the changes to the screen DC.
-	BitBlt(	hDC, 0, 0, m_ndh, m_ndv,
+		// Blt the changes to the screen DC.
+		BitBlt(	hDC, 0, 0, m_ndh, m_ndv,
 			m_HDC, 0, 0,
 			SRCCOPY);
 	}
 
 	::EndPaint(m_hWnd, &Ps);
-}
-
-// ----------------------------------------------------------------------------
-// ITH: This is not called... 
-void CS3GDIScreenMain::OnInitialUpdate()
-{
-	S3GDIInit();
 }
 
 // ----------------------------------------------------------------------------
@@ -837,11 +781,6 @@ int CS3GDIScreenMain::S3Find(POINT p)
 		if (S3FindLogCopyScreen(p))
 			return 1;
 	}
-	else if (m_Screen == S3_SLEEP_SCREEN)
-	{
-		m_Screen = S3_OVERVIEW_SCREEN;
-	}
-
 
 	return 0;
 }
@@ -1185,6 +1124,245 @@ void CS3GDIScreenMain::S3DrawShuttingDown()
 		tmp = _T("Shutting down transmitters.\nPlease wait.");
 		
 	DrawText(m_HDC, tmp, -1, &rect, DT_CENTER);
+}
+
+// ----------------------------------------------------------------------------
+// Find row relates to the parameter ID
+
+char S3GDI_ParaRowMap(char para)
+{
+	for(char i = 0; i < S3GDI_MAX_IP_PARAS; i++)
+		if (S3GDI_RowParaMap[i] != -1 && S3GDI_RowParaMap[i] == para)
+			return i;
+
+	return -1;
+}
+
+// ----------------------------------------------------------------------------
+// TODO: Menu positions must be kept aligned with S3SetParaValue
+
+void CS3GDIScreenMain::S3DrawGDIParaPopUp(int xref, int yref)
+{
+	char Rx, Tx, IP;
+
+	S3GetSelected(&Rx, &Tx, &IP);
+	char ParaType = S3GetSelectedPara(Rx, Tx, IP);
+
+	m_TxBattInfoPopup->PopDown();
+	m_TxInfoPopup->PopDown();
+
+	if (m_IPGainIsUp == true && ParaType != S3_GAIN)
+		m_IPGainIsUp = false;
+
+	if (ParaType == S3_SIGMA_TAU)
+	{
+		m_ParaMenu->Init(m_HDC, xref, yref);
+
+		m_ParaMenu->AddItem(S3TxGetTauLabel(Rx, Tx, TauNone));
+		m_ParaMenu->AddItem(S3TxGetTauLabel(Rx, Tx, TauLo));
+		m_ParaMenu->AddItem(S3TxGetTauLabel(Rx, Tx, TauMd));
+		m_ParaMenu->AddItem(S3TxGetTauLabel(Rx, Tx, TauHi));
+
+		switch(S3IPGetSigmaTau(Rx, Tx, IP))
+		{
+		case TauNone:	m_ParaMenu->SelectItem(0); break;
+		case TauLo:		m_ParaMenu->SelectItem(1); break;
+		case TauMd:		m_ParaMenu->SelectItem(2); break;
+		case TauHi:		m_ParaMenu->SelectItem(3); break;
+		}
+
+		m_ParaMenu->Activate();
+	}
+	else if (ParaType == S3_INPUT_IMP)
+	{	
+		m_ParaMenu->Init(m_HDC, xref, yref);
+
+		m_ParaMenu->AddItem(_T("50"));
+		m_ParaMenu->AddItem(_T("1M"));
+
+		switch(S3IPGetImpedance(Rx, Tx, IP))
+		{
+		case W50:	m_ParaMenu->SelectItem(0); break;
+		case W1M:	m_ParaMenu->SelectItem(1); break;
+		}
+
+		m_ParaMenu->Activate();
+	}
+	else if (ParaType == S3_TEST_TONE)
+	{	
+		m_ParaMenu->Init(m_HDC, xref, yref);
+
+		m_ParaMenu->AddItem(_T("Off"));
+		m_ParaMenu->AddItem(_T("On"));
+
+		char ToneEnabled = S3IPGetTestToneEnable(Rx, Tx, IP);
+
+		if (ToneEnabled < S3_PENDING)
+		{
+			if (ToneEnabled)
+				m_ParaMenu->SelectItem(1); 
+			else
+				m_ParaMenu->SelectItem(0);
+		
+			m_ParaMenu->Activate();
+		}
+	}
+#ifdef S3LOWNOISE
+	else if (ParaType == S3_LOW_NOISE)
+	{		
+		m_ParaMenu->Init(m_HDC, xref, yref);
+
+		m_ParaMenu->AddItem(_T("Off"));
+		m_ParaMenu->AddItem(_T("On"));
+
+		switch(S3IPGetLowNoiseMode(Rx, Tx, IP))
+		{
+		case 0:		m_ParaMenu->SelectItem(0); break;
+		case 1:		m_ParaMenu->SelectItem(1); break;
+		}
+
+		m_ParaMenu->Activate();
+	}
+#endif
+	else if (ParaType == S3_TXIP_NODENAME)
+	{
+		S3DrawTxNodeNameEdit(Rx, Tx, IP);
+	}
+	else if (ParaType == S3_RXTX_NODENAME)
+	{
+		S3DrawRxNodeNameEdit(Rx, Tx, IP);
+	}
+	else if (ParaType == S3_RXRX_NODENAME)
+	{
+		CString str;
+		str.Format(_T("%S"), S3GetNodeName(Rx, -1, -1));
+
+		m_GDINodeNameEdit->Edit(m_RectRxNodeName, str);	
+	}
+	else if (ParaType == S3_TXTX_NODENAME)
+	{
+		// This is the node name of the Tx on the transmitter screen.
+		CString str;
+		str.Format(_T("%S"), S3GetNodeName(Rx, Tx, -1));
+
+		m_GDINodeNameEdit->Edit(m_RectTxNodeName, str);	
+	}
+	else if (ParaType == S3_ACTIVE_INPUT)
+	{
+		S3TxSetActiveIP(Rx, Tx, IP);
+	}
+	else if (ParaType == S3_ACTIVE_TX)
+	{
+		S3RxSetActiveTx(Rx, Tx);
+	}
+	else if (ParaType == S3_GAIN)
+	{
+		S3InitGDITxGain(Rx, Tx, IP, yref);
+	}
+	else if (ParaType == S3_ALARM_LED)
+	{
+		if (S3IPGetAlarms(Rx, Tx, IP) & S3_IP_OVERDRIVE)
+		{
+			m_ParaMenu->Init(m_HDC, xref, yref);
+			m_ParaMenu->AddItem(_T("Cancel"));
+			m_ParaMenu->SelectItem(-1);
+				
+			m_ParaMenu->Activate();
+		}
+	}
+	else if (ParaType == S3_TX_POWER_MODE)
+	{
+		if (!S3TxSelfTestPending(Rx, Tx))
+		{
+			m_ParaMenu->Init(m_HDC, xref, yref);
+			m_ParaMenu->AddItem(_T("On"));
+			m_ParaMenu->AddItem(_T("Sleep"));
+			
+			if (S3GetTxSelfTest())
+				m_ParaMenu->AddItem(_T("Self test"));
+
+			switch(m_TxPowerState)
+			{
+			case S3_TX_ON:		m_ParaMenu->SelectItem(0); break;
+			case S3_TX_SLEEP_PENDING:
+			case S3_TX_SLEEP:	m_ParaMenu->SelectItem(1); break;
+			}
+
+			m_ParaMenu->Activate();
+		}
+	}
+	else if (ParaType == S3_TX_DO_COMP)
+	{
+		m_ParaMenu->Init(m_HDC, xref, yref);
+		m_ParaMenu->AddItem(_T("Compensate"));
+		m_ParaMenu->Activate();
+	}
+	else if (ParaType == S3_TX_CANCEL_ALARM || ParaType == S3_RX_CANCEL_ALARM)
+	{
+		m_ParaMenu->Init(m_HDC, xref, yref);
+		m_ParaMenu->AddItem(_T("Cancel"));
+		m_ParaMenu->Activate();
+	}
+	else  if (ParaType == S3_RXRX_AGC)
+	{
+		// Now global setting
+	}
+	else  if (ParaType == S3_TX_TESTTONE_ALL)
+	{
+		m_ParaMenu->Init(m_HDC, xref, yref);
+
+		m_ParaMenu->AddItem(_T("All On"));
+		m_ParaMenu->AddItem(_T("All Off"));
+
+		m_ParaMenu->Activate();
+	}
+	else
+	{
+	}
+}
+
+// ----------------------------------------------------------------------------
+// 'Callback' for text input pop-up
+int CS3GDIScreenMain::S3GDITextSupplied(const wchar_t *txt)
+{
+	char Rx, Tx, IP, Para;
+				
+	S3GetSelected(&Rx, &Tx, &IP);
+	Para = S3GetSelectedPara(Rx, Tx, IP);
+
+	char ctmp[S3_MAX_EDIT_LEN];
+	sprintf_s(ctmp, S3_MAX_EDIT_LEN, "%S", txt);
+
+	if (Para == S3_DATE_EDIT)
+	{
+#ifndef S3_AGENT
+		m_Parent->SetSysDateStr(txt);
+#endif
+		return 0;
+	}
+
+	if (Para == S3_TIME_EDIT)
+	{
+#ifndef S3_AGENT
+		m_Parent->SetSysTimeStr(txt);
+#endif
+		return 0;
+	}
+
+	if (S3IPSetParaTxt(Rx, Tx, IP, Para, txt))
+	{
+		// TODO: Report failure
+		return 1;
+	}
+
+	if (Para == S3_IP_PORT)
+	{
+#ifndef S3_AGENT
+		m_Parent->ResetSocket();
+#endif
+	}
+
+	return 0;
 }
 
 // ----------------------------------------------------------------------------

@@ -12,8 +12,8 @@
 #define S3_TX_SCREEN			2
 #define S3_CH_SCREEN			3
 #define S3_SETTINGS_SCREEN		4
-#define S3_SHUTDOWN_SCREEN		5 // Obs: not a screen
-#define S3_SLEEP_SCREEN			6
+#define S3_SHUTDOWN_SCREEN		5
+#define S3_SPARE				6	// Not used
 #define S3_OS_UPDATE_SCREEN		7
 #define S3_LOG_COPY_SCREEN		8
 #define S3_CALIBRATE_SCREEN		9
@@ -189,10 +189,12 @@ private:
 		// m_RectSysRestart, m_RectAppClose;
 
 	// OS update screen
-	CRect	m_RectSWUpdateScreen, m_RectSWUpdateInstr, m_RectYes, m_RectNo;
+	CRect	m_RectSWUpdateScreen, m_RectSWUpdateInstr, 
+			m_RectSWUpdateYes, m_RectSWUpdateNo;
 
 	// App update screen
-	CRect	m_RectAppUpdateScreen, m_RectAppUpdateInstr;
+	CRect	m_RectAppUpdateScreen, m_RectAppUpdateInstr,
+			m_RectAppUpdateYes, m_RectAppUpdateNo;
 
 	// Log copy screen
 	CRect	m_RectLogCopyScreen, m_RectLogCopyInstr,
@@ -343,8 +345,6 @@ public:
 	CS3GDIScreenMain();
 	virtual ~CS3GDIScreenMain();
 
-	virtual void OnInitialUpdate();
-
 	afx_msg		void OnPaint();
 	afx_msg		void OnStnClicked();
 	afx_msg		void OnStnDblclick();
@@ -446,8 +446,8 @@ public:
 	void		S3DrawGDIRxTxRowName(	char Row, wchar_t *cstr);
 	void		S3DrawGDIRxMessage(	char Rx);
 	void		S3DrawGDIColHeader(	char Rx, char Tx, CRect &RectItem);
-// TODO: Delete
-	void		S3DrawGDIColHeaderOld(	char Rx, char Tx, CRect &RectItem);
+
+	void		S3DrawRxNodeNameEdit(char Rx, char Tx, char IP);
 
 	// ------------------------------------------------------------------------
 	// Transmitter screen
@@ -455,6 +455,8 @@ public:
 	void	S3CloseGDITxScreen(void);
 	void	S3DrawGDITxScreen(void);
 	void		S3DrawGDITxBattSeg(	char Rx, char Tx, int xref, int yref);
+
+
 
 	void		S3DrawGDITxTx(		char Rx, char Tx);
 	void		S3DrawGDITxIP(		char Rx, char Tx, char IP,	int xref, int yref);
@@ -466,6 +468,9 @@ public:
 
 	CRect		S3RectGDITxIPRowName(		int xref, int yref, char Row,
 											int Justification = DT_RIGHT);
+
+	void		S3DrawTxNodeNameEdit(char Rx, char Tx, char IP);
+	void		S3InitGDITxGain(char Rx, char Tx, char IP, int yref);
 
 	void		S3DrawGDITxMessage(	char Rx, char Tx);
 
@@ -546,10 +551,6 @@ public:
 	void	S3DrawGDILogCopyScreen(void);
 
 	int		S3FindLogCopyScreen(	POINT p);
-
-	// ------------------------------------------------------------------------
-	// Sleep screen
-	void	S3DrawGDISleepScreen(void);
 
 	// ------------------------------------------------------------------------
 	// Closed screen

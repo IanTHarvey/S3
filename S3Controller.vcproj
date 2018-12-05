@@ -103,7 +103,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="del &quot;$(ProjectDir)$(OutDir)\S3OS.obj&quot;&#x0D;&#x0A;copy &quot;$(ProjectDir)$(OutDir)\$(ProjectName).exe&quot; &quot;Y:\Project files\Sentinel3\Software\LatestExecutables\$(ConfigurationName)&quot;&#x0D;&#x0A;"
+				CommandLine="del &quot;$(ProjectDir)$(OutDir)\S3OS.obj&quot;&#x0D;&#x0A;copy &quot;$(ProjectDir)$(OutDir)\$(ProjectName).exe&quot; &quot;Y:\Project files\Sentinel3\Software\LatestExecutables\$(ConfigurationName)&quot;&#x0D;&#x0A;&quot;$(ProjectDir)\LastBuild.bat&quot;&#x0D;&#x0A;"
 			/>
 			<DeploymentTool
 				ForceDirty="-1"
@@ -329,6 +329,31 @@
 		</Configuration>
 	</Configurations>
 	<References>
+		<AssemblyReference
+			RelativePath="System.dll"
+			AssemblyName="System, Version=2.0.0.0, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL"
+			MinFrameworkVersion="131072"
+		/>
+		<AssemblyReference
+			RelativePath="System.Data.dll"
+			AssemblyName="System.Data, Version=2.0.0.0, PublicKeyToken=b77a5c561934e089, processorArchitecture=x86"
+			MinFrameworkVersion="131072"
+		/>
+		<AssemblyReference
+			RelativePath="System.Drawing.dll"
+			AssemblyName="System.Drawing, Version=2.0.0.0, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL"
+			MinFrameworkVersion="131072"
+		/>
+		<AssemblyReference
+			RelativePath="System.Windows.Forms.dll"
+			AssemblyName="System.Windows.Forms, Version=2.0.0.0, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL"
+			MinFrameworkVersion="131072"
+		/>
+		<AssemblyReference
+			RelativePath="System.XML.dll"
+			AssemblyName="System.Xml, Version=2.0.0.0, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL"
+			MinFrameworkVersion="131072"
+		/>
 	</References>
 	<Files>
 		<Filter
@@ -562,10 +587,6 @@
 			</File>
 			<File
 				RelativePath=".\S3GDIScreenShutdown.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\S3GDIScreenSleep.cpp"
 				>
 			</File>
 			<File
@@ -861,11 +882,19 @@
 				>
 			</File>
 			<File
+				RelativePath=".\S3Update.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\S3USBVCP.cpp"
 				>
 			</File>
 			<File
 				RelativePath=".\S3Utility.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\S3Boot\SHA256.cpp"
 				>
 			</File>
 		</Filter>
@@ -968,6 +997,10 @@
 			</File>
 			<File
 				RelativePath=".\S3TableRxPlusModeB.h"
+				>
+			</File>
+			<File
+				RelativePath=".\S3Update.h"
 				>
 			</File>
 			<File

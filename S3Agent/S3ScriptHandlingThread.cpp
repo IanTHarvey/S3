@@ -146,9 +146,7 @@ UINT ScriptProcessThread(LPVOID pParam)
 
 				RespStr.Append(L"\r\n");
 
-                int nLength = pObject->m_CommandEdit.GetWindowTextLength();
-                pObject->m_CommandEdit.SetSel(nLength, nLength);
-                pObject->m_CommandEdit.ReplaceSel(RespStr);
+				pObject->AddResultString(RespStr);
 
 				//If there is a connection error, stop script running
                 if ((MsgResponse.Mid(0, 6).CompareNoCase(L"ERROR:") == 0))

@@ -77,21 +77,10 @@ void CS3GDIScreenMain::S3InitGDIFactoryScreen(void)
 
 void CS3GDIScreenMain::S3DrawGDIFactoryScreen(void)
 {
-	// CShutdownDlg dlg;
-	// dlg.DoModal();
 	S3DrawGDIBackButton();
 
 	SelectObject(m_HDC, m_hPenNone);
 	SelectObject(m_HDC, m_hBrushBG3);
-
-	// S3_RECT(m_HDC, m_RectShutdownScreen);
-	// S3BLTR(m_hbmpPPMBG, m_RectShutdownScreen);
-
-	//RECT fntRc;
-	//fntRc.left = xref + m_lChBatt + 10;
-	//fntRc.top = yref + 2;
-	//fntRc.right = fntRc.left + 110;
-	//fntRc.bottom = yref + m_wChBatt;
 
 	SetTextColor(m_HDC, m_crWhite);
 	SelectObject(m_HDC, m_hBrushSleep);

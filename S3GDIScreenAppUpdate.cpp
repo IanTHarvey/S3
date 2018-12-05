@@ -2,7 +2,11 @@
 
 #include "stdafx.h"
 
+#include "S3SystemDetails.h"
 #include "S3DataModel.h"
+#include "S3Update.h"
+
+extern S3DataModel *S3Data;
 
 #ifdef S3_AGENT
 #include "S3Agent/S3AgentDlg.h"
@@ -10,7 +14,8 @@
 #include "S3ControllerDlg.h"
 #endif
 
-// bool m_AppUpdateScheduled = false;
+extern wchar_t	spinner[];
+extern char	spincnt;
 
 // Layout 0
 const wchar_t AppUpdateInstr[] = {
@@ -25,7 +30,7 @@ const wchar_t AppUpdateNoImageHDD[] = {
 	_T("No USB Mass Storage device found.")};
 
 const wchar_t AppUpdateNoImageFile[] = {
-	_T("No image file found on root of USB storage device.")};
+	_T("No update file found on root of USB storage device.")};
 
 const wchar_t AppUpdateProcessFail[] = {
 	_T("An error occurred during the update process.")};
@@ -52,25 +57,25 @@ void CS3GDIScreenMain::S3InitGDIAppUpdateScreen(void)
 	m_RectAppUpdateInstr.left += 40;
 	m_RectAppUpdateInstr.top = m_RectAppUpdateScreen.top;
 	m_RectAppUpdateInstr.right -= 40;
-	m_RectAppUpdateInstr.bottom = m_RectAppUpdateInstr.top + 120;
+	m_RectAppUpdateInstr.bottom = m_RectAppUpdateInstr.top + 240;
 
-	m_RectYes.left = m_RectAppUpdateScreen.left;
-	m_RectYes.top = m_RectAppUpdateInstr.bottom;
-	m_RectYes.right = m_RectYes.left + 150;
-	m_RectYes.bottom = m_RectYes.top + 50;
+	m_RectAppUpdateYes.left = m_RectAppUpdateScreen.left;
+	m_RectAppUpdateYes.top = m_RectAppUpdateInstr.bottom;
+	m_RectAppUpdateYes.right = m_RectAppUpdateYes.left + 150;
+	m_RectAppUpdateYes.bottom = m_RectAppUpdateYes.top + 50;
 
-	m_RectNo = m_RectYes;
-	m_RectNo.left = m_RectYes.right;
-	m_RectNo.right = m_RectNo.left + 150;
+	m_RectAppUpdateNo = m_RectAppUpdateYes;
+	m_RectAppUpdateNo.left = m_RectAppUpdateYes.right;
+	m_RectAppUpdateNo.right = m_RectAppUpdateNo.left + 150;
 
 	// Distribute horizontally
-	m_RectYes.MoveToXY(
-		(m_RectScreen.Width() / 2 - m_RectYes.Width()) / 2,
-		m_RectYes.top + 50);
+	m_RectAppUpdateYes.MoveToXY(
+		(m_RectScreen.Width() / 2 - m_RectAppUpdateYes.Width()) / 2,
+		m_RectAppUpdateYes.top + 50);
 
-	m_RectNo.MoveToXY(
-		1 * m_RectScreen.Width() / 2 + (m_RectScreen.Width() / 2 - m_RectNo.Width()) / 2,
-		m_RectNo.top + 50);
+	m_RectAppUpdateNo.MoveToXY(
+		1 * m_RectScreen.Width() / 2 + (m_RectScreen.Width() / 2 - m_RectAppUpdateNo.Width()) / 2,
+		m_RectAppUpdateNo.top + 50);
 
 	if (!S3GetSoftShutdownOption())
 	{
@@ -83,10 +88,6 @@ void CS3GDIScreenMain::S3InitGDIAppUpdateScreen(void)
 			_T("Application update will be installed on restart.\nDo not switch off mains power until prompted.\n"));
 	}
 }
-
-// ----------------------------------------------------------------------------
-
-
 
 // ----------------------------------------------------------------------------
 
@@ -119,14 +120,14 @@ void CS3GDIScreenMain::S3DrawGDIAppUpdateScreen()
 		SelectObject(m_HDC, m_hBrushSleep);
 		// SelectObject(m_HDC, m_hFontL);
 	
-		S3BLT(m_hbmpBlueButton, m_RectYes.left, m_RectYes.top, 150, 50);
+		S3BLT(m_hbmpBlueButton, m_RectAppUpdateYes.left, m_RectAppUpdateYes.top, 150, 50);
 		
-		DrawText(m_HDC, _T("Update"), -1, &m_RectYes,
+		DrawText(m_HDC, _T("Update"), -1, &m_RectAppUpdateYes,
 			S3_BTN_CENTRE);
 
-		S3BLT(m_hbmpBlueButton, m_RectNo.left, m_RectNo.top, 150, 50);
+		S3BLT(m_hbmpBlueButton, m_RectAppUpdateNo.left, m_RectAppUpdateNo.top, 150, 50);
 		
-		DrawText(m_HDC, _T("Cancel"), -1, &m_RectNo,
+		DrawText(m_HDC, _T("Cancel"), -1, &m_RectAppUpdateNo,
 			S3_BTN_CENTRE);
 	}
 	else if (m_AppLayout == 1)
@@ -138,32 +139,44 @@ void CS3GDIScreenMain::S3DrawGDIAppUpdateScreen()
 		wchar_t tmp[S3GDI_MAX_SCREEN_MSG];
 
 		// Give a reason
-		if (m_AppUpdateMsg == 1)
-			swprintf_s(tmp, S3GDI_MAX_SCREEN_MSG, _T("%s: %s"),
-				AppUpdateNoImage, AppUpdateNoImageHDD);
-		else  if (m_AppUpdateMsg == 2)
-			swprintf_s(tmp, S3GDI_MAX_SCREEN_MSG, _T("%s: %s"),
-				AppUpdateNoImage, AppUpdateNoImageFile);
-		else  if (m_AppUpdateMsg == 3)
-			swprintf_s(tmp, S3GDI_MAX_SCREEN_MSG, _T("%s: %s"),
-				AppUpdateNoImage, AppUpdateProcessFail);
-		else
-			swprintf_s(tmp, S3GDI_MAX_SCREEN_MSG,
-				_T("%s: Unknown error (%d)"), AppUpdateNoImage, m_AppUpdateMsg);
+		if (!S3Data->m_AppUpdate->Unwrapping)
+		{
+			if (S3Data->m_AppUpdate->GetError())
+				swprintf_s(tmp, S3GDI_MAX_SCREEN_MSG, _T("%s: %s"),
+					AppUpdateNoImage, S3Data->m_AppUpdate->GetErrorStr());
+			else if (m_AppUpdateMsg == 3)
+				swprintf_s(tmp, S3GDI_MAX_SCREEN_MSG, _T("%s: %s"),
+					AppUpdateNoImage, AppUpdateProcessFail);
+			else
+			{
+				m_AppLayout = 2;
+				return;
+			}
+				
+			DrawText(m_HDC, tmp, -1, &m_RectAppUpdateInstr, DT_WORDBREAK);
+
+			SetTextColor(m_HDC, m_crWhite);
+			SelectObject(m_HDC, m_hBrushSleep);
 			
-		DrawText(m_HDC, tmp, -1, &m_RectAppUpdateInstr, DT_WORDBREAK);
+			S3BLT(m_hbmpBlueButton, m_RectAppUpdateYes.left, m_RectAppUpdateYes.top, 150, 50);
+			DrawText(m_HDC, _T("Try again"), -1, &m_RectAppUpdateYes,
+				S3_BTN_CENTRE);
 
-		SetTextColor(m_HDC, m_crWhite);
-		SelectObject(m_HDC, m_hBrushSleep);
-		// SelectObject(m_HDC, m_hFontL);
-		
-		S3BLT(m_hbmpBlueButton, m_RectYes.left, m_RectYes.top, 150, 50);
-		DrawText(m_HDC, _T("Try again"), -1, &m_RectYes,
-			S3_BTN_CENTRE);
+			S3BLT(m_hbmpBlueButton, m_RectAppUpdateNo.left, m_RectAppUpdateNo.top, 150, 50);
+			DrawText(m_HDC, _T("Cancel"), -1, &m_RectAppUpdateNo,
+				S3_BTN_CENTRE);
+		}
+		else
+		{
+			CString AppUpdateMsg;
+			AppUpdateMsg.Format(_T("Unpacking update file. Please wait %c\n"),
+					spinner[spincnt++]);
 
-		S3BLT(m_hbmpBlueButton, m_RectNo.left, m_RectNo.top, 150, 50);
-		DrawText(m_HDC, _T("Cancel"), -1, &m_RectNo,
-			S3_BTN_CENTRE);
+			if (spincnt == 4)
+				spincnt = 0;
+
+			DrawText(m_HDC, AppUpdateMsg, -1, &m_RectAppUpdateInstr, DT_WORDBREAK);
+		}
 	}
 	else if (m_AppLayout == 2)
 	{
@@ -171,19 +184,41 @@ void CS3GDIScreenMain::S3DrawGDIAppUpdateScreen()
 		SelectObject(m_HDC, m_hBrushBG4);
 		SelectObject(m_HDC, m_hFontL);
 
-		DrawText(m_HDC, AppUpdateDoUpdate, -1, &m_RectAppUpdateInstr, DT_WORDBREAK);
+		CString AppUpdateMsg = AppUpdateDoUpdate;
+
+		if (!S3Data->m_AppUpdate->GetError())
+		{
+			AppUpdateMsg.Format(
+				_T("Valid update file found: v%s (%s), current is v%s. ")
+				_T("Check new version is correct.\n\n"), 
+				S3Data->m_AppUpdate->GetVersion(),
+				S3Data->m_AppUpdate->GetDateTime(),
+				_T(S3_SYS_SW));
+
+			AppUpdateMsg += AppUpdateDoUpdate;
+		}
+		else
+			AppUpdateMsg.Format(_T("Update file invalid: %s\n"),
+								S3Data->m_AppUpdate->GetErrorStr());
+
+		DrawText(m_HDC, AppUpdateMsg, -1, &m_RectAppUpdateInstr, DT_WORDBREAK);
 
 		SetTextColor(m_HDC, m_crWhite);
 		SelectObject(m_HDC, m_hBrushSleep);
-		// SelectObject(m_HDC, m_hFontL);
 		
-		S3BLT(m_hbmpBlueButton, m_RectYes.left, m_RectYes.top, 150, 50);
-		DrawText(m_HDC, _T("Update"), -1, &m_RectYes,
-			S3_BTN_CENTRE);
+		if (!S3Data->m_AppUpdate->Unwrapping)
+		{
+			if (!S3Data->m_AppUpdate->GetError())
+			{
+				S3BLT(m_hbmpBlueButton, m_RectAppUpdateYes.left, m_RectAppUpdateYes.top, 150, 50);
+				DrawText(m_HDC, _T("Update"), -1, &m_RectAppUpdateYes,
+					S3_BTN_CENTRE);
+			}
 
-		S3BLT(m_hbmpBlueButton, m_RectNo.left, m_RectNo.top, 150, 50);
-		DrawText(m_HDC, _T("Cancel"), -1, &m_RectNo,
-			S3_BTN_CENTRE);
+			S3BLT(m_hbmpBlueButton, m_RectAppUpdateNo.left, m_RectAppUpdateNo.top, 150, 50);
+			DrawText(m_HDC, _T("Cancel"), -1, &m_RectAppUpdateNo,
+				S3_BTN_CENTRE);
+		}
 	}
 	else if (m_AppLayout == 3)
 	{
@@ -201,11 +236,12 @@ void CS3GDIScreenMain::S3DrawGDIAppUpdateScreen()
 	}
 }
 
-// ----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 
 int CS3GDIScreenMain::S3FindAppUpdateScreen(POINT p)
 {
-	// m_AppUpdateMsg = 0;
+	if (S3Data->m_AppUpdate->Unwrapping)
+		return 0;
 
 	if (m_AppLayout == 3)
 		return 0;
@@ -219,20 +255,14 @@ int CS3GDIScreenMain::S3FindAppUpdateScreen(POINT p)
 		return 1;
 	}
 
-	if (m_RectYes.PtInRect(p))
+	if (m_RectAppUpdateYes.PtInRect(p))
 	{
 		S3EventLogAdd("App update requested by user", 1, -1, -1, -1);
 
 		if (m_AppLayout == 0)
 		{
-			if (m_AppUpdateMsg = S3OSAppUpdateRequest())
-			{
-				m_AppLayout = 1;
-			}
-			else
-			{
-				m_AppLayout = 2;
-			}
+			S3OSAppUpdateRequest();
+			m_AppLayout = 1;
 		}
 		else if (m_AppLayout == 1)
 		{
@@ -240,6 +270,9 @@ int CS3GDIScreenMain::S3FindAppUpdateScreen(POINT p)
 		}
 		else if (m_AppLayout == 2)
 		{
+			if (S3Data->m_AppUpdate->GetError())
+				return 0;
+
 			m_AppLayout = 3;
 			m_Parent->m_AppUpdateScheduled = true;
 		}
@@ -247,7 +280,7 @@ int CS3GDIScreenMain::S3FindAppUpdateScreen(POINT p)
 		// Go to confirm screen
 		return 1;
 	}
-	else if (m_RectNo.PtInRect(p))
+	else if (m_RectAppUpdateNo.PtInRect(p))
 	{
 		S3EventLogAdd("App update cancelled by user", 1, -1, -1, -1); 
 		if (m_AppLayout == 0)

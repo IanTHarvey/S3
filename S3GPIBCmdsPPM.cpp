@@ -97,15 +97,8 @@ int CmdPPMCALTXRF()
 	if (S3SetFactoryMode(Rx, Tx, true))
 		return S3_GPIB_CALIBRATION_FAILED;
 
-	// Sleep(1000);
-
-	if (1)
-	{
-		if (S3I2CTxSetRFCalibration(Rx, Tx, path, val))
-			return S3_GPIB_CALIBRATION_FAILED;
-	}
-	else
-		Sleep(2000);
+	if (S3I2CTxSetRFCalibration(Rx, Tx, path, val))
+		return S3_GPIB_CALIBRATION_FAILED;
 
 	S3SetFactoryMode(Rx, Tx, false);
 
@@ -138,13 +131,8 @@ int CmdPPMCALTXOPT()
 	if (S3SetFactoryMode(Rx, Tx, true))
 		return S3_GPIB_CALIBRATION_FAILED;
 
-	if (1)
-	{
-		if (S3I2CTxSetOptCalibration(Rx, Tx, val))
-			return S3_GPIB_CALIBRATION_FAILED;
-	}
-	else
-		Sleep(2000);
+	if (S3I2CTxSetOptCalibration(Rx, Tx, val))
+		return S3_GPIB_CALIBRATION_FAILED;
 
 	S3SetFactoryMode(Rx, Tx, false);
 

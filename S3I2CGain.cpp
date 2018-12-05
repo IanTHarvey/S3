@@ -296,8 +296,10 @@ int	S3I2CSetRxOptDSA(char Rx, char Tx, char dsa)
 
 int S3I2CSetIPGain(char Rx, char Tx, char IP)
 {
+	int err = 0;
+
 	if (IP >= 100)
-		return 0;
+		goto RETERR;
 
 	S3TimerStart(1);
 
@@ -308,7 +310,7 @@ int S3I2CSetIPGain(char Rx, char Tx, char IP)
 	{
 		// Careful: this is true if tx is asleep
 		if (!S3TxRLLStable(Rx, Tx))
-			return 0;
+			goto RETERR;
 
 		int		Gain = S3IPGetGain(Rx, Tx, IP);
 
@@ -333,7 +335,10 @@ int S3I2CSetIPGain(char Rx, char Tx, char IP)
 		else if (S3I2CCurPath == 7 || S3I2CCurPath == 2)
 			RFAtten = 0;	// Not used
 		else
-			return 1;	// Trouble
+		{
+			err = 1;	// Trouble
+			goto RETERR;
+		}
 
 		/*
 		// TODO: Revisit
@@ -370,13 +375,22 @@ int S3I2CSetIPGain(char Rx, char Tx, char IP)
 		*/
 
 		if (S3I2CSetRxOptDSA(Rx, Tx, Paras[RX_OPT_DSA]))
-			return 4;
+		{
+			err = 4;
+			goto RETERR;
+		}
 
 		if (S3I2CSetTxOptDSA(Rx, Tx, IP, Paras[TX_OPT_DSA]))
-			return 5;
+		{
+			err = 5;
+			goto RETERR;
+		}
 
 		if (S3I2CSetRFAtten(RFAtten, Rx, Tx))
-			return 3;
+		{
+			err = 3;	// Trouble
+			goto RETERR;
+		}
 
 		// *Presumed* successful as no read-back
 		S3IPSetGainSent(Rx, Tx, IP, Gain);
@@ -385,11 +399,17 @@ int S3I2CSetIPGain(char Rx, char Tx, char IP)
 		if (S3I2CCurPath != PathSent)
 		{
 			if (S3I2CTxUpdateTempPath(Rx, Tx))
-				return 7;
+			{
+				err = 7;
+				goto RETERR;
+			}
 				
 			if (S3TxGetPeakHoldCap(Rx, Tx))
 				if (S3I2CTxSetPeakThresh(Rx, Tx, S3I2CCurPath))
-					return 6;
+				{
+					err = 6;
+					goto RETERR;
+				}
 
 			// When changing path, may trigger peak detectiion
 			// TODO: Required for all path changes or just -> path 1
@@ -398,9 +418,10 @@ int S3I2CSetIPGain(char Rx, char Tx, char IP)
 		}
 	}
 
+RETERR:
 	S3TimerStop(1);
 
-	return 0;
+	return err;
 }
 
 // ----------------------------------------------------------------------------

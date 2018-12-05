@@ -1,5 +1,4 @@
 #include "stdafx.h"
-#
 #include "S3DataModel.h"
 #include "S3I2C.h"
 #include "S3GPIB.h"
@@ -22,7 +21,14 @@ int S3RxInit(pS3RxData node)
 	node->m_Detected = false;
 	node->m_SelectedTx = 0;	// Nothing selected
 	node->m_ActiveTx = 0;	// Will always have valid value - whatever's
-	// connected (or not)
+							// connected (or not)
+
+	// No need to force this, as S3Agent should just reflect S3 on start-up
+#ifndef S3_AGENT
+	node->m_ActiveTxPending = true;
+#else
+	node->m_ActiveTxPending = false;
+#endif
 
 	node->m_Fmax = S3_1GHZ;
 	// node->m_ExtraGainCap = 15;
@@ -147,8 +153,7 @@ int S3RxInserted(char Rx, S3RxType type)
 	S3RxSetType(pRx, type);
 
 	// Force switch to active transmitter
-	if (pRx->m_ActiveTx < S3_PENDING)
-		pRx->m_ActiveTx += S3_PENDING;
+	pRx->m_ActiveTxPending = true;
 #endif
 
 	return 0;
@@ -183,6 +188,21 @@ int S3RxRemoved(char Rx)
 
 // ---------------------------------------------------------------------------
 
+int S3RxSetActiveTxPending(char Rx, bool pending)
+{
+	S3Data->m_Rx[Rx].m_ActiveTxPending = pending;
+
+	return 0;
+}
+
+// -----------------------------------------------------------------------------
+
+bool S3RxGetActiveTxPending(char Rx)
+{
+	return S3Data->m_Rx[Rx].m_ActiveTxPending;
+}
+
+// -----------------------------------------------------------------------------
 int S3RxSetActiveTx(char Rx, char Tx)
 {
 #ifdef S3_AGENT
@@ -213,30 +233,22 @@ int S3RxSetActiveTx(char Rx, char Tx)
 		if (pRx->m_ActiveTx == Tx)
 			return 0;
 
-		if (pRx->m_ActiveTx == Tx + S3_PENDING)
+		if (pRx->m_ActiveTxPending)
 		{
-			pRx->m_ActiveTx -= S3_PENDING;	// Ack
+			// pRx->m_ActiveTxPending = false;	// Ack
 
 			// Rx6 Tx is aleady connected, but RLL stability has not been
 			// established until it becomes active for the first time.
-			if (S3Data->m_Rx[Rx].m_Tx[Tx].m_RLLStableCnt == S3_RLL_STAB_UNKNOWN)
-				S3Data->m_Rx[Rx].m_Tx[Tx].m_RLLStableCnt = 0;
+			if (pRx->m_Tx[Tx].m_RLLStableCnt == S3_RLL_STAB_UNKNOWN)
+				pRx->m_Tx[Tx].m_RLLStableCnt = 0;
 		}
 		else
 		{
 			// Ensure Tx updates selected input and gain
-			pRx->m_Tx[Tx].m_ActiveInputPending = true;
+			pRx->m_Tx[Tx].m_ActiveInputPending = true;			
 
-			// TODO: This protection should not be required
-			// ASSERT(pRx->m_Tx[Tx].m_ActiveInput >= 0);
-			if (pRx->m_Tx[Tx].m_ActiveInput < 0)
-			{
-				pRx->m_Tx[Tx].m_ActiveInput = 0;
-				S3EventLogAdd("Attempt to switch to -ve active input", 1, Rx, Tx, -1);
-			}
-			
-			if (pRx->m_ActiveTx < S3_PENDING)
-				pRx->m_ActiveTx = Tx + S3_PENDING; // Updated request
+			pRx->m_ActiveTx = Tx;
+			pRx->m_ActiveTxPending = true;
 		}
 	}
 	else
@@ -276,16 +288,7 @@ bool S3RxIsActiveTx(char Rx, char Tx)
 
 	if (pRx->m_Type == S3_Rx6)
 	{
-		if (pRx->m_ActiveTx >= S3_PENDING)
-		{
-			if (Tx == (pRx->m_ActiveTx - S3_PENDING))
-				return true;
-			else
-				return false;
-		}
-
-		char T = pRx->m_ActiveTx;
-		return T == Tx;
+		return pRx->m_ActiveTx == Tx;
 	}
 	else
 		return true;

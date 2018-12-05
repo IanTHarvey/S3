@@ -78,7 +78,7 @@ int S3I2CTxAuthenticate(char Rx, char Tx)
 	if (err)
 	{	err = 40; goto ERR;	}
 
-	Sleep(50);
+	RTSLEEP(50);
 
 	err = S3I2CWriteSerialData(S3I2C_TX_BATT_ADDR, 0x40 + 10,
 		ChallengeRev + 10, SHA1_DIGEST_LEN - 10);
@@ -90,7 +90,7 @@ int S3I2CTxAuthenticate(char Rx, char Tx)
 	if (err)
 	{	err = 50; goto ERR;	}
 
-	Sleep(50);
+	RTSLEEP(50);
 
 	// Read back response digest
 	err = S3I2CReadSerialData(S3I2C_TX_BATT_ADDR, 0x40, SHA1_DIGEST_LEN);

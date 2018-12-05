@@ -21,25 +21,25 @@ void CS3GDIScreenMain::S3InitGDILogCopyScreen(void)
 	m_RectLogCopyInstr.left += 40;
 	m_RectLogCopyInstr.top = m_RectLogCopyScreen.top;
 	m_RectLogCopyInstr.right -= 40;
-	m_RectLogCopyInstr.bottom = m_RectLogCopyInstr.top + 120;
+	m_RectLogCopyInstr.bottom = m_RectLogCopyInstr.top + 240;
 
-	m_RectYes.left = m_RectLogCopyScreen.left;
-	m_RectYes.top = m_RectLogCopyInstr.bottom;
-	m_RectYes.right = m_RectYes.left + 150;
-	m_RectYes.bottom = m_RectYes.top + 50;
+	m_RectLogCopyYes.left = m_RectLogCopyScreen.left;
+	m_RectLogCopyYes.top = m_RectLogCopyInstr.bottom;
+	m_RectLogCopyYes.right = m_RectLogCopyYes.left + 150;
+	m_RectLogCopyYes.bottom = m_RectLogCopyYes.top + 50;
 
-	m_RectNo = m_RectYes;
-	m_RectNo.left = m_RectYes.right;
-	m_RectNo.right = m_RectNo.left + 150;
+	m_RectLogCopyNo = m_RectLogCopyYes;
+	m_RectLogCopyNo.left = m_RectLogCopyYes.right;
+	m_RectLogCopyNo.right = m_RectLogCopyNo.left + 150;
 
 	// Distribute horizontally
-	m_RectYes.MoveToXY(
-		(m_RectScreen.Width() / 2 - m_RectYes.Width()) / 2,
-		m_RectYes.top + 50);
+	m_RectLogCopyYes.MoveToXY(
+		(m_RectScreen.Width() / 2 - m_RectLogCopyYes.Width()) / 2,
+		m_RectLogCopyYes.top + 50);
 
-	m_RectNo.MoveToXY(
-		1 * m_RectScreen.Width() / 2 + (m_RectScreen.Width() / 2 - m_RectNo.Width()) / 2,
-		m_RectNo.top + 50);
+	m_RectLogCopyNo.MoveToXY(
+		1 * m_RectScreen.Width() / 2 + (m_RectScreen.Width() / 2 - m_RectLogCopyNo.Width()) / 2,
+		m_RectLogCopyNo.top + 50);
 }
 
 // ----------------------------------------------------------------------------
@@ -93,14 +93,14 @@ void CS3GDIScreenMain::S3DrawGDILogCopyScreen()
 		SelectObject(m_HDC, m_hBrushSleep);
 		// SelectObject(m_HDC, m_hFontL);
 		
-		S3BLT(m_hbmpBlueButton, m_RectYes.left, m_RectYes.top, 150, 50);
+		S3BLT(m_hbmpBlueButton, m_RectLogCopyYes.left, m_RectLogCopyYes.top, 150, 50);
 		
-		DrawText(m_HDC, _T("Copy"), -1, &m_RectYes,
+		DrawText(m_HDC, _T("Copy"), -1, &m_RectLogCopyYes,
 			S3_BTN_CENTRE);
 
-		S3BLT(m_hbmpBlueButton, m_RectNo.left, m_RectNo.top, 150, 50);
+		S3BLT(m_hbmpBlueButton, m_RectLogCopyNo.left, m_RectLogCopyNo.top, 150, 50);
 		
-		DrawText(m_HDC, _T("Cancel"), -1, &m_RectNo,
+		DrawText(m_HDC, _T("Cancel"), -1, &m_RectLogCopyNo,
 			S3_BTN_CENTRE);
 	}
 	else if (m_LogCopyLayout == 1)
@@ -128,12 +128,12 @@ void CS3GDIScreenMain::S3DrawGDILogCopyScreen()
 		SelectObject(m_HDC, m_hBrushSleep);
 		// SelectObject(m_HDC, m_hFontL);
 		
-		S3BLT(m_hbmpBlueButton, m_RectYes.left, m_RectYes.top, 150, 50);
-		DrawText(m_HDC, _T("Try again"), -1, &m_RectYes,
+		S3BLT(m_hbmpBlueButton, m_RectLogCopyYes.left, m_RectLogCopyYes.top, 150, 50);
+		DrawText(m_HDC, _T("Try again"), -1, &m_RectLogCopyYes,
 			S3_BTN_CENTRE);
 
-		S3BLT(m_hbmpBlueButton, m_RectNo.left, m_RectNo.top, 150, 50);
-		DrawText(m_HDC, _T("Cancel"), -1, &m_RectNo, S3_BTN_CENTRE);
+		S3BLT(m_hbmpBlueButton, m_RectLogCopyNo.left, m_RectLogCopyNo.top, 150, 50);
+		DrawText(m_HDC, _T("Cancel"), -1, &m_RectLogCopyNo, S3_BTN_CENTRE);
 	}
 	else if (m_LogCopyLayout == 2)
 	{
@@ -146,8 +146,8 @@ void CS3GDIScreenMain::S3DrawGDILogCopyScreen()
 		SetTextColor(m_HDC, m_crWhite);
 		SelectObject(m_HDC, m_hBrushSleep);
 		
-		S3BLT(m_hbmpBlueButton, m_RectNo.left, m_RectNo.top, 150, 50);
-		DrawText(m_HDC, _T("Back"), -1, &m_RectNo,
+		S3BLT(m_hbmpBlueButton, m_RectLogCopyNo.left, m_RectLogCopyNo.top, 150, 50);
+		DrawText(m_HDC, _T("Back"), -1, &m_RectLogCopyNo,
 			S3_BTN_CENTRE);
 	}
 }
@@ -169,7 +169,7 @@ int CS3GDIScreenMain::S3FindLogCopyScreen(POINT p)
 		return 1;
 	}
 
-	if (m_RectYes.PtInRect(p))
+	if (m_RectLogCopyYes.PtInRect(p))
 	{
 		if (m_LogCopyLayout == 0)
 		{
@@ -190,7 +190,7 @@ int CS3GDIScreenMain::S3FindLogCopyScreen(POINT p)
 		// Go to confirm screen
 		return 1;
 	}
-	else if (m_RectNo.PtInRect(p))
+	else if (m_RectLogCopyNo.PtInRect(p))
 	{
 		if (m_LogCopyLayout == 0)
 		{

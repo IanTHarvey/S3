@@ -637,18 +637,7 @@ UINT SendMessageThread(LPVOID pParam)
 
         RespStr.Format(_T("%s\t%s\r\n"),CMDMsg,MsgResponse);
 
-        int nLength = (int)pObject->m_CommandEdit.GetWindowTextLength();
-
-		if (nLength < (int)pObject->m_CommandEdit.GetLimitText())
-		{
-			pObject->m_CommandEdit.SetSel(nLength, nLength);
-			pObject->m_CommandEdit.ReplaceSel(RespStr);
-		}
-		else
-		{
-			pObject->m_CommandEdit.SetSel(2000, nLength);
-			pObject->m_CommandEdit.ReplaceSel(RespStr);
-		}
+		pObject->AddResultString(RespStr);
 
 		pObject->m_MessageEdit.SetWindowTextW(L"");
 		pObject->m_MessageEdit.EnableWindow(true);
@@ -1059,3 +1048,27 @@ __time64_t CS3AgentDlg::GetPosixTime()
 {
 	return m_PosixTime;
 }
+
+// -----------------------------------------------------------------------------
+
+void CS3AgentDlg::AddResultString(const CString &RespStr)
+{
+	int nLength = (int)m_CommandEdit.GetWindowTextLength();
+
+	if (nLength < (int)m_CommandEdit.GetLimitText())
+	{
+		m_CommandEdit.SetSel(nLength, nLength);
+		m_CommandEdit.ReplaceSel(RespStr);
+	}
+	else
+	{
+		m_CommandEdit.SetSel(0, 1999);
+		// Clear() doesn't work as expected here
+		m_CommandEdit.ReplaceSel(_T("")); 
+		nLength = m_CommandEdit.GetWindowTextLength();
+		m_CommandEdit.SetSel(nLength, nLength);
+		m_CommandEdit.ReplaceSel(RespStr);
+	}
+}
+
+// -----------------------------------------------------------------------------

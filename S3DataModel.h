@@ -25,6 +25,7 @@ class CS3ControllerDlg;
 // #include "S3ControllerDlg.h"
 #endif
 
+class S3Update;
 
 #ifdef TRIZEPS
 #define	S3_ROOT_DIR					"\\FlashDisk\\S3"
@@ -35,6 +36,9 @@ class CS3ControllerDlg;
 #define S3_LOG_FILE_SUFF			".s3l"
 #define S3_CFG_FILE_SUFF			".s3c"
 #define S3_SCR_FILE_SUFF			".s3s"
+
+#define S3_HDD_ROOT					"\\Hard Disk"
+#define S3_FDD_ROOT					"\\Flashdisk"
 
 // ----------------------------------------------------------------------------
 
@@ -54,6 +58,9 @@ class CS3ControllerDlg;
 #define debug_print(A, ...)		TRACE(_T(A), __VA_ARGS__)
 #define debug_printw(A, ...)	TRACE(_T(A), __VA_ARGS__)
 #endif
+
+// Use to keep track of operational delays
+#define RTSLEEP(A)	Sleep((A))
 
 extern FILE *S3DbgLog;
 
@@ -77,6 +84,12 @@ extern const char		*TxTypeStrings[];
 #define S3_PN_FILENAME				"S3PN"
 #define S3_SCREEN_OFFSET_FILENAME	"S3ScreenOffset"
 #define S3_OSDATE_FILENAME			"S3OSDate"
+
+#define S3_UPDATE_WRAP_FILENAME		"\\Hard disk\\S3Update.upd"
+#define S3_DEST_FILENAME			"\\Flashdisk\\S3CUpdate.upd"
+
+#define S3_IMG_UPDATE_WRAP_FILENAME	"\\Hard disk\\S3ImageUpdate.upd"
+#define S3_IMG_DEST_FILENAME		"\\Flashdisk\\S3TestOS.nb0"
 
 // All REVERSE byte order
 #define S3_BATT_UNSEAL_KEY			"67D8FF9A"	// Unseal code
@@ -115,7 +128,6 @@ extern const char		*TxTypeStrings[];
 
 #define S3_CMD_TERMINATOR		'\n' // Line feed/0xA/10
 
-#define S3_PENDING_FG			0x80	// Use to flag/clear pending updates
 #define S3_PENDING				0x64	// Use to flag/clear pending updates
 
 // Message sources
@@ -346,14 +358,35 @@ typedef enum SigmaT				{TauNone, TauLo, TauMd, TauHi, TauUnknown, TauError};
 #define S3_RX_TX_06				0x40
 #define S3_RX_TX_07				0x80
 
-#define S3_RX_CTRL_FAN_FAIL		0x01
+// Rx Ctrl alarms [3] 0xF8-A
+#define S3_RX_CTRL_00			0x01
 #define S3_RX_CTRL_01			0x02
 #define S3_RX_CTRL_02			0x04
 #define S3_RX_CTRL_03			0x08
 #define S3_RX_CTRL_04			0x10
 #define S3_RX_CTRL_05			0x20
-#define S3_RX_CTRL_06			0x40
-#define S3_RX_CTRL_07			0x80
+#define S3_RX_CTRL_MINOR		0x40
+#define S3_RX_CTRL_MAJOR		0x80
+
+#define S3_RX_CTRL_VCC_OOR		0x01
+#define S3_RX_CTRL_TX1			0x02
+#define S3_RX_CTRL_TX2			0x04
+#define S3_RX_CTRL_TX3			0x08
+#define S3_RX_CTRL_TX4			0x10
+#define S3_RX_CTRL_TX5			0x20
+#define S3_RX_CTRL_TX6			0x40
+#define S3_RX_CTRL_FAN_FAIL		0x80
+
+#define S3_RX_CTRL_00			0x01
+#define S3_RX_CTRL_RX1			0x02
+#define S3_RX_CTRL_RX2			0x04
+#define S3_RX_CTRL_RX3			0x08
+#define S3_RX_CTRL_RX4			0x10
+#define S3_RX_CTRL_RX5			0x20
+#define S3_RX_CTRL_RX6			0x40
+#define S3_RX_CTRL_OPT_SW		0x80
+
+
 
 // ----------------------------------------------------------------------------
 // Parameter to be edited (see S3GDIScreenTx.cpp)
@@ -566,7 +599,7 @@ typedef struct sS3TxData
 	char			m_SN[S3_MAX_SN_LEN];				// PPM serial no.
 	char			m_PN[S3_MAX_PN_LEN];
 	char			m_FW[S3_MAX_SW_VER_LEN];
-	char			m_FWDate[S3_MAX_FW_DATE_LEN];	// Ctrl board
+	char			m_FWDate[S3_MAX_FW_DATE_LEN];		// Ctrl board
 	char			m_HW[S3_MAX_SW_VER_LEN];
 	char			m_ModelName[S3_MAX_MODEL_ID_LEN];	// PPM model name
 
@@ -621,6 +654,7 @@ typedef struct sS3TxData
 	unsigned char	m_ClearPeakHold;
 
 	unsigned char	m_CompMode;
+	bool			m_CompModePending;
 
 	wchar_t			m_TauUnits[6][S3_MAX_TAU_UNITS_LEN];
 	double			m_Tau_ns[6];
@@ -653,7 +687,7 @@ typedef struct sS3RxData
 									// necessarily the active one).
 
 	char			m_ActiveTx; // Only valid for Rx6s, 0 by default
-	
+	bool			m_ActiveTxPending;
 	char			m_SN[S3_MAX_SN_LEN];
 	char			m_PN[S3_MAX_PN_LEN];
 	char			m_FW[S3_MAX_SW_VER_LEN];
@@ -876,6 +910,9 @@ typedef struct sS3DataModel
 	unsigned short	wMonth;
 	unsigned short	wDay;
 
+	S3Update		*m_AppUpdate;
+	S3Update		*m_ImgUpdate;
+
 #ifndef S3_AGENT
 	CS3ControllerDlg	*m_GUI;
 #else
@@ -1091,6 +1128,9 @@ bool S3TxGetEmergency(	char Rx, char Tx);
 int S3TxSetTCompMode(			char Rx, char Tx, unsigned char mode);
 unsigned char S3TxGetTCompMode(	char Rx, char Tx);
 
+void S3TxSetTCompModePending(	char Rx, char Tx, bool pending);
+bool S3TxGetTCompModePending(	char Rx, char Tx);
+
 int S3SetGain(			char Rx, char Tx, char IP, char		val);
 
 int S3SetGainAll(		char	gain);
@@ -1208,8 +1248,11 @@ char S3TxGetActiveIP(		char Rx, char Tx);
 int S3TxSetActiveIPPending(	char Rx, char Tx, bool pending);
 bool S3TxGetActiveIPPending(char Rx, char Tx);
 
-int S3RxSetActiveTx(	char Rx, char Tx);
-char S3RxGetActiveTx(	char Rx);
+int S3RxSetActiveTx(		char Rx, char Tx);
+char S3RxGetActiveTx(		char Rx);
+int S3RxSetActiveTxPending(	char Rx, bool pending);
+bool S3RxGetActiveTxPending(char Rx);
+
 bool S3RxIsActiveTx(	char Rx, char Tx);
 bool S3TxConnected(		char Rx, char Tx);
 

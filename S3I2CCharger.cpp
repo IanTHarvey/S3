@@ -152,7 +152,6 @@ int S3I2CChMS(unsigned char Ch)
 		}
 
 		I2C_WriteRandom(S3I2C_EXPANDER_ADDR, 0x04, pins);
-		// Sleep(1);
 	}
 
 	// ASSERT?
@@ -358,19 +357,11 @@ int S2I2CChFactoryPN();
 
 int S3I2CChGetStatus(unsigned char Ch)
 {
-	//S3I2CChMS(Ch);
-
-	//S3I2CChEn(Ch, false);
-	//Sleep(1000);
-	//S3I2CChEn(Ch, true);
-	//
-	//return 0;
-
 #ifdef TRIZEPS
 	S3TimerStart(1);
 
 	S3I2CChMS(Ch);
-	Sleep(10);
+	RTSLEEP(10);
 	
 	if (!S3Data->m_Chargers[Ch].m_Disabled)
 	{
@@ -455,7 +446,7 @@ int S3I2CChGetStatus(unsigned char Ch)
 		if ((S3ChGetAlarms(Ch) & S3_CH_CHARGE_FAULT) && S3ChBattValidated(Ch))
 		{
 			//S3I2CChEn(Ch, false);
-			//Sleep(10);
+			//RTSLEEP(10);
 			//S3I2CChEn(Ch, true);
 		}
 
@@ -482,11 +473,9 @@ int S3I2CChGetStatus(unsigned char Ch)
 				S3Data->m_Chargers[Ch].m_Disabled = true;
 				S3Data->m_Chargers[Ch].m_Occupied = true;
 				
-				Sleep(10);
-				
+				RTSLEEP(10);
 				S3I2CChEn(Ch, false);
-
-				Sleep(10);
+				RTSLEEP(10);
 			}
 		}
 
@@ -503,19 +492,8 @@ int S3I2CChGetStatus(unsigned char Ch)
 	ok = I2C_WriteRead(S3I2C_CH_BATT_ADDR, &i2cStartAddr, 1, i2cCmdBufRead, 2);
 	S3ChSetBattStatus(Ch, i2cCmdBufRead);
 
-	// New discovery only
-	if (1)
-	{
-		// S3I2CChSetBattSealed(Ch);
-		// S3I2CChSetBattUnseal();
-		// Sleep(100);
-		// S3I2CChSetBattFullAccess();
-		// Sleep(100);
-		// S3I2CChReadSecKeys();
-		// S3I2CChWriteSecKeys();
-		int ChAuth = S3I2CChAuthenticate(Ch);
-		S3ChSetBattValidated(Ch, ChAuth == 0);
-	}
+	int ChAuth = S3I2CChAuthenticate(Ch);
+	S3ChSetBattValidated(Ch, ChAuth == 0);
 
 	char ver[S3_MAX_SW_VER_LEN];
 
