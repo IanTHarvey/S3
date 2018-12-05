@@ -17,24 +17,10 @@ extern char	WSAErrString[];
 const char *S3GetWSAErrString();
 const char *GetErrString();
 
-
 // Copy cmd to GPIBCmdBuf and process
 int S3ProcessGPIBCommand(const char *cmd);
 int S3LookUpError(char *buf, int err);
 
-/*
-The following functions reference these defined in S3GPIB.cpp:
-
-#define S3_MAX_GPIB_CMD_LEN	256
-#define S3_MAX_GPIB_RET_LEN	1024	// TODO: What's sensible?
-
-char		GPIBCmdBuf[S3_MAX_GPIB_CMD_LEN];
-char		GPIBRetBuf[S3_MAX_GPIB_RET_LEN];
-unsigned	GPIBBufLen;
-char		GPIBCurrentRx = -1;
-*/
-
-// os = character offset to start of arguments in GPIBCmdBuf
 // Non-zero return indicates that message is an error
 
 char *S3GPIBGetRetBuf();
@@ -118,9 +104,6 @@ int CmdNAME();
 int CmdLOGFCOPY();
 int CmdSWUPDATE();
 
-// Need sorting (get rid of os, use GetAddress2() where applicable)
-// int CmdINP(		int os);
-
 // ----------------------------------------------------------------------------
 // Methods to insert test data - maybe useful for demo mode
 
@@ -144,7 +127,7 @@ int DbgTxBattery();
 int DbgCancelAlarms();
 
 // ----------------------------------------------------------------------------
-// Draft S3Agent Specific commands
+// S3Agent-specific commands
 int S3AgentProcessCmd(void);
 int CmdGetBatt(char *Inbuf);
 int CmdGetInit(char *Inbuf);

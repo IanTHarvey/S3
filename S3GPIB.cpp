@@ -337,7 +337,6 @@ int S3ProcessGPIBCommand(const char *cmd)
 
 int S3LookUpError(char *buf, int err)
 {
-	// TODO: switch(err)...
 	if (err == 0)
 	{
 		strcpy_s(buf, S3_MAX_GPIB_RET_LEN, "OK:");
