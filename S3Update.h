@@ -48,6 +48,7 @@ private:
 	char	*exe;
 	size_t	exe_len;
 	char	ver[3];
+	char	suffix;
 	int		err;
 	int		datetime[5];
 	char	type[32];

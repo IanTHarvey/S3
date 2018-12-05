@@ -40,6 +40,7 @@ void S3Update::Clear(void)
 	exe = NULL;
 	exe_len = 0;
 	memset(ver, 0, 3 * sizeof(char));
+	suffix = '\0';
 	err = 0;
 	Unwrapping = false;
 	memset(datetime, 0, sizeof(datetime));
@@ -108,6 +109,9 @@ CString S3Update::GetVersion()
 	CString ret;
 
 	ret.Format(_T("%d.%02d.%03d"), ver[0], ver[1], ver[2]);
+
+	if (suffix != '\0')
+		ret.AppendChar(suffix);
 
 	return ret;
 }
@@ -255,6 +259,7 @@ int S3Update::readUpdFile()
 			err = 0;
 
 			memcpy(ver, source, 3 * sizeof(char));
+			suffix = *(source + 3 * sizeof(char));
 			exe_len = payload_len;
 
 			memcpy(datetime, source + S3_DATETIME_POS, sizeof(datetime));
@@ -341,6 +346,14 @@ int S3Update::writeUpdFile(char *source, size_t data_len,
 		ver[cnt] = *(header + S3_VERSION_POS + cnt++) = (char)_ttoi(strToken);
 		strToken = v.Tokenize(_T("."), nTokenPos);
 	}
+
+	int vl = v.GetLength();
+	suffix = '\0';
+	
+	if (vl == 9)
+		suffix = (char)v[vl - 1];
+
+	*(header + S3_VERSION_POS + cnt) = suffix;
 
 	*((int *)(header + S3_HEADER_LEN_POS)) = S3_UPDATE_HEADER_LEN;
 	*((size_t *)(header + S3_PAYLOAD_LEN_POS)) = data_len;
