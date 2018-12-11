@@ -79,6 +79,8 @@ CS3AgentDlg::CS3AgentDlg(CWnd* pParent /*=NULL*/)
 	m_SWUpdateScheduled = false;
 	m_AppUpdateScheduled = false;
 
+	m_S3Data = NULL;
+
 	connectionmethod = ETHERNET; // Set default connection method
 }
 
@@ -339,7 +341,7 @@ BOOL CS3AgentDlg::OnInitDialog()
     // ------------------------------------------------------------------------
 	// Start setting up the GDI region for drawing the Sentinel 3 UI
 
-	S3Init(false);
+	m_S3Data = S3Init(false);
 
     m_AutoUpdateGUITick.SetCheck(true);
     m_GDIStatic.ShowWindow(SW_HIDE);
@@ -451,9 +453,17 @@ void CS3AgentDlg::ExitS3RemController()
             CloseSocketSC3();
         }
 
+		if (m_DataUpdateThread && Sentinel3.isConnected)
+		{
+			Sentinel3.isConnected = false;
+			WaitForSingleObject(m_DataUpdateThread->m_hThread, 2000);
+		}
+
         KillTimer(IDT_S3_GUI_UPDATE_TIMER);
 
         CDialog::OnOK();
+
+		S3End();
     }
 }
 // ----------------------------------------------------------------------------
@@ -736,6 +746,7 @@ void CS3AgentDlg::OnAutoUpdateGUIBtnClick(void)
     {
         case BST_UNCHECKED:
             AutoCheckS3Data = false;
+			m_DataUpdateThread = NULL;
             break;
         case BST_CHECKED:
             AutoCheckS3Data = true;

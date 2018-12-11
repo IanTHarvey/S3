@@ -35,7 +35,10 @@ UINT AutoUpdateSentinelDataBundleThread(LPVOID pParam)
     
     //Re-initialise the Sentinel3 Data Model (remove any previous data)
     //Set up the Remote GUI
-    pObject->m_S3Data = S3Init(false);
+    if (pObject->m_S3Data)
+		S3End();
+		
+	pObject->m_S3Data = S3Init(false);
     result = Sentinel3AllDataGather();
     pObject->m_GDIStatic.ShowWindow(SW_SHOW);
     pObject->m_IMGStatic.ShowWindow(SW_HIDE);
@@ -92,6 +95,9 @@ UINT AutoUpdateSentinelDataBundleThread(LPVOID pParam)
     pObject->m_GDIStatic.ShowWindow(SW_HIDE);
     pObject->m_IMGStatic.ShowWindow(SW_SHOW);
     pObject->AutoCheckS3Data = false;
+
+	if (Sentinel3.isConnected == false)
+		return 2;
 
     return 0;
 }
