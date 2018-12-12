@@ -176,10 +176,12 @@ void CS3GDIScreenMain::S3InitSettingsScreen(void)
 					yref + SUBHEAD_ROW + RowCnt++ * PARA_ROW, WCol,
 					_T("Tx start state"), _T("Sleep"), true, S3_TX_START_STATE);
 
+#ifdef S3_TX_SELF_TEST_CAP
 	m_SettingsTxSelfTest = new CS3NameValue(	m_Parent, m_RectSysParas.left, 
 					yref + SUBHEAD_ROW + RowCnt++ * PARA_ROW, WCol,
 					_T("Tx self test"), _T("Off"), true, S3_TX_SELF_TEST);
 	m_SettingsTxSelfTest->SetEditable(false);
+#endif
 
 	m_RectSettingsSysWide.bottom = m_RectSettingsSysWide.top +
 		SUBHEAD_ROW + RowCnt * PARA_ROW + BMARGIN;
@@ -374,7 +376,10 @@ void CS3GDIScreenMain::S3CloseSettingsScreen(void)
 	delete m_SettingsLowNoise;
 #endif
 	delete m_SettingsTxStart;
+	
+#ifdef S3_TX_SELF_TEST_CAP
 	delete m_SettingsTxSelfTest;
+#endif
 
 	delete m_SettingsDate;
 	delete m_SettingsTime;
@@ -602,12 +607,14 @@ void CS3GDIScreenMain::S3DrawGDISettingsDefaults(void)
 
 	m_SettingsTxStart->Draw(m_HDC, m_hFontS, m_hFontSB);
 
+#ifdef S3_TX_SELF_TEST_CAP
 	if (S3GetTxSelfTest())
 		m_SettingsTxSelfTest->SetValue(_T("On"));
 	else
 		m_SettingsTxSelfTest->SetValue(_T("Off"));
 
 	m_SettingsTxSelfTest->Draw(m_HDC, m_hFontS, m_hFontSB);
+#endif
 
 #ifdef S3_SHOW_P1DB_MODES
 	fntRc = m_RectSettingsLinkPara;
