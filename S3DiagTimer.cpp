@@ -3,8 +3,8 @@
 // http://stackoverflow.com/questions/1739259/how-to-use-queryperformancecounter
 
 #include "stdafx.h"
-#include "S3DataModel.h"
-//#include "S3ControllerDlg.h"
+
+#define S3_MAX_FILENAME_LEN		128
 
 #ifdef S3_DIAG_TIMING
 unsigned int PCFreq = 0;
