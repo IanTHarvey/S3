@@ -25,8 +25,19 @@
 // 1.05.000 Tx8 input bug fixed
 //			Added remote commands
 //			USB response terminator changed (temporary)
+// 1.05.001 06/12/18 CR3961
+//			Corrected response to multiple Tx8 input select commands
+//			Corrected response to double tap of Rx6 active transmitter buttons
+//			Reduced FOL switching time 
+//			Fixed possible deadlock on sleep all/wake all screen
+//			Report Rx+ types correctly in reporting commands
+//			Improved handling of multiple test-tone switching remote commands
+//			Improved robustness of image and application update processes
+//			Minor bug fixes and enhancements
+//
 
-#define S3_SYS_SW			"1.05.000"
+// 'c': suffix for candidate releases
+#define S3_SYS_SW			"1.05.001"
 
 #define S3_SYS_MODEL		"Sentinel 3"
 
