@@ -21,6 +21,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_410CE532E9DD4E3BAC1CFFC48E9A001C"
+        "OwnerKey" = "8:_9E9E3D9674A34632821D005B6464B737"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_732342B57CD0248AE12B78DA80CC5E4A"
         "OwnerKey" = "8:_B203191F01EE4AE1818DCDC5CC75362A"
         "MsmSig" = "8:_UNDEFINED"
@@ -33,26 +39,14 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_928A2CDD74334332BC321DA555127355"
+        "MsmKey" = "8:_9E9E3D9674A34632821D005B6464B737"
         "OwnerKey" = "8:_B203191F01EE4AE1818DCDC5CC75362A"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_928A2CDD74334332BC321DA555127355"
+        "MsmKey" = "8:_9E9E3D9674A34632821D005B6464B737"
         "OwnerKey" = "8:_FEF585D9B00D4179952AC9683FB33689"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_A0B6FDF5000D413681B00E500E7ECAF8"
-        "OwnerKey" = "8:_DCB0164B08BF42B69B831D4D8E960437"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_B04D930F3E1145EE85E9D5F8A10CA85F"
-        "OwnerKey" = "8:_928A2CDD74334332BC321DA555127355"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -63,13 +57,19 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_DCB0164B08BF42B69B831D4D8E960437"
+        "MsmKey" = "8:_C9E12DE9566A435197ADBB761BA78B54"
+        "OwnerKey" = "8:_DE41F4AE5DC04DA28EA36F43E389A384"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_DE41F4AE5DC04DA28EA36F43E389A384"
         "OwnerKey" = "8:_B203191F01EE4AE1818DCDC5CC75362A"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_DCB0164B08BF42B69B831D4D8E960437"
+        "MsmKey" = "8:_DE41F4AE5DC04DA28EA36F43E389A384"
         "OwnerKey" = "8:_FEF585D9B00D4179952AC9683FB33689"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -294,14 +294,14 @@
         {
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:Sentinel 3 Remote Agent"
-        "ProductCode" = "8:{93AC48F6-4B7E-49E1-AD15-3D16C15F7AC6}"
-        "PackageCode" = "8:{0D69567C-9802-48EF-8AB3-D6B77AC3BD5A}"
+        "ProductCode" = "8:{E2C0F14C-0848-4EC4-B8FB-936126BA435A}"
+        "PackageCode" = "8:{1E2834FD-E681-4D80-9E10-57DFECCDE757}"
         "UpgradeCode" = "8:{518CA163-0D09-49C6-90F2-5BD47951D1BB}"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:FALSE"
         "DetectNewerInstalledVersion" = "11:TRUE"
         "InstallAllUsers" = "11:FALSE"
-        "ProductVersion" = "8:1.05.000"
+        "ProductVersion" = "8:1.05.001"
         "Manufacturer" = "8:PPM Test"
         "ARPHELPTELEPHONE" = "8:+44 (0) 1793 784389"
         "ARPHELPLINK" = "8:https://ppmtest.com/support/"
@@ -824,21 +824,7 @@
         }
         "MergeModule"
         {
-            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_928A2CDD74334332BC321DA555127355"
-            {
-            "UseDynamicProperties" = "11:TRUE"
-            "IsDependency" = "11:TRUE"
-            "SourcePath" = "8:policy_9_0_Microsoft_VC90_DebugCRT_x86.msm"
-                "Properties"
-                {
-                }
-            "LanguageId" = "3:0"
-            "Exclude" = "11:FALSE"
-            "Folder" = "8:"
-            "Feature" = "8:"
-            "IsolateTo" = "8:"
-            }
-            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_A0B6FDF5000D413681B00E500E7ECAF8"
+            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_410CE532E9DD4E3BAC1CFFC48E9A001C"
             {
             "UseDynamicProperties" = "11:TRUE"
             "IsDependency" = "11:TRUE"
@@ -852,7 +838,21 @@
             "Feature" = "8:"
             "IsolateTo" = "8:"
             }
-            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_B04D930F3E1145EE85E9D5F8A10CA85F"
+            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_9E9E3D9674A34632821D005B6464B737"
+            {
+            "UseDynamicProperties" = "11:TRUE"
+            "IsDependency" = "11:TRUE"
+            "SourcePath" = "8:policy_9_0_Microsoft_VC90_DebugMFC_x86.msm"
+                "Properties"
+                {
+                }
+            "LanguageId" = "3:0"
+            "Exclude" = "11:FALSE"
+            "Folder" = "8:"
+            "Feature" = "8:"
+            "IsolateTo" = "8:"
+            }
+            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_C9E12DE9566A435197ADBB761BA78B54"
             {
             "UseDynamicProperties" = "11:TRUE"
             "IsDependency" = "11:TRUE"
@@ -866,11 +866,11 @@
             "Feature" = "8:"
             "IsolateTo" = "8:"
             }
-            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_DCB0164B08BF42B69B831D4D8E960437"
+            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_DE41F4AE5DC04DA28EA36F43E389A384"
             {
             "UseDynamicProperties" = "11:TRUE"
             "IsDependency" = "11:TRUE"
-            "SourcePath" = "8:policy_9_0_Microsoft_VC90_DebugMFC_x86.msm"
+            "SourcePath" = "8:policy_9_0_Microsoft_VC90_DebugCRT_x86.msm"
                 "Properties"
                 {
                 }
