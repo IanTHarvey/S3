@@ -104,10 +104,10 @@ int S3TxSetBattTemp(char Rx, char Tx, short t)
 	pTx->m_BattTemp = t;
 
 	// Filter out any spurious temperature readings that could cause Tx to
-	// shut down
+	// shut down.
 	if (t < S3_BATT_DISCHG_MIN_T)
 	{
-		if (pTx->m_BattColdCnt > 2)
+		if (pTx->m_BattColdCnt > S3_BATT_TEMP_SHUTDOWN)
 			update += S3TxBattSetAlarm(Rx, Tx, S3_TX_BATT_COLD);
 
 		pTx->m_BattColdCnt++;
@@ -120,7 +120,7 @@ int S3TxSetBattTemp(char Rx, char Tx, short t)
 	
 	if (t > S3_BATT_DISCHG_MAX_T)
 	{
-		if (pTx->m_BattHotCnt > 2)
+		if (pTx->m_BattHotCnt > S3_BATT_TEMP_SHUTDOWN)
 			update += S3TxBattSetAlarm(Rx, Tx, S3_TX_BATT_HOT);
 
 		pTx->m_BattHotCnt++;
