@@ -474,6 +474,9 @@ typedef enum SigmaT				{TauNone, TauLo, TauMd, TauHi, TauUnknown, TauError};
 #define S3_SOC_MIN				3
 
 // Ambient temperatures
+
+// Battery shutdown temperatures
+#define S3_BATT_TEMP_SHUTDOWN	2		// Filter spurious temp. readings
 #define S3_BATT_CHARGE_MIN_T	100		// 0.1 degC
 #define S3_BATT_CHARGE_MAX_T	450		// 0.1 degC
 
@@ -515,19 +518,6 @@ typedef enum SigmaT				{TauNone, TauLo, TauMd, TauHi, TauUnknown, TauError};
 #define S3_RX_ZERO_RLL			-1000	// 10mdBm
 
 typedef char S3Addr; // Rx, Tx, IP addressing
-
-// TODO: Use for chargers and Txs
-typedef struct sS3Battery
-{
-	unsigned char	m_Type;				// S2P1, S2P2
-	char			m_Location;			// Charger: 0; Tx: 1.
-	char			m_SN[S3_MAX_SN_LEN];
-	char			m_PN[S3_MAX_PN_LEN];	
-	char			m_HW[S3_MAX_SW_VER_LEN];
-	char			m_FW[S3_MAX_SW_VER_LEN];
-	unsigned char	m_SoC;	// %age SoC from bq34z100-G1
-	char			m_Temp;	// DegC
-} *pS3Battery, S3Battery;
 
 // ----------------------------------------------------------------------------
 // Inheritables (Actual input parameters)
