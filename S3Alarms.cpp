@@ -473,7 +473,15 @@ int S3TxAlarmGetString(char Rx, char Tx, char *S3AlarmString, int len)
 
 	if (pTx->m_BattAlarms)
 	{
-		sprintf_s(S3AlarmString, len, "I:TxBattAlarm: 0x%02x", pTx->m_BattAlarms);
+		if (pTx->m_BattAlarms & S3_TX_BATT_COLD)
+			strcpy_s(S3AlarmString, len, "E:Tx battery under temperature, Tx put to sleep");
+		else if (pTx->m_BattAlarms & S3_TX_BATT_HOT)
+			strcpy_s(S3AlarmString, len, "E:Tx battery over temperature, Tx put to sleep");
+		else if (pTx->m_BattAlarms & S3_TX_BATT_COMM_FAIL)
+			strcpy_s(S3AlarmString, len, "E:Tx battery communication failure");
+		else	
+			sprintf_s(S3AlarmString, len, "I:TxBattAlarm: 0x%02x", pTx->m_BattAlarms);
+		
 		pTx->m_CurAlarmSrc = 6;
 		pTx->m_CurAlarm = pTx->m_BattAlarms;
 		return 1;

@@ -103,20 +103,33 @@ int S3TxSetBattTemp(char Rx, char Tx, short t)
 
 	pTx->m_BattTemp = t;
 
+	// Filter out any spurious temperature readings that could cause Tx to
+	// shut down
 	if (t < S3_BATT_DISCHG_MIN_T)
 	{
-		// Unlikely, but ensure exclusive 
-		update += S3TxBattSetAlarm(Rx, Tx, S3_TX_BATT_COLD);
-		update += S3TxBattCancelAlarm(Rx, Tx, S3_TX_BATT_HOT);
+		if (pTx->m_BattColdCnt > 2)
+			update += S3TxBattSetAlarm(Rx, Tx, S3_TX_BATT_COLD);
 
-	}
-	else if (t > S3_BATT_DISCHG_MAX_T)
-	{
-		update += S3TxBattSetAlarm(Rx, Tx, S3_TX_BATT_HOT);
-		update += S3TxBattCancelAlarm(Rx, Tx, S3_TX_BATT_COLD);
+		pTx->m_BattColdCnt++;
 	}
 	else
-		update += S3TxBattCancelAlarm(Rx, Tx, S3_TX_BATT_COLD | S3_TX_BATT_HOT);
+	{
+		pTx->m_BattColdCnt = 0;
+		update += S3TxBattCancelAlarm(Rx, Tx, S3_TX_BATT_COLD);
+	}
+	
+	if (t > S3_BATT_DISCHG_MAX_T)
+	{
+		if (pTx->m_BattHotCnt > 2)
+			update += S3TxBattSetAlarm(Rx, Tx, S3_TX_BATT_HOT);
+
+		pTx->m_BattHotCnt++;
+	}
+	else
+	{
+		pTx->m_BattHotCnt = 0;
+		update += S3TxBattCancelAlarm(Rx, Tx, S3_TX_BATT_HOT);
+	}
 
 	return update;
 }

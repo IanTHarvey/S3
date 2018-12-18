@@ -62,6 +62,8 @@ int S3TxInit(pS3TxData node)
 
 	node->m_SoC = 0;
 	node->m_BattTemp = 0;
+	node->m_BattColdCnt = 0;
+	node->m_BattHotCnt = 0;
 	node->m_BattValidated = false;
 	node->m_ATTE = 0;
 
@@ -223,6 +225,9 @@ int S3TxInserted(char Rx, char Tx, S3TxType type)
 	pTx->m_TempStableCnt = 0;
 	pTx->m_TempReport = SCHAR_MIN;
 	pTx->m_TempChange = 0;
+
+	pTx->m_BattColdCnt = 0;
+	pTx->m_BattHotCnt = 0;
 
 	pTx->m_RLLStableCnt = 0;
 	pTx->m_RLLLowCnt = 0;

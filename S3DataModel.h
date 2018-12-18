@@ -105,7 +105,7 @@ extern const char		*TxTypeStrings[];
 // #define	S3_FILE_VERSION		1.9 // Save Tx self test 18-04-17
 // #define	S3_FILE_VERSION		2.0 // Save units scale and signal type 16-06-17
 // #define	S3_FILE_VERSION		2.1 // Save 3% linearity setting 16-06-17
-#define	S3_FILE_VERSION			2.2 // Save terminator setting 27-09-17
+#define	S3_FILE_VERSION			2.2 // Save terminator setting 27-09-18
 
 
 // TODO: Move all 'common' configurables to this section
@@ -609,6 +609,8 @@ typedef struct sS3TxData
 	char			m_BattPN[S3_MAX_PN_LEN];
 	
 	short			m_BattTemp;			// 0.1 DegC
+	unsigned char	m_BattColdCnt;
+	unsigned char	m_BattHotCnt;
 	short			m_I;				// mA
 	bool			m_BattValidated;	// PPM 'approved'
 	char			m_BattHW[S3_MAX_SW_VER_LEN];
