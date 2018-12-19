@@ -36,7 +36,6 @@ int S3Save(const char *Filename)
 		if (!ok)
 		{
 			S3EventLogAdd("S3Save: Failed to delete AutoSave flag file", 1, -1, -1, -1);
-			// return 1;
 		}
 
 		int err = S3Save2(SysFilename);
@@ -107,53 +106,6 @@ int S3UpdateConfigName(const char *Filename)
 
 	return 0;
 }
-
-// ----------------------------------------------------------------------------
-/*
-int S3SaveStruct(const char *Filename)
-{
-	FILE	*fid;
-	errno_t	err;
-
-	strcpy_s(S3Shadow->m_ConfigPath, S3_MAX_FILENAME_LEN, Filename);
-
-	if (S3Shadow == NULL)
-		return 1;
-
-	err = fopen_s(&fid, Filename, "wb");
-
-	if (err)
-		return 2;
-
-	fwrite(S3Shadow, sizeof(S3DataModel), 1, fid);
-
-	fclose(fid);
-
-	return 0;
-}
-
-// ----------------------------------------------------------------------------
-
-int S3ReadStruct(const char *Filename)
-{
-	if (S3Shadow == NULL)
-		return 1;
-
-	FILE	*fid;
-	errno_t	err;
-
-	err = fopen_s(&fid, Filename, "rb");
-
-	if (err)
-		return 2;
-
-	fread_s(S3Shadow, sizeof(S3DataModel), sizeof(S3DataModel), 1, fid);
-
-	fclose(fid);
-
-	return 0;
-}
-*/
 
 // ----------------------------------------------------------------------------
 
@@ -242,7 +194,6 @@ int S3Read2(const char *Filename)
 {
 	FILE	*fid;
 	errno_t	err;
-	// S3DataModel		readModel;
 	pS3DataModel	pSys;
 
 	if (S3Shadow == NULL)
@@ -262,12 +213,6 @@ int S3Read2(const char *Filename)
 
 	if (!MATCH_VERSION(pSys->m_FileVersion, S3_FILE_VERSION))
 		S3EventLogAdd("Reading old config file version", 3, -1, -1, -1);
-
-	//if (pSys->m_FileVersion != S3_FILE_VERSION)
-	//{
-	//	fclose(fid);
-	//	return 3;
-	//}
 
 	fread(pSys->m_NodeName, sizeof(char), S3_MAX_NODE_NAME_LEN, fid);
 	// TEMP: For bad data in config files
@@ -341,7 +286,6 @@ int S3Read2(const char *Filename)
 	fclose(fid);
 
 	// pSys->m_AGC = pSys->m_Rx[0].m_AGC[0];
-
 	// TODO: Could be done by just swapping pointers
 	// All good, so copy. 
 	memcpy(S3Shadow, &readModel, sizeof(S3DataModel));
@@ -558,26 +502,6 @@ int S3TxRead(FILE *fid, pS3TxData pTx)
 
 	return 0;
 }
-
-// ----------------------------------------------------------------------------
-
-/*
-int S3RxReadId(FILE *fid, char Rx)
-{
-	unsigned char Type;
-
-	pS3RxData pRx = &readModel.m_Rx[Rx];
-
-	fread(&Type, sizeof(unsigned char), 1, fid);
-	S3RxSetType(Rx, Type);
-
-	fread(pRx->m_SN, sizeof(char), S3_MAX_SN_LEN, fid);	// PPM serial no.
-	fread(pRx->m_PN, sizeof(char), S3_MAX_PN_LEN, fid);
-	fread(pRx->m_FW, sizeof(char), S3_MAX_SW_VER_LEN, fid);
-
-	return 0;
-}
-*/
 
 // ----------------------------------------------------------------------------
 
