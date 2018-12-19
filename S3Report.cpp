@@ -156,7 +156,8 @@ int S3TxReport(char *Buf, char Rx, char Tx)
 	int len = strlen(Buf);
 
 	sprintf_s(Buf + len, S3_MAX_GPIB_RET_LEN - len,
-		"\nTransmitter Report\n-----------------------\nName:\t%s\nType:\tTx%d\n",
+		"\nTransmitter Report\n"
+		  "------------------\nName:\t%s\nType:\tTx%d\n",
 		pTx->m_NodeName,
 		pTx->m_Type);
 
@@ -174,18 +175,19 @@ int S3TxReport(char *Buf, char Rx, char Tx)
 	// len = strlen(Buf);
 
 	sprintf_s(Buf + len, S3_MAX_GPIB_RET_LEN - len,
-		"\n\nTx Battery\n-------------\nSN:\t%s\nCharge (%c):\t%02d\nTemp.(C):\t%.1f\n",
+		"\n\nTx Battery"
+		  "\n----------\nSN:\t%s\nCharge (%c):\t%02d\nTemp.(C):\t%.1f\n",
 		pTx->m_BattSN,
 		'%',
 		pTx->m_SoC,
-		pTx->m_BattTemp);
+		(double)pTx->m_BattTemp / 10.0);
 
 	len = strlen(Buf);
 
 	if (pTx->m_BattValidated)
-		strcat_s(Buf, S3_MAX_GPIB_RET_LEN - len, "Valid:\tYes\n");
+		strcat_s(Buf, S3_MAX_GPIB_RET_LEN - len, "Validated:\tYes\n");
 	else
-		strcat_s(Buf, S3_MAX_GPIB_RET_LEN - len, "Valid:\tNo\n");
+		strcat_s(Buf, S3_MAX_GPIB_RET_LEN - len, "Validated:\tNo\n");
 
 	return 0;
 }
