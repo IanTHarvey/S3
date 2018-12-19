@@ -624,14 +624,23 @@ int CmdREPORT()
 
 	if (!STRCMP(cmd, "TOPOLOGY"))
 	{
+		if (GPIBNArgs != 2)
+			return S3_GPIB_ERR_NUMBER_PARAS;
+
 		err = S3TopologyReport(GPIBRetBuf);
 	}
 	else if (!STRCMP(cmd, "SYS"))
 	{
+		if (GPIBNArgs != 2)
+			return S3_GPIB_ERR_NUMBER_PARAS;
+
 		err = S3SysReport(GPIBRetBuf);
 	}
 	else if (!STRCMP(cmd, "RX"))
 	{
+		if (GPIBNArgs != 3)
+			return S3_GPIB_ERR_NUMBER_PARAS;
+
 		int err = S3IPInvalidQ(Rx, Tx, IP);
 		if (err == S3_GPIB_RX_NOT_EXIST)
 			return err;
@@ -640,6 +649,9 @@ int CmdREPORT()
 	}
 	else if (!STRCMP(cmd, "TX"))
 	{
+		if (GPIBNArgs != 4)
+			return S3_GPIB_ERR_NUMBER_PARAS;
+
 		int err = S3IPInvalidQ(Rx, Tx, IP);
 		if (err == S3_GPIB_TX_NOT_EXIST)
 			return err;
@@ -648,6 +660,9 @@ int CmdREPORT()
 	}
 	else if (!STRCMP(cmd, "IP"))
 	{
+		if (GPIBNArgs != 5)
+			return S3_GPIB_ERR_NUMBER_PARAS;
+
 		int err = S3IPInvalidQ(Rx, Tx, IP);
 		if (err)
 			return err;
