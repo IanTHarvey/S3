@@ -1076,8 +1076,8 @@ int CmdGETTXPOWER()
 	}
 	else if (GPIBNArgs == 1)
 	{
-		int err = S3TxExistQ(GPIBRx, GPIBTx);
-		if (err)
+		int exist = S3TxExistQ(GPIBRx, GPIBTx);
+		if (exist)
 			return S3_GPIB_TX_NOT_EXIST;
 		
 		Rx = GPIBRx;
@@ -1126,8 +1126,8 @@ int CmdGETTXSN()
 	}
 	else if (GPIBNArgs == 1)
 	{
-		int err = S3TxExistQ(GPIBRx, GPIBTx);
-		if (err)
+		int exist = S3TxExistQ(GPIBRx, GPIBTx);
+		if (!exist)
 			return S3_GPIB_TX_NOT_EXIST;
 		
 		Rx = GPIBRx;
@@ -1172,8 +1172,8 @@ int CmdGETTXSETTINGS()
 	}
 	else if (GPIBNArgs == 1)
 	{
-		int err = S3TxExistQ(GPIBRx, GPIBTx);
-		if (err)
+		int exist = S3TxExistQ(GPIBRx, GPIBTx);
+		if (!exist)
 			return S3_GPIB_TX_NOT_EXIST;
 		
 		Rx = GPIBRx;
