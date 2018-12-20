@@ -12,24 +12,6 @@
 extern pS3DataModel S3Data;
 
 // ----------------------------------------------------------------------------
-// MODIFsfxsxsxsxssYh
-
-int S3ReportFile(char *Buf, char *f)
-{
-	strcpy_s(S3Data->m_ReportFileName, S3_MAX_FILENAME_LEN, f);
-
-	return 0;
-}
-
-// ----------------------------------------------------------------------------
-
-int S3AllReport(char *Buf)
-{
-	// Copy & format system data to BufS
-	return 0;
-}
-
-// ----------------------------------------------------------------------------
 
 int S3SysReport(char *Buf)
 {
@@ -104,6 +86,8 @@ int S3TopologyReport(char *Buf)
 
 int S3RxReport(char *Buf, char Rx)
 {
+	*Buf = '\0';
+
 	if (Rx < 0)
 		return 1;
 
@@ -148,6 +132,8 @@ int S3RxReport(char *Buf, char Rx)
 
 int S3TxReport(char *Buf, char Rx, char Tx)
 {
+	*Buf = '\0';
+
 	if (Rx == -1 || Tx == -1)
 		return 0;
 	
@@ -197,6 +183,8 @@ int S3TxReport(char *Buf, char Rx, char Tx)
 
 int S3TxReportShort(char *Buf, char Rx, char Tx)
 {
+	*Buf = '\0';
+	
 	if (Rx == -1 || Tx == -1)
 		return 0;
 	
@@ -241,6 +229,11 @@ int S3TxReportShort(char *Buf, char Rx, char Tx)
 
 int S3IPReport(char *Buf, char Rx, char Tx, char IP)
 {
+	*Buf = '\0';
+
+	if (Rx == -1 || Tx == -1 || IP == -1)
+		return 0;
+
 	pS3IPData pIP = &S3Data->m_Rx[Rx].m_Tx[Tx].m_Input[IP];
 
 	int len = strlen(Buf);
@@ -253,8 +246,10 @@ int S3IPReport(char *Buf, char Rx, char Tx, char IP)
 	if (S3Data->m_DisplayUnits != S3_UNITS_MV)
 	{
 		len = strlen(Buf);
+		CString u(S3GetUnitString());
+
 		sprintf_s(Buf + len, S3_MAX_GPIB_RET_LEN - len,
-			"Max input (%S):\t%.2f\n", S3GetUnitString(), pIP->m_MaxInput);
+			"Max input (%S):\t%.2f\n", u.Left(1), pIP->m_MaxInput);
 	}
 	else
 	{
@@ -301,7 +296,7 @@ int S3CfgReport(char *Buf, char Rx, char Tx, char IP)
 	S3Config *cfg = &S3Data->m_Rx[Rx].m_Tx[Tx].m_Input[IP].m_Config;
 	int len = strlen(Buf);
 
-	sprintf_s(Buf + len, S3_MAX_GPIB_RET_LEN - len, "Gain (dBm):\t%d\n", cfg->m_Gain);
+	sprintf_s(Buf + len, S3_MAX_GPIB_RET_LEN - len, "Gain (dB):\t%d\n", cfg->m_Gain);
 
 	strcat_s(Buf, S3_MAX_GPIB_RET_LEN - len, "Int T:\t\t");
 
