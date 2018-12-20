@@ -95,7 +95,6 @@ void CS3GDIScreenMain::S3InitSettingsScreen(void)
 	m_SettingsAccess = new CS3NameValue(	m_Parent, m_RectRemoteHeader.left, 
 								m_RectRemoteHeader.bottom, WCol,
 								_T("Access"), _T("Remote"), true, S3_ACCESS);
-	// m_SettingsAccess->RectEdit(m_HDC, m_hFontSB);
 
 	m_RectEthernet.top = m_RectRemoteHeader.bottom + PARA_ROW;
 	m_RectEthernet.bottom = m_RectEthernet.top +
@@ -226,27 +225,6 @@ void CS3GDIScreenMain::S3InitSettingsScreen(void)
 	yref = m_RectSettingsDefaults.top = m_RectSettingsSysWide.bottom;
 #endif
 
-//	m_RectSettingsDefaults.left = m_RectSettingsRemote.right;
-//	m_RectSettingsDefaults.right = m_RectSettingsDefaults.left + WCol;
-
-/*
-RowCnt = 0;
-
-	m_SettingsGain = new CS3NameValue(	m_Parent, m_RectSettingsDefaults.left, 
-					yref + SUBHEAD_ROW + RowCnt++ * PARA_ROW, WCol,
-					_T("Gain (dB)"), _T("-55.55"), true, S3_DEF_GAIN);
-
-	m_SettingsImp = new CS3NameValue(	m_Parent, m_RectSettingsDefaults.left, 
-					yref + SUBHEAD_ROW + RowCnt++ * PARA_ROW, WCol,
-					_T("Input Z (\u03a9)"), _T("1MMMMM"), true, S3_DEF_IMP);
-
-#ifdef S3LOWNOISE
-	m_SettingsLowNoise = new CS3NameValue(	m_RectSettingsDefaults.left, 
-					yref + SUBHEAD_ROW + RowCnt++ * PARA_ROW, WCol,
-					_T("Low noise mode"), _T("OFFFFF"), true, S3_DEF_LOW_NOISE);
-#endif
-*/
-
 	// ------- System -------
 
 	m_RectSettingsSystem = m_RectSettingsScreen;
@@ -331,7 +309,6 @@ RowCnt = 0;
 	m_SettingsIPAddr->AttachEditor(m_HDC, m_GDIIPAddrEdit);
 	m_SettingsIPSubnet->AttachEditor(m_HDC, m_GDIIPSubnetEdit);
 	m_SettingsPort->AttachEditor(m_HDC, m_GDIIPPortEdit);
-	// m_SettingsGain->AttachEditor(m_HDC, m_GDIDefaultGainEdit);
 	m_SettingsDate->AttachEditor(m_HDC, m_GDIDateEdit);
 	m_SettingsTime->AttachEditor(m_HDC, m_GDITimeEdit);
 }
@@ -370,8 +347,6 @@ void CS3GDIScreenMain::S3CloseSettingsScreen(void)
 	delete m_Settings3PCLinearity;
 #endif
 
-	// delete m_SettingsGain;
-	// delete m_SettingsImp;
 #ifdef S3LOWNOISE
 	delete m_SettingsLowNoise;
 #endif
@@ -640,44 +615,6 @@ void CS3GDIScreenMain::S3DrawGDISettingsDefaults(void)
 		m_Settings3PCLinearity->SetValue(_T("Off"));
 	m_Settings3PCLinearity->Draw(m_HDC, m_hFontS, m_hFontSB);
 #endif
-	
-/*
-	fntRc = m_RectSettingsDefaults;
-	fntRc.bottom = fntRc.top + SUBHEAD_ROW;
-
-	S3_RECT(m_HDC, fntRc);
-
-	fntRc.left += LHMARGIN;
-	DrawText(m_HDC, _T("Defaults"), -1, &fntRc, DT_LEFT);
-
-	int gain = S3IPGetGain(-1, -1, -1);
-	if (gain == 0)
-		str = _T("-0");
-	else str.Format(_T("%+d"), gain);
-	m_SettingsGain->SetValue(str);
-	m_SettingsGain->Draw(m_HDC, m_hFontS, m_hFontSB);
-
-	switch(S3GetImpedance(-1, -1, -1))
-	{
-		case W50: str = _T("50"); break;
-		case W1M: str = _T("1M"); break;
-		default: str = _T("Unknown");
-	};
-
-	m_SettingsImp->SetValue(str);
-	m_SettingsImp->Draw(m_HDC, m_hFontS, m_hFontSB);
-	
-#ifdef S3LOWNOISE
-	switch(S3GetLowNoiseMode(-1, -1, -1))
-	{
-		case true: str = _T("On"); break;
-		case false: str = _T("Off"); break;
-	};
-
-	m_SettingsLowNoise->SetValue(str);
-	m_SettingsLowNoise->Draw(m_HDC, m_hFontS, m_hFontSB);
-#endif
-*/
 }
 
 // ----------------------------------------------------------------------------
@@ -918,21 +855,6 @@ int CS3GDIScreenMain::S3FindSettingsScreen(POINT p)
 			// TODO: Assumes the ordering of units
 			S3SetUnits(menu_item + 1);
 		}
-		/*
-		else if (Para == S3_SIGMA_TAU)
-		{
-			switch(menu_item)
-			{
-			case 0: S3SetSigmaTau(-1, -1, -1, TauNone); break;
-			case 1: S3SetSigmaTau(-1, -1, -1, TauLo); break;
-			case 2: S3SetSigmaTau(-1, -1, -1, TauMd); break;
-			case 3: S3SetSigmaTau(-1, -1, -1, TauHi); break;
-			//	default:
-			//		TERMINAL:
-			//		S3SetSigmaTau(-1, -1, -1, TUnknown);
-			}
-		}
-		*/
 		else if (Para == S3_INPUT_IMP)
 		{
 			if (menu_item == 0)
@@ -951,12 +873,10 @@ int CS3GDIScreenMain::S3FindSettingsScreen(POINT p)
 #endif
 		else if (Para == S3_OS_UPDATE)
 		{
-			// m_MsgID = S3OSSWUpdateRequest();
 			m_Screen = S3_OS_UPDATE_SCREEN;
 		}
 		else if (Para == S3_APP_UPDATE)
 		{
-			// m_MsgID = S3OSSWUpdateRequest();
 			m_Screen = S3_APP_UPDATE_SCREEN;
 		}
 		else if (Para == S3_LOG_COPY_USB)
@@ -1374,8 +1294,6 @@ int CS3GDIScreenMain::S3FindSettingsScreen(POINT p)
 			// unsigned short Port = S3GetIPPort();
 
 			CString str;
-			// char cStr[S3_MAX_IP_ADDR_LEN];
-			// S3GetIPAddrStr(cStr);
 			str.Format(_T("%S"), S3GetIPAddrStr());
 
 			if (!wcscmp(str, _T("No Ethernet")))
@@ -1400,8 +1318,6 @@ int CS3GDIScreenMain::S3FindSettingsScreen(POINT p)
 			// unsigned short Port = S3GetIPPort();
 
 			CString str;
-			//char cStr[S3_MAX_IP_ADDR_LEN];;
-			//S3GetIPSubnetStr(cStr);
 			str.Format(_T("%S"), S3GetIPSubnetStr());
 
 			m_GDIIPSubnetEdit->SetWindowText(str);
