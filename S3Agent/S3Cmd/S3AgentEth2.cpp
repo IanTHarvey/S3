@@ -13,7 +13,9 @@
 
 // extern "C" {
 extern int S3CmdCloseSocket(char *RetMsg);
-extern int S3CmdOpenSocket(char *RetMsg, const char *IPv4Addr);
+extern int S3CmdOpenSocket(char *RetMsg,
+						   const char *IPv4Addr,
+						   const char *IPPort);
 extern int S3CmdSend(char *ReMsg, const char *TxBuf);
 // };
 
@@ -47,32 +49,32 @@ const char *S3GetWSAErrString()
 
 // -----------------------------------------------------------------------------
 
-int S3Open(char *RetMsg, const char *IPAddr)
+int S3Open(char *RetMsg, const char *IPAddr, const char *IPPort)
 {
-	int ret = S3CmdOpenSocket(RetMsg, IPAddr);
+	int ret = S3CmdOpenSocket(RetMsg, IPAddr, IPPort);
 
 	return ret;
 }
 
 // -----------------------------------------------------------------------------
 
-int S3SendMessage(char *RetMsg, const char *IPAddr, const char *Msg)
+int S3SendMessage(char *RetMsg, const char *IPAddr,  const char *IPPort, const char *Msg)
 {
-	int ret = S3CmdOpenSocket(RetMsg, IPAddr);
+	int ret = S3CmdOpenSocket(RetMsg, IPAddr, IPPort);
 
 	if (!ret)
 	{
 		ret = S3CmdSend(RetMsg, Msg);
 
 		if (ret)
-			strcpy_s(RetMsg, RETURN_MESSAGE_LEN, "Error sending message");
+			strcpy_s(RetMsg, DEFAULT_BUFLEN, "Error sending message");
 
-		char CloseMsg[RETURN_MESSAGE_LEN];
+		char CloseMsg[DEFAULT_BUFLEN];
 
 		ret = S3CmdCloseSocket(CloseMsg);
 
 		if (ret)
-			strcpy_s(RetMsg, RETURN_MESSAGE_LEN, CloseMsg);
+			strcpy_s(RetMsg, DEFAULT_BUFLEN, CloseMsg);
 	}
 
 	return ret;

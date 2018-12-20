@@ -12,14 +12,19 @@
 
 #include "S3CommsEth.h"
 
-extern int S3SendMessage(char *RetMsg, const char *IPAddr, const char *Msg);
+extern int S3SendMessage(char *RetMsg,
+						 const char *IPAddr, const char *IPPort,
+						 const char *Msg);
 extern int IPv4ToolsRemLeadZ(char *IPAddr);
 
 int _tmain(int argc, _TCHAR* argv[])
 {
-	char Cmd[1024];
+	char Cmd[MAX_CMD_LEN];
 	char IPAddr[MAX_IP_ADDR_LEN];
+	char IPPort[MAX_IP_ADDR_LEN];
 	size_t nconv;
+
+	strcpy_s(IPPort, MAX_IP_ADDR_LEN, IPV4Port);
 
 	if (argc < 3)
 	{
@@ -27,28 +32,82 @@ int _tmain(int argc, _TCHAR* argv[])
 		return 0;
 	}
 
-	wcstombs_s(&nconv, IPAddr, 128, argv[1], wcslen(argv[1]) + 1);
+	int		lastarg = 1;
+	bool	IPAddrGiven = false;
 
-	if (IPv4ToolsRemLeadZ(IPAddr))
+	for(int i = 1;  i < argc; i++)
 	{
-		printf("Invalid IP address\n");
+		if (!wcscmp(_T("-i"), argv[i]))
+		{
+			if (i < argc - 1)
+			{
+				wcstombs_s(&nconv, IPAddr, MAX_IP_ADDR_LEN, argv[i + 1], wcslen(argv[i + 1]) + 1);
+				lastarg = i + 1;
+
+				if (IPv4ToolsRemLeadZ(IPAddr))
+				{
+					printf("Invalid IP address\n");
+					return 1;
+				}
+
+				IPAddrGiven = true;
+			}
+			else
+			{
+				printf("No IP address specified\n");
+				return 1;
+			}
+		}
+		else if (!wcscmp(_T("-p"), argv[i]))
+		{
+			if (i < argc - 1)
+			{
+				wchar_t *end;
+
+				long p = wcstol(argv[i + 1], &end, 10);
+				if (errno || end != argv[i + 1] + wcslen(argv[i + 1])
+					|| end == argv[i + 1] || p < 0 || p > 65535)
+				{
+					printf("Invalid IP port number\n");
+					return 1;
+				}
+
+				wcstombs_s(&nconv, IPPort, MAX_IP_ADDR_LEN, argv[i + 1], wcslen(argv[i + 1]) + 1);
+				lastarg = i + 1;
+			}
+			else
+			{
+				printf("No port specified\n");
+				return 1;
+			}
+		}
+	}
+
+	if (!IPAddrGiven)
+	{
+		printf("No IP address given\n");
+		return 1;
+	}
+
+	if (lastarg >= argc - 1)
+	{
+		printf("No remote command\n");
 		return 1;
 	}
 
 	*Cmd = '\0';
 
-	for(int i = 2;  i < argc; i++)
+	char tmp[MAX_CMD_LEN];
+	for(int i = lastarg + 1;  i < argc; i++)
 	{
-		strcat_s(Cmd, 1024, " ");
-		
-		char tmp[128];
-		wcstombs_s(&nconv, tmp, 128, argv[i], wcslen(argv[i]) + 1);
-		strcat_s(Cmd, 1024, tmp);
+		strcat_s(Cmd, MAX_CMD_LEN, " ");	
+		wcstombs_s(&nconv, tmp, MAX_CMD_LEN, argv[i], wcslen(argv[i]) + 1);
+		strcat_s(Cmd, MAX_CMD_LEN, tmp);
 	}
 
-	char res[RETURN_MESSAGE_LEN];
+	char res[DEFAULT_BUFLEN];
 	
-	int ret = S3SendMessage(res, IPAddr, Cmd);
+	int ret = S3SendMessage(res, IPAddr, IPPort, Cmd);
 
 	if (ret)
 		printf("Result: Error (%d): %s\n", ret, res);

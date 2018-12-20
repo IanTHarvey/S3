@@ -22,7 +22,7 @@ extern char RxBuf[];
 // ----------------------------------------------------------------------------
 // Open the network socket
 
-int S3CmdOpenSocket(char *RetMsg, const char *IPAddr)
+int S3CmdOpenSocket(char *RetMsg, const char *IPAddr, const char *IPPort)
 {
     *RetMsg = '\0';
 	
@@ -38,7 +38,7 @@ int S3CmdOpenSocket(char *RetMsg, const char *IPAddr)
     iResult = WSAStartup(MAKEWORD(2, 2), &wsaData);
     if (iResult != 0)
     {
-        sprintf_s(RetMsg, RETURN_MESSAGE_LEN,
+        sprintf_s(RetMsg, DEFAULT_BUFLEN,
 			"WSAStartup failed with error: %d\n", iResult);
         return 1;
     }
@@ -49,10 +49,10 @@ int S3CmdOpenSocket(char *RetMsg, const char *IPAddr)
     hints.ai_protocol = IPPROTO_TCP;
 
     // Resolve the server address and port
-    iResult = getaddrinfo(IPAddr, IPV4Port, &hints, &result);
+    iResult = getaddrinfo(IPAddr, IPPort, &hints, &result);
     if (iResult != 0)
     {
-		strcpy_s(RetMsg, RETURN_MESSAGE_LEN, S3GetWSAErrString());
+		strcpy_s(RetMsg, DEFAULT_BUFLEN, S3GetWSAErrString());
         WSACleanup();
         return 1;
     }
@@ -63,7 +63,7 @@ int S3CmdOpenSocket(char *RetMsg, const char *IPAddr)
 
 	if (ConnectSocket == INVALID_SOCKET)
 	{
-		strcpy_s(RetMsg, RETURN_MESSAGE_LEN, S3GetWSAErrString());
+		strcpy_s(RetMsg, DEFAULT_BUFLEN, S3GetWSAErrString());
 
 		WSACleanup();
 		return 1;
@@ -73,7 +73,7 @@ int S3CmdOpenSocket(char *RetMsg, const char *IPAddr)
 	u_long block = 1;
 	if (ioctlsocket(ConnectSocket, FIONBIO, &block) == SOCKET_ERROR)
 	{
-		strcpy_s(RetMsg, RETURN_MESSAGE_LEN, S3GetWSAErrString());
+		strcpy_s(RetMsg, DEFAULT_BUFLEN, S3GetWSAErrString());
 
 		closesocket(ConnectSocket);
 		return 1;
@@ -89,7 +89,7 @@ int S3CmdOpenSocket(char *RetMsg, const char *IPAddr)
 		if (WSAGetLastError() != WSAEWOULDBLOCK)
 		{
 			// Connection failed
-			strcpy_s(RetMsg, RETURN_MESSAGE_LEN, S3GetWSAErrString());
+			strcpy_s(RetMsg, DEFAULT_BUFLEN, S3GetWSAErrString());
 
 			closesocket(ConnectSocket);
 			return 1;
@@ -114,7 +114,7 @@ int S3CmdOpenSocket(char *RetMsg, const char *IPAddr)
 			if (ret == 0)
 				WSASetLastError(WSAETIMEDOUT);
 
-			strcpy_s(RetMsg, RETURN_MESSAGE_LEN, S3GetWSAErrString());
+			strcpy_s(RetMsg, DEFAULT_BUFLEN, S3GetWSAErrString());
 
 			closesocket(ConnectSocket);
 
@@ -139,7 +139,7 @@ int S3CmdOpenSocket(char *RetMsg, const char *IPAddr)
     block = 0;
     if (ioctlsocket(ConnectSocket, FIONBIO, &block) == SOCKET_ERROR)
     {
-		strcpy_s(RetMsg, RETURN_MESSAGE_LEN, S3GetWSAErrString());
+		strcpy_s(RetMsg, DEFAULT_BUFLEN, S3GetWSAErrString());
 
         closesocket(ConnectSocket);
         return 1;
@@ -164,7 +164,7 @@ int S3CmdCloseSocket(char *RetMsg)
 
     if (iResult == SOCKET_ERROR)
     {
-		strcpy_s(RetMsg, RETURN_MESSAGE_LEN, S3GetWSAErrString());
+		strcpy_s(RetMsg, DEFAULT_BUFLEN, S3GetWSAErrString());
 		closesocket(ConnectSocket);
         WSACleanup();
         return 1;
@@ -176,7 +176,7 @@ int S3CmdCloseSocket(char *RetMsg)
         if (iResult > 0)
             RxBuf[iResult] = '\0';
         else
-			strcpy_s(RetMsg, RETURN_MESSAGE_LEN, S3GetWSAErrString());
+			strcpy_s(RetMsg, DEFAULT_BUFLEN, S3GetWSAErrString());
 
     } while (iResult > 0);
 
@@ -246,7 +246,7 @@ int S3CmdSend(char *RetMsg, const char *TxBuf)
 		}
     }
 
-	strcpy_s(RetMsg, RETURN_MESSAGE_LEN, RxBuf);
+	strcpy_s(RetMsg, DEFAULT_BUFLEN, RxBuf);
 
     return 0;
 }
@@ -285,6 +285,9 @@ int IPv4ToolsRemLeadZ(char *IPAddr)
                 return 1;
         }
     }
+
+	if (count != 4)
+		return 1;
 
     for (i = 0; i < 4; i++)
     {

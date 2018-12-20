@@ -6,6 +6,7 @@
 
 #define DEFAULT_BUFLEN		32768
 #define MAX_IP_ADDR_LEN		256
+#define MAX_CMD_LEN			1024
 #define RETURN_MESSAGE_LEN	1024
 
 extern SOCKET ConnectSocket;
