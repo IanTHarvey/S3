@@ -269,10 +269,6 @@ int CloseSocketSC3()
             RxBuf[iResult] = '\0';
 
             printf("Bytes received: %d\n", iResult);
-
-            // Look for Ok at end of buffer
-            if (STRCMP(RxBuf + strlen(RxBuf) - 2, "Ok"))
-                ClientErr = 666;
         }
         else if (iResult == 0)
             printf("Connection closed\n");
@@ -332,12 +328,7 @@ CString SendSentinel3Message(CString message)
                 int err = SendMessageSC3_2(TxBuf);
 				S3TimerStop(0);
 
-                if (err == 666)
-                {
-                    //AfxMessageBox(_T("Message rejected by host"));
-                    RetString.Format(_T("ERROR: Ethernet: Message rejected by host.\r\n"));
-                }
-                else if (err)
+				if (err)
                 {
                     //AfxMessageBox(_T("Message send failed"));
                     RetString.Format(_T("ERROR: Message Send Failed. Is the Sentinel 3 still connected?\r\n"));
