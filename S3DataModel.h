@@ -1254,7 +1254,6 @@ int S3TxSetBattValidated(	char Rx, char Tx, bool valid);
 bool S3TxSelfTestPending(char Rx, char Tx);
 int S3TxSetSelfTestPending(char Rx, char Tx, bool pending);
 
-int S3AllReport(		char *Buf);
 int S3SysReport(		char *Buf);
 int S3TopologyReport(	char *Buf);
 int S3RxReport(			char *Buf, char Rx);
