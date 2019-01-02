@@ -84,6 +84,9 @@ int S3PollTxSetType(pS3TxData pTx)
 
 int	S3Poll(CS3ControllerDlg *parent)
 {
+	if (g_S3EndInvoked)
+		return 0;
+
 	int		Update = 0;
 
 	if (S3GetFactoryMode())
@@ -91,6 +94,9 @@ int	S3Poll(CS3ControllerDlg *parent)
 
 	Update = S3I2CPoll(parent);
 
+	if (g_S3EndInvoked)
+		return 0;
+	
 	S3AllAwake();
 	S3AllAsleep();
 

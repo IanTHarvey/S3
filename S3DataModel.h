@@ -63,6 +63,7 @@ class S3Update;
 #define RTSLEEP(A)	Sleep((A))
 
 extern FILE *S3DbgLog;
+extern bool	g_S3EndInvoked;
 
 extern const unsigned char S3Tx8IPMap[];
 

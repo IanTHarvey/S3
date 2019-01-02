@@ -116,6 +116,7 @@ short PeakThTable[S3_TX_N_RF_PATH] =
 // ----------------------------------------------------------------------------
 
 FILE	*S3DbgLog = NULL;
+bool	g_S3EndInvoked = false; // Flag when S3Data is dead
 
 #ifdef S3_TRACE_FILE
 //FILE	*S3DbgLog;
@@ -284,20 +285,22 @@ int S3DataModelInit(pS3DataModel dm, bool DemoMode)
 				S3IPInit(pIP);
 				sprintf_s(pIP->m_NodeName, S3_MAX_NODE_NAME_LEN, "RF%d", IP + 1);
 
-				S3Data->m_GainSent[Rx][Tx][IP] = -128;
-				S3Data->m_PathSent[Rx][Tx][IP] = -128;
+				dm->m_GainSent[Rx][Tx][IP] = -128;
+				dm->m_PathSent[Rx][Tx][IP] = -128;
 			}
 		}
 	}
 
-	S3Data->m_AppUpdate = new S3Update(_T(""), _T(S3_DEST_FILENAME),
+#ifdef TRIZEPS
+	dm->m_AppUpdate = new S3Update(_T(""), _T(S3_DEST_FILENAME),
 			_T(S3_UPDATE_WRAP_FILENAME), _T(S3_HDD_ROOT));
 
-	S3Data->m_ImgUpdate = new S3Update(_T(""), _T(S3_IMG_DEST_FILENAME),
+	dm->m_ImgUpdate = new S3Update(_T(""), _T(S3_IMG_DEST_FILENAME),
 			_T(S3_IMG_UPDATE_WRAP_FILENAME), _T(S3_HDD_ROOT));
+#endif
 
 #ifndef S3_AGENT
-	S3Data->m_GUI = NULL;
+	dm->m_GUI = NULL;
 #endif
 
 	return 0;
@@ -317,6 +320,7 @@ int S3Reset()
 int S3End(void)
 {
 	// S3Save2(S3_DEFAULT_CONFIG_FILENAME);
+	g_S3EndInvoked = true;
 
 	delete S3Data->m_AppUpdate;
 	delete S3Data->m_ImgUpdate;
