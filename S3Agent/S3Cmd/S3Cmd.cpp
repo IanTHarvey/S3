@@ -1,6 +1,16 @@
 // S3Open.cpp : Defines the entry point for the console application.
 //
 
+/* docopt spec:
+S3Arg
+
+Usage:
+  s3cmd -i <ip_address> [-p <port_number>] <s3_cmd> [<argument>]...
+
+Options:
+-p <port_number>
+-i <ip_address>
+*/
 
 #include "stdafx.h"
 #include "stdio.h"
