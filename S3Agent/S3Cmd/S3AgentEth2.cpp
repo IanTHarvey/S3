@@ -21,7 +21,7 @@ extern int S3CmdSend(char *ReMsg, const char *TxBuf);
 
 SOCKET ConnectSocket;
 
-char	IPV4Port[] = {"65000"};
+char	IPV4Port[MAX_IP_ADDR_LEN] = {"65000"};
 char	IPv4Addr[MAX_IP_ADDR_LEN];
 char	RxBuf[DEFAULT_BUFLEN];
 
