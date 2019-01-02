@@ -53,6 +53,7 @@ int _tmain(int argc, _TCHAR* argv[])
 		}
 	}
 
+	wprintf(_T("Press any key\n"));
 	char c = getchar();
 
 	return err;
