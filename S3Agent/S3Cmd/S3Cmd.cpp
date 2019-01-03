@@ -17,6 +17,9 @@ Options:
 #include "stdlib.h"
 #include "string.h"
 
+#include <stddef.h>
+#include <wchar.h>
+
 #include <winsock2.h>
 #include <ws2tcpip.h>
 
@@ -33,6 +36,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	char IPAddr[MAX_IP_ADDR_LEN];
 	char IPPort[MAX_IP_ADDR_LEN];
 	size_t nconv;
+	FILE *fid = NULL;
 
 	strcpy_s(IPPort, MAX_IP_ADDR_LEN, IPV4Port);
 
@@ -51,12 +55,13 @@ int _tmain(int argc, _TCHAR* argv[])
 		{
 			if (i < argc - 1)
 			{
-				wcstombs_s(&nconv, IPAddr, MAX_IP_ADDR_LEN, argv[i + 1], wcslen(argv[i + 1]) + 1);
+				wcstombs_s(&nconv, IPAddr, MAX_IP_ADDR_LEN, argv[i + 1],
+					wcslen(argv[i + 1]) + 1);
 				lastarg = i + 1;
 
 				if (IPv4ToolsRemLeadZ(IPAddr))
 				{
-					printf("Invalid IP address\n");
+					fprintf(stderr, "Invalid IP address\n");
 					return 1;
 				}
 
@@ -64,7 +69,7 @@ int _tmain(int argc, _TCHAR* argv[])
 			}
 			else
 			{
-				printf("No IP address specified\n");
+				fprintf(stderr, "No IP address specified\n");
 				return 1;
 			}
 		}
@@ -78,30 +83,54 @@ int _tmain(int argc, _TCHAR* argv[])
 				if (errno || end != argv[i + 1] + wcslen(argv[i + 1])
 					|| end == argv[i + 1] || p < 0 || p > 65535)
 				{
-					printf("Invalid IP port number\n");
+					fprintf(stderr, "Invalid IP port number\n");
 					return 1;
 				}
 
-				wcstombs_s(&nconv, IPPort, MAX_IP_ADDR_LEN, argv[i + 1], wcslen(argv[i + 1]) + 1);
+				wcstombs_s(&nconv, IPPort, MAX_IP_ADDR_LEN, argv[i + 1],
+					wcslen(argv[i + 1]) + 1);
 				lastarg = i + 1;
 			}
 			else
 			{
-				printf("No port specified\n");
+				fprintf(stderr, "No port specified\n");
 				return 1;
 			}
 		}
+		else if (!wcscmp(_T("-o"), argv[i]))
+		{
+			if (i < argc - 1)
+			{
+				errno_t err = _wfopen_s(&fid, argv[i + 1], _T("w"));
+				lastarg = i + 1;
+
+				if (err)
+				{
+					fprintf(stderr, "Failed to open file: %S (%d)",
+						argv[i + 1], err);
+					return 1;
+				}
+			}
+		}
+		else if (argv[i][0] == '-')
+		{
+			fprintf(stderr, "Unknown command line argument: %S", argv[i]);
+			return 1;
+		}
 	}
+
+	if (fid == NULL)
+		fid = stdout;
 
 	if (!IPAddrGiven)
 	{
-		printf("No IP address given\n");
+		fprintf(stderr, "No IP address given\n");
 		return 1;
 	}
 
 	if (lastarg >= argc - 1)
 	{
-		printf("No remote command\n");
+		fprintf(stderr, "No remote command\n");
 		return 1;
 	}
 
@@ -116,11 +145,10 @@ int _tmain(int argc, _TCHAR* argv[])
 	}
 
 	char res[DEFAULT_BUFLEN];
-	
 	int ret = S3SendMessage(res, IPAddr, IPPort, Cmd);
 
 	if (ret)
-		printf("Result: Error (%d): %s\n", ret, res);
+		fprintf(stderr, "Result: Error (%d): %s\n", ret, res);
 	else
 	{
 		if (!_strnicmp("OK:", res, 3) || !_strnicmp("I:", res, 2))
@@ -128,7 +156,15 @@ int _tmain(int argc, _TCHAR* argv[])
 		else ret = 1;
 
 		printf("Result(%d): %s\n", ret, res);
+
+		if (fid)
+		{
+			fprintf(fid, "%s", res);
+		}
 	}
+
+	if (fid)
+		fclose(fid);
 
 	return ret;
 }
