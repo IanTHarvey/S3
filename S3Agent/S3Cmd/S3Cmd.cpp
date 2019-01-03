@@ -119,9 +119,6 @@ int _tmain(int argc, _TCHAR* argv[])
 		}
 	}
 
-	if (fid == NULL)
-		fid = stdout;
-
 	if (!IPAddrGiven)
 	{
 		fprintf(stderr, "No IP address given\n");
@@ -153,7 +150,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	{
 		if (!_strnicmp("OK:", res, 3) || !_strnicmp("I:", res, 2))
 			ret = 0;
-		else ret = 1;
+		else ret = 2;
 
 		printf("Result(%d): %s\n", ret, res);
 
