@@ -25,6 +25,12 @@
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
+        "Entry"
+        {
+        "MsmKey" = "8:_DE02B7CE3C8E4D719ED1F772F295AF9A"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
     }
     "Configurations"
     {
@@ -33,7 +39,7 @@
         "DisplayName" = "8:Debug"
         "IsDebugOnly" = "11:TRUE"
         "IsReleaseOnly" = "11:FALSE"
-        "OutputFilename" = "8:Win32\\Debug\\S3AgentSetup.msi"
+        "OutputFilename" = "8:S3AgentSetup\\Debug\\S3AgentSetup.msi"
         "PackageFilesAs" = "3:2"
         "PackageFileSize" = "3:-2147483648"
         "CabType" = "3:1"
@@ -70,7 +76,7 @@
         "DisplayName" = "8:Release"
         "IsDebugOnly" = "11:FALSE"
         "IsReleaseOnly" = "11:TRUE"
-        "OutputFilename" = "8:Win32\\Release\\S3AgentSetup.msi"
+        "OutputFilename" = "8:S3AgentSetup\\Release\\S3AgentSetup.msi"
         "PackageFilesAs" = "3:2"
         "PackageFileSize" = "3:-2147483648"
         "CabType" = "3:1"
@@ -126,6 +132,26 @@
             {
             "SourcePath" = "8:Win32\\Release\\S3Agent.exe"
             "TargetName" = "8:S3Agent.exe"
+            "Tag" = "8:"
+            "Folder" = "8:_052469B3077B4565BA8C555F3ED3289A"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_DE02B7CE3C8E4D719ED1F772F295AF9A"
+            {
+            "SourcePath" = "8:S3Cmd\\Release\\S3Cmd.exe"
+            "TargetName" = "8:S3Cmd.exe"
             "Tag" = "8:"
             "Folder" = "8:_052469B3077B4565BA8C555F3ED3289A"
             "Condition" = "8:"
@@ -199,7 +225,7 @@
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:S3AgentSetup"
         "ProductCode" = "8:{F3E8F545-F142-46EC-9FB1-FDCF87C1A355}"
-        "PackageCode" = "8:{E5869095-93AA-46D0-B891-7B02E6685EC5}"
+        "PackageCode" = "8:{F5F7E3C4-94E4-4E98-ABB6-A34E1A89BBDE}"
         "UpgradeCode" = "8:{FA8AC468-1F8F-4B75-9DF6-D466F1F2FE24}"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:FALSE"
