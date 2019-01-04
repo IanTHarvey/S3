@@ -389,10 +389,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\S3GDINameVal.h"
-				>
-			</File>
-			<File
 				RelativePath="..\S3GDINameValue.h"
 				>
 			</File>
@@ -530,14 +526,6 @@
 					>
 				</File>
 				<File
-					RelativePath="..\res\BOOTPPMTPC.bmp"
-					>
-				</File>
-				<File
-					RelativePath="..\res\BOOTPPMTPClight.bmp"
-					>
-				</File>
-				<File
 					RelativePath="..\res\BtnAlarmAmber.bmp"
 					>
 				</File>
@@ -575,10 +563,6 @@
 				</File>
 				<File
 					RelativePath="..\res\GreenLED.bmp"
-					>
-				</File>
-				<File
-					RelativePath="..\res\PPMBGEmbossed.bmp"
 					>
 				</File>
 				<File
