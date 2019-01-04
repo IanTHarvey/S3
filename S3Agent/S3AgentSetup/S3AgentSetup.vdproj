@@ -15,14 +15,26 @@
     {
         "Entry"
         {
+        "MsmKey" = "8:_00B623FAD0374D0590E38534DBACF233"
+        "OwnerKey" = "8:_B203191F01EE4AE1818DCDC5CC75362A"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_00B623FAD0374D0590E38534DBACF233"
+        "OwnerKey" = "8:_FEF585D9B00D4179952AC9683FB33689"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_36441E681B4C4011AD767C1E08304566"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_410CE532E9DD4E3BAC1CFFC48E9A001C"
-        "OwnerKey" = "8:_9E9E3D9674A34632821D005B6464B737"
+        "MsmKey" = "8:_5645A522F8994379938F81A60006EA0B"
+        "OwnerKey" = "8:_00B623FAD0374D0590E38534DBACF233"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -39,14 +51,8 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_9E9E3D9674A34632821D005B6464B737"
-        "OwnerKey" = "8:_B203191F01EE4AE1818DCDC5CC75362A"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_9E9E3D9674A34632821D005B6464B737"
-        "OwnerKey" = "8:_FEF585D9B00D4179952AC9683FB33689"
+        "MsmKey" = "8:_9D2918F409034859A4E0D0145D74B792"
+        "OwnerKey" = "8:_C9747B27E1714A81ADC810DE8A75F37D"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -57,20 +63,20 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_C9E12DE9566A435197ADBB761BA78B54"
-        "OwnerKey" = "8:_DE41F4AE5DC04DA28EA36F43E389A384"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_DE41F4AE5DC04DA28EA36F43E389A384"
+        "MsmKey" = "8:_C9747B27E1714A81ADC810DE8A75F37D"
         "OwnerKey" = "8:_B203191F01EE4AE1818DCDC5CC75362A"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_DE41F4AE5DC04DA28EA36F43E389A384"
+        "MsmKey" = "8:_C9747B27E1714A81ADC810DE8A75F37D"
         "OwnerKey" = "8:_FEF585D9B00D4179952AC9683FB33689"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_DCD13D7B7ED34E3D830E05C85BFFB660"
+        "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -295,7 +301,7 @@
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:Sentinel 3 Remote Agent"
         "ProductCode" = "8:{E2C0F14C-0848-4EC4-B8FB-936126BA435A}"
-        "PackageCode" = "8:{1E2834FD-E681-4D80-9E10-57DFECCDE757}"
+        "PackageCode" = "8:{ACB5A63A-9AEC-401D-9A13-5A2E7C561EF5}"
         "UpgradeCode" = "8:{518CA163-0D09-49C6-90F2-5BD47951D1BB}"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:FALSE"
@@ -824,11 +830,11 @@
         }
         "MergeModule"
         {
-            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_410CE532E9DD4E3BAC1CFFC48E9A001C"
+            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_00B623FAD0374D0590E38534DBACF233"
             {
             "UseDynamicProperties" = "11:TRUE"
             "IsDependency" = "11:TRUE"
-            "SourcePath" = "8:microsoft_vc90_debugmfc_x86.msm"
+            "SourcePath" = "8:policy_9_0_Microsoft_VC90_DebugCRT_x86.msm"
                 "Properties"
                 {
                 }
@@ -838,21 +844,7 @@
             "Feature" = "8:"
             "IsolateTo" = "8:"
             }
-            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_9E9E3D9674A34632821D005B6464B737"
-            {
-            "UseDynamicProperties" = "11:TRUE"
-            "IsDependency" = "11:TRUE"
-            "SourcePath" = "8:policy_9_0_Microsoft_VC90_DebugMFC_x86.msm"
-                "Properties"
-                {
-                }
-            "LanguageId" = "3:0"
-            "Exclude" = "11:FALSE"
-            "Folder" = "8:"
-            "Feature" = "8:"
-            "IsolateTo" = "8:"
-            }
-            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_C9E12DE9566A435197ADBB761BA78B54"
+            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_5645A522F8994379938F81A60006EA0B"
             {
             "UseDynamicProperties" = "11:TRUE"
             "IsDependency" = "11:TRUE"
@@ -866,11 +858,25 @@
             "Feature" = "8:"
             "IsolateTo" = "8:"
             }
-            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_DE41F4AE5DC04DA28EA36F43E389A384"
+            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_9D2918F409034859A4E0D0145D74B792"
             {
             "UseDynamicProperties" = "11:TRUE"
             "IsDependency" = "11:TRUE"
-            "SourcePath" = "8:policy_9_0_Microsoft_VC90_DebugCRT_x86.msm"
+            "SourcePath" = "8:microsoft_vc90_debugmfc_x86.msm"
+                "Properties"
+                {
+                }
+            "LanguageId" = "3:0"
+            "Exclude" = "11:FALSE"
+            "Folder" = "8:"
+            "Feature" = "8:"
+            "IsolateTo" = "8:"
+            }
+            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_C9747B27E1714A81ADC810DE8A75F37D"
+            {
+            "UseDynamicProperties" = "11:TRUE"
+            "IsDependency" = "11:TRUE"
+            "SourcePath" = "8:policy_9_0_Microsoft_VC90_DebugMFC_x86.msm"
                 "Properties"
                 {
                 }
@@ -906,6 +912,34 @@
             "OutputConfiguration" = "8:"
             "OutputGroupCanonicalName" = "8:Built"
             "OutputProjectGuid" = "8:{3CF89CC4-8316-43A3-A5C0-280C74E2B096}"
+            "ShowKeyOutput" = "11:TRUE"
+                "ExcludeFilters"
+                {
+                }
+            }
+            "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_DCD13D7B7ED34E3D830E05C85BFFB660"
+            {
+            "SourcePath" = "8:..\\Debug\\S3Cmd.exe"
+            "TargetName" = "8:"
+            "Tag" = "8:"
+            "Folder" = "8:_BA9EA20A86E34C4291FA2B9F8F1F25CC"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            "ProjectOutputGroupRegister" = "3:1"
+            "OutputConfiguration" = "8:"
+            "OutputGroupCanonicalName" = "8:Built"
+            "OutputProjectGuid" = "8:{991EE404-2B97-414E-9A62-7516A0010904}"
             "ShowKeyOutput" = "11:TRUE"
                 "ExcludeFilters"
                 {

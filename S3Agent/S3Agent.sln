@@ -5,6 +5,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "S3Agent", "S3Agent.vcproj",
 EndProject
 Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "S3AgentSetup", "S3AgentSetup\S3AgentSetup.vdproj", "{FA23D5AF-E3DC-48D8-9739-B260F02DF237}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "S3Cmd", "S3Cmd\S3Cmd.vcproj", "{991EE404-2B97-414E-9A62-7516A0010904}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -23,6 +25,12 @@ Global
 		{FA23D5AF-E3DC-48D8-9739-B260F02DF237}.Debug|x64.ActiveCfg = Debug
 		{FA23D5AF-E3DC-48D8-9739-B260F02DF237}.Release|Win32.ActiveCfg = Release
 		{FA23D5AF-E3DC-48D8-9739-B260F02DF237}.Release|x64.ActiveCfg = Release
+		{991EE404-2B97-414E-9A62-7516A0010904}.Debug|Win32.ActiveCfg = Debug|Win32
+		{991EE404-2B97-414E-9A62-7516A0010904}.Debug|Win32.Build.0 = Debug|Win32
+		{991EE404-2B97-414E-9A62-7516A0010904}.Debug|x64.ActiveCfg = Debug|Win32
+		{991EE404-2B97-414E-9A62-7516A0010904}.Release|Win32.ActiveCfg = Release|Win32
+		{991EE404-2B97-414E-9A62-7516A0010904}.Release|Win32.Build.0 = Release|Win32
+		{991EE404-2B97-414E-9A62-7516A0010904}.Release|x64.ActiveCfg = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
