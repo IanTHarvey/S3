@@ -15,13 +15,13 @@
     {
         "Entry"
         {
-        "MsmKey" = "8:_00B623FAD0374D0590E38534DBACF233"
+        "MsmKey" = "8:_08417A6978E24BD3B42CAC07AD5A134C"
         "OwnerKey" = "8:_B203191F01EE4AE1818DCDC5CC75362A"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_00B623FAD0374D0590E38534DBACF233"
+        "MsmKey" = "8:_08417A6978E24BD3B42CAC07AD5A134C"
         "OwnerKey" = "8:_FEF585D9B00D4179952AC9683FB33689"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -33,8 +33,14 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_5645A522F8994379938F81A60006EA0B"
-        "OwnerKey" = "8:_00B623FAD0374D0590E38534DBACF233"
+        "MsmKey" = "8:_3BFCAB836E39476A9E653C0AEE8E52DF"
+        "OwnerKey" = "8:_08417A6978E24BD3B42CAC07AD5A134C"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_4C9CA309737E40C3EB00D32DF346A4E8"
+        "OwnerKey" = "8:_DCD13D7B7ED34E3D830E05C85BFFB660"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -51,8 +57,14 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_9D2918F409034859A4E0D0145D74B792"
-        "OwnerKey" = "8:_C9747B27E1714A81ADC810DE8A75F37D"
+        "MsmKey" = "8:_73FC2177BC154D1781BF126EE3215CF0"
+        "OwnerKey" = "8:_B203191F01EE4AE1818DCDC5CC75362A"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_73FC2177BC154D1781BF126EE3215CF0"
+        "OwnerKey" = "8:_FEF585D9B00D4179952AC9683FB33689"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -63,14 +75,8 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_C9747B27E1714A81ADC810DE8A75F37D"
-        "OwnerKey" = "8:_B203191F01EE4AE1818DCDC5CC75362A"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_C9747B27E1714A81ADC810DE8A75F37D"
-        "OwnerKey" = "8:_FEF585D9B00D4179952AC9683FB33689"
+        "MsmKey" = "8:_C13309187182437ABE8085E3685BB0DD"
+        "OwnerKey" = "8:_73FC2177BC154D1781BF126EE3215CF0"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -202,6 +208,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_4C9CA309737E40C3EB00D32DF346A4E8"
+            {
+            "SourcePath" = "8:COMDLG32.dll"
+            "TargetName" = "8:COMDLG32.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_BA9EA20A86E34C4291FA2B9F8F1F25CC"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:TRUE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_732342B57CD0248AE12B78DA80CC5E4A"
             {
             "SourcePath" = "8:MSIMG32.dll"
@@ -301,7 +327,7 @@
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:Sentinel 3 Remote Agent"
         "ProductCode" = "8:{E2C0F14C-0848-4EC4-B8FB-936126BA435A}"
-        "PackageCode" = "8:{ACB5A63A-9AEC-401D-9A13-5A2E7C561EF5}"
+        "PackageCode" = "8:{A95284A6-7D9B-40BB-AB6B-990F8A212B0C}"
         "UpgradeCode" = "8:{518CA163-0D09-49C6-90F2-5BD47951D1BB}"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:FALSE"
@@ -317,8 +343,8 @@
         "Keywords" = "8:"
         "ARPCOMMENTS" = "8:Sentinel 3 Remote Agent"
         "ARPURLINFOABOUT" = "8:www.ppm.co.uk"
-        "ARPPRODUCTICON" = "8:"
-        "ARPIconIndex" = "3:127"
+        "ARPPRODUCTICON" = "8:_B203191F01EE4AE1818DCDC5CC75362A"
+        "ARPIconIndex" = "3:128"
         "SearchPath" = "8:"
         "UseSystemSearchPath" = "11:TRUE"
         "TargetPlatform" = "3:0"
@@ -830,11 +856,11 @@
         }
         "MergeModule"
         {
-            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_00B623FAD0374D0590E38534DBACF233"
+            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_08417A6978E24BD3B42CAC07AD5A134C"
             {
             "UseDynamicProperties" = "11:TRUE"
             "IsDependency" = "11:TRUE"
-            "SourcePath" = "8:policy_9_0_Microsoft_VC90_DebugCRT_x86.msm"
+            "SourcePath" = "8:policy_9_0_Microsoft_VC90_DebugMFC_x86.msm"
                 "Properties"
                 {
                 }
@@ -844,21 +870,7 @@
             "Feature" = "8:"
             "IsolateTo" = "8:"
             }
-            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_5645A522F8994379938F81A60006EA0B"
-            {
-            "UseDynamicProperties" = "11:TRUE"
-            "IsDependency" = "11:TRUE"
-            "SourcePath" = "8:microsoft_vc90_debugcrt_x86.msm"
-                "Properties"
-                {
-                }
-            "LanguageId" = "3:0"
-            "Exclude" = "11:FALSE"
-            "Folder" = "8:"
-            "Feature" = "8:"
-            "IsolateTo" = "8:"
-            }
-            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_9D2918F409034859A4E0D0145D74B792"
+            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_3BFCAB836E39476A9E653C0AEE8E52DF"
             {
             "UseDynamicProperties" = "11:TRUE"
             "IsDependency" = "11:TRUE"
@@ -872,11 +884,25 @@
             "Feature" = "8:"
             "IsolateTo" = "8:"
             }
-            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_C9747B27E1714A81ADC810DE8A75F37D"
+            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_73FC2177BC154D1781BF126EE3215CF0"
             {
             "UseDynamicProperties" = "11:TRUE"
             "IsDependency" = "11:TRUE"
-            "SourcePath" = "8:policy_9_0_Microsoft_VC90_DebugMFC_x86.msm"
+            "SourcePath" = "8:policy_9_0_Microsoft_VC90_DebugCRT_x86.msm"
+                "Properties"
+                {
+                }
+            "LanguageId" = "3:0"
+            "Exclude" = "11:FALSE"
+            "Folder" = "8:"
+            "Feature" = "8:"
+            "IsolateTo" = "8:"
+            }
+            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_C13309187182437ABE8085E3685BB0DD"
+            {
+            "UseDynamicProperties" = "11:TRUE"
+            "IsDependency" = "11:TRUE"
+            "SourcePath" = "8:microsoft_vc90_debugcrt_x86.msm"
                 "Properties"
                 {
                 }
@@ -919,7 +945,7 @@
             }
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_DCD13D7B7ED34E3D830E05C85BFFB660"
             {
-            "SourcePath" = "8:..\\Debug\\S3Cmd.exe"
+            "SourcePath" = "8:..\\S3Cmd\\Debug\\S3Cmd.exe"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_BA9EA20A86E34C4291FA2B9F8F1F25CC"
