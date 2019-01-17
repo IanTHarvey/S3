@@ -155,11 +155,8 @@ void CS3GDIScreenMain::S3DrawGDILogCopyScreen()
 // ----------------------------------------------------------------------------
 // TODO: Garbage?
 
-
 int CS3GDIScreenMain::S3FindLogCopyScreen(POINT p)
 {
-	m_LogCopyMsg = 0;
-
 	if (m_RectBackButton.PtInRect(p))
 	{
 		m_LogCopyLayout = 0;
@@ -207,10 +204,6 @@ int CS3GDIScreenMain::S3FindLogCopyScreen(POINT p)
 			S3GDIChangeScreen(S3_SETTINGS_SCREEN);
 		}
 
-		return 1;
-	}
-	else
-	{
 		return 1;
 	}
 
