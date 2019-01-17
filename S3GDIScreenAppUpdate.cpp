@@ -300,10 +300,6 @@ int CS3GDIScreenMain::S3FindAppUpdateScreen(POINT p)
 
 		return 1;
 	}
-	else
-	{
-		return 1;
-	}
 
 	return 0;
 }

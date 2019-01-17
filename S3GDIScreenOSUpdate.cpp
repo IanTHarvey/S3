@@ -132,9 +132,9 @@ void CS3GDIScreenMain::S3DrawGDISWUpdateScreen()
 		// Give a reason
 		if (!S3Data->m_ImgUpdate->Unwrapping)
 		{
-			if (S3Data->m_ImgUpdate->GetError() == 2001)
+			if (S3Data->m_ImgUpdate->GetError())
 				swprintf_s(tmp, S3GDI_MAX_SCREEN_MSG, _T("%s: %s"),
-					SWUpdateNoImage, _T("Update file not found"));
+					SWUpdateNoImage, S3Data->m_ImgUpdate->GetErrorStr());
 			else  if (m_UpdateMsg == 3)
 				swprintf_s(tmp, S3GDI_MAX_SCREEN_MSG, _T("%s: %s"),
 					SWUpdateNoImage, SWUpdateProcessFail);
@@ -289,10 +289,6 @@ int CS3GDIScreenMain::S3FindSWUpdateScreen(POINT p)
 			S3GDIChangeScreen(S3_SETTINGS_SCREEN);
 		}
 
-		return 1;
-	}
-	else
-	{
 		return 1;
 	}
 
