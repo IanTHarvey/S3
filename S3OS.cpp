@@ -429,8 +429,10 @@ int S3OSSWUpdateRequest()
 {
 	S3EventLogAdd("OS image update requested", 1, -1, -1, -1);
 
+#ifdef TRIZEPS
 	S3Data->m_ImgUpdate->Clear();
 	int err = S3Data->m_ImgUpdate->Unwrap();
+#endif
 
 	S3EventLogAdd("OS image update request OK", 1, -1, -1, -1);
 
@@ -443,8 +445,10 @@ int S3OSAppUpdateRequest()
 {
 	S3EventLogAdd("Application update requested", 1, -1, -1, -1);
 
+#ifdef TRIZEPS
 	S3Data->m_AppUpdate->Clear();
 	int err = S3Data->m_AppUpdate->Unwrap();
+#endif
 
 	S3EventLogAdd("Application update request OK", 1, -1, -1, -1);
 

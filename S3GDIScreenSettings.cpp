@@ -278,6 +278,7 @@ void CS3GDIScreenMain::S3InitSettingsScreen(void)
 				yref + RowCnt++ * PARA_ROW, WCol, _T("P/N"), str, false);
 	m_SettingsPN->RectEdit(m_HDC, m_hFontSB);
 
+#ifdef TRIZEPS
 	m_SettingsSW = new CS3NameValue(m_RectIdent.left,
 				yref + RowCnt++ * PARA_ROW, WCol, _T("S/W"), str, true, S3_APP_UPDATE);
 	m_SettingsSW->RectEdit(m_HDC, m_hFontSB);
@@ -285,6 +286,15 @@ void CS3GDIScreenMain::S3InitSettingsScreen(void)
 	m_SettingsImageDate = new CS3NameValue(m_RectIdent.left,
 		yref + RowCnt++ * PARA_ROW, WCol, _T("OS Image"), _T("DD/MM/YY:hh:mm"), true, S3_OS_UPDATE);
 	m_SettingsImageDate->RectEdit(m_HDC, m_hFontSB);
+#else
+	m_SettingsSW = new CS3NameValue(m_RectIdent.left,
+				yref + RowCnt++ * PARA_ROW, WCol, _T("S/W"), str, false, S3_APP_UPDATE);
+	m_SettingsSW->RectEdit(m_HDC, m_hFontSB);
+
+	m_SettingsImageDate = new CS3NameValue(m_RectIdent.left,
+		yref + RowCnt++ * PARA_ROW, WCol, _T("OS Image"), _T("DD/MM/YY:hh:mm"), false, S3_OS_UPDATE);
+	m_SettingsImageDate->RectEdit(m_HDC, m_hFontSB);
+#endif
 
 	m_SettingsBuildNum = new CS3NameValue(m_RectIdent.left,
 		yref + RowCnt++ * PARA_ROW, WCol, _T("Application"), _T("DD/MM/YY:hh:mm"), false);
@@ -670,7 +680,7 @@ void CS3GDIScreenMain::S3DrawGDISettingsSystem(void)
 
 	str.Format(_T("%S"), S3SysGetSW());
 	m_SettingsSW->SetValue(str);
-#ifndef S3_AGENT
+#ifdef TRIZEPS
 	m_SettingsSW->SetEditable(!S3GetRemote());
 #endif
 	m_SettingsSW->Draw(m_HDC, m_hFontS, m_hFontSB);
@@ -681,7 +691,7 @@ void CS3GDIScreenMain::S3DrawGDISettingsSystem(void)
 
 	str.Format(_T("%S %S"), S3SysGetImageDate(), S3SysGetImageTime());
 	m_SettingsImageDate->SetValue(str);
-#ifndef S3_AGENT
+#ifdef TRIZEPS
 	m_SettingsImageDate->SetEditable(!S3GetRemote());
 #endif
 	m_SettingsImageDate->Draw(m_HDC, m_hFontS, m_hFontSB);
