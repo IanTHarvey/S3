@@ -51,30 +51,25 @@ int CS3ControllerDlg::RemoteOpenEth(void)
 	{
 		debug_print("Attempting restart: Inactivity: %d\n", m_EthInactivityTimer);
 
-		// TODO: WSAECONNRESET not required
-		if (1) // ClientSocket == INVALID_SOCKET ||
-			// (r == SOCKET_ERROR)) // && WSAGetLastError() == WSAECONNRESET))
-		{
-			// Kill the listener thread
-			m_IPThreadRun = false;
+		// Kill the listener thread
+		m_IPThreadRun = false;
 			
-			// This will kill the listener thread as accept() will fail with
-			// WSAEINTR (10004)
-			err = CloseSocket();
+		// This will kill the listener thread as accept() will fail with
+		// WSAEINTR (10004)
+		err = CloseSocket();
+
+		if (!err)
+		{	
+			err = S3GetPrimaryMACaddress();
 
 			if (!err)
-			{	
-				err = S3GetPrimaryMACaddress();
-
-				if (!err)
-				{
-					err = InitSocket();
+			{
+				err = InitSocket();
 					
-					if (err)
-						debug_print("Reset socket failed: %d\n", err);
+				if (err)
+					debug_print("Reset socket failed: %d\n", err);
 
-					m_EthInactivityTimer = 0;
-				}
+				m_EthInactivityTimer = 0;
 			}
 		}
 		
