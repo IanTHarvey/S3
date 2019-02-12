@@ -1383,6 +1383,10 @@
 			</File>
 		</Filter>
 		<File
+			RelativePath=".\Locking.txt"
+			>
+		</File>
+		<File
 			RelativePath=".\ReadMe.txt"
 			>
 		</File>
