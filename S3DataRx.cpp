@@ -242,7 +242,7 @@ int S3RxSetActiveTx(char Rx, char Tx)
 			if (pRx->m_Tx[Tx].m_RLLStableCnt == S3_RLL_STAB_UNKNOWN)
 				pRx->m_Tx[Tx].m_RLLStableCnt = 0;
 		}
-		// else
+		else
 		{
 			// Ensure Tx updates selected input and gain
 			pRx->m_Tx[Tx].m_ActiveInputPending = true;			
