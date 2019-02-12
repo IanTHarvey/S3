@@ -309,7 +309,7 @@ int S3EventLogAdd(const char *msg, char severity, char Rx, char Tx, char IP)
 	fflush(fid); // TODO: fclose() force this?
 	fclose(fid);
 
-	strcpy_s(gS3EventLog.Events[gS3EventLog.NextInsert].t, 30, t); 
+	strcpy_s(gS3EventLog.Events[gS3EventLog.NextInsert].t, S3_MAX_TIME_STR_LEN, t); 
 	gS3EventLog.Events[gS3EventLog.NextInsert].severity = severity;
 	strcpy_s(gS3EventLog.Events[gS3EventLog.NextInsert].msg, S3_EVENTS_LINE_LEN, msg);
 	

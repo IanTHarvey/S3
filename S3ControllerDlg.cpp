@@ -917,7 +917,7 @@ void CS3ControllerDlg::ShowFactory(char screen)
 
 void CS3ControllerDlg::HideFactory(void)
 {
-	S3SetFactoryMode(0, 0, false);
+	S3SetFactoryMode(-1, -1, false);
 
 	if (m_GDIStatic.S3GDIGetScreen() == S3_CALIBRATE_SCREEN)
 		m_FactoryDlg->ShowWindow(SW_HIDE);

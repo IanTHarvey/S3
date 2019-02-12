@@ -914,8 +914,6 @@ typedef struct sS3DataModel
 
 } *pS3DataModel, S3DataModel;
 
-
-
 // ----------------------------------------------------------------------------
 
 #define	S3_LOG_OK				0
@@ -924,9 +922,13 @@ typedef struct sS3DataModel
 #define S3_LOG_FAIL_OPEN_WRITE	4
 #define S3_LOG_FAIL_OPEN_APPEND	8
 
+#define S3_LOG_ALARM	3
+#define S3_LOG_WARN		2
+#define S3_LOG_INFO		1
+
 typedef struct sS3Event
 {
-	char			t[32];
+ 	char			t[S3_MAX_TIME_STR_LEN];
 	char			msg[S3_EVENTS_LINE_LEN];
 	char			severity;	// 1: minor, 3: major
 	char			Rx, Tx, IP;
@@ -1620,7 +1622,8 @@ int				S3SetAGC(unsigned char AGCOn);
 // Disable factory set-up features for deliverable system.
 
 int		S3GetLockFile();
-int		S3SetLockFile();
+int		S3CreateLockFile();
+int		S3DeleteLockFile();
 bool	S3GetLocked();
 int		S3SetLocked(bool lock);
 

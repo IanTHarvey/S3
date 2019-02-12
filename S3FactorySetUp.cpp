@@ -129,7 +129,7 @@ BOOL CS3FactorySetUp::OnInitDialog()
 
 void CS3FactorySetUp::Init()
 {
-	S3EventLogAdd("Entering factory set-up screen", 3, -1, -1, -1);
+	S3EventLogAdd("Entering factory calibration screen", 3, -1, -1, -1);
 
 	S3SetSIPRegKey(0); // Enable SIP pop-up
 	

@@ -2073,9 +2073,9 @@ int S3SetFactoryMode(char Rx, char Tx, bool mode)
 	if (mode != OldMode)
 	{
 		if (S3Data->m_FactoryMode)
-			S3EventLogAdd("S3SetFactoryMode: Entered factory mode", 1, Rx, Tx, -1);
+			S3EventLogAdd("Entered factory mode", 1, Rx, Tx, -1);
 		else
-			S3EventLogAdd("S3SetFactoryMode: Closed factory mode", 1, Rx, Tx, -1);
+			S3EventLogAdd("Closed factory mode", 1, Rx, Tx, -1);
 	}
 
 #endif
