@@ -55,6 +55,14 @@ BOOL CS3ControllerApp::InitInstance()
 	}
 */
 
+	// eg
+	// > Detected memory leaks!
+	// > Dumping objects ->
+	// > {18} normal block at 0x00660BE4, 10 bytes long
+	
+	// Substitute arg for block allocation number in curlies...
+	// _CrtSetBreakAlloc(103);
+
 	// Standard initialization
 	// If you are not using these features and wish to reduce the size
 	// of your final executable, you should remove from the following
