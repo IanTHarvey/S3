@@ -322,7 +322,6 @@ int CS3GDIScreenMain::S3LeaveShutdownScreen()
 	}
 
 	S3SetLocked(lock);
-	S3SetLockFile();
 
 	m_GDIMaintKeyEdit->SetWindowText(_T(""));
 #endif

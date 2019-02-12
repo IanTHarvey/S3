@@ -891,6 +891,8 @@ int S3ReadScreenOffsets()
 // ---------------------------------------------------------------------------
 // Unlock/lock 'factory' screen functions. Look for S3Unlock.s3k file on
 // USB HDD, otherwise look for S3Lock.s3k on \Flashdisk.
+//
+// Called once at start-up.
 
 int S3GetLockFile()
 {
@@ -899,25 +901,10 @@ int S3GetLockFile()
 
 	if (!err)
 	{
-		S3Data->m_Locked = false;
 		fclose(fid);
 
-		S3EventLogAdd("System unlocked via USB HDD unlock file",
-														3, -1, -1, -1);
-
-		err = fopen_s(&fid, S3Data->m_LockFileName, "r");
-
-		if (!err)
-		{
-			fclose(fid);
-
-			wchar_t FileName[S3_MAX_FILENAME_LEN];
-
-			swprintf_s(FileName, S3_MAX_FILENAME_LEN, L"%S",
-					S3Data->m_LockFileName);
-
-			DeleteFile(FileName);
-		}
+		S3EventLogAdd("Unlock file found on USB HDD", 3, -1, -1, -1);
+		S3SetLocked(false);
 	}
 	else
 	{	
@@ -925,48 +912,30 @@ int S3GetLockFile()
 
 		if (!err)
 		{
-			S3Data->m_Locked = true;
+			S3SetLocked(true);
 			fclose(fid);
 		}
-		else
-		{
-			S3Data->m_Locked = false;
-		}
 	}
-
-	S3SetLocked(S3Data->m_Locked);
 
 	return 0;
 }
 
 // ---------------------------------------------------------------------------
 
-int S3SetLockFile()
+int S3CreateLockFile()
 {
-	if (S3Data->m_Locked)
-	{
-		FILE *fid;
-		errno_t err = fopen_s(&fid, S3Data->m_LockFileName, "w");
+	FILE *fid;
+	errno_t err = fopen_s(&fid, S3Data->m_LockFileName, "w");
 
-		if (!err)
-		{
-			fclose(fid);
-			S3EventLogAdd("System lock file created", 3, -1, -1, -1);
-		}
-		else
-		{
-			S3EventLogAdd("System lock file creation failed", 3, -1, -1, -1);
-			return 1;
-		}
+	if (!err)
+	{
+		fclose(fid);
+		S3EventLogAdd("System lock file created", 3, -1, -1, -1);
 	}
 	else
 	{
-		wchar_t FileName[S3_MAX_FILENAME_LEN];
-
-		swprintf_s(FileName, S3_MAX_FILENAME_LEN, L"%S",
-				S3Data->m_LockFileName);
-
-		DeleteFile(FileName);
+		S3EventLogAdd("System lock file creation failed", 3, -1, -1, -1);
+		return 1;
 	}
 
 	return 0;
@@ -983,6 +952,17 @@ bool S3GetLocked()
 
 int S3SetLocked(bool locked)
 {
+	if (!locked)
+	{
+		S3EventLogAdd("System unlocked", 3, -1, -1, -1);
+		S3DeleteLockFile();
+	}
+	else if (!S3Data->m_Locked && locked)
+	{
+		S3EventLogAdd("System locked", 3, -1, -1, -1);
+		S3CreateLockFile();
+	}
+
 	int err = 0;
 	
 	S3Data->m_Locked = locked;
@@ -1002,17 +982,37 @@ int S3SetLocked(bool locked)
 
 	if (!ok)
 	{
-		S3EventLogAdd("S3SetLocked: Failed to write registry", 3, -1, -1, -1);
+		S3EventLogAdd("Failed to write lock parameters to registry",
+															3, -1, -1, -1);
 		err = 2;
 	}
 #endif
 
-	// if (S3SetLockFile())
-	//	err = 3;
-
 	return err;
 }
 
+// -----------------------------------------------------------------------------
+
+int S3DeleteLockFile()
+{
+	FILE	*fid;
+	
+	errno_t err = fopen_s(&fid, S3Data->m_LockFileName, "r");
+
+	if (!err)
+	{
+		fclose(fid);
+
+		wchar_t FileName[S3_MAX_FILENAME_LEN];
+
+		swprintf_s(FileName, S3_MAX_FILENAME_LEN, L"%S",
+					S3Data->m_LockFileName);
+
+		DeleteFile(FileName);
+	}
+
+	return err;
+}
 // ---------------------------------------------------------------------------
 
 int S3SetTelnetDAuthRegKey(bool enable)
