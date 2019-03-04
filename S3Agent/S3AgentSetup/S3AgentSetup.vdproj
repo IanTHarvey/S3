@@ -15,26 +15,20 @@
     {
         "Entry"
         {
-        "MsmKey" = "8:_08417A6978E24BD3B42CAC07AD5A134C"
-        "OwnerKey" = "8:_B203191F01EE4AE1818DCDC5CC75362A"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_08417A6978E24BD3B42CAC07AD5A134C"
-        "OwnerKey" = "8:_FEF585D9B00D4179952AC9683FB33689"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_36441E681B4C4011AD767C1E08304566"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_3BFCAB836E39476A9E653C0AEE8E52DF"
-        "OwnerKey" = "8:_08417A6978E24BD3B42CAC07AD5A134C"
+        "MsmKey" = "8:_4BCA2227D88A432C8979EBB682FBCC5E"
+        "OwnerKey" = "8:_B203191F01EE4AE1818DCDC5CC75362A"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_4BCA2227D88A432C8979EBB682FBCC5E"
+        "OwnerKey" = "8:_FEF585D9B00D4179952AC9683FB33689"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -45,6 +39,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_4EF7E69ABCF044A697CBA4DD66275C33"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_732342B57CD0248AE12B78DA80CC5E4A"
         "OwnerKey" = "8:_B203191F01EE4AE1818DCDC5CC75362A"
         "MsmSig" = "8:_UNDEFINED"
@@ -52,18 +52,6 @@
         "Entry"
         {
         "MsmKey" = "8:_732342B57CD0248AE12B78DA80CC5E4A"
-        "OwnerKey" = "8:_FEF585D9B00D4179952AC9683FB33689"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_73FC2177BC154D1781BF126EE3215CF0"
-        "OwnerKey" = "8:_B203191F01EE4AE1818DCDC5CC75362A"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_73FC2177BC154D1781BF126EE3215CF0"
         "OwnerKey" = "8:_FEF585D9B00D4179952AC9683FB33689"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -75,14 +63,32 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_C13309187182437ABE8085E3685BB0DD"
-        "OwnerKey" = "8:_73FC2177BC154D1781BF126EE3215CF0"
+        "MsmKey" = "8:_C31396DEF06B41E0A3188D0FD62212B7"
+        "OwnerKey" = "8:_B203191F01EE4AE1818DCDC5CC75362A"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_C31396DEF06B41E0A3188D0FD62212B7"
+        "OwnerKey" = "8:_FEF585D9B00D4179952AC9683FB33689"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_CD0B3557FCE643368A2FD8F02375133E"
+        "OwnerKey" = "8:_4BCA2227D88A432C8979EBB682FBCC5E"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
         "MsmKey" = "8:_DCD13D7B7ED34E3D830E05C85BFFB660"
         "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_F8961786293C472EA4EE680F7439D1AE"
+        "OwnerKey" = "8:_C31396DEF06B41E0A3188D0FD62212B7"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -228,6 +234,26 @@
             "IsDependency" = "11:TRUE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_4EF7E69ABCF044A697CBA4DD66275C33"
+            {
+            "SourcePath" = "8:..\\PPMTESTLOGOInstall.bmp"
+            "TargetName" = "8:PPMTESTLOGOInstall.bmp"
+            "Tag" = "8:"
+            "Folder" = "8:_BA9EA20A86E34C4291FA2B9F8F1F25CC"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_732342B57CD0248AE12B78DA80CC5E4A"
             {
             "SourcePath" = "8:MSIMG32.dll"
@@ -327,7 +353,7 @@
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:Sentinel 3 Remote Agent"
         "ProductCode" = "8:{E2C0F14C-0848-4EC4-B8FB-936126BA435A}"
-        "PackageCode" = "8:{A95284A6-7D9B-40BB-AB6B-990F8A212B0C}"
+        "PackageCode" = "8:{317CB293-0668-43C2-8635-307F1031EAAE}"
         "UpgradeCode" = "8:{518CA163-0D09-49C6-90F2-5BD47951D1BB}"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:FALSE"
@@ -487,7 +513,8 @@
                             "Type" = "3:8"
                             "ContextData" = "8:Bitmap"
                             "Attributes" = "3:4"
-                            "Setting" = "3:1"
+                            "Setting" = "3:2"
+                            "Value" = "8:_4EF7E69ABCF044A697CBA4DD66275C33"
                             "UsePlugInResources" = "11:TRUE"
                             }
                             "UpdateText"
@@ -531,7 +558,8 @@
                             "Type" = "3:8"
                             "ContextData" = "8:Bitmap"
                             "Attributes" = "3:4"
-                            "Setting" = "3:1"
+                            "Setting" = "3:2"
+                            "Value" = "8:_4EF7E69ABCF044A697CBA4DD66275C33"
                             "UsePlugInResources" = "11:TRUE"
                             }
                         }
@@ -562,7 +590,8 @@
                             "Type" = "3:8"
                             "ContextData" = "8:Bitmap"
                             "Attributes" = "3:4"
-                            "Setting" = "3:1"
+                            "Setting" = "3:2"
+                            "Value" = "8:_4EF7E69ABCF044A697CBA4DD66275C33"
                             "UsePlugInResources" = "11:TRUE"
                             }
                             "ShowProgress"
@@ -618,7 +647,8 @@
                             "Type" = "3:8"
                             "ContextData" = "8:Bitmap"
                             "Attributes" = "3:4"
-                            "Setting" = "3:1"
+                            "Setting" = "3:2"
+                            "Value" = "8:_4EF7E69ABCF044A697CBA4DD66275C33"
                             "UsePlugInResources" = "11:TRUE"
                             }
                             "ShowProgress"
@@ -662,7 +692,8 @@
                             "Type" = "3:8"
                             "ContextData" = "8:Bitmap"
                             "Attributes" = "3:4"
-                            "Setting" = "3:1"
+                            "Setting" = "3:2"
+                            "Value" = "8:_4EF7E69ABCF044A697CBA4DD66275C33"
                             "UsePlugInResources" = "11:TRUE"
                             }
                             "CopyrightWarning"
@@ -710,7 +741,8 @@
                             "Type" = "3:8"
                             "ContextData" = "8:Bitmap"
                             "Attributes" = "3:4"
-                            "Setting" = "3:1"
+                            "Setting" = "3:2"
+                            "Value" = "8:_4EF7E69ABCF044A697CBA4DD66275C33"
                             "UsePlugInResources" = "11:TRUE"
                             }
                         }
@@ -732,7 +764,8 @@
                             "Type" = "3:8"
                             "ContextData" = "8:Bitmap"
                             "Attributes" = "3:4"
-                            "Setting" = "3:1"
+                            "Setting" = "3:2"
+                            "Value" = "8:_4EF7E69ABCF044A697CBA4DD66275C33"
                             "UsePlugInResources" = "11:TRUE"
                             }
                         }
@@ -763,7 +796,8 @@
                             "Type" = "3:8"
                             "ContextData" = "8:Bitmap"
                             "Attributes" = "3:4"
-                            "Setting" = "3:1"
+                            "Setting" = "3:2"
+                            "Value" = "8:_4EF7E69ABCF044A697CBA4DD66275C33"
                             "UsePlugInResources" = "11:TRUE"
                             }
                             "InstallAllUsersVisible"
@@ -798,7 +832,8 @@
                             "Type" = "3:8"
                             "ContextData" = "8:Bitmap"
                             "Attributes" = "3:4"
-                            "Setting" = "3:1"
+                            "Setting" = "3:2"
+                            "Value" = "8:_4EF7E69ABCF044A697CBA4DD66275C33"
                             "UsePlugInResources" = "11:TRUE"
                             }
                             "CopyrightWarning"
@@ -846,7 +881,8 @@
                             "Type" = "3:8"
                             "ContextData" = "8:Bitmap"
                             "Attributes" = "3:4"
-                            "Setting" = "3:1"
+                            "Setting" = "3:2"
+                            "Value" = "8:_4EF7E69ABCF044A697CBA4DD66275C33"
                             "UsePlugInResources" = "11:TRUE"
                             }
                         }
@@ -856,35 +892,7 @@
         }
         "MergeModule"
         {
-            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_08417A6978E24BD3B42CAC07AD5A134C"
-            {
-            "UseDynamicProperties" = "11:TRUE"
-            "IsDependency" = "11:TRUE"
-            "SourcePath" = "8:policy_9_0_Microsoft_VC90_DebugMFC_x86.msm"
-                "Properties"
-                {
-                }
-            "LanguageId" = "3:0"
-            "Exclude" = "11:FALSE"
-            "Folder" = "8:"
-            "Feature" = "8:"
-            "IsolateTo" = "8:"
-            }
-            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_3BFCAB836E39476A9E653C0AEE8E52DF"
-            {
-            "UseDynamicProperties" = "11:TRUE"
-            "IsDependency" = "11:TRUE"
-            "SourcePath" = "8:microsoft_vc90_debugmfc_x86.msm"
-                "Properties"
-                {
-                }
-            "LanguageId" = "3:0"
-            "Exclude" = "11:FALSE"
-            "Folder" = "8:"
-            "Feature" = "8:"
-            "IsolateTo" = "8:"
-            }
-            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_73FC2177BC154D1781BF126EE3215CF0"
+            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_4BCA2227D88A432C8979EBB682FBCC5E"
             {
             "UseDynamicProperties" = "11:TRUE"
             "IsDependency" = "11:TRUE"
@@ -898,11 +906,39 @@
             "Feature" = "8:"
             "IsolateTo" = "8:"
             }
-            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_C13309187182437ABE8085E3685BB0DD"
+            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_C31396DEF06B41E0A3188D0FD62212B7"
+            {
+            "UseDynamicProperties" = "11:TRUE"
+            "IsDependency" = "11:TRUE"
+            "SourcePath" = "8:policy_9_0_Microsoft_VC90_DebugMFC_x86.msm"
+                "Properties"
+                {
+                }
+            "LanguageId" = "3:0"
+            "Exclude" = "11:FALSE"
+            "Folder" = "8:"
+            "Feature" = "8:"
+            "IsolateTo" = "8:"
+            }
+            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_CD0B3557FCE643368A2FD8F02375133E"
             {
             "UseDynamicProperties" = "11:TRUE"
             "IsDependency" = "11:TRUE"
             "SourcePath" = "8:microsoft_vc90_debugcrt_x86.msm"
+                "Properties"
+                {
+                }
+            "LanguageId" = "3:0"
+            "Exclude" = "11:FALSE"
+            "Folder" = "8:"
+            "Feature" = "8:"
+            "IsolateTo" = "8:"
+            }
+            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_F8961786293C472EA4EE680F7439D1AE"
+            {
+            "UseDynamicProperties" = "11:TRUE"
+            "IsDependency" = "11:TRUE"
+            "SourcePath" = "8:microsoft_vc90_debugmfc_x86.msm"
                 "Properties"
                 {
                 }
