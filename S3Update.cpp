@@ -29,8 +29,9 @@ S3Update::S3Update(CString _PayloadSrc, CString _PayloadDest,
 
 	PayloadSrc = _PayloadSrc;
 	PayloadDest = _PayloadDest;
-	UpdFilename = _UpdFilename;
-	UpdRoot = _UpdLocation; 
+	UpdRoot = _UpdLocation;
+	UpdFilename = _UpdLocation + _T("\\");
+	UpdFilename += _UpdFilename;
 }
 
 // -----------------------------------------------------------------------------
