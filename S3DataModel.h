@@ -1687,6 +1687,9 @@ int S3SetSIPRegKey(DWORD data);
 int	S3TxSetLaserLim(	char Rx, char Tx, short hi, short lo);
 
 int	S3RxSetTempLimits(	char Rx, char hi, char lo);
+char S3RxGetTempLo(		char Rx);
+char S3RxGetTempHi(		char Rx);
+
 int	S3RxSetRLLLimits(	char Rx, short hi, short lo);
 int S3RxSetTemp(		char Rx, char t);
 

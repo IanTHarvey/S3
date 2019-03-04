@@ -784,6 +784,21 @@ int	S3RxSetTempLimits(char Rx, char hi, char lo)
 }
 
 // ---------------------------------------------------------------------------
+
+char S3RxGetTempLo(char Rx)
+{
+	return S3Data->m_Rx[Rx].m_TempLo;
+}
+
+// ---------------------------------------------------------------------------
+
+char S3RxGetTempHi(char Rx)
+{
+	return S3Data->m_Rx[Rx].m_TempHi;
+}
+
+// ---------------------------------------------------------------------------
+
 int S3RxSetTemp(char Rx, char t)
 {
 	S3Data->m_Rx[Rx].m_Temp = t;

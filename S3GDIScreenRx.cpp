@@ -242,6 +242,11 @@ void CS3GDIScreenMain::S3DrawGDIRxRx(char Rx)
 	m_RxTemp->SetAlarm((S3RxGetAlarms(Rx) &
 		(S3_RX_OVER_TEMP | S3_RX_UNDER_TEMP)) != 0);
 	m_RxTemp->SetValue(str);
+
+	str.Format(_T("\u03F4%cC (%d - %d)"),
+		0x00b0, S3RxGetTempLo(Rx), S3RxGetTempHi(Rx));
+	m_RxTemp->SetLabel(str);
+
 	m_RxTemp->Draw(m_HDC, m_hFontS, m_hFontSB);
 
 	str.Format(_T("%.1f"), S3RxGetVcc(Rx) / 1000.0);

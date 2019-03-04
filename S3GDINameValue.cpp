@@ -138,6 +138,13 @@ void CS3NameValue::SetValue(CString val)
 }
 
 // ----------------------------------------------------------------------------
+
+void CS3NameValue::SetLabel(CString val)
+{
+	m_lbl = val + ':';
+}
+
+// ----------------------------------------------------------------------------
 // Provide a rectangle for the editor window which may use a bigger font than
 // for just displaying.
 

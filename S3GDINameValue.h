@@ -35,6 +35,7 @@ public:
 	void	Draw(HDC hdc, HFONT hFont, HFONT hFontB);
 	CRect	RectEdit(HDC hdc, HFONT hFont);
 	void	SetValue(CString val);
+	void	SetLabel(CString val);
 	void	AttachEditor(HDC hdc, CEdit *editor);
 	void	SetAlarm(bool alarm) { m_Alarm = alarm; };
 	void	SetEditable(bool editable);
