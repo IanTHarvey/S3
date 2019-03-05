@@ -169,7 +169,7 @@ void CS3GDIScreenMain::S3DrawGDIAppUpdateScreen()
 		else
 		{
 			CString AppUpdateMsg;
-			AppUpdateMsg.Format(_T("Unpacking update file. Please wait %c\n"),
+			AppUpdateMsg.Format(_T("Unpacking and verifying update file. Please wait %c\n"),
 					spinner[spincnt++]);
 
 			if (spincnt == 4)

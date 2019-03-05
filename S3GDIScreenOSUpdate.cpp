@@ -43,7 +43,8 @@ const wchar_t SWUpdateDoUpdate[] = {
 
 // Layout 3
 const wchar_t SWUpdateUpdating[] = {
-	_T("Updating will take 1-2 minutes.\nDo not switch off mains power.\n")
+	_T("Updating will take approximately 40 seconds.\n")
+	_T("Do not switch off mains power.\n")
 	_T("Please wait until Sentinel 3 restarts fully.")};
 
 unsigned char m_Layout = 0;
@@ -160,7 +161,7 @@ void CS3GDIScreenMain::S3DrawGDISWUpdateScreen()
 		else
 		{
 			CString SWUpdateMsg;
-			SWUpdateMsg.Format(_T("Unpacking update file. Please wait %c\n"),
+			SWUpdateMsg.Format(_T("Unpacking and verifying update file. Please wait %c\n"),
 				spinner[spincnt++]);
 
 			if (spincnt == 4)
