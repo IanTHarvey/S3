@@ -86,10 +86,10 @@ extern const char		*TxTypeStrings[];
 #define S3_SCREEN_OFFSET_FILENAME	"S3ScreenOffset"
 #define S3_OSDATE_FILENAME			"S3OSDate"
 
-#define S3_UPDATE_WRAP_FILENAME		"\\Hard disk\\S3Update.upd"
+#define S3_UPDATE_WRAP_FILENAME		"S3Update.upd"
 #define S3_DEST_FILENAME			"\\Flashdisk\\S3CUpdate.upd"
 
-#define S3_IMG_UPDATE_WRAP_FILENAME	"\\Hard disk\\S3ImageUpdate.upd"
+#define S3_IMG_UPDATE_WRAP_FILENAME	"S3ImageUpdate.upd"
 #define S3_IMG_DEST_FILENAME		"\\Flashdisk\\S3TestOS.nb0"
 
 // All REVERSE byte order
