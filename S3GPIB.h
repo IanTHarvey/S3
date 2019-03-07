@@ -68,6 +68,7 @@ int CmdIMP();
 int CmdSELECTIP();
 int CmdSELECTTX();
 int CmdPPMCALRX();
+int CmdPPMGETCALRX();
 int CmdPPMCALTXRF();
 int CmdPPMCALTXOPT();
 int CmdPPMBATTID();

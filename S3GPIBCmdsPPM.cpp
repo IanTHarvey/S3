@@ -51,12 +51,85 @@ int CmdPPMCALRX()
 	if (*pEnd != '\0')
 		return S3_GPIB_INVALID_NUMBER;
 
-	S3SetFactoryMode(Rx, Tx, true);
+	if (S3RxGetType(Rx) == S3_Rx2)
+	{
+		if (Tx < 0 || Tx > 1)
+			return S3_GPIB_INVALID_ADDRESS;
+	}
+	else
+	{
+		if (Tx != 0)
+			return S3_GPIB_INVALID_ADDRESS;
 
-	if (S3I2CRxSetCalibration(Rx, Tx, val))
+		Tx = -1;
+	}
+
+	int err = S3SetFactoryMode(Rx, Tx, true);
+
+	if (!err)
+	{
+		if (S3I2CRxSetCalibration(Rx, Tx, val))
+			return S3_GPIB_CALIBRATION_FAILED;
+	}
+	else
+	{
 		return S3_GPIB_CALIBRATION_FAILED;
+	}
 
 	S3SetFactoryMode(Rx, -1, false);
+
+	return 0;
+}
+
+// ----------------------------------------------------------------------------
+// Must specify channel although only required for Rx2
+
+int CmdPPMGETCALRX()
+{
+	if (S3GetLocked())
+		return S3_GPIB_COMMAND_LOCKED;
+	
+	char	all, Rx, Tx, IP;
+
+	if (GPIBNArgs == 3)
+	{
+		int		res = GetAddress2NoArg(&all, &Rx, &Tx, &IP, false);
+			
+		if (res < 0)
+		{
+			if (res == -1 || res == -2)
+				return S3_GPIB_MALFORMED_ADDRESS;
+			if (res == -3)
+				return S3_GPIB_INVALID_ADDRESS;
+			if (res == -4)
+				return S3_GPIB_OUT_RANGE_ADDRESS;
+		}
+		else
+		{
+			if (res > 2000)
+				return res;
+
+			// We need the full Tx (RLL source) address
+			if (res != 2)
+				return S3_GPIB_INVALID_ADDRESS;
+		}
+	}
+	else return S3_GPIB_ERR_NUMBER_PARAS;
+
+	if (S3RxGetType(Rx) == S3_Rx2)
+	{
+		if (Tx < 0 || Tx > 1)
+			return S3_GPIB_INVALID_ADDRESS;
+	}
+	else
+	{
+		if (Tx != 0)
+			return S3_GPIB_INVALID_ADDRESS;
+	}
+
+	double Cal = (double)S3RxGetCalGain(Rx, Tx) / 100.0;
+
+	sprintf_s(GPIBRetBuf, S3_MAX_GPIB_RET_LEN, "I: %.2f", Cal); 
 
 	return 0;
 }

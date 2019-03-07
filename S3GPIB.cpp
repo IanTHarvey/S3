@@ -257,7 +257,8 @@ int S3ProcessGPIBCommand(const char *cmd)
 		else	err = S3_GPIB_CMD_UNRECOGNISED;
 		break;
 	case 'P':
-		if		(!STRCMP(Cmd,	"PPMCALRX"))		err = CmdPPMCALRX(); 
+		if		(!STRCMP(Cmd,	"PPMCALRX"))		err = CmdPPMCALRX();
+		else if	(!STRCMP(Cmd,	"PPMGETCALRX"))		err = CmdPPMGETCALRX(); 
 		else if (!STRCMP(Cmd,	"PPMCALTXRF"))		err = CmdPPMCALTXRF();
 		else if (!STRCMP(Cmd,	"PPMCALTXOPT"))		err = CmdPPMCALTXOPT();
 		else if (!STRCMP(Cmd,	"PPMBATTAUTH"))		err = CmdPPMBATTAUTH();
