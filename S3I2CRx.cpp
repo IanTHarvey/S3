@@ -133,11 +133,11 @@ int S3I2CRxGetStatus(char Rx)
 
 		// Module temperature (DegC / 256)
 		short ModTemp = S3RevByteShort(S3I2CRxReadBuf + 14);
-		S3RxSetTemp(Rx, (char)(ModTemp / 256));
+		S3RxSetTemp(Rx, ModTemp);
 	}
 	else
 	{
-		S3RxSetTemp(Rx, SCHAR_MIN);
+		S3RxSetTemp(Rx, S3_INVALID_TEMP);
 		S3RxSetVcc(Rx, 0);
 
 		S3RxSetAlarm(Rx, -1, S3_RX_INT_FAIL);
@@ -406,9 +406,9 @@ int S3I2CGetRxStartUp(char Rx)
 	}
 
 	// Module temperature limits - 
-	short hi = S3RevByteShort(S3I2CRxReadBuf + 0x1C) / 256;
-	short lo = S3RevByteShort(S3I2CRxReadBuf + 0x1E) / 256;
-	S3RxSetTempLimits(Rx, (char)hi, (char)lo);
+	short hi = S3RevByteShort(S3I2CRxReadBuf + 0x1C);
+	short lo = S3RevByteShort(S3I2CRxReadBuf + 0x1E);
+	S3RxSetTempLimits(Rx, hi, lo);
 
 	hi = S3RevByteShort(S3I2CRxReadBuf + 0x04);
 	lo = S3RevByteShort(S3I2CRxReadBuf + 0x06);
