@@ -536,6 +536,15 @@ int S3TxAlarmGetString(char Rx, char Tx, char *S3AlarmString, int len)
 			return 1;
 		}
 		
+		if (pTx->m_OptAlarms[1] & S3_TX_OPT_LEVEL)
+		{
+			sprintf_s(S3AlarmString, len, "W:RF level warning");
+			pTx->m_CurAlarmSrc = 2;
+			pTx->m_CurAlarm = S3_TX_OPT_LEVEL;
+
+			return 1;
+		}
+
 		for(char i = 1; i < 3; i++)
 		{
 			if (pTx->m_OptAlarms[i])
