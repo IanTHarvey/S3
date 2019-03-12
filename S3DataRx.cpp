@@ -57,8 +57,8 @@ int S3RxInit(pS3RxData node)
 	node->m_Vcc = 0;
 
 	// Read from Rx on detection
-	node->m_TempLo = S3_RX_UNDER_TEMP_LIM;
-	node->m_TempHi = S3_RX_OVER_TEMP_LIM;
+	node->m_TempLo = S3_RX_UNDER_TEMP_LIM * 256;
+	node->m_TempHi = S3_RX_OVER_TEMP_LIM * 256;
 
 	// Read from Rx on detection
 	node->m_RLLLo = S3_RLL_GOOD_LO_10MDBM;
@@ -69,7 +69,7 @@ int S3RxInit(pS3RxData node)
 	node->m_CalGain[1] = SHRT_MIN;
 	
 	node->m_Alarms = 0x00;
-	node->m_Temp = -128; // Unknown
+	node->m_Temp = S3_INVALID_TEMP; // Unknown
 
 	for(unsigned char i = 0; i < S3_RX_CTRL_ALARM_BYTES;  i++)
 		node->m_RxAlarms[i] = 0;
@@ -768,14 +768,14 @@ bool S3RxGetDetected(char Rx)
 
 // ---------------------------------------------------------------------------
 
-char S3RxGetTemp(char Rx)
+short S3RxGetTemp(char Rx)
 {
 	return S3Data->m_Rx[Rx].m_Temp;
 }
 
 // ---------------------------------------------------------------------------
 
-int	S3RxSetTempLimits(char Rx, char hi, char lo)
+int	S3RxSetTempLimits(char Rx, short hi, short lo)
 {
 	S3Data->m_Rx[Rx].m_TempHi = hi;
 	S3Data->m_Rx[Rx].m_TempLo = lo;
@@ -785,21 +785,21 @@ int	S3RxSetTempLimits(char Rx, char hi, char lo)
 
 // ---------------------------------------------------------------------------
 
-char S3RxGetTempLo(char Rx)
+short S3RxGetTempLo(char Rx)
 {
 	return S3Data->m_Rx[Rx].m_TempLo;
 }
 
 // ---------------------------------------------------------------------------
 
-char S3RxGetTempHi(char Rx)
+short S3RxGetTempHi(char Rx)
 {
 	return S3Data->m_Rx[Rx].m_TempHi;
 }
 
 // ---------------------------------------------------------------------------
 
-int S3RxSetTemp(char Rx, char t)
+int S3RxSetTemp(char Rx, short t)
 {
 	S3Data->m_Rx[Rx].m_Temp = t;
 

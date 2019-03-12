@@ -592,8 +592,8 @@ typedef struct sS3RxData
 									// 4-5:		RxCtrl	NYI
 	unsigned char	m_CurAlarm;
 
-	char			m_Temp;			// Current Rx temperature (DegC). -128: Unknown
-	char			m_TempHi, m_TempLo;	// Read from Rx
+	short			m_Temp;			// Current Rx temperature (DegC). -128: Unknown
+	short			m_TempHi, m_TempLo;	// Read from Rx
 
 	short			m_RLLHi, m_RLLLo;	// Read from Rx
 
@@ -1235,8 +1235,8 @@ int S3SetDummyTxSN();
 int S3RxInserted(		char Rx, unsigned char type);
 int S3RxRemoved(		char Rx);
 
-char	S3RxGetTemp(	char Rx);
-int 	S3RxSetTemp(	char Rx, char t);
+short	S3RxGetTemp(	char Rx);
+int 	S3RxSetTemp(	char Rx, short t);
 
 char	S3TxGetTemp(	char Rx, char Tx);
 int		S3TxSetTemp(	char Rx, char Tx, char t);
@@ -1566,12 +1566,12 @@ int S3SetSIPRegKey(DWORD data);
 // From I2C interfaces
 int	S3TxSetLaserLim(	char Rx, char Tx, short hi, short lo);
 
-int	S3RxSetTempLimits(	char Rx, char hi, char lo);
-char S3RxGetTempLo(		char Rx);
-char S3RxGetTempHi(		char Rx);
+int	S3RxSetTempLimits(	char Rx, short hi, short lo);
+short S3RxGetTempLo(	char Rx);
+short S3RxGetTempHi(	char Rx);
 
 int	S3RxSetRLLLimits(	char Rx, short hi, short lo);
-int S3RxSetTemp(		char Rx, char t);
+// int S3RxSetTemp(		char Rx, char t);
 
 // int S3RxSetCalGain(		char Rx, short cal);
 int S3RxSetCalGain(		char Rx, char Tx, short cal); // Tx for Rx2 only
