@@ -1019,19 +1019,19 @@ void DecodeRxModuleDetails(CString Response, int Rx)
             break;
         case RXTEMP:
             {
-                short tx = _ttoi(Line);
+                char tx = _ttoi(Line);
                 S3Data->m_Rx[Rx].m_Temp = tx;
             }
             break;
         case RXTEMPHI:
             {
-                short tx = _ttoi(Line);
+                char tx = _ttoi(Line);
                 S3Data->m_Rx[Rx].m_TempHi = tx;
             }
             break;
         case RXTEMPLO:
             {
-                short tx = _ttoi(Line);
+                char tx = _ttoi(Line);
                 S3Data->m_Rx[Rx].m_TempLo = tx;
             }
             break;

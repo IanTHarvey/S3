@@ -11,8 +11,6 @@
 
 #pragma once
 
-#include "S3Alarms.h"
-
 #define REM_SHUTDOWNREQ (WM_USER + 0x200)
 #define isS3GUIWatermarked false
 
@@ -271,6 +269,126 @@ typedef enum SigmaT				{TauNone, TauLo, TauMd, TauHi, TauUnknown, TauError};
 #define S3_IP_TEST_FAIL			0x01
 #define S3_IP_OVERDRIVE			0x02
 
+#define S3_ALARMS_ALL			0xFF
+#define S3_TX_ALARMS_ALL		0xFFFF
+
+#define S3_TX_OPT_ALARM_BYTES	3
+#define S3_TX_CTRL_ALARM_BYTES	2
+
+#define S3_RX_CTRL_ALARM_BYTES	3
+
+// Tx alarm bits TODO: Move battery alarms to below
+#define S3_TX_BATT_WARN			0x0001
+#define S3_TX_BATT_ALARM		0x0002
+#define S3_TX_COMM_FAIL			0x0004
+#define S3_TX_TEMP_COMM_FAIL	0x0008
+#define S3_TX_BATT_INVALID		0x0010
+#define S3_TX_RECOMP_REQ		0x0020
+#define S3_TX_LASER_HI			0x0040
+#define S3_TX_LASER_LO			0x0080
+#define S3_TX_SELF_TEST_FAIL	0x0100
+#define S3_TX_SELF_TEST_NOT_RUN	0x0200
+#define S3_TX_INIT_FAIL			0x0400
+#define S3_TX_OVER_TEMP			0x0800
+#define S3_TX_UNDER_TEMP		0x1000
+#define S3_TX_RLL_UNSTABLE		0x2000
+#define S3_TX_SELF_TEST_RETRY	0x4000
+#define S3_TX_NOT_ACTIVE		0x8000
+
+// Tx battery alarms
+#define S3_TX_BATT_COMM_FAIL	0x01
+#define S3_TX_BATT_1			0x02
+#define S3_TX_BATT_HOT			0x04
+#define S3_TX_BATT_COLD			0x08
+#define S3_TX_BATT_4			0x10
+#define S3_TX_BATT_5			0x20
+#define S3_TX_BATT_6			0x40
+#define S3_TX_BATT_7			0x80
+
+// Tx Opt alarms [0]
+#define S3_TX_OPT_MAJOR			0x01
+#define S3_TX_OPT_MINOR			0x02
+#define S3_TX_OPT_LASER			0x04
+#define S3_TX_OPT_AGC			0x08
+#define S3_TX_OPT_TEC			0x10
+#define S3_TX_OPT_0_5			0x20
+#define S3_TX_OPT_0_6			0x40
+#define S3_TX_OPT_0_7			0x80
+
+// Tx Opt alarms [1]
+#define S3_TX_OPT_VCC			0x01
+#define S3_TX_OPT_BIAS			0x02
+#define S3_TX_OPT_POWER			0x04
+#define S3_TX_OPT_FEED_I		0x08 // Not used
+#define S3_TX_OPT_PEAK			0x10
+#define S3_TX_OPT_TEMP			0x20
+#define S3_TX_OPT_LEVEL			0x40
+#define S3_TX_OPT_GAIN			0x80
+
+// Tx Opt alarms [2]
+#define S3_TX_OPT_TEC_I			0x01
+#define S3_TX_OPT_MODULE_TEMP	0x02
+#define S3_TX_OPT_2_2			0x04
+#define S3_TX_OPT_2_3			0x08
+#define S3_TX_OPT_2_4			0x10
+#define S3_TX_OPT_2_5			0x20
+#define S3_TX_OPT_2_6			0x40
+#define S3_TX_OPT_2_7			0x80
+
+// Tx Ctrl alarms
+#define S3_TX_CTRL_MAJOR		0x80
+#define S3_TX_CTRL_MINOR		0x40
+
+// Rx alarm bits
+#define S3_RX_INT_FAIL			0x01	// Internal comms fail
+#define S3_RX_OVER_TEMP			0x02
+#define S3_RX_UNDER_TEMP		0x04
+#define S3_RX_OVER_VOLT			0x08
+#define S3_RX_UNDER_VOLT		0x10
+#define S3_RX_INIT_FAIL			0x20
+#define S3_RX_06				0x40
+#define S3_RX_COMM_FAIL			0x80	// External (serial) comms fail
+
+// Rx per input (Tx) alarm bits
+#define S3_RX_RLL_LOW			0x01
+#define S3_RX_RLL_HIGH			0x02
+#define S3_RX_TX_02				0x04
+#define S3_RX_TX_03				0x08
+#define S3_RX_TX_04				0x10
+#define S3_RX_TX_05				0x20
+#define S3_RX_TX_06				0x40
+#define S3_RX_TX_07				0x80
+
+// Rx Ctrl alarms [3] 0xF8-A
+#define S3_RX_CTRL_00			0x01
+#define S3_RX_CTRL_01			0x02
+#define S3_RX_CTRL_02			0x04
+#define S3_RX_CTRL_03			0x08
+#define S3_RX_CTRL_04			0x10
+#define S3_RX_CTRL_05			0x20
+#define S3_RX_CTRL_MINOR		0x40
+#define S3_RX_CTRL_MAJOR		0x80
+
+#define S3_RX_CTRL_VCC_OOR		0x01
+#define S3_RX_CTRL_TX1			0x02
+#define S3_RX_CTRL_TX2			0x04
+#define S3_RX_CTRL_TX3			0x08
+#define S3_RX_CTRL_TX4			0x10
+#define S3_RX_CTRL_TX5			0x20
+#define S3_RX_CTRL_TX6			0x40
+#define S3_RX_CTRL_FAN_FAIL		0x80
+
+#define S3_RX_CTRL_00			0x01
+#define S3_RX_CTRL_RX1			0x02
+#define S3_RX_CTRL_RX2			0x04
+#define S3_RX_CTRL_RX3			0x08
+#define S3_RX_CTRL_RX4			0x10
+#define S3_RX_CTRL_RX5			0x20
+#define S3_RX_CTRL_RX6			0x40
+#define S3_RX_CTRL_OPT_SW		0x80
+
+
+
 // ----------------------------------------------------------------------------
 // Parameter to be edited (see S3GDIScreenTx.cpp)
 #define	S3_GAIN					80	// dB. Upper: ?; Lower: ?
@@ -383,8 +501,7 @@ typedef enum SigmaT				{TauNone, TauLo, TauMd, TauHi, TauUnknown, TauError};
 #define	S3_RX_UNDER_VOLT_LIM	11000	// mV
 #define	S3_RX_OVER_VOLT_LIM		13000	// mV
 
-#define S3_INVALID_TEMP			SHRT_MIN
-#define S3_INVALID_TEMP_CHANGE	20
+#define S3_INVALID_TEMP			SCHAR_MAX
 
 #define S3_RLL_MAX_DBM			15.0	// Display upper
 #define S3_RLL_MIN_DBM			6.0		// Display lower
@@ -588,10 +705,6 @@ typedef struct sS3RxData
 	unsigned char	m_RxAlarms[S3_RX_CTRL_ALARM_BYTES];
 	unsigned char	m_TxAlarms[S3_MAX_TXS]; // Alarms generated on a per-Tx level
 
-#if defined(S3_RX_SUPRESS_VCC_ALARM)
-	unsigned char	m_VccAlarmCnt;
-#endif // S3_RX_SUPRESS_VCC
-
 	char			m_CurAlarmSrc;	// -1:		No alarm
 									// 0:		S3
 									// > 100:	Tx - 100
@@ -599,8 +712,8 @@ typedef struct sS3RxData
 									// 4-5:		RxCtrl	NYI
 	unsigned char	m_CurAlarm;
 
-	short			m_Temp;			// Current Rx temperature (DegC). -128: Unknown
-	short			m_TempHi, m_TempLo;	// Read from Rx
+	char			m_Temp;			// Current Rx temperature (DegC). -128: Unknown
+	char			m_TempHi, m_TempLo;	// Read from Rx
 
 	short			m_RLLHi, m_RLLLo;	// Read from Rx
 
@@ -1242,8 +1355,8 @@ int S3SetDummyTxSN();
 int S3RxInserted(		char Rx, unsigned char type);
 int S3RxRemoved(		char Rx);
 
-short	S3RxGetTemp(	char Rx);
-int 	S3RxSetTemp(	char Rx, short t);
+char	S3RxGetTemp(	char Rx);
+int 	S3RxSetTemp(	char Rx, char t);
 
 char	S3TxGetTemp(	char Rx, char Tx);
 int		S3TxSetTemp(	char Rx, char Tx, char t);
@@ -1573,12 +1686,12 @@ int S3SetSIPRegKey(DWORD data);
 // From I2C interfaces
 int	S3TxSetLaserLim(	char Rx, char Tx, short hi, short lo);
 
-int	S3RxSetTempLimits(	char Rx, short hi, short lo);
-short S3RxGetTempLo(	char Rx);
-short S3RxGetTempHi(	char Rx);
+int	S3RxSetTempLimits(	char Rx, char hi, char lo);
+char S3RxGetTempLo(		char Rx);
+char S3RxGetTempHi(		char Rx);
 
 int	S3RxSetRLLLimits(	char Rx, short hi, short lo);
-// int S3RxSetTemp(		char Rx, char t);
+int S3RxSetTemp(		char Rx, char t);
 
 // int S3RxSetCalGain(		char Rx, short cal);
 int S3RxSetCalGain(		char Rx, char Tx, short cal); // Tx for Rx2 only
