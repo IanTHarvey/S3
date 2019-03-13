@@ -197,12 +197,12 @@ int S3EventLogInit(const char *filename)
 	gS3EventLog.Earliest = gS3EventLog.NextInsert = 0;
 	gS3EventLog.Count = 0;
 
+	S3EventLogSysInfo();
+
 	if (SysStart)
 		S3EventLogAdd("Log opened: System start", 1, -1, -1, -1);
 	else
 		S3EventLogAdd("Log opened: New log file", 1, -1, -1, -1);
-
-	S3EventLogSysInfo();
 
 	return 0;
 }
