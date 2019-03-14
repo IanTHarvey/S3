@@ -110,7 +110,7 @@ UINT AttemptConnectToSentinel3(LPVOID pParam)
 		{
 			versionsw = Response.Mid(versionidx + 6, 8);
 
-			if (versionsw == CString(S3_SYS_SW))
+			if (versionsw == CString(S3_SYS_SW).Left(8))
 				Incompatible = false;
 		}
     }
@@ -148,7 +148,7 @@ UINT AttemptConnectToSentinel3(LPVOID pParam)
 			ErrorString += " vs ";
 			ErrorString += versionsw;
 			ErrorString += "). It is recommended to install the latest Remote Agent ";
-			ErrorString += "and Sentinel 3 updates as incompatibilities may cause undesired behaviour.";
+			ErrorString += "and Sentinel 3 updates as incompatibilities may cause undefined behaviour.";
             AfxMessageBox(ErrorString);
 		}
     }
