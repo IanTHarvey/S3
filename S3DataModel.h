@@ -11,6 +11,8 @@
 
 #pragma once
 
+#include "S3Alarms.h"
+
 #define REM_SHUTDOWNREQ (WM_USER + 0x200)
 #define isS3GUIWatermarked false
 
@@ -381,7 +383,8 @@ typedef enum SigmaT				{TauNone, TauLo, TauMd, TauHi, TauUnknown, TauError};
 #define	S3_RX_UNDER_VOLT_LIM	11000	// mV
 #define	S3_RX_OVER_VOLT_LIM		13000	// mV
 
-#define S3_INVALID_TEMP			SCHAR_MAX
+#define S3_INVALID_TEMP			SHRT_MIN
+#define S3_INVALID_TEMP_CHANGE	20
 
 #define S3_RLL_MAX_DBM			15.0	// Display upper
 #define S3_RLL_MIN_DBM			6.0		// Display lower
@@ -584,6 +587,10 @@ typedef struct sS3RxData
 	unsigned char	m_Alarms;
 	unsigned char	m_RxAlarms[S3_RX_CTRL_ALARM_BYTES];
 	unsigned char	m_TxAlarms[S3_MAX_TXS]; // Alarms generated on a per-Tx level
+
+#if defined(S3_RX_SUPRESS_VCC_ALARM)
+	unsigned char	m_VccAlarmCnt;
+#endif // S3_RX_SUPRESS_VCC
 
 	char			m_CurAlarmSrc;	// -1:		No alarm
 									// 0:		S3
@@ -1181,7 +1188,7 @@ int			S3SetEventLogName(	const char *filename);
 
 void		S3GetTimeStr(char *str);
 
-int			S3EventLogAdd(const char *msg, char severity, char Rx, char Tx, char IP);
+int			S3EventLogAdd(const char *msg, char severity, char Rx, char Tx, char IP, const char *suppl = NULL);
 int			S3EventAddNotifyFn(void (*fn)(void));
 int			S3EventOutstanding(void);
 int			S3EventLogClose(void);
