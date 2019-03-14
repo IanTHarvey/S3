@@ -263,7 +263,8 @@ int	S3EventLogSysInfo(void)
 
 // ----------------------------------------------------------------------------
 
-int S3EventLogAdd(const char *msg, char severity, char Rx, char Tx, char IP)
+int S3EventLogAdd(const char *msg, char severity, char Rx, char Tx, char IP,
+				  const char *suppl)
 {
 	FILE	*fid = NULL;
 
@@ -297,12 +298,15 @@ int S3EventLogAdd(const char *msg, char severity, char Rx, char Tx, char IP)
 	{
 		// Add any real address info
 		if (IP != -1)
-			fprintf(fid, "Rx: %d; Tx: %d; IP: %d; ", Rx + 1, Tx + 1, IP + 1);
+			fprintf(fid, "Rx: %d; Tx: %d; IP: %d.", Rx + 1, Tx + 1, IP + 1);
 		else if (Tx != -1)
-			fprintf(fid, "Rx: %d; Tx: %d;", Rx + 1, Tx + 1);
+			fprintf(fid, "Rx: %d; Tx: %d.", Rx + 1, Tx + 1);
 		else if (Rx != -1)
-			fprintf(fid, "Rx: %d;", Rx + 1);
+			fprintf(fid, "Rx: %d.", Rx + 1);
 	}
+
+	if (suppl != NULL)
+		fprintf(fid, " %s.", suppl);
 
 	fprintf(fid, "\n");
 
