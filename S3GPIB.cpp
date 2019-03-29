@@ -265,6 +265,7 @@ int S3ProcessGPIBCommand(const char *cmd)
 		else if (!STRCMP(Cmd,	"PPMBATTID"))		err = CmdPPMBATTID();
 		else if (!STRCMP(Cmd,	"PPMTXID"))			err = CmdPPMTXID();
 		else if (!STRCMP(Cmd,	"PPMRXID"))			err = CmdPPMRXID();
+		else if (!STRCMP(Cmd,	"PPMRXOPTFW"))		err = CmdPPMRXOPTFW();
 		else if (!STRCMP(Cmd,	"PPMSYSID"))		err = CmdPPMSYSID();
 		else if	(!STRCMP(Cmd,	"PPMTERMINATOR"))	err = CmdPPMTERMINATOR();
 		else	err = S3_GPIB_CMD_UNRECOGNISED;

@@ -570,6 +570,7 @@ typedef struct sS3RxData
 	char			m_FWDate[S3_MAX_FW_DATE_LEN];
 	char			m_HW[S3_MAX_SW_VER_LEN];
 	char			m_ModelName[S3_MAX_MODEL_ID_LEN]; // Redundant?
+	char			m_OptFW[S3_MAX_FW_DATE_LEN];
 	
 	// These could logically be in the Tx struct, but 'physically' belong here
 	short			m_RLL[S3_MAX_TXS];		// 10mdBm
@@ -1292,6 +1293,7 @@ int			S3RxSetSN(		char Rx, const char *s);
 int			S3RxSetHW(		char Rx, const char *s);
 int			S3RxSetFW(		char Rx, const char *s);
 int			S3RxSetFWDate(	char Rx, const char *s);
+int			S3RxSetOptFW(	char Rx, const char *s);
 
 int			S3RxSetFmax(char Rx, const char *s);
 S3Fmax		S3RxGetFmax(char Rx);
@@ -1304,6 +1306,7 @@ const char *S3RxGetSN(		char Rx);
 const char *S3RxGetHW(		char Rx);
 const char *S3RxGetFW(		char Rx);
 const char *S3RxGetFWDate(	char Rx);
+const char *S3RxGetOptFW(	char Rx);
 
 int			S3TxSetPN(		char Rx, char Tx, const char *s);
 int			S3TxSetSN(		char Rx, char Tx, const char *s);

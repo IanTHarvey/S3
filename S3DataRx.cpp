@@ -39,6 +39,7 @@ int S3RxInit(pS3RxData node)
 	strcpy_s(node->m_HW, S3_MAX_SW_VER_LEN, "Unknown");
 	strcpy_s(node->m_FW, S3_MAX_SW_VER_LEN, "Unknown");
 	strcpy_s(node->m_ModelName, S3_MAX_MODEL_ID_LEN, RxTypeStrings[S3_RxEmpty]);
+	strcpy_s(node->m_OptFW, S3_MAX_SW_VER_LEN, "Unknown");
 
 	// Enable all as don't know type here
 	for (unsigned char i = 0; i < S3_MAX_TXS; i++)
@@ -919,4 +920,21 @@ char S3RxGetExtraGainCap(char Rx)
 	return S3Data->m_Rx[Rx].m_ExtraGainCap;
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+
+int S3RxSetOptFW(char Rx, const char *FWStr)
+{
+	strcpy_s(S3Data->m_Rx[Rx].m_OptFW, S3_MAX_FW_DATE_LEN, FWStr);
+
+	return 0;
+}
+
+// -----------------------------------------------------------------------------
+
+const char *S3RxGetOptFW(char Rx)
+{
+	return S3Data->m_Rx[Rx].m_OptFW;
+}
+
+// -----------------------------------------------------------------------------
+

@@ -75,6 +75,7 @@ int CmdPPMBATTID();
 int CmdPPMBATTAUTH();
 int CmdPPMTXID();
 int CmdPPMRXID();
+int CmdPPMRXOPTFW();
 int CmdPPMSYSID();
 int CmdSYSRESET();
 int CmdSYSSETTIME();

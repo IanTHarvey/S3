@@ -439,3 +439,43 @@ int CmdPPMTERMINATOR()
 
 // ----------------------------------------------------------------------------
 
+int CmdPPMRXOPTFW()
+{
+	if (S3GetLocked())
+		return S3_GPIB_COMMAND_LOCKED;
+	
+	char	all, Rx, Tx, IP;
+
+	if (GPIBNArgs == 2)
+	{
+		int		res = GetAddress2NoArg(&all, &Rx, &Tx, &IP, false);
+			
+		if (res < 0)
+		{
+			if (res == -1 || res == -2)
+				return S3_GPIB_MALFORMED_ADDRESS;
+			if (res == -3)
+				return S3_GPIB_INVALID_ADDRESS;
+			if (res == -4)
+				return S3_GPIB_OUT_RANGE_ADDRESS;
+		}
+		else
+		{
+			if (res > 2000)
+				return res;
+
+			if (res != 1)
+				return S3_GPIB_INVALID_ADDRESS;
+		}
+	}
+	else return S3_GPIB_ERR_NUMBER_PARAS;
+
+	if (S3RxExistQ(Rx))
+		sprintf_s(GPIBRetBuf, S3_MAX_GPIB_RET_LEN, "I: %s", S3RxGetOptFW(Rx));
+	else
+		return S3_GPIB_RX_NOT_EXIST;
+
+	return 0;
+}
+
+// -----------------------------------------------------------------------------

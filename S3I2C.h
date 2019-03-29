@@ -87,6 +87,7 @@ class CS3ControllerDlg;
 
 // Rx-opt registers
 #define S3I2C_RX_OPT_IDENT		0x00
+#define S3I2C_RX_OPT_FW			0x0F	// 10B version date concatenated
 #define S3I2C_RX_BOARD_NO		0x0A
 #define S3I2C_RX_OPT_THRESH		0x70	// 48B
 #define S3I2C_RX_OPT_CONFIG		0xA0	// 48B

@@ -389,6 +389,11 @@ int S3I2CGetRxStartUp(char Rx)
 
 	S3I2CSetUpOptAddr(Rx, 0);
 
+	wbuf = S3I2C_RX_OPT_FW;
+	ok = I2C_WriteRead(S3I2CCurRxOptAddr, &wbuf, 1, S3I2CRxReadBuf, 10);
+	S3I2CRxReadBuf[10] = '\0';
+	S3RxSetOptFW(Rx, (char *)S3I2CRxReadBuf);
+
 	wbuf = S3I2C_RX_BOARD_NO;
 	ok = I2C_WriteRead(S3I2CCurRxOptAddr, &wbuf, 1, S3I2CRxReadBuf, 5);
 	S3I2CRxReadBuf[5] = '\0';
