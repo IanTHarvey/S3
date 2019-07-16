@@ -34,10 +34,11 @@
 //			Improved handling of multiple test-tone switching remote commands
 //			Improved robustness of image and application update processes
 //			Minor bug fixes and enhancements
+// 1.05.002 xx/03/19 CRnnnn
 //
 
 // 'c': suffix for candidate releases
-#define S3_SYS_SW			"1.05.001"
+#define S3_SYS_SW			"1.05.002c"
 
 #define S3_SYS_MODEL		"Sentinel 3"
 
